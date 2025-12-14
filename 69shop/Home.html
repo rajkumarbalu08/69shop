@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>69Shop.in - India's Premium Marketplace</title>
+    <meta name="description" content="69Shop.in - India's premium marketplace connecting buyers and sellers. Shop quality products or start selling your services today.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== CSS RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            /* Updated Color Palette */
+            --primary-black: #1A1A1A;
+            --secondary-black: #2D2D2D;
+            --dark-grey: #404040;
+            --medium-grey: #666666;
+            --light-grey: #F8F8F8;
+            --white: #FFFFFF;
+            
+            /* Blue Accent Colors */
+            --blue-primary: #0066ff;
+            --blue-light: #E6F2FF;
+            --blue-dark: #0047B3;
+            --accent-blue: #009cf7;
+            
+            /* Text Colors */
+            --text-dark: #1A1A1A;
+            --text-medium: #404040;
+            --text-light: #666666;
+            --text-white: #FFFFFF;
+            --text-blue: #004499;
+            
+            /* Gradients */
+            --gradient-premium: linear-gradient(135deg, var(--blue-primary) 0%, var(--accent-blue) 100%);
+            --gradient-dark: linear-gradient(135deg, #000000 0%, #2D2D2D 100%);
+            --gradient-light: linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%);
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 8px rgba(26, 26, 26, 0.05);
+            --shadow-md: 0 4px 16px rgba(26, 26, 26, 0.08);
+            --shadow-lg: 0 8px 32px rgba(26, 26, 26, 0.12);
+            --shadow-xl: 0 12px 48px rgba(26, 26, 26, 0.15);
+            
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            /* Transitions */
+            --transition-fast: all 0.2s ease;
+            --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background-color: var(--white);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .main-content {
+            flex: 1;
+            width: 100%;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        h3 {
+            font-size: clamp(1.25rem, 3vw, 1.5rem);
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--gradient-premium);
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--primary-black);
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            transition: var(--transition-normal);
+        }
+
+        .header.scrolled {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text .site-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--blue-primary);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .logo-text{
+            font-size: 0.7rem;
+            color: var(--text-light);
+            letter-spacing: 0.5px;
+        }
+
+        .tagline{
+            font-size: 0.7rem;
+            color: var(--text-white);
+            letter-spacing: 0.5px;
+        }
+
+        /* Navigation */
+        .main-nav {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 24px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links a {
+            color: var(--text-white);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 8px 0;
+            position: relative;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-links a:hover {
+            color: var(--blue-primary);
+        }
+
+        .nav-links a.active {
+            color: var(--blue-primary);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gradient-premium);
+        }
+
+        /* Auth Buttons */
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 24px;
+        }
+
+        .btn-login {
+            background: transparent;
+            color: var(--text-white);
+            border: none;
+            padding: 8px 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition-fast);
+            font-size: 0.9rem;
+        }
+
+        .btn-login:hover {
+            color: var(--blue-primary);
+        }
+
+        .btn-primary {
+            background: var(--gradient-premium);
+            color: var(--white);
+            border: none;
+            padding: 10px 24px;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--blue-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            z-index: 1002;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero-section {
+            padding: 140px 0 80px;
+            position: relative;
+            overflow: hidden;
+            min-height: auto;
+            display: flex;
+            align-items: center;
+            background: var(--gradient-light);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        @media (min-width: 992px) {
+            .hero-content {
+                grid-template-columns: 1fr 1fr;
+                gap: 60px;
+            }
+        }
+
+        .hero-text {
+            text-align: center;
+        }
+
+        @media (min-width: 992px) {
+            .hero-text {
+                text-align: left;
+            }
+        }
+
+        .hero-text h1 {
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            color: var(--text-blue);
+        }
+
+        @media (min-width: 768px) {
+            .hero-text h1 {
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        .hero-text p {
+            font-size: clamp(1rem, 3vw, 1.25rem);
+            color: var(--text-medium);
+            margin-bottom: 2rem;
+            max-width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .hero-text p {
+                margin-bottom: 2.5rem;
+                max-width: 500px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .hero-text p {
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        @media (min-width: 576px) {
+            .hero-buttons {
+                flex-direction: row;
+                gap: 16px;
+            }
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--blue-primary);
+            color: var(--blue-primary);
+            padding: 10px 24px;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--gradient-premium);
+            color: var(--white);
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+
+        .hero-illustration {
+            display: none;
+            position: relative;
+        }
+
+        @media (min-width: 992px) {
+            .hero-illustration {
+                display: block;
+                padding: 20px;
+            }
+        }
+
+        .hero-illustration::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            backdrop-filter: blur(10px);
+            z-index: -1;
+        }
+
+        .hero-illustration img {
+            width: 100%;
+            height: auto;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* ===== FEATURES SECTION ===== */
+        .features-section {
+            padding: 60px 0;
+        }
+
+        @media (min-width: 768px) {
+            .features-section {
+                padding: 80px 0;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .features-section {
+                padding: 100px 0;
+            }
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        @media (min-width: 768px) {
+            .features-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 30px;
+            }
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 30px 20px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition-normal);
+            border: 1px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--blue-primary);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--blue-light);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.5rem;
+            color: var(--blue-primary);
+        }
+
+        .feature-card h3 {
+            margin-bottom: 12px;
+            color: var(--text-dark);
+        }
+
+        .feature-card p {
+            color: var(--text-medium);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* ===== HOW IT WORKS SECTION ===== */
+        .how-it-works {
+            padding: 60px 0;
+            background: var(--light-grey);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .how-it-works {
+                padding: 80px 0;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .how-it-works {
+                padding: 100px 0;
+            }
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-top: 40px;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .steps {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 30px;
+            }
+        }
+
+        .step {
+            text-align: center;
+            padding: 30px 20px;
+            position: relative;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-premium);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 auto 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step h3 {
+            margin-bottom: 12px;
+            color: var(--text-dark);
+        }
+
+        .step p {
+            color: var(--text-medium);
+            font-size: 0.95rem;
+        }
+
+        /* ===== GALLERY SECTION ===== */
+        .gallery-section {
+            padding: 60px 0;
+        }
+
+        @media (min-width: 768px) {
+            .gallery-section {
+                padding: 80px 0;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .gallery-section {
+                padding: 100px 0;
+            }
+        }
+
+        .gallery-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        @media (min-width: 992px) {
+            .gallery-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 60px;
+            }
+        }
+
+        .gallery-column {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .gallery-header h3 {
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            color: var(--blue-primary);
+            margin-bottom: 8px;
+        }
+
+        .gallery-header p {
+            color: var(--text-medium);
+            font-size: 0.95rem;
+        }
+
+        /* Product Gallery */
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 576px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition-normal);
+            border: 1px solid transparent;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--blue-primary);
+        }
+
+        .product-image {
+            height: 180px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .product-image {
+                height: 200px;
+            }
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .product-content {
+            padding: 20px;
+        }
+
+        .product-badge {
+            display: inline-block;
+            background: var(--gradient-premium);
+            color: var(--white);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .product-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--blue-primary);
+            margin-bottom: 12px;
+        }
+
+        .product-seller {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .product-seller i {
+            color: var(--blue-primary);
+        }
+
+        /* Service Provider Gallery */
+        .provider-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 576px) {
+            .provider-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
+        .provider-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition-normal);
+            border: 1px solid transparent;
+            text-align: center;
+        }
+
+        .provider-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--blue-primary);
+        }
+
+        .provider-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--blue-primary);
+            margin: 0 auto 16px;
+        }
+
+        @media (min-width: 768px) {
+            .provider-avatar {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+        .provider-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .provider-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-dark);
+        }
+
+        .provider-category {
+            color: var(--blue-primary);
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .provider-rating {
+            color: var(--blue-primary);
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .provider-location {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        /* ===== TESTIMONIALS SECTION ===== */
+        .testimonials-section {
+            padding: 60px 0;
+            background: var(--light-grey);
+        }
+
+        @media (min-width: 768px) {
+            .testimonials-section {
+                padding: 80px 0;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .testimonials-section {
+                padding: 100px 0;
+            }
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        @media (min-width: 768px) {
+            .testimonial-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 30px;
+            }
+        }
+
+        .testimonial-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--light-grey);
+            position: relative;
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 3rem;
+            color: rgba(0, 102, 255, 0.1);
+            font-family: serif;
+            line-height: 1;
+        }
+
+        .testimonial-content {
+            color: var(--text-medium);
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-style: italic;
+            position: relative;
+            z-index: 1;
+            font-size: 0.95rem;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--blue-primary);
+            flex-shrink: 0;
+        }
+
+        .author-info h4 {
+            margin-bottom: 2px;
+            color: var(--text-dark);
+            font-size: 1rem;
+        }
+
+        .author-info p {
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .testimonial-rating {
+            color: var(--blue-primary);
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        /* ===== CTA SECTION ===== */
+        .cta-section {
+            padding: 60px 0;
+            background: var(--gradient-premium);
+            color: var(--white);
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .cta-section {
+                padding: 80px 0;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .cta-section {
+                padding: 100px 0;
+            }
+        }
+
+        .cta-content h2 {
+            color: var(--white);
+            margin-bottom: 20px;
+        }
+
+        .cta-content p {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        @media (min-width: 576px) {
+            .cta-buttons {
+                flex-direction: row;
+                gap: 16px;
+            }
+        }
+
+        .btn-dark {
+            background: var(--primary-black);
+            color: var(--white);
+            border: none;
+            padding: 12px 32px;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-dark:hover {
+            background: var(--secondary-black);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--primary-black);
+            color: var(--text-white);
+            padding: 50px 0 24px;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        @media (min-width: 768px) {
+            .footer {
+                padding: 60px 0 24px;
+            }
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 768px) {
+            .footer-content {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 40px;
+            }
+        }
+
+        .footer-logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            color: var(--blue-primary);
+            margin-bottom: 20px;
+        }
+
+        .footer-description {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 24px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .footer-heading {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--text-white);
+            font-weight: 600;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition-fast);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-links a:hover {
+            color: var(--blue-primary);
+            padding-left: 4px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text-white);
+            text-decoration: none;
+            transition: var(--transition-normal);
+            font-size: 1rem;
+        }
+
+        .social-links a:hover {
+            background: var(--gradient-premium);
+            color: var(--white);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+        }
+
+        /* ===== AD BANNER ===== */
+        .ad-banner {
+            width: 100%;
+            background: var(--gradient-premium);
+            color: var(--white);
+            padding: 10px 0;
+            overflow: hidden;
+            position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ad-banner-content {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ad-banner-track {
+            display: flex;
+            width: max-content;
+            animation: scrollBanner 40s linear infinite;
+            padding-left: 100%;
+        }
+
+        .ad-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px;
+            white-space: nowrap;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ad-badge {
+            background: var(--white);
+            color: var(--blue-primary);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .ad-text {
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        @keyframes scrollBanner {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Pause animation on hover */
+        .ad-banner:hover .ad-banner-track {
+            animation-play-state: paused;
+        }
+
+        /* ===== BACKGROUND SHAPES FOR HOW IT WORKS SECTION ===== */
+        .background-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .background-shapes {
+                display: block;
+            }
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            filter: blur(40px);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .shape-1 {
+            width: 200px;
+            height: 200px;
+            background: var(--blue-primary);
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 150px;
+            height: 150px;
+            background: var(--accent-blue);
+            bottom: 20%;
+            right: 10%;
+            animation-delay: 5s;
+        }
+
+        .shape-3 {
+            width: 120px;
+            height: 120px;
+            background: var(--blue-light);
+            top: 40%;
+            right: 20%;
+            animation-delay: 10s;
+        }
+
+        .shape-4 {
+            width: 180px;
+            height: 180px;
+            background: var(--blue-primary);
+            bottom: 10%;
+            left: 15%;
+            animation-delay: 15s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-20px) rotate(120deg);
+            }
+            66% {
+                transform: translateY(20px) rotate(240deg);
+            }
+        }
+
+        /* Ensure steps are above shapes */
+        .steps, .step {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+
+        @media (max-width: 991px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .main-nav {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 80px 24px 40px;
+                box-shadow: var(--shadow-xl);
+                z-index: 1001;
+                transition: var(--transition-normal);
+                justify-content: flex-start;
+                align-items: flex-start;
+                gap: 40px;
+            }
+
+            .main-nav.active {
+                left: 0;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 16px;
+                width: 100%;
+            }
+
+            .nav-links a {
+                color: var(--text-dark);
+                font-size: 1rem;
+            }
+
+            .auth-buttons {
+                margin-left: 0;
+                flex-direction: column;
+                width: 100%;
+                gap: 16px;
+            }
+
+            .btn-login, .btn-primary {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+
+            .btn-login {
+                color: var(--text-dark);
+            }
+
+            .menu-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(4px);
+                z-index: 1000;
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition-normal);
+            }
+
+            .menu-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            
+            .hero-section {
+                padding: 120px 0 60px;
+            }
+            
+            .btn-primary, .btn-dark, .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+
+            .features-grid, .steps, .testimonial-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card, .testimonial-card {
+                padding: 25px 20px;
+            }
+
+            .footer-content {
+                text-align: center;
+            }
+
+            .footer-links a {
+                justify-content: center;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+            
+            .product-grid, .provider-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .mt-4 { margin-top: 2rem; }
+        
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .mb-4 { margin-bottom: 2rem; }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <div class="logo-icon">
+                        <img src="/Logo/69shopc.png" alt="69Shop.in Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                    </div>
+                    <div class="logo-text">
+                        <div class="site-name">69SHOP.IN</div>
+                        <div class="tagline">Premium Marketplace</div>
+                    </div>
+                </a>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <!-- Desktop Navigation -->
+                <nav class="main-nav" id="mainNav">
+                    <ul class="nav-links">
+                        <li><a href="#" class="active"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="/shop-login.html"><i class="fas fa-store"></i> Shop</a></li>
+                        <li><a href="#sell"><i class="fas fa-briefcase"></i> Sell</a></li>
+                        <li><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
+                        <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                    </ul>
+                    
+                    <div class="auth-buttons">
+                        <button class="btn-login" onclick="showLogin()">
+                            <i class="fas fa-user"></i>
+                            Login
+                        </button>
+                        <a href="/shop-login.html" class="btn-primary">
+                            <i class="fas fa-shopping-cart"></i>
+                            Start Shopping
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="menu-overlay" id="menuOverlay"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text animate-in">
+                        <h1>India's Premium Marketplace</h1>
+                        <p>Discover quality products from trusted sellers or start your own business journey with 69Shop.in - where dreams meet opportunities.</p>
+                        <div class="hero-buttons">
+                            <a href="/shop-login.html" class="btn-primary">
+                                <i class="fas fa-shopping-cart"></i>
+                                Shop Now
+                            </a>
+                            <a href="#sell" class="btn-secondary">
+                                <i class="fas fa-briefcase"></i>
+                                Start Selling
+                            </a>
+                        </div>
+                    </div>
+                    <div class="hero-illustration animate-in" style="animation-delay: 0.2s">
+                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Marketplace Illustration">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="ad-banner">
+            <div class="ad-banner-content">
+                <div class="ad-banner-track">
+                    <div class="ad-item">
+                        <span class="ad-badge">TOP SELLER</span>
+                        <span class="ad-text">Priya Sharma - Top service provider through her service. Book now!</span>
+                    </div>
+                    <div class="ad-item">
+                        <span class="ad-badge">BESTSELLER</span>
+                        <span class="ad-text">Rajesh Mehta - 500+ Home services completed with 4.8⭐ rating</span>
+                    </div>
+                    <div class="ad-item">
+                        <span class="ad-badge">NEW</span>
+                        <span class="ad-text">Anjali Verma - Fashion consulting services now available!</span>
+                    </div>
+                    <div class="ad-item">
+                        <span class="ad-badge">TRENDING</span>
+                        <span class="ad-text">Suresh Kumar - Electronics repair with 24-hour service guarantee</span>
+                    </div>
+                    <!-- Duplicate items for seamless loop -->
+                    <div class="ad-item">
+                        <span class="ad-badge">TOP SELLER</span>
+                        <span class="ad-text">Priya Sharma - Top service provider through her Saree pre-pleating service. Book now!</span>
+                    </div>
+                    <div class="ad-item">
+                        <span class="ad-badge">BESTSELLER</span>
+                        <span class="ad-text">Rajesh Mehta - 500+ Home services completed with 4.8⭐ rating</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <h2 class="section-title">Why Choose 69Shop.in?</h2>
+                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
+                    We provide the perfect platform for both buyers and sellers with our premium marketplace ecosystem
+                </p>
+                
+                <div class="features-grid">
+                    <div class="feature-card animate-in">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Trust & Safety</h3>
+                        <p>Verified sellers, secure transactions, and buyer protection for peace of mind in every purchase.</p>
+                    </div>
+                    
+                    <div class="feature-card animate-in" style="animation-delay: 0.1s">
+                        <div class="feature-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <h3>Fast Delivery</h3>
+                        <p>Nationwide shipping with reliable partners and real-time tracking for all your orders.</p>
+                    </div>
+                    
+                    <div class="feature-card animate-in" style="animation-delay: 0.2s">
+                        <div class="feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h3>24/7 Support</h3>
+                        <p>Round-the-clock customer support to assist you with any queries or concerns.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="how-it-works" id="sell">
+            <div class="container">
+                <h2 class="section-title">Start Selling in 3 Easy Steps</h2>
+                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
+                    Join thousands of successful sellers on India's fastest growing marketplace
+                </p>
+                
+                <!-- Background Shapes -->
+                <div class="background-shapes">
+                    <div class="shape shape-1"></div>
+                    <div class="shape shape-2"></div>
+                    <div class="shape shape-3"></div>
+                    <div class="shape shape-4"></div>
+                </div>
+                
+                <div class="steps">
+                    <div class="step animate-in">
+                        <div class="step-number">1</div>
+                        <h3>Create Your Store</h3>
+                        <p>Sign up and set up your personalized storefront in minutes. No technical skills required.</p>
+                    </div>
+                    
+                    <div class="step animate-in" style="animation-delay: 0.1s">
+                        <div class="step-number">2</div>
+                        <h3>List Your Products</h3>
+                        <p>Add products with detailed descriptions, high-quality images, and competitive pricing.</p>
+                    </div>
+                    
+                    <div class="step animate-in" style="animation-delay: 0.2s">
+                        <div class="step-number">3</div>
+                        <h3>Start Selling</h3>
+                        <p>Get discovered by millions of buyers, manage orders, and grow your business with our tools.</p>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4" style="position: relative; z-index: 2;">
+                    <a href="#contact" class="btn-primary">
+                        <i class="fas fa-rocket"></i>
+                        Start Your Selling Journey
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section class="gallery-section">
+            <div class="container">
+                <h2 class="section-title">Discover Our Marketplace</h2>
+                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
+                    Explore quality products and trusted service providers from our community
+                </p>
+                
+                <div class="gallery-container">
+                    <!-- Product Gallery Column -->
+                    <div class="gallery-column animate-in">
+                        <div class="gallery-header">
+                            <h3>Featured Products</h3>
+                            <p>Quality products from verified sellers</p>
+                        </div>
+                        
+                        <div class="product-grid">
+                            <!-- Product 1 -->
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Premium Wireless Headphones">
+                                </div>
+                                <div class="product-content">
+                                    <span class="product-badge">BESTSELLER</span>
+                                    <h3 class="product-name">Premium Wireless Headphones</h3>
+                                    <div class="product-price">₹4,299</div>
+                                    <div class="product-seller">
+                                        <i class="fas fa-store"></i>
+                                        <span>Urban Style Co.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Product 2 -->
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Designer Handbag">
+                                </div>
+                                <div class="product-content">
+                                    <span class="product-badge">LUXURY</span>
+                                    <h3 class="product-name">Designer Leather Handbag</h3>
+                                    <div class="product-price">₹8,499</div>
+                                    <div class="product-seller">
+                                        <i class="fas fa-store"></i>
+                                        <span>Luxury Fashion Hub</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Product 3 -->
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Smart Watch">
+                                </div>
+                                <div class="product-content">
+                                    <span class="product-badge">NEW</span>
+                                    <h3 class="product-name">Smart Watch Pro</h3>
+                                    <div class="product-price">₹12,999</div>
+                                    <div class="product-seller">
+                                        <i class="fas fa-store"></i>
+                                        <span>Tech Gadgets Pro</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Product 4 -->
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Camera">
+                                </div>
+                                <div class="product-content">
+                                    <span class="product-badge">TRENDING</span>
+                                    <h3 class="product-name">Professional Camera</h3>
+                                    <div class="product-price">₹24,999</div>
+                                    <div class="product-seller">
+                                        <i class="fas fa-store"></i>
+                                        <span>Photo Masters</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-2">
+                            <a href="/shop-login.html" class="btn-primary">
+                                <i class="fas fa-arrow-right"></i>
+                                View All Products
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Service Provider Gallery Column -->
+                    <div class="gallery-column animate-in" style="animation-delay: 0.2s">
+                        <div class="gallery-header">
+                            <h3>Top Service Providers</h3>
+                            <p>Trusted professionals for your needs</p>
+                        </div>
+                        
+                        <div class="provider-grid">
+                            <!-- Provider 1 -->
+                            <div class="provider-card">
+                                <div class="provider-avatar">
+                                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Rajesh Mehta">
+                                </div>
+                                <h3 class="provider-name">Rajesh Mehta</h3>
+                                <div class="provider-category">Home Services</div>
+                                <div class="provider-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <span>4.8</span>
+                                </div>
+                                <div class="provider-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Mumbai, Maharashtra</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Provider 2 -->
+                            <div class="provider-card">
+                                <div class="provider-avatar">
+                                    <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Priya Sharma">
+                                </div>
+                                <h3 class="provider-name">Priya Sharma</h3>
+                                <div class="provider-category">Beauty & Wellness</div>
+                                <div class="provider-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <span>5.0</span>
+                                </div>
+                                <div class="provider-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Delhi, NCR</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Provider 3 -->
+                            <div class="provider-card">
+                                <div class="provider-avatar">
+                                    <img src="https://images.unsplash.com/photo-1551836026-d5c2c49b63c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Anjali Verma">
+                                </div>
+                                <h3 class="provider-name">Anjali Verma</h3>
+                                <div class="provider-category">Education & Tutoring</div>
+                                <div class="provider-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <span>5.0</span>
+                                </div>
+                                <div class="provider-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Bangalore, Karnataka</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Provider 4 -->
+                            <div class="provider-card">
+                                <div class="provider-avatar">
+                                    <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Suresh Kumar">
+                                </div>
+                                <h3 class="provider-name">Suresh Kumar</h3>
+                                <div class="provider-category">Electronics Repair</div>
+                                <div class="provider-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <span>4.2</span>
+                                </div>
+                                <div class="provider-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Chennai, Tamil Nadu</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-2">
+                            <a href="#contact" class="btn-primary">
+                                <i class="fas fa-briefcase"></i>
+                                Become a Service Provider
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section" id="about">
+            <div class="container">
+                <h2 class="section-title">Success Stories</h2>
+                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
+                    Hear from our community of satisfied buyers and successful sellers
+                </p>
+                
+                <div class="testimonial-grid">
+                    <div class="testimonial-card animate-in">
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="testimonial-content">
+                            "69Shop.in transformed my small home business. Within 6 months, I went from 10 orders a week to over 100! The platform is seller-friendly and the support team is amazing."
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Rajesh Mehta">
+                            </div>
+                            <div class="author-info">
+                                <h4>Rajesh Mehta</h4>
+                                <p>Handicraft Seller, Mumbai</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial-card animate-in" style="animation-delay: 0.1s">
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <div class="testimonial-content">
+                            "As a buyer, I love the quality of products and the transparency of sellers on 69Shop.in. The return policy is fair and customer service actually solves problems!"
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Priya Sharma">
+                            </div>
+                            <div class="author-info">
+                                <h4>Priya Sharma</h4>
+                                <p>Regular Buyer, Delhi</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial-card animate-in" style="animation-delay: 0.2s">
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="testimonial-content">
+                            "The analytics dashboard helped me understand customer behavior. I optimized my inventory and increased profits by 45% in just 3 months. Best decision for my business!"
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="https://images.unsplash.com/photo-1551836026-d5c2c49b63c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Anjali Verma">
+                            </div>
+                            <div class="author-info">
+                                <h4>Anjali Verma</h4>
+                                <p>Fashion Boutique Owner, Bangalore</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="container">
+                <div class="cta-content">
+                    <h2>Ready to Join India's Premium Marketplace?</h2>
+                    <p>Whether you want to shop quality products or start your selling journey, 69Shop.in is the perfect platform for you.</p>
+                    <div class="cta-buttons">
+                        <a href="/shop-login.html" class="btn-dark">
+                            <i class="fas fa-shopping-cart"></i>
+                            Explore Products
+                        </a>
+                        <a href="#contact" class="btn-primary">
+                            <i class="fas fa-briefcase"></i>
+                            Become a Seller
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="features-section" id="contact">
+            <div class="container">
+                <h2 class="section-title">Get in Touch</h2>
+                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
+                    Have questions or need assistance? Our team is here to help you
+                </p>
+                
+                <div class="features-grid">
+                    <div class="feature-card animate-in">
+                        <div class="feature-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3>Email Support</h3>
+                        <p>support@69shop.in</p>
+                        <p style="color: var(--blue-primary); font-weight: 500;">Response time: 24 hours</p>
+                    </div>
+                    
+                    <div class="feature-card animate-in" style="animation-delay: 0.1s">
+                        <div class="feature-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <h3>Phone Support</h3>
+                        <p>+91 98765 43210</p>
+                        <p style="color: var(--blue-primary); font-weight: 500;">Mon-Sat: 9AM - 7PM</p>
+                    </div>
+                    
+                    <div class="feature-card animate-in" style="animation-delay: 0.2s">
+                        <div class="feature-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3>Visit Us</h3>
+                        <p>69Shop.in Headquarters</p>
+                        <p style="color: var(--blue-primary); font-weight: 500;">Mumbai, India</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="footer-logo">69Shop.in</div>
+                    <p class="footer-description">
+                        India's premium marketplace connecting buyers with quality products and helping sellers grow their businesses. Join our community today!
+                    </p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3 class="footer-heading">Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="/shop-login.html"><i class="fas fa-store"></i> Shop</a></li>
+                        <li><a href="#sell"><i class="fas fa-briefcase"></i> Sell on 69Shop</a></li>
+                        <li><a href="#about"><i class="fas fa-info-circle"></i> About Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3 class="footer-heading">For Sellers</h3>
+                    <ul class="footer-links">
+                        <li><a href="#sell"><i class="fas fa-rocket"></i> Start Selling</a></li>
+                        <li><a href="#"><i class="fas fa-chart-line"></i> Seller Dashboard</a></li>
+                        <li><a href="#"><i class="fas fa-graduation-cap"></i> Seller Education</a></li>
+                        <li><a href="#"><i class="fas fa-handshake"></i> Partner Program</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3 class="footer-heading">Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="#contact"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                        <li><a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
+                        <li><a href="#"><i class="fas fa-truck"></i> Shipping Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2023 69Shop.in - India's Premium Marketplace. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mainNav = document.getElementById('mainNav');
+        const menuOverlay = document.getElementById('menuOverlay');
+
+        mobileMenuToggle.addEventListener('click', () => {
+            mainNav.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+            document.body.style.overflow = mainNav.classList.contains('active') ? 'hidden' : '';
+            
+            // Change icon based on menu state
+            const icon = mobileMenuToggle.querySelector('i');
+            if (mainNav.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        menuOverlay.addEventListener('click', () => {
+            mainNav.classList.remove('active');
+            menuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+            mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+        });
+
+        // Close mobile menu when clicking on links
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                mainNav.classList.remove('active');
+                menuOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+                mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+            });
+        });
+
+        // Header scroll effect
+        const header = document.querySelector('.header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href === '#' || href.startsWith('#!') || href === '/shop-login.html') return;
+                
+                const targetElement = document.querySelector(href);
+                if (targetElement) {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animation
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.animate-in').forEach(el => {
+                el.style.animationPlayState = 'paused';
+                observer.observe(el);
+            });
+
+            // Simple notification function
+            window.showNotification = function(message, type = 'info') {
+                alert(message);
+            };
+
+            // Login function placeholder
+            window.showLogin = function() {
+                window.location.href = "/shop-login.html";
+            };
+
+            // Update active nav link on scroll
+            const updateActiveNavLink = () => {
+                const sections = document.querySelectorAll('section[id]');
+                const navLinks = document.querySelectorAll('.nav-links a');
+                
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (window.scrollY >= (sectionTop - 100)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    const href = link.getAttribute('href');
+                    if (href === `#${current}` || 
+                       (current === '' && href === '#') ||
+                       (current === 'sell' && href === '#sell')) {
+                        link.classList.add('active');
+                    }
+                });
+            };
+
+            window.addEventListener('scroll', updateActiveNavLink);
+            updateActiveNavLink(); // Initial call
+
+            // Ad banner pause/resume functionality
+            const adBanner = document.querySelector('.ad-banner');
+            const adTrack = document.querySelector('.ad-banner-track');
+
+            if (adBanner && adTrack) {
+                adBanner.addEventListener('mouseenter', () => {
+                    adTrack.style.animationPlayState = 'paused';
+                });
+
+                adBanner.addEventListener('mouseleave', () => {
+                    adTrack.style.animationPlayState = 'running';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
