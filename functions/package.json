@@ -1,0 +1,22 @@
+{
+  "name": "shop-mail-functions",
+  "description": "Firebase Cloud Functions for transactional mail at 69Shop.in",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "lint": "eslint --ext .js . || true",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "encrypt:mail": "node scripts/encrypt-mail-config.js",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "firebase-admin": "^11.11.0",
+    "firebase-functions": "^4.9.0",
+    "nodemailer": "^6.9.8"
+  }
+}
