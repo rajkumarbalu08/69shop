@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Books & Stationery - 69Shop.in</title>
+  <meta name="description" content="Shop books, notebooks and stationery on 69Shop.in">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/shop.css">
+  <style>
+    .category-hero {padding: 48px 0 16px;}
+    .category-hero h1 {font-size: 1.9rem; margin: 0 0 8px;}
+    .category-hero p {color: var(--text-medium); margin: 0;}
+    .products-grid {margin-top: 16px;}
+    .back-link {display: inline-flex; align-items: center; gap: 8px; color: var(--blue-primary); font-weight: 600; text-decoration: none;}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo">
+          <div class="logo-icon"><img src="/Logo/69shopc.png" alt="69Shop.in Logo" style="width:100%;height:100%;object-fit:contain;"></div>
+          <div class="logo-text"><div class="site-name">69SHOP.IN</div><div class="tagline">Premium Marketplace</div></div>
+        </a>
+        <a class="back-link" href="/shop.html"><i class="fas fa-arrow-left"></i> Back to shop</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section class="shop-hero category-hero">
+      <div class="container">
+        <div class="shop-hero-content">
+          <h1>Books & Stationery</h1>
+          <p>Books, notebooks and stationery</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="shop-container">
+      <div class="shop-content" style="width:100%;">
+        <div class="products-header">
+          <h2 class="section-title">Books Picks</h2>
+          <div class="product-count"><span id="productCount">0</span> products found</div>
+        </div>
+        <div class="container" style="padding: 0 24px 12px;">
+          <div class="search-input-wrapper" style="display:flex;align-items:center;gap:10px;border:1px solid var(--border-subtle, #e5e5e5);padding:10px 12px;border-radius:var(--radius-md,8px);">
+            <i class="fas fa-search" style="color: var(--text-light, #7a7a7a);"></i>
+            <input type="text" id="categorySearch" placeholder="Search in Books" style="width:100%;border:none;outline:none;font-size:0.95rem;">
+          </div>
+        </div>
+        <div class="products-grid" id="productsGrid"></div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <div class="empty-state-icon"><i class="fas fa-box-open"></i></div>
+          <h3 class="empty-state-title">No products found</h3>
+          <p class="empty-state-text">Check back soon for new arrivals.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="products-data.js"></script>
+  <script>
+    const category = 'books';
+    const grid = document.getElementById('productsGrid');
+    const empty = document.getElementById('emptyState');
+    const count = document.getElementById('productCount');
+    const searchInput = document.getElementById('categorySearch');
+    const CART_KEY = '69shop_cart';
+    let searchTerm = '';
+    let cart = [];
+
+    function loadCart() { try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch(e) { cart = []; } }
+    function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch(e) {} }
+    function toast(msg) {
+      const el = document.createElement('div');
+      el.style.cssText = 'position:fixed;top:90px;right:20px;background:var(--blue-primary,#0066ff);color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;transform:translateX(120%);transition:transform 0.25s ease;';
+      el.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+      document.body.appendChild(el);
+      requestAnimationFrame(() => el.style.transform = 'translateX(0)');
+      setTimeout(() => { el.style.transform = 'translateX(120%)'; setTimeout(() => el.remove(), 250); }, 1800);
+    }
+    function addToCart(id) {
+      const p = getCatalog().find(x => x.id === id);
+      if (!p) return;
+      const existing = cart.find(x => x.id === id);
+      if (existing) existing.quantity = Math.min((existing.quantity||1)+1, p.stock||50);
+      else cart.push({id:p.id, name:p.name, price:p.price, image:p.image, quantity:1, maxQuantity:p.stock||50});
+      saveCart();
+      toast(`${p.name} added to cart`);
+    }
+    function getCatalog() {
+      const fallback = 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=400&q=80';
+      return (window.productsData||[]).filter(p => p.category === category).map((p,i) => ({
+        id: p.id||`p-${i+1}`, name: p.name||'Product', description: p.description||'', price: Number(p.price)||0,
+        category: p.category, image: p.image||fallback, seller: p.seller||'69Shop Seller', rating: Number(p.rating)||4.4, stock: p.stock||50
+      }));
+    }
+    function render() {
+      const items = getCatalog().filter(p => !searchTerm || p.name.toLowerCase().includes(searchTerm.toLowerCase()) || (p.description||'').toLowerCase().includes(searchTerm.toLowerCase()));
+      count.textContent = items.length;
+      if (!items.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      grid.innerHTML = items.map(p => `
+        <div class="product-card" data-id="${p.id}">
+          <div class="product-image"><img src="${p.image}" alt="${p.name}" loading="lazy"></div>
+          <div class="product-content">
+            <h3 class="product-name">${p.name}</h3>
+            <p class="product-description">${p.description}</p>
+            <div class="product-price">₹${p.price.toLocaleString('en-IN')}</div>
+            <div class="product-seller"><i class="fas fa-store"></i><span>${p.seller}</span>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:4px;"><i class="fas fa-star" style="color:#FFD700;"></i><span>${p.rating.toFixed(1)}</span></div>
+            </div>
+            <div class="product-actions">
+              <button class="btn-add-to-cart" onclick="addToCart('${p.id}')"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+              <button class="btn-wishlist" disabled><i class="fas fa-heart"></i></button>
+            </div>
+          </div>
+        </div>`).join('');
+    }
+    loadCart(); render();
+    searchInput?.addEventListener('input', e => { searchTerm = e.target.value||''; render(); });
+  </script>
+</body>
+</html>

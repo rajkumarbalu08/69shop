@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Services - Seller Hub | 69Shop.in</title>
+    <meta name="description" content="Manage your service offerings, pricing, and availability on 69Shop.in">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            --primary-black: #1A1A1A;
+            --secondary-black: #2D2D2D;
+            --dark-grey: #404040;
+            --medium-grey: #666666;
+            --light-grey: #F8F8F8;
+            --white: #FFFFFF;
+            --seller-primary: #7C3AED;
+            --seller-light: #EDE9FE;
+            --seller-dark: #5B21B6;
+            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --green: #22C55E;
+            --green-light: #DCFCE7;
+            --yellow: #F59E0B;
+            --yellow-light: #FEF3C7;
+            --red: #EF4444;
+            --red-light: #FEE2E2;
+            --blue: #0066ff;
+            --blue-light: #E6F2FF;
+            --shadow-sm: 0 2px 8px rgba(26, 26, 26, 0.05);
+            --shadow-md: 0 4px 16px rgba(26, 26, 26, 0.08);
+            --shadow-lg: 0 8px 32px rgba(26, 26, 26, 0.12);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light-grey);
+            min-height: 100vh;
+        }
+        
+        /* Top Navigation Bar */
+        .seller-topbar {
+            background: var(--seller-gradient);
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .seller-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .seller-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--white);
+        }
+        
+        .seller-logo img { width: 36px; height: 36px; object-fit: contain; }
+        .seller-logo-text { font-family: 'Poppins', sans-serif; }
+        .seller-logo-text h1 { font-size: 1.1rem; font-weight: 700; line-height: 1; }
+        .seller-logo-text span { font-size: 0.7rem; opacity: 0.9; display: flex; align-items: center; gap: 4px; }
+        
+        .seller-badge-chip {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--white);
+            font-weight: 500;
+        }
+        
+        .seller-topbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .topbar-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .topbar-nav-link:hover { background: rgba(255,255,255,0.1); color: var(--white); }
+        .topbar-nav-link.active { background: rgba(255,255,255,0.2); color: var(--white); }
+        
+        .seller-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .topbar-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .topbar-icon-btn:hover { background: rgba(255,255,255,0.2); }
+        
+        .seller-user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px 6px 6px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .seller-user-menu:hover { background: rgba(255,255,255,0.25); }
+        
+        .seller-user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--white);
+            color: var(--seller-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .seller-user-info { color: var(--white); }
+        .seller-user-info strong { display: block; font-size: 0.85rem; font-weight: 600; }
+        .seller-user-info span { font-size: 0.7rem; opacity: 0.8; }
+        
+        /* Main Content */
+        .seller-main {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .page-header-left h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            color: var(--primary-black);
+            margin-bottom: 4px;
+        }
+        
+        .page-header-left p {
+            color: var(--medium-grey);
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .btn-seller { background: var(--seller-primary); color: var(--white); }
+        .btn-seller:hover { background: var(--seller-dark); }
+        .btn-outline { background: transparent; border: 1px solid var(--medium-grey); color: var(--dark-grey); }
+        .btn-outline:hover { border-color: var(--primary-black); color: var(--primary-black); }
+        .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+        .btn-danger { background: var(--red); color: var(--white); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        /* Save Status Indicator */
+        .save-status {
+            font-size: 0.85rem;
+            color: var(--medium-grey);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .save-status.saving { color: var(--seller-primary); }
+        .save-status.saved { color: #10B981; }
+        .save-status.error { color: var(--red); }
+        
+        /* Service Category Card */
+        .service-category {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        
+        .service-category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--seller-light);
+            border-bottom: 1px solid #E5E5E5;
+        }
+        
+        .service-category-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .service-category-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--seller-primary);
+            color: var(--white);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .service-category-info h2 {
+            font-size: 1.1rem;
+            color: var(--primary-black);
+            margin-bottom: 2px;
+        }
+        
+        .service-category-info p {
+            font-size: 0.85rem;
+            color: var(--medium-grey);
+        }
+        
+        .service-category-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--medium-grey);
+            border-radius: 26px;
+            transition: 0.3s;
+        }
+        
+        .toggle-slider::before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--white);
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--green);
+        }
+        
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(24px);
+        }
+        
+        .toggle-label {
+            font-size: 0.85rem;
+            color: var(--medium-grey);
+            font-weight: 500;
+        }
+        
+        /* Service Options Grid */
+        .service-options {
+            padding: 20px;
+        }
+        
+        .service-options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .service-option-card {
+            border: 2px solid #E5E5E5;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .service-option-card.enabled {
+            border-color: var(--seller-primary);
+            background: var(--seller-light);
+        }
+        
+        .service-option-card.disabled {
+            opacity: 0.6;
+        }
+        
+        .service-option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .service-option-name {
+            font-weight: 600;
+            color: var(--primary-black);
+            margin-bottom: 4px;
+        }
+        
+        .service-option-desc {
+            font-size: 0.8rem;
+            color: var(--medium-grey);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .service-option-pricing {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #E5E5E5;
+        }
+        
+        .service-option-pricing label {
+            font-size: 0.85rem;
+            color: var(--dark-grey);
+            font-weight: 500;
+        }
+        
+        .price-input {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .price-input span {
+            color: var(--medium-grey);
+        }
+        
+        .price-input input {
+            width: 80px;
+            padding: 6px 10px;
+            border: 1px solid #E5E5E5;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+        }
+        
+        .price-input input:focus {
+            outline: none;
+            border-color: var(--seller-primary);
+        }
+        
+        /* Delivery Options */
+        .delivery-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .delivery-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--light-grey);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--dark-grey);
+        }
+        
+        .delivery-tag i {
+            font-size: 0.7rem;
+        }
+        
+        /* Add Service Option */
+        .add-option-card {
+            border: 2px dashed var(--medium-grey);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--medium-grey);
+        }
+        
+        .add-option-card:hover {
+            border-color: var(--seller-primary);
+            color: var(--seller-primary);
+            background: var(--seller-light);
+        }
+        
+        .add-option-card i {
+            font-size: 1.5rem;
+        }
+        
+        .add-option-card span {
+            font-weight: 500;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--light-grey);
+        }
+        
+        .modal-header h2 {
+            font-size: 1.2rem;
+            color: var(--primary-black);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--medium-grey);
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--dark-grey);
+            font-size: 0.9rem;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #E5E5E5;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--seller-primary);
+        }
+        
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .checkbox-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-option input {
+            width: auto;
+            accent-color: var(--seller-primary);
+        }
+        
+        .checkbox-option label {
+            margin: 0;
+            font-weight: 400;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px;
+            border-top: 1px solid var(--light-grey);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--white);
+            border-radius: var(--radius-md);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--medium-grey);
+            margin-bottom: 16px;
+        }
+        
+        .empty-state h3 {
+            color: var(--primary-black);
+            margin-bottom: 8px;
+        }
+        
+        .empty-state p {
+            color: var(--medium-grey);
+            margin-bottom: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .seller-topbar { padding: 0 16px; }
+            .seller-topbar-nav { display: none; }
+            .seller-main { padding: 16px; }
+            .form-row { grid-template-columns: 1fr; }
+            .service-category-header { flex-direction: column; gap: 12px; }
+        }
+        
+        /* User Dropdown */
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+            z-index: 1001;
+        }
+        
+        .user-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: var(--dark-grey);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        
+        .user-dropdown a:hover { background: var(--light-grey); }
+        .user-dropdown a i { width: 16px; color: var(--medium-grey); }
+        .user-dropdown hr { border: none; border-top: 1px solid var(--light-grey); margin: 4px 0; }
+        .user-dropdown a.logout { color: var(--red); }
+        .user-dropdown a.logout i { color: var(--red); }
+        
+        .dropdown-wrapper { position: relative; }
+        
+        /* Delete button for options */
+        .service-option-delete {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            background: var(--red-light);
+            color: var(--red);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+        
+        .service-option-card:hover .service-option-delete {
+            display: flex;
+        }
+        
+        .service-option-delete:hover {
+            background: var(--red);
+            color: var(--white);
+        }
+        
+        .service-option-card {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="seller-topbar">
+        <div class="seller-topbar-left">
+            <a href="/seller-dashboard.html" class="seller-logo">
+                <img src="/Logo/69shopc.png" alt="69Shop.in">
+                <div class="seller-logo-text">
+                    <h1>69SHOP.IN</h1>
+                    <span><i class="fas fa-store"></i> Seller Hub</span>
+                </div>
+            </a>
+            <span class="seller-badge-chip">Service Provider</span>
+        </div>
+        
+        <div class="seller-topbar-nav">
+            <a href="/seller-dashboard.html" class="topbar-nav-link">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="/seller-products.html" class="topbar-nav-link">
+                <i class="fas fa-box"></i> Products
+            </a>
+            <a href="/seller-orders.html" class="topbar-nav-link">
+                <i class="fas fa-shopping-bag"></i> Orders
+            </a>
+            <a href="/seller-services.html" class="topbar-nav-link active">
+                <i class="fas fa-concierge-bell"></i> Services
+            </a>
+        </div>
+        
+        <div class="seller-topbar-right">
+            <button class="topbar-icon-btn" title="Notifications">
+                <i class="fas fa-bell"></i>
+            </button>
+            <div class="dropdown-wrapper">
+                <div class="seller-user-menu" onclick="toggleUserDropdown()">
+                    <div class="seller-user-avatar" id="userAvatar">S</div>
+                    <div class="seller-user-info">
+                        <strong id="userName">Loading...</strong>
+                        <span id="userEmail">seller@69shop.in</span>
+                    </div>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                    <a href="/shop.html"><i class="fas fa-external-link-alt"></i> View Shop</a>
+                    <hr>
+                    <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="seller-main">
+        <div class="page-header">
+            <div class="page-header-left">
+                <h1>Manage Services</h1>
+                <p>Configure your service offerings, pricing, and delivery options</p>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <span id="saveStatus" style="font-size: 0.85rem; color: var(--medium-grey);"></span>
+                <button class="btn btn-outline" onclick="saveToFirestore()" id="saveBtn">
+                    <i class="fas fa-save"></i>
+                    Save All
+                </button>
+                <button class="btn btn-seller" onclick="openAddCategoryModal()">
+                    <i class="fas fa-plus"></i>
+                    Add Category
+                </button>
+            </div>
+        </div>
+        
+        <!-- Prepleating Service Category -->
+        <div class="service-category" id="prepleatingCategory">
+            <div class="service-category-header">
+                <div class="service-category-info">
+                    <div class="service-category-icon">
+                        <i class="fas fa-fan"></i>
+                    </div>
+                    <div>
+                        <h2>Saree Pre-Pleating</h2>
+                        <p>Precision pleating, pico-falls, and ready-to-drape services</p>
+                    </div>
+                </div>
+                <div class="service-category-toggle">
+                    <span class="toggle-label">Active</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked onchange="toggleCategory('prepleating', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="service-options">
+                <h3 style="margin-bottom: 16px; font-size: 0.95rem; color: var(--dark-grey);">Service Options</h3>
+                <div class="service-options-grid" id="prepleatingOptions">
+                    <!-- Studio Drop Option -->
+                    <div class="service-option-card enabled" data-option="studio-drop">
+                        <button type="button" class="service-option-delete" onclick="deleteOption('prepleating', 'studio-drop')" title="Delete option">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="service-option-header">
+                            <div>
+                                <div class="service-option-name">Studio Drop</div>
+                                <div class="service-option-desc">Customer drops saree at your studio for pleating</div>
+                            </div>
+                            <label class="toggle-switch" style="transform: scale(0.8);">
+                                <input type="checkbox" checked onchange="toggleOption('prepleating', 'studio-drop', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="service-option-pricing">
+                            <label>Price:</label>
+                            <div class="price-input">
+                                <span>₹</span>
+                                <input type="number" value="350" min="0" onchange="updatePrice('prepleating', 'studio-drop', this.value)">
+                            </div>
+                        </div>
+                        <div class="delivery-options">
+                            <span class="delivery-tag"><i class="fas fa-clock"></i> 24-48 hours</span>
+                            <span class="delivery-tag"><i class="fas fa-map-marker-alt"></i> In-store pickup</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Pickup Option -->
+                    <div class="service-option-card enabled" data-option="pickup">
+                        <button type="button" class="service-option-delete" onclick="deleteOption('prepleating', 'pickup')" title="Delete option">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="service-option-header">
+                            <div>
+                                <div class="service-option-name">Pickup & Delivery</div>
+                                <div class="service-option-desc">We pick up from customer location and deliver back</div>
+                            </div>
+                            <label class="toggle-switch" style="transform: scale(0.8);">
+                                <input type="checkbox" checked onchange="toggleOption('prepleating', 'pickup', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="service-option-pricing">
+                            <label>Price:</label>
+                            <div class="price-input">
+                                <span>₹</span>
+                                <input type="number" value="500" min="0" onchange="updatePrice('prepleating', 'pickup', this.value)">
+                            </div>
+                        </div>
+                        <div class="delivery-options">
+                            <span class="delivery-tag"><i class="fas fa-truck"></i> Free pickup</span>
+                            <span class="delivery-tag"><i class="fas fa-clock"></i> 48-72 hours</span>
+                        </div>
+                    </div>
+                    
+                    <!-- On-Spot Option -->
+                    <div class="service-option-card enabled" data-option="on-spot">
+                        <button type="button" class="service-option-delete" onclick="deleteOption('prepleating', 'on-spot')" title="Delete option">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="service-option-header">
+                            <div>
+                                <div class="service-option-name">On-Spot Pleating</div>
+                                <div class="service-option-desc">Same-day service at weddings/events venue</div>
+                            </div>
+                            <label class="toggle-switch" style="transform: scale(0.8);">
+                                <input type="checkbox" checked onchange="toggleOption('prepleating', 'on-spot', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="service-option-pricing">
+                            <label>Price:</label>
+                            <div class="price-input">
+                                <span>₹</span>
+                                <input type="number" value="800" min="0" onchange="updatePrice('prepleating', 'on-spot', this.value)">
+                            </div>
+                        </div>
+                        <div class="delivery-options">
+                            <span class="delivery-tag"><i class="fas fa-bolt"></i> Express 2-4 hours</span>
+                            <span class="delivery-tag"><i class="fas fa-map-marker-alt"></i> Venue visit</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Option Card -->
+                    <div class="add-option-card" onclick="openAddOptionModal('prepleating')">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add Custom Option</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Jewellery Service Category -->
+        <div class="service-category" id="jewelleryCategory">
+            <div class="service-category-header">
+                <div class="service-category-info">
+                    <div class="service-category-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div>
+                        <h2>Handmade Jewellery</h2>
+                        <p>Custom jewellery design, repairs, and bespoke creations</p>
+                    </div>
+                </div>
+                <div class="service-category-toggle">
+                    <span class="toggle-label">Active</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked onchange="toggleCategory('jewellery', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="service-options">
+                <h3 style="margin-bottom: 16px; font-size: 0.95rem; color: var(--dark-grey);">Service Options</h3>
+                <div class="service-options-grid" id="jewelleryOptions">
+                    <!-- Custom Design -->
+                    <div class="service-option-card enabled" data-option="custom-design">
+                        <button type="button" class="service-option-delete" onclick="deleteOption('jewellery', 'custom-design')" title="Delete option">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="service-option-header">
+                            <div>
+                                <div class="service-option-name">Custom Design</div>
+                                <div class="service-option-desc">Bespoke jewellery made to your specifications</div>
+                            </div>
+                            <label class="toggle-switch" style="transform: scale(0.8);">
+                                <input type="checkbox" checked onchange="toggleOption('jewellery', 'custom-design', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="service-option-pricing">
+                            <label>Starting at:</label>
+                            <div class="price-input">
+                                <span>₹</span>
+                                <input type="number" value="2500" min="0" onchange="updatePrice('jewellery', 'custom-design', this.value)">
+                            </div>
+                        </div>
+                        <div class="delivery-options">
+                            <span class="delivery-tag"><i class="fas fa-clock"></i> 7-14 days</span>
+                            <span class="delivery-tag"><i class="fas fa-certificate"></i> Hallmarked</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Repairs -->
+                    <div class="service-option-card enabled" data-option="repairs">
+                        <button type="button" class="service-option-delete" onclick="deleteOption('jewellery', 'repairs')" title="Delete option">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="service-option-header">
+                            <div>
+                                <div class="service-option-name">Repairs & Restoration</div>
+                                <div class="service-option-desc">Fix broken pieces, resize, polish, and restore</div>
+                            </div>
+                            <label class="toggle-switch" style="transform: scale(0.8);">
+                                <input type="checkbox" checked onchange="toggleOption('jewellery', 'repairs', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="service-option-pricing">
+                            <label>Starting at:</label>
+                            <div class="price-input">
+                                <span>₹</span>
+                                <input type="number" value="500" min="0" onchange="updatePrice('jewellery', 'repairs', this.value)">
+                            </div>
+                        </div>
+                        <div class="delivery-options">
+                            <span class="delivery-tag"><i class="fas fa-clock"></i> 3-5 days</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Option Card -->
+                    <div class="add-option-card" onclick="openAddOptionModal('jewellery')">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add Custom Option</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add New Category Button -->
+        <div class="empty-state" style="border: 2px dashed var(--medium-grey); cursor: pointer;" onclick="openAddCategoryModal()">
+            <i class="fas fa-plus-circle"></i>
+            <h3>Add Another Service Category</h3>
+            <p>Expand your offerings by adding photography, bakery, distribution, or other services</p>
+        </div>
+    </main>
+    
+    <!-- Add Option Modal -->
+    <div class="modal-overlay" id="optionModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Add Service Option</h2>
+                <button class="modal-close" onclick="closeModal('optionModal')">&times;</button>
+            </div>
+            <form id="optionForm" onsubmit="saveOption(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="optionCategory" value="">
+                    
+                    <div class="form-group">
+                        <label for="optionName">Option Name *</label>
+                        <input type="text" id="optionName" required placeholder="e.g., Express Service">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="optionDesc">Description</label>
+                        <textarea id="optionDesc" placeholder="Describe what this option includes..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="optionPrice">Price (₹) *</label>
+                            <input type="number" id="optionPrice" required min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="optionTurnaround">Turnaround Time</label>
+                            <input type="text" id="optionTurnaround" placeholder="e.g., 24-48 hours">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Delivery Options</label>
+                        <div class="checkbox-options">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="deliveryPickup">
+                                <label for="deliveryPickup">Free Pickup Available</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="deliveryVenue">
+                                <label for="deliveryVenue">Venue/Location Visit</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="deliveryShipping">
+                                <label for="deliveryShipping">Shipping Available</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('optionModal')">Cancel</button>
+                    <button type="submit" class="btn btn-seller">
+                        <i class="fas fa-save"></i> Save Option
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Add Category Modal -->
+    <div class="modal-overlay" id="categoryModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Add Service Category</h2>
+                <button class="modal-close" onclick="closeModal('categoryModal')">&times;</button>
+            </div>
+            <form id="categoryForm" onsubmit="saveCategory(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="categoryType">Service Type *</label>
+                        <select id="categoryType" required>
+                            <option value="">Select a service type</option>
+                            <option value="photography">Photography</option>
+                            <option value="bakery">Bakery & Cookies</option>
+                            <option value="gifts">Handmade Gifts</option>
+                            <option value="distribution">Distribution</option>
+                            <option value="other">Other Service</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="customCategoryGroup" style="display:none;">
+                        <label for="categoryName">Category Name *</label>
+                        <input type="text" id="categoryName" placeholder="e.g., Catering Services">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="categoryDesc">Description</label>
+                        <textarea id="categoryDesc" placeholder="Describe your service offerings..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('categoryModal')">Cancel</button>
+                    <button type="submit" class="btn btn-seller">
+                        <i class="fas fa-plus"></i> Add Category
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Firebase
+        let auth = null;
+        let db = null;
+        let currentUser = null;
+        let serviceData = {};
+        
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (firebaseConfig && firebaseConfig.apiKey) {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                auth = firebase.auth();
+                db = firebase.firestore();
+            }
+        } catch (error) {
+            console.warn('Firebase init failed:', error);
+        }
+        
+        // Toggle user dropdown
+        function toggleUserDropdown() {
+            document.getElementById('userDropdown').classList.toggle('show');
+        }
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown-wrapper')) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+        
+        async function handleLogout(e) {
+            e.preventDefault();
+            if (auth) {
+                await auth.signOut();
+                window.location.href = '/seller-login.html';
+            }
+        }
+        
+        // Auth check with role verification
+        if (auth) {
+            auth.onAuthStateChanged(async user => {
+                if (!user) {
+                    window.location.href = '/seller-login.html';
+                    return;
+                }
+                
+                // Verify this user is a seller
+                try {
+                    const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                    if (!sellerDoc.exists) {
+                        // Check if they have a user profile with seller type
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        if (!userDoc.exists || userDoc.data().accountType !== 'seller') {
+                            showToast('Access denied. Seller account required.');
+                            await auth.signOut();
+                            window.location.href = '/seller-login.html';
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Role verification failed:', error);
+                }
+                
+                currentUser = user;
+                
+                // Get seller info
+                try {
+                    const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                    if (sellerDoc.exists) {
+                        const sellerData = sellerDoc.data();
+                        document.getElementById('userName').textContent = sellerData.businessName || user.displayName || user.email?.split('@')[0] || 'Seller';
+                        document.getElementById('userAvatar').textContent = (sellerData.businessName || user.displayName || user.email || 'S')[0].toUpperCase();
+                    } else {
+                        document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || 'Seller';
+                        document.getElementById('userAvatar').textContent = (user.displayName || user.email || 'S')[0].toUpperCase();
+                    }
+                } catch (e) {
+                    document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || 'Seller';
+                    document.getElementById('userAvatar').textContent = (user.displayName || user.email || 'S')[0].toUpperCase();
+                }
+                
+                document.getElementById('userEmail').textContent = user.email;
+                
+                await loadServiceData(user.uid);
+            });
+        }
+        
+        async function loadServiceData(userId) {
+            try {
+                const doc = await db.collection('sellerServices').doc(userId).get();
+                if (doc.exists) {
+                    serviceData = doc.data();
+                    renderServices();
+                }
+            } catch (error) {
+                console.error('Error loading services:', error);
+            }
+        }
+        
+        function renderServices() {
+            // Render saved service data to UI from Firestore
+            if (!serviceData || !serviceData.categories) return;
+            
+            Object.keys(serviceData.categories || {}).forEach(categoryId => {
+                const category = serviceData.categories[categoryId];
+                const categoryEl = document.getElementById(categoryId + 'Category');
+                
+                if (categoryEl) {
+                    // Update category toggle state
+                    const toggle = categoryEl.querySelector('.service-category-toggle input');
+                    if (toggle) toggle.checked = category.enabled !== false;
+                    categoryEl.style.opacity = category.enabled !== false ? '1' : '0.6';
+                    
+                    // Update each option
+                    Object.keys(category.options || {}).forEach(optionId => {
+                        const option = category.options[optionId];
+                        const card = categoryEl.querySelector(`[data-option="${optionId}"]`);
+                        
+                        if (card) {
+                            const priceInput = card.querySelector('.price-input input');
+                            const optionToggle = card.querySelector('.toggle-switch input');
+                            
+                            if (priceInput && option.price) priceInput.value = option.price;
+                            if (optionToggle) optionToggle.checked = option.enabled !== false;
+                            
+                            card.classList.toggle('enabled', option.enabled !== false);
+                            card.classList.toggle('disabled', option.enabled === false);
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Toggle category
+        function toggleCategory(category, enabled) {
+            const categoryEl = document.getElementById(category + 'Category');
+            if (categoryEl) {
+                categoryEl.style.opacity = enabled ? '1' : '0.6';
+            }
+            saveToFirestore();
+            showToast(enabled ? `${category} services enabled` : `${category} services disabled`);
+        }
+        
+        // Toggle option
+        function toggleOption(category, option, enabled) {
+            const card = document.querySelector(`[data-option="${option}"]`);
+            if (card) {
+                card.classList.toggle('enabled', enabled);
+                card.classList.toggle('disabled', !enabled);
+            }
+            saveToFirestore();
+        }
+        
+        // Update price
+        function updatePrice(category, option, price) {
+            if (!serviceData[category]) serviceData[category] = {};
+            if (!serviceData[category][option]) serviceData[category][option] = {};
+            serviceData[category][option].price = parseInt(price);
+            saveToFirestore();
+        }
+        
+        // Update save status indicator
+        function updateSaveStatus(status) {
+            const statusEl = document.getElementById('saveStatus');
+            const saveBtn = document.getElementById('saveAllBtn');
+            
+            if (status === 'saving') {
+                statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                statusEl.className = 'save-status saving';
+                if (saveBtn) saveBtn.disabled = true;
+            } else if (status === 'saved') {
+                statusEl.innerHTML = '<i class="fas fa-check"></i> All changes saved';
+                statusEl.className = 'save-status saved';
+                if (saveBtn) saveBtn.disabled = false;
+            } else if (status === 'error') {
+                statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error saving';
+                statusEl.className = 'save-status error';
+                if (saveBtn) saveBtn.disabled = false;
+            }
+        }
+        
+        // Manual save button handler
+        function saveAll() {
+            saveToFirestore(true);
+        }
+        
+        // Save to Firestore - collect all service data from DOM
+        async function saveToFirestore(showFeedback = false) {
+            if (!currentUser || !db) return;
+            
+            if (showFeedback) {
+                updateSaveStatus('saving');
+            }
+            
+            try {
+                // Build categories object from DOM
+                const categories = {};
+                
+                document.querySelectorAll('.service-category').forEach(categoryEl => {
+                    const categoryId = categoryEl.id.replace('Category', '');
+                    const categoryToggle = categoryEl.querySelector('.service-category-toggle input');
+                    const categoryName = categoryEl.querySelector('.service-category-info h2')?.textContent;
+                    const categoryDesc = categoryEl.querySelector('.service-category-info p')?.textContent;
+                    
+                    categories[categoryId] = {
+                        name: categoryName,
+                        description: categoryDesc,
+                        enabled: categoryToggle?.checked ?? true,
+                        options: {}
+                    };
+                    
+                    // Collect options
+                    categoryEl.querySelectorAll('.service-option-card[data-option]').forEach(card => {
+                        const optionId = card.dataset.option;
+                        const optionToggle = card.querySelector('.toggle-switch input');
+                        const priceInput = card.querySelector('.price-input input');
+                        const optionName = card.querySelector('.service-option-name')?.textContent;
+                        const optionDesc = card.querySelector('.service-option-desc')?.textContent;
+                        
+                        categories[categoryId].options[optionId] = {
+                            name: optionName,
+                            description: optionDesc,
+                            price: parseInt(priceInput?.value) || 0,
+                            enabled: optionToggle?.checked ?? true
+                        };
+                    });
+                });
+                
+                await db.collection('sellerServices').doc(currentUser.uid).set({
+                    categories,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    sellerId: currentUser.uid
+                }, { merge: true });
+                
+                // Update local state
+                serviceData.categories = categories;
+                
+                if (showFeedback) {
+                    updateSaveStatus('saved');
+                    showToast('All changes saved successfully!', 'success');
+                }
+                
+            } catch (error) {
+                console.error('Error saving:', error);
+                if (showFeedback) {
+                    updateSaveStatus('error');
+                }
+                showToast('Error saving changes');
+        }
+        
+        // Delete service option
+        function deleteOption(category, optionId) {
+            if (!confirm('Delete this service option?')) return;
+            
+            const card = document.querySelector(`[data-option="${optionId}"]`);
+            if (card) {
+                card.remove();
+                saveToFirestore();
+                showToast('Option deleted');
+            }
+        }
+        
+        // Delete entire category
+        function deleteCategory(categoryId) {
+            if (!confirm('Delete this entire service category and all its options?')) return;
+            
+            const categoryEl = document.getElementById(categoryId + 'Category');
+            if (categoryEl) {
+                categoryEl.remove();
+                saveToFirestore();
+                showToast('Category deleted');
+            }
+        }
+        
+        // Modal functions
+        function openAddOptionModal(category) {
+            document.getElementById('optionCategory').value = category;
+            document.getElementById('optionForm').reset();
+            document.getElementById('optionModal').classList.add('active');
+        }
+        
+        function openAddCategoryModal() {
+            document.getElementById('categoryForm').reset();
+            document.getElementById('customCategoryGroup').style.display = 'none';
+            document.getElementById('categoryModal').classList.add('active');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        // Show/hide custom category name
+        document.getElementById('categoryType')?.addEventListener('change', function() {
+            document.getElementById('customCategoryGroup').style.display = 
+                this.value === 'other' ? 'block' : 'none';
+        });
+        
+        // Save option
+        function saveOption(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('optionCategory').value;
+            const option = {
+                name: document.getElementById('optionName').value,
+                description: document.getElementById('optionDesc').value,
+                price: parseInt(document.getElementById('optionPrice').value),
+                turnaround: document.getElementById('optionTurnaround').value,
+                delivery: {
+                    pickup: document.getElementById('deliveryPickup').checked,
+                    venue: document.getElementById('deliveryVenue').checked,
+                    shipping: document.getElementById('deliveryShipping').checked
+                },
+                enabled: true
+            };
+            
+            // Add to grid
+            const grid = document.getElementById(category + 'Options');
+            if (grid) {
+                const addCard = grid.querySelector('.add-option-card');
+                const optionId = 'opt-' + Date.now();
+                
+                const html = `
+                    <div class="service-option-card enabled" data-option="${optionId}">
+                        <button type="button" class="service-option-delete" onclick="deleteOption('${category}', '${optionId}')" title="Delete option">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="service-option-header">
+                            <div>
+                                <div class="service-option-name">${option.name}</div>
+                                <div class="service-option-desc">${option.description || 'Custom service option'}</div>
+                            </div>
+                            <label class="toggle-switch" style="transform: scale(0.8);">
+                                <input type="checkbox" checked onchange="toggleOption('${category}', '${optionId}', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="service-option-pricing">
+                            <label>Price:</label>
+                            <div class="price-input">
+                                <span>₹</span>
+                                <input type="number" value="${option.price}" min="0" onchange="updatePrice('${category}', '${optionId}', this.value)">
+                            </div>
+                        </div>
+                        ${option.turnaround ? `<div class="delivery-options"><span class="delivery-tag"><i class="fas fa-clock"></i> ${option.turnaround}</span></div>` : ''}
+                    </div>
+                `;
+                
+                addCard.insertAdjacentHTML('beforebegin', html);
+            }
+            
+            closeModal('optionModal');
+            showToast('Service option added successfully');
+            saveToFirestore();
+        }
+        
+        // Save category
+        function saveCategory(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('categoryType').value;
+            const customName = document.getElementById('categoryName').value;
+            const description = document.getElementById('categoryDesc').value;
+            
+            const categoryInfo = {
+                photography: { icon: 'camera-retro', name: 'Photography', desc: 'Photo shoots, editing, and visual content creation' },
+                bakery: { icon: 'cookie', name: 'Bakery & Cookies', desc: 'Fresh baked goods, custom cakes, and cookie boxes' },
+                gifts: { icon: 'gift', name: 'Handmade Gifts', desc: 'Custom hampers, personalized gifts, and packaging' },
+                distribution: { icon: 'boxes', name: 'Distribution', desc: 'Warehousing, logistics, and retailer outreach' },
+                other: { icon: 'concierge-bell', name: customName || 'Custom Service', desc: description || 'Custom service offerings' }
+            };
+            
+            const info = categoryInfo[type];
+            const categoryId = type + '-' + Date.now();
+            
+            const html = `
+                <div class="service-category" id="${categoryId}Category">
+                    <div class="service-category-header">
+                        <div class="service-category-info">
+                            <div class="service-category-icon">
+                                <i class="fas fa-${info.icon}"></i>
+                            </div>
+                            <div>
+                                <h2>${info.name}</h2>
+                                <p>${info.desc}</p>
+                            </div>
+                        </div>
+                        <div class="service-category-toggle">
+                            <span class="toggle-label">Active</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked onchange="toggleCategory('${categoryId}', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="service-options">
+                        <h3 style="margin-bottom: 16px; font-size: 0.95rem; color: var(--dark-grey);">Service Options</h3>
+                        <div class="service-options-grid" id="${categoryId}Options">
+                            <div class="add-option-card" onclick="openAddOptionModal('${categoryId}')">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>Add Service Option</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Insert before the empty state
+            const emptyState = document.querySelector('.empty-state');
+            emptyState.insertAdjacentHTML('beforebegin', html);
+            
+            closeModal('categoryModal');
+            showToast('Service category added successfully');
+            saveToFirestore();
+        }
+        
+        function showToast(msg) {
+            const el = document.createElement('div');
+            el.style.cssText = 'position:fixed;top:80px;right:20px;background:var(--seller-primary);color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;transform:translateX(120%);transition:transform 0.25s ease;';
+            el.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+            document.body.appendChild(el);
+            requestAnimationFrame(() => el.style.transform = 'translateX(0)');
+            setTimeout(() => { el.style.transform = 'translateX(120%)'; setTimeout(() => el.remove(), 250); }, 2500);
+        }
+    </script>
+</body>
+</html>

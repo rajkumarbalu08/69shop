@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products - Seller Hub | 69Shop.in</title>
+    <meta name="description" content="Add, edit and manage your product listings on 69Shop.in">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            --primary-black: #1A1A1A;
+            --secondary-black: #2D2D2D;
+            --dark-grey: #404040;
+            --medium-grey: #666666;
+            --light-grey: #F8F8F8;
+            --white: #FFFFFF;
+            --seller-primary: #7C3AED;
+            --seller-light: #EDE9FE;
+            --seller-dark: #5B21B6;
+            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --green: #22C55E;
+            --green-light: #DCFCE7;
+            --yellow: #F59E0B;
+            --yellow-light: #FEF3C7;
+            --red: #EF4444;
+            --red-light: #FEE2E2;
+            --blue: #0066ff;
+            --blue-light: #E6F2FF;
+            --shadow-sm: 0 2px 8px rgba(26, 26, 26, 0.05);
+            --shadow-md: 0 4px 16px rgba(26, 26, 26, 0.08);
+            --shadow-lg: 0 8px 32px rgba(26, 26, 26, 0.12);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light-grey);
+            min-height: 100vh;
+        }
+        
+        /* Top Navigation Bar */
+        .seller-topbar {
+            background: var(--seller-gradient);
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .seller-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .seller-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--white);
+        }
+        
+        .seller-logo img { width: 36px; height: 36px; object-fit: contain; }
+        .seller-logo-text { font-family: 'Poppins', sans-serif; }
+        .seller-logo-text h1 { font-size: 1.1rem; font-weight: 700; line-height: 1; }
+        .seller-logo-text span { font-size: 0.7rem; opacity: 0.9; display: flex; align-items: center; gap: 4px; }
+        
+        .seller-badge-chip {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--white);
+            font-weight: 500;
+        }
+        
+        .seller-topbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .topbar-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .topbar-nav-link:hover { background: rgba(255,255,255,0.1); color: var(--white); }
+        .topbar-nav-link.active { background: rgba(255,255,255,0.2); color: var(--white); }
+        
+        .seller-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .topbar-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .topbar-icon-btn:hover { background: rgba(255,255,255,0.2); }
+        
+        .seller-user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px 6px 6px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .seller-user-menu:hover { background: rgba(255,255,255,0.25); }
+        
+        .seller-user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--white);
+            color: var(--seller-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .seller-user-info { color: var(--white); }
+        .seller-user-info strong { display: block; font-size: 0.85rem; font-weight: 600; }
+        .seller-user-info span { font-size: 0.7rem; opacity: 0.8; }
+        
+        /* Main Content */
+        .seller-main {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .page-header-left h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            color: var(--primary-black);
+            margin-bottom: 4px;
+        }
+        
+        .page-header-left p {
+            color: var(--medium-grey);
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .btn-seller { background: var(--seller-primary); color: var(--white); }
+        .btn-seller:hover { background: var(--seller-dark); }
+        .btn-outline { background: transparent; border: 1px solid var(--medium-grey); color: var(--dark-grey); }
+        .btn-outline:hover { border-color: var(--primary-black); color: var(--primary-black); }
+        .btn-danger { background: var(--red); color: var(--white); }
+        .btn-danger:hover { background: #DC2626; }
+        .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+        
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--white);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid #E5E5E5;
+        }
+        
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 0.9rem;
+        }
+        
+        .search-box i { color: var(--medium-grey); }
+        
+        .filter-select {
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid #E5E5E5;
+            background: var(--white);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .product-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+        
+        .product-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .product-card-image {
+            position: relative;
+            height: 180px;
+            background: var(--light-grey);
+        }
+        
+        .product-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .product-status {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .product-status.active { background: var(--green-light); color: var(--green); }
+        .product-status.draft { background: var(--yellow-light); color: var(--yellow); }
+        .product-status.out-of-stock { background: var(--red-light); color: var(--red); }
+        
+        .product-card-body { padding: 16px; }
+        
+        .product-card-name {
+            font-weight: 600;
+            color: var(--primary-black);
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .product-card-category {
+            font-size: 0.8rem;
+            color: var(--medium-grey);
+            margin-bottom: 10px;
+        }
+        
+        .product-card-price {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--seller-primary);
+            margin-bottom: 10px;
+        }
+        
+        .product-card-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 0.8rem;
+            color: var(--medium-grey);
+            padding-top: 10px;
+            border-top: 1px solid var(--light-grey);
+        }
+        
+        .product-card-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .product-card-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid var(--light-grey);
+        }
+        
+        .product-card-actions .btn { flex: 1; justify-content: center; }
+        
+        /* Add Product Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active { display: flex; }
+        
+        .modal {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--light-grey);
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            z-index: 10;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.2rem;
+            color: var(--primary-black);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--medium-grey);
+        }
+        
+        .modal-body { padding: 20px; }
+        
+        .form-group { margin-bottom: 20px; }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--dark-grey);
+            font-size: 0.9rem;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #E5E5E5;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--seller-primary);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        /* Image Upload */
+        .image-upload-area {
+            border: 2px dashed #E5E5E5;
+            border-radius: var(--radius-md);
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--light-grey);
+        }
+        
+        .image-upload-area:hover {
+            border-color: var(--seller-primary);
+            background: var(--seller-light);
+        }
+        
+        .image-upload-area.dragover {
+            border-color: var(--seller-primary);
+            background: var(--seller-light);
+        }
+        
+        .image-upload-area i {
+            font-size: 2.5rem;
+            color: var(--medium-grey);
+            margin-bottom: 10px;
+        }
+        
+        .image-upload-area h3 {
+            font-size: 1rem;
+            color: var(--primary-black);
+            margin-bottom: 4px;
+        }
+        
+        .image-upload-area p {
+            color: var(--medium-grey);
+            font-size: 0.85rem;
+        }
+        
+        /* Image Preview Grid */
+        .image-previews {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .image-preview {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 2px solid #E5E5E5;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .image-preview-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+        
+        .image-preview.uploading::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px;
+            border-top: 1px solid var(--light-grey);
+            position: sticky;
+            bottom: 0;
+            background: var(--white);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--white);
+            border-radius: var(--radius-md);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--medium-grey);
+            margin-bottom: 16px;
+        }
+        
+        .empty-state h3 {
+            color: var(--primary-black);
+            margin-bottom: 8px;
+        }
+        
+        .empty-state p {
+            color: var(--medium-grey);
+            margin-bottom: 20px;
+        }
+        
+        /* Upload Progress */
+        .upload-progress {
+            background: var(--light-grey);
+            border-radius: 4px;
+            height: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .upload-progress-bar {
+            height: 100%;
+            background: var(--seller-primary);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .seller-topbar { padding: 0 16px; }
+            .seller-topbar-nav { display: none; }
+            .seller-main { padding: 16px; }
+            .form-row { grid-template-columns: 1fr; }
+            .products-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* User Dropdown */
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+            z-index: 1001;
+        }
+        
+        .user-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: var(--dark-grey);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        
+        .user-dropdown a:hover { background: var(--light-grey); }
+        .user-dropdown a i { width: 16px; color: var(--medium-grey); }
+        .user-dropdown hr { border: none; border-top: 1px solid var(--light-grey); margin: 4px 0; }
+        .user-dropdown a.logout { color: var(--red); }
+        .user-dropdown a.logout i { color: var(--red); }
+        
+        .dropdown-wrapper { position: relative; }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="seller-topbar">
+        <div class="seller-topbar-left">
+            <a href="/seller-dashboard.html" class="seller-logo">
+                <img src="/Logo/69shopc.png" alt="69Shop.in">
+                <div class="seller-logo-text">
+                    <h1>69SHOP.IN</h1>
+                    <span><i class="fas fa-store"></i> Seller Hub</span>
+                </div>
+            </a>
+            <span class="seller-badge-chip" id="sellerTypeBadge">Product Seller</span>
+        </div>
+        
+        <div class="seller-topbar-nav">
+            <a href="/seller-dashboard.html" class="topbar-nav-link">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="/seller-products.html" class="topbar-nav-link active">
+                <i class="fas fa-box"></i> Products
+            </a>
+            <a href="/seller-orders.html" class="topbar-nav-link">
+                <i class="fas fa-shopping-bag"></i> Orders
+            </a>
+            <a href="/seller-services.html" class="topbar-nav-link" id="servicesNavLink" style="display: none;">
+                <i class="fas fa-concierge-bell"></i> Services
+            </a>
+        </div>
+        
+        <div class="seller-topbar-right">
+            <button class="topbar-icon-btn" title="Notifications">
+                <i class="fas fa-bell"></i>
+            </button>
+            <div class="dropdown-wrapper">
+                <div class="seller-user-menu" onclick="toggleUserDropdown()">
+                    <div class="seller-user-avatar" id="userAvatar">S</div>
+                    <div class="seller-user-info">
+                        <strong id="userName">Loading...</strong>
+                        <span id="userEmail">seller@69shop.in</span>
+                    </div>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                    <a href="/shop.html"><i class="fas fa-external-link-alt"></i> View Shop</a>
+                    <hr>
+                    <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="seller-main">
+        <div class="page-header">
+            <div class="page-header-left">
+                <h1>Products</h1>
+                <p>Manage your product listings and inventory</p>
+            </div>
+            <button class="btn btn-seller" onclick="openAddProductModal()">
+                <i class="fas fa-plus"></i>
+                Add Product
+            </button>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="productSearch" placeholder="Search products...">
+            </div>
+            <select class="filter-select" id="categoryFilter">
+                <option value="">All Categories</option>
+                <option value="mobiles">Mobiles</option>
+                <option value="electronics">Electronics</option>
+                <option value="headphones">Headphones</option>
+                <option value="fashion">Fashion</option>
+                <option value="beauty">Beauty</option>
+                <option value="appliances">Appliances</option>
+                <option value="sports">Sports</option>
+                <option value="grocery">Grocery</option>
+                <option value="books">Books</option>
+                <option value="home-needs">Home Needs</option>
+            </select>
+            <select class="filter-select" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="draft">Draft</option>
+                <option value="out-of-stock">Out of Stock</option>
+            </select>
+        </div>
+        
+        <!-- Products Grid -->
+        <div class="products-grid" id="productsGrid">
+            <!-- Products will be loaded here -->
+        </div>
+        
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <i class="fas fa-box-open"></i>
+            <h3>No products yet</h3>
+            <p>Add your first product to start selling on 69Shop.in</p>
+            <button class="btn btn-seller" onclick="openAddProductModal()">
+                <i class="fas fa-plus"></i>
+                Add Your First Product
+            </button>
+        </div>
+    </main>
+    
+    <!-- Add/Edit Product Modal -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Product</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="productForm">
+                <div class="modal-body">
+                    <!-- Image Upload -->
+                    <div class="form-group">
+                        <label>Product Images</label>
+                        <div class="image-upload-area" id="imageUploadArea" onclick="document.getElementById('productImages').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h3>Drop images here or click to upload</h3>
+                            <p>Supports: JPG, PNG, WebP • Max 5MB each • Up to 5 images</p>
+                            <input type="file" id="productImages" accept="image/*" multiple hidden>
+                        </div>
+                        <div class="image-previews" id="imagePreviews"></div>
+                        <div class="upload-progress" id="uploadProgress" style="display:none;">
+                            <div class="upload-progress-bar" id="uploadProgressBar" style="width:0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productName">Product Name *</label>
+                        <input type="text" id="productName" required placeholder="Enter product name">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productCategory">Category *</label>
+                            <select id="productCategory" required>
+                                <option value="">Select category</option>
+                                <option value="mobiles">Mobiles</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="headphones">Headphones</option>
+                                <option value="fashion">Fashion</option>
+                                <option value="beauty">Beauty</option>
+                                <option value="appliances">Appliances</option>
+                                <option value="sports">Sports</option>
+                                <option value="grocery">Grocery</option>
+                                <option value="books">Books</option>
+                                <option value="home-needs">Home Needs</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="productBrand">Brand</label>
+                            <input type="text" id="productBrand" placeholder="e.g., Apple, Samsung">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productPrice">Selling Price (₹) *</label>
+                            <input type="number" id="productPrice" required min="1" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="productMRP">MRP (₹)</label>
+                            <input type="number" id="productMRP" min="0" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productStock">Stock Quantity *</label>
+                            <input type="number" id="productStock" required min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="productStatus">Status</label>
+                            <select id="productStatus">
+                                <option value="active">Active</option>
+                                <option value="draft">Draft</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productTags">Search Tags (comma separated)</label>
+                        <input type="text" id="productTags" placeholder="e.g., wireless, bluetooth, premium">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productDescription">Description</label>
+                        <textarea id="productDescription" placeholder="Describe your product..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-seller" id="saveProductBtn">
+                        <i class="fas fa-save"></i>
+                        Save Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Firebase
+        let auth = null;
+        let db = null;
+        let storage = null;
+        let currentUser = null;
+        let products = [];
+        let editingProductId = null;
+        let uploadedImages = [];
+        
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (firebaseConfig && firebaseConfig.apiKey) {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                auth = firebase.auth();
+                db = firebase.firestore();
+                storage = firebase.storage();
+            }
+        } catch (error) {
+            console.warn('Firebase init failed:', error);
+        }
+        
+        // Toggle user dropdown
+        function toggleUserDropdown() {
+            document.getElementById('userDropdown').classList.toggle('show');
+        }
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown-wrapper')) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+        
+        async function handleLogout(e) {
+            e.preventDefault();
+            if (auth) {
+                await auth.signOut();
+                window.location.href = '/seller-login.html';
+            }
+        }
+        
+        // Auth state with role verification
+        if (auth) {
+            auth.onAuthStateChanged(async user => {
+                if (!user) {
+                    window.location.href = '/seller-login.html';
+                    return;
+                }
+                
+                // Verify this user is a seller
+                try {
+                    const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                    if (!sellerDoc.exists) {
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        if (userDoc.exists && userDoc.data().accountType !== 'seller') {
+                            showToast('Access denied. Seller account required.');
+                            await auth.signOut();
+                            window.location.href = '/shop-login.html';
+                            return;
+                        }
+                    } else {
+                        // Update display with seller business name
+                        const sellerData = sellerDoc.data();
+                        document.getElementById('userName').textContent = sellerData.businessName || user.displayName || user.email?.split('@')[0] || 'Seller';
+                        document.getElementById('userAvatar').textContent = (sellerData.businessName || user.displayName || user.email || 'S')[0].toUpperCase();
+                        
+                        // Show services link for service providers
+                        if (sellerData.sellerType === 'service') {
+                            document.getElementById('sellerTypeBadge').textContent = 'Service Provider';
+                            const servicesLink = document.getElementById('servicesNavLink');
+                            if (servicesLink) servicesLink.style.display = 'flex';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Role verification failed:', error);
+                }
+                
+                currentUser = user;
+                document.getElementById('userName').textContent = document.getElementById('userName').textContent || user.displayName || user.email?.split('@')[0] || 'Seller';
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userAvatar').textContent = document.getElementById('userAvatar').textContent || (user.displayName || user.email || 'S')[0].toUpperCase();
+                loadProducts();
+            });
+        }
+        
+        // Load products from Firestore
+        async function loadProducts() {
+            if (!db || !currentUser) {
+                loadSampleProducts();
+                return;
+            }
+            
+            try {
+                const snapshot = await db.collection('products')
+                    .where('sellerId', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                products = [];
+                snapshot.forEach(doc => {
+                    products.push({ id: doc.id, ...doc.data() });
+                });
+                
+                if (products.length === 0) {
+                    loadSampleProducts();
+                } else {
+                    renderProducts();
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                loadSampleProducts();
+            }
+        }
+        
+        function loadSampleProducts() {
+            products = [
+                { id: 'sp1', name: 'iPhone 15 Pro Max', category: 'mobiles', price: 159900, mrp: 169900, stock: 25, status: 'active', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80', views: 1250, orders: 18 },
+                { id: 'sp2', name: 'Sony WH-1000XM5', category: 'headphones', price: 29999, mrp: 34990, stock: 50, status: 'active', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80', views: 890, orders: 32 },
+                { id: 'sp3', name: 'MacBook Air M3', category: 'electronics', price: 114900, mrp: 119900, stock: 0, status: 'out-of-stock', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80', views: 2100, orders: 45 },
+                { id: 'sp4', name: 'Nike Air Max 270', category: 'fashion', price: 12995, mrp: 14995, stock: 100, status: 'active', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80', views: 560, orders: 12 },
+                { id: 'sp5', name: 'Dyson Airwrap', category: 'beauty', price: 45900, mrp: 49900, stock: 15, status: 'draft', image: 'https://images.unsplash.com/photo-1522338242042-2d1c5b5b5b5b?auto=format&fit=crop&w=400&q=80', views: 0, orders: 0 }
+            ];
+            renderProducts();
+        }
+        
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            const empty = document.getElementById('emptyState');
+            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            let filtered = products.filter(p => {
+                if (searchTerm && !p.name.toLowerCase().includes(searchTerm)) return false;
+                if (categoryFilter && p.category !== categoryFilter) return false;
+                if (statusFilter && p.status !== statusFilter) return false;
+                return true;
+            });
+            
+            if (filtered.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+            
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+            
+            grid.innerHTML = filtered.map(p => `
+                <div class="product-card">
+                    <div class="product-card-image">
+                        <img src="${p.image || p.images?.[0] || 'https://via.placeholder.com/300'}" alt="${p.name}">
+                        <span class="product-status ${p.status}">${p.status === 'out-of-stock' ? 'Out of Stock' : p.status.charAt(0).toUpperCase() + p.status.slice(1)}</span>
+                    </div>
+                    <div class="product-card-body">
+                        <h3 class="product-card-name">${p.name}</h3>
+                        <div class="product-card-category">${p.category.charAt(0).toUpperCase() + p.category.slice(1)}</div>
+                        <div class="product-card-price">₹${p.price.toLocaleString('en-IN')}</div>
+                        <div class="product-card-stats">
+                            <span><i class="fas fa-eye"></i> ${p.views || 0}</span>
+                            <span><i class="fas fa-shopping-cart"></i> ${p.orders || 0} orders</span>
+                            <span><i class="fas fa-boxes"></i> ${p.stock} in stock</span>
+                        </div>
+                    </div>
+                    <div class="product-card-actions">
+                        <button class="btn btn-outline btn-sm" onclick="editProduct('${p.id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="deleteProduct('${p.id}')" style="color: var(--red);">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Image upload handling
+        const imageUploadArea = document.getElementById('imageUploadArea');
+        const productImagesInput = document.getElementById('productImages');
+        
+        // Drag and drop
+        imageUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            imageUploadArea.classList.add('dragover');
+        });
+        
+        imageUploadArea.addEventListener('dragleave', () => {
+            imageUploadArea.classList.remove('dragover');
+        });
+        
+        imageUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imageUploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        productImagesInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+        
+        function handleFiles(files) {
+            Array.from(files).slice(0, 5 - uploadedImages.length).forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('Image too large. Max 5MB allowed.');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedImages.push({
+                        file: file,
+                        preview: e.target.result,
+                        url: null
+                    });
+                    renderImagePreviews();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function renderImagePreviews() {
+            const container = document.getElementById('imagePreviews');
+            container.innerHTML = uploadedImages.map((img, index) => `
+                <div class="image-preview ${img.uploading ? 'uploading' : ''}">
+                    <img src="${img.preview || img.url}" alt="Preview">
+                    <button type="button" class="image-preview-remove" onclick="removeImage(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        function removeImage(index) {
+            uploadedImages.splice(index, 1);
+            renderImagePreviews();
+        }
+        
+        // Upload images to Firebase Storage
+        async function uploadImages() {
+            if (!storage || !currentUser || uploadedImages.length === 0) return [];
+            
+            const progressBar = document.getElementById('uploadProgress');
+            const progressBarInner = document.getElementById('uploadProgressBar');
+            progressBar.style.display = 'block';
+            
+            const urls = [];
+            
+            for (let i = 0; i < uploadedImages.length; i++) {
+                const img = uploadedImages[i];
+                if (img.url) {
+                    urls.push(img.url);
+                    continue;
+                }
+                
+                const fileName = `products/${currentUser.uid}/${Date.now()}_${i}_${img.file.name}`;
+                const ref = storage.ref(fileName);
+                
+                try {
+                    const snapshot = await ref.put(img.file);
+                    const url = await snapshot.ref.getDownloadURL();
+                    urls.push(url);
+                    uploadedImages[i].url = url;
+                } catch (error) {
+                    console.error('Upload error:', error);
+                }
+                
+                progressBarInner.style.width = `${((i + 1) / uploadedImages.length) * 100}%`;
+            }
+            
+            progressBar.style.display = 'none';
+            return urls;
+        }
+        
+        function openAddProductModal() {
+            editingProductId = null;
+            uploadedImages = [];
+            document.getElementById('modalTitle').textContent = 'Add New Product';
+            document.getElementById('productForm').reset();
+            document.getElementById('imagePreviews').innerHTML = '';
+            document.getElementById('productModal').classList.add('active');
+        }
+        
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+            
+            editingProductId = id;
+            uploadedImages = [];
+            
+            // Populate existing images
+            if (product.images?.length) {
+                uploadedImages = product.images.map(url => ({ url, preview: url }));
+            } else if (product.image) {
+                uploadedImages = [{ url: product.image, preview: product.image }];
+            }
+            
+            document.getElementById('modalTitle').textContent = 'Edit Product';
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productBrand').value = product.brand || '';
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productMRP').value = product.mrp || '';
+            document.getElementById('productStock').value = product.stock;
+            document.getElementById('productStatus').value = product.status;
+            document.getElementById('productTags').value = product.tags?.join(', ') || '';
+            document.getElementById('productDescription').value = product.description || '';
+            
+            renderImagePreviews();
+            document.getElementById('productModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('productModal').classList.remove('active');
+            editingProductId = null;
+            uploadedImages = [];
+        }
+        
+        async function deleteProduct(id) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            if (db && currentUser) {
+                try {
+                    await db.collection('products').doc(id).delete();
+                } catch (error) {
+                    console.error('Error deleting:', error);
+                }
+            }
+            
+            products = products.filter(p => p.id !== id);
+            renderProducts();
+            showToast('Product deleted successfully');
+        }
+        
+        // Form submission
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('saveProductBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            // Upload images first
+            const imageUrls = await uploadImages();
+            
+            const productData = {
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                brand: document.getElementById('productBrand').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                mrp: parseInt(document.getElementById('productMRP').value) || null,
+                stock: parseInt(document.getElementById('productStock').value),
+                status: document.getElementById('productStatus').value,
+                tags: document.getElementById('productTags').value.split(',').map(t => t.trim()).filter(t => t),
+                description: document.getElementById('productDescription').value,
+                images: imageUrls,
+                image: imageUrls[0] || null,
+                sellerId: currentUser?.uid,
+                updatedAt: firebase.firestore?.FieldValue?.serverTimestamp() || new Date()
+            };
+            
+            if (db && currentUser) {
+                try {
+                    if (editingProductId) {
+                        await db.collection('products').doc(editingProductId).update(productData);
+                    } else {
+                        productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                        productData.views = 0;
+                        productData.orders = 0;
+                        await db.collection('products').add(productData);
+                    }
+                } catch (error) {
+                    console.error('Error saving:', error);
+                }
+            }
+            
+            // Update local state
+            if (editingProductId) {
+                const index = products.findIndex(p => p.id === editingProductId);
+                if (index !== -1) {
+                    products[index] = { ...products[index], ...productData };
+                }
+                showToast('Product updated successfully');
+            } else {
+                productData.id = 'p' + Date.now();
+                productData.views = 0;
+                productData.orders = 0;
+                products.unshift(productData);
+                showToast('Product added successfully');
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> Save Product';
+            
+            closeModal();
+            renderProducts();
+        });
+        
+        // Search and filters
+        document.getElementById('productSearch').addEventListener('input', renderProducts);
+        document.getElementById('categoryFilter').addEventListener('change', renderProducts);
+        document.getElementById('statusFilter').addEventListener('change', renderProducts);
+        
+        function showToast(msg) {
+            const el = document.createElement('div');
+            el.style.cssText = 'position:fixed;top:80px;right:20px;background:var(--seller-primary);color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;transform:translateX(120%);transition:transform 0.25s ease;';
+            el.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+            document.body.appendChild(el);
+            requestAnimationFrame(() => el.style.transform = 'translateX(0)');
+            setTimeout(() => { el.style.transform = 'translateX(120%)'; setTimeout(() => el.remove(), 250); }, 2500);
+        }
+        
+        // Check for add action in URL
+        if (new URLSearchParams(window.location.search).get('action') === 'add') {
+            setTimeout(openAddProductModal, 500);
+        }
+    </script>
+</body>
+</html>

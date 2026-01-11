@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Hub Login - 69Shop.in</title>
+    <meta name="description" content="Login to your 69Shop.in Seller Hub to manage products, orders, and services">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            --primary-black: #1A1A1A;
+            --secondary-black: #2D2D2D;
+            --dark-grey: #404040;
+            --medium-grey: #666666;
+            --light-grey: #F8F8F8;
+            --white: #FFFFFF;
+            --seller-primary: #7C3AED;
+            --seller-light: #EDE9FE;
+            --seller-dark: #5B21B6;
+            --green: #22C55E;
+            --green-light: #DCFCE7;
+            --red: #EF4444;
+            --shadow-sm: 0 2px 8px rgba(26, 26, 26, 0.05);
+            --shadow-md: 0 4px 16px rgba(26, 26, 26, 0.08);
+            --shadow-lg: 0 8px 32px rgba(26, 26, 26, 0.12);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--seller-primary) 0%, var(--seller-dark) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 480px;
+        }
+        
+        .seller-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        
+        .seller-badge img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+        
+        .seller-badge-text {
+            color: var(--white);
+        }
+        
+        .seller-badge-text h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        
+        .seller-badge-text span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .seller-badge-text span i {
+            color: #A78BFA;
+        }
+        
+        .login-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+        
+        .login-header {
+            background: var(--light-grey);
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #E5E5E5;
+        }
+        
+        .login-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            color: var(--primary-black);
+            margin-bottom: 6px;
+        }
+        
+        .login-header p {
+            font-size: 0.9rem;
+            color: var(--medium-grey);
+        }
+        
+        .login-tabs {
+            display: flex;
+            border-bottom: 1px solid #E5E5E5;
+        }
+        
+        .login-tab {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--medium-grey);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .login-tab.active {
+            color: var(--seller-primary);
+        }
+        
+        .login-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--seller-primary);
+        }
+        
+        .login-body {
+            padding: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-grey);
+            font-size: 0.9rem;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--medium-grey);
+        }
+        
+        .input-with-icon input {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            border: 1px solid #E5E5E5;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        
+        .input-with-icon input:focus {
+            outline: none;
+            border-color: var(--seller-primary);
+            box-shadow: 0 0 0 3px var(--seller-light);
+        }
+        
+        .seller-type-select {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .seller-type-option {
+            padding: 16px;
+            border: 2px solid #E5E5E5;
+            border-radius: var(--radius-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .seller-type-option:hover {
+            border-color: var(--seller-primary);
+        }
+        
+        .seller-type-option.selected {
+            border-color: var(--seller-primary);
+            background: var(--seller-light);
+        }
+        
+        .seller-type-option i {
+            font-size: 1.5rem;
+            color: var(--seller-primary);
+            margin-bottom: 8px;
+        }
+        
+        .seller-type-option h4 {
+            font-size: 0.9rem;
+            color: var(--primary-black);
+            margin-bottom: 4px;
+        }
+        
+        .seller-type-option p {
+            font-size: 0.75rem;
+            color: var(--medium-grey);
+        }
+        
+        .btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        
+        .btn-seller {
+            background: var(--seller-primary);
+            color: var(--white);
+        }
+        
+        .btn-seller:hover {
+            background: var(--seller-dark);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 20px 0;
+            color: var(--medium-grey);
+            font-size: 0.85rem;
+        }
+        
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #E5E5E5;
+        }
+        
+        .google-btn {
+            background: var(--white);
+            color: var(--dark-grey);
+            border: 1px solid #E5E5E5;
+        }
+        
+        .google-btn:hover {
+            background: var(--light-grey);
+        }
+        
+        .google-btn img {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .login-footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #E5E5E5;
+            font-size: 0.9rem;
+            color: var(--medium-grey);
+        }
+        
+        .login-footer a {
+            color: var(--seller-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-msg {
+            background: var(--red);
+            background: #FEE2E2;
+            color: var(--red);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .error-msg.show {
+            display: block;
+        }
+        
+        .back-to-shop {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            transition: color 0.2s;
+        }
+        
+        .back-to-shop:hover {
+            color: var(--white);
+        }
+        
+        .form-panel {
+            display: none;
+        }
+        
+        .form-panel.active {
+            display: block;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: var(--seller-primary);
+        }
+        
+        .checkbox-group label {
+            font-size: 0.85rem;
+            color: var(--medium-grey);
+            line-height: 1.4;
+        }
+        
+        .checkbox-group label a {
+            color: var(--seller-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="seller-badge">
+            <img src="/Logo/69shopc.png" alt="69Shop.in">
+            <div class="seller-badge-text">
+                <h1>69SHOP.IN</h1>
+                <span><i class="fas fa-store"></i> Seller Hub</span>
+            </div>
+        </div>
+        
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Welcome, Partner!</h2>
+                <p>Sign in to manage your seller account</p>
+            </div>
+            
+            <div class="login-tabs">
+                <button class="login-tab active" data-tab="login">Sign In</button>
+                <button class="login-tab" data-tab="register">Create Account</button>
+            </div>
+            
+            <div class="login-body">
+                <div class="error-msg" id="errorMsg"></div>
+                
+                <!-- Login Panel -->
+                <div class="form-panel active" id="loginPanel">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="loginEmail" placeholder="seller@example.com" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Password</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="loginPassword" placeholder="••••••••" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-seller" id="loginBtn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Sign In to Seller Hub
+                        </button>
+                    </form>
+                    
+                    <div class="divider">or continue with</div>
+                    
+                    <button class="btn google-btn" id="googleLoginBtn">
+                        <img src="https://www.google.com/favicon.ico" alt="Google">
+                        Google Account
+                    </button>
+                </div>
+                
+                <!-- Register Panel -->
+                <div class="form-panel" id="registerPanel">
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label>Seller Type</label>
+                            <div class="seller-type-select">
+                                <div class="seller-type-option selected" data-type="product">
+                                    <i class="fas fa-box"></i>
+                                    <h4>Product Seller</h4>
+                                    <p>Sell physical products</p>
+                                </div>
+                                <div class="seller-type-option" data-type="service">
+                                    <i class="fas fa-concierge-bell"></i>
+                                    <h4>Service Provider</h4>
+                                    <p>Offer services</p>
+                                </div>
+                            </div>
+                            <input type="hidden" id="sellerType" value="product">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Business / Store Name</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-store"></i>
+                                <input type="text" id="businessName" placeholder="Your Store Name" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="registerEmail" placeholder="seller@example.com" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="registerPhone" placeholder="+91 98765 43210" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Password</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="registerPassword" placeholder="Min 8 characters" required minlength="8">
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="termsAgree" required>
+                            <label for="termsAgree">
+                                I agree to the <a href="/docs/terms.html">Seller Terms</a> and <a href="/docs/privacy.html">Privacy Policy</a>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-seller" id="registerBtn">
+                            <i class="fas fa-user-plus"></i>
+                            Create Seller Account
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="login-footer">
+                <a href="/shop.html"><i class="fas fa-arrow-left"></i> Back to Shop</a>
+                &nbsp;•&nbsp;
+                <a href="/shop-login.html">Buyer Login</a>
+            </div>
+        </div>
+        
+        <a href="/shop.html" class="back-to-shop">
+            <i class="fas fa-arrow-left"></i>
+            Back to Shop
+        </a>
+    </div>
+    
+    <script>
+        // Initialize Firebase
+        let auth = null;
+        let db = null;
+        
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (firebaseConfig && firebaseConfig.apiKey) {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                auth = firebase.auth();
+                db = firebase.firestore();
+            }
+        } catch (error) {
+            console.warn('Firebase init failed:', error);
+        }
+        
+        // Tab switching
+        document.querySelectorAll('.login-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + 'Panel').classList.add('active');
+                hideError();
+            });
+        });
+        
+        // Seller type selection
+        document.querySelectorAll('.seller-type-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.seller-type-option').forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                document.getElementById('sellerType').value = option.dataset.type;
+            });
+        });
+        
+        // Error handling
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.classList.add('show');
+        }
+        
+        function hideError() {
+            document.getElementById('errorMsg').classList.remove('show');
+        }
+        
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!auth) return showError('Firebase not configured');
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+            hideError();
+            
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                
+                // Check if user is a seller
+                const sellerDoc = await db.collection('sellers').doc(userCredential.user.uid).get();
+                if (!sellerDoc.exists) {
+                    // Create seller profile if doesn't exist
+                    await db.collection('sellers').doc(userCredential.user.uid).set({
+                        email: email,
+                        businessName: email.split('@')[0],
+                        sellerType: 'product',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        status: 'active'
+                    });
+                }
+                
+                window.location.href = '/seller-dashboard.html';
+            } catch (error) {
+                showError(error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In to Seller Hub';
+            }
+        });
+        
+        // Register form
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!auth || !db) return showError('Firebase not configured');
+            
+            const businessName = document.getElementById('businessName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            const sellerType = document.getElementById('sellerType').value;
+            const btn = document.getElementById('registerBtn');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+            hideError();
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                // Update display name
+                await userCredential.user.updateProfile({
+                    displayName: businessName
+                });
+                
+                // Create seller profile
+                await db.collection('sellers').doc(userCredential.user.uid).set({
+                    businessName: businessName,
+                    email: email,
+                    phone: phone,
+                    sellerType: sellerType,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'pending', // Pending approval
+                    products: [],
+                    services: [],
+                    totalSales: 0,
+                    totalOrders: 0,
+                    rating: 0,
+                    reviewCount: 0
+                });
+                
+                window.location.href = '/seller-dashboard.html';
+            } catch (error) {
+                showError(error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Seller Account';
+            }
+        });
+        
+        // Google login
+        document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+            if (!auth) return showError('Firebase not configured');
+            
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider);
+                
+                // Check/create seller profile
+                const sellerDoc = await db.collection('sellers').doc(result.user.uid).get();
+                if (!sellerDoc.exists) {
+                    await db.collection('sellers').doc(result.user.uid).set({
+                        email: result.user.email,
+                        businessName: result.user.displayName || result.user.email.split('@')[0],
+                        sellerType: 'product',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        status: 'active'
+                    });
+                }
+                
+                window.location.href = '/seller-dashboard.html';
+            } catch (error) {
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showError(error.message);
+                }
+            }
+        });
+        
+        // Check if already logged in
+        if (auth) {
+            auth.onAuthStateChanged(async user => {
+                if (user) {
+                    // Verify seller account exists
+                    const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                    if (sellerDoc.exists) {
+                        window.location.href = '/seller-dashboard.html';
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

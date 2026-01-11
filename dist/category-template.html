@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/shop.css">
+  <style>
+    .category-hero {padding: 48px 0 16px;}
+    .category-hero h1 {font-size: 1.9rem; margin: 0 0 8px;}
+    .category-hero p {color: var(--text-medium); margin: 0;}
+    .products-grid {margin-top: 16px;}
+    .back-link {display: inline-flex; align-items: center; gap: 8px; color: var(--blue-primary); font-weight: 600; text-decoration: none;}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo">
+          <div class="logo-icon"><img src="/Logo/69shopc.png" alt="69Shop.in Logo" style="width:100%;height:100%;object-fit:contain;"></div>
+          <div class="logo-text"><div class="site-name">69SHOP.IN</div><div class="tagline">Premium Marketplace</div></div>
+        </a>
+        <a class="back-link" href="/shop.html"><i class="fas fa-arrow-left"></i> Back to shop</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section class="shop-hero category-hero">
+      <div class="container">
+        <div class="shop-hero-content">
+          <h1 id="categoryTitle">Category</h1>
+          <p id="categorySubtitle">Curated picks for this category</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="shop-container">
+      <div class="shop-content" style="width:100%;">
+        <div class="products-header">
+          <h2 class="section-title" id="sectionTitle">Products</h2>
+          <div class="product-count"><span id="productCount">0</span> products found</div>
+        </div>
+        <div class="products-grid" id="productsGrid"></div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <div class="empty-state-icon"><i class="fas fa-box-open"></i></div>
+          <h3 class="empty-state-title">No products found</h3>
+          <p class="empty-state-text">Check back soon for new arrivals.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="products-data.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get('category') || 'mobiles';
+    const meta = {
+      mobiles: {title:'Mobiles', subtitle:'Latest smartphones and budget picks'},
+      headphones: {title:'Headphones', subtitle:'ANC, over-ear, and sport buds'},
+      appliances: {title:'Appliances', subtitle:'Smart home and kitchen essentials'},
+      'home-needs': {title:'Home Needs', subtitle:'Lighting, comfort, and daily essentials'}
+    };
+    const {title, subtitle} = meta[category] || {title:'Products', subtitle:'Curated picks'};
+    document.title = `${title} - 69Shop.in`;
+    document.getElementById('categoryTitle').textContent = title;
+    document.getElementById('categorySubtitle').textContent = subtitle;
+    document.getElementById('sectionTitle').textContent = `${title} Picks`;
+
+    const grid = document.getElementById('productsGrid');
+    const empty = document.getElementById('emptyState');
+    const count = document.getElementById('productCount');
+
+    function render() {
+      const items = (window.productsData || []).filter(p => p.category === category);
+      count.textContent = items.length;
+      if (!items.length) {
+        grid.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      grid.innerHTML = items.map(p => `
+        <div class="product-card" data-id="${p.id}">
+          <div class="product-image"><img src="${p.image}" alt="${p.name}" loading="lazy"></div>
+          <div class="product-content">
+            <h3 class="product-name">${p.name}</h3>
+            <div class="product-price">₹${p.price.toLocaleString('en-IN')}</div>
+            <div class="product-seller"><i class="fas fa-store"></i><span>${p.seller}</span>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:4px;"><i class="fas fa-star" style="color:#FFD700;"></i><span>${p.rating.toFixed(1)}</span></div>
+            </div>
+            <div class="product-actions">
+              <button class="btn-add-to-cart" disabled><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+              <button class="btn-wishlist" disabled title="Login to use wishlist"><i class="fas fa-heart"></i></button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    render();
+  </script>
+</body>
+</html>
