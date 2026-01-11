@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>69Shop.in - Shop</title>
+    <meta name="description" content="Shop quality products on 69Shop.in - India's premium marketplace">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJGhxrc-0LKxOEhvGnmcZlr0ignTC6SQI",
+            authDomain: "shop69-1.firebaseapp.com",
+            projectId: "shop69-1",
+            storageBucket: "shop69-1.firebasestorage.app",
+            messagingSenderId: "493886821318",
+            appId: "1:493886821318:web:e5c011deeab1f3700dd8c7",
+            measurementId: "G-7Q8JSJV0QJ"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+
+    <link rel="stylesheet" href="assets/css/shop.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo" onclick="handleShopLogoClick(event)">
+                    <div class="logo-icon">
+                        <img src="/Logo/69shopc.png" alt="69Shop.in Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                    </div>
+                    <div class="logo-text">
+                        <div class="site-name">69SHOP.IN</div>
+                        <div class="tagline">Premium Marketplace</div>
+                    </div>
+                </a>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <!-- Search Bar -->
+                <div class="search-container" id="searchContainer">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search for products, brands, and more..." autocomplete="off">
+                        <!-- Search Results Dropdown -->
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                </div>
+
+                <!-- Header Actions -->
+                <div class="header-actions">
+                    <!-- Mobile Search Toggle - Hidden on desktop -->
+                    <button class="search-mobile-toggle" id="searchMobileToggle" aria-label="Toggle search">
+                        <i class="fas fa-search"></i>
+                    </button>
+
+                    <!-- Cart Button -->
+                    <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </button>
+
+                    <!-- User Profile Button -->
+                    <button class="user-profile-btn" id="userProfileBtn">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <span class="user-name" id="userName">Loading...</span>
+                        <i class="fas fa-chevron-down user-chevron"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Fixed Filter Bar -->
+    <div class="filter-bar-container" id="filterBar">
+        <div class="filter-bar">
+            <div class="filter-tags" id="activeFilters">
+                <!-- Active filters will appear here -->
+            </div>
+            <div class="filter-bar-actions">
+                <button class="filter-bar-btn filter-bar-clear" id="clearAllFilters">
+                    Clear All
+                </button>
+                <button class="filter-bar-btn filter-bar-toggle" id="toggleFilters">
+                    <i class="fas fa-filter"></i>
+                    Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Sidebar -->
+    <div class="profile-overlay" id="profileOverlay"></div>
+    <div class="profile-sidebar" id="profileSidebar">
+        <div class="profile-header">
+            <h3 class="profile-title">My Profile</h3>
+            <button class="close-profile" id="closeProfile">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="profile-content">
+            <div class="profile-info">
+                <div class="profile-avatar-large" id="profileAvatarLarge">U</div>
+                <h2 class="profile-name-large" id="profileNameLarge">Loading...</h2>
+                <p class="profile-email" id="profileEmail">loading@example.com</p>
+                <span class="profile-badge" id="profileBadge">Buyer Account</span>
+            </div>
+            
+            <ul class="profile-menu">
+                <li>
+                    <a href="/profile.html?section=dashboard" id="profileDashboard" data-profile-link>
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                            <i class="fas fa-comment"></i>
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>My Orders</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile.html?section=wishlist" id="profileWishlist" data-profile-link>
+                        <i class="fas fa-heart"></i>
+                        <span>Wishlist</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile.html?section=cart" id="profileCart" data-profile-link>
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>My Cart</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile.html?section=messages" id="profileMessages" data-profile-link>
+                        <i class="fas fa-envelope"></i>
+                        <span>Messages</span>
+                        <span style="margin-left: auto; background: var(--blue-primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">3</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile.html?section=notifications" id="profileNotifications" data-profile-link>
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                        <span style="margin-left: auto; background: var(--blue-primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">5</span>
+                    </a>
+                </li>
+                
+                <hr class="menu-divider">
+                
+                <li>
+                    <a href="/profile.html?section=addresses" id="profileAddresses" data-profile-link>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>My Addresses</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile.html?section=payments" id="profilePayment" data-profile-link>
+                        <i class="fas fa-credit-card"></i>
+                        <span>Payment Methods</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile.html?section=subscriptions" id="profileSubscriptions" data-profile-link>
+                        <i class="fas fa-star"></i>
+                        <span>My Subscriptions</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile.html?section=reviews" id="profileReviews" data-profile-link>
+                        <i class="fas fa-comment"></i>
+                        <span>My Reviews</span>
+                    </a>
+                </li>
+                
+                <hr class="menu-divider">
+                
+                <li>
+                    <a href="/profile.html?section=settings" id="profileSettings" data-profile-link>
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile.html?section=help" id="profileHelp" data-profile-link>
+                        <i class="fas fa-question-circle"></i>
+                        <span>Help & Support</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/shop.html" id="profileHome">
+                        <i class="fas fa-home"></i>
+                        <span>Home Page</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/#sell" id="profileSell">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Become a Seller</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="profile-footer">
+            <button class="btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3 class="cart-title">Your Cart</h3>
+            <button class="close-cart" id="closeCart">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be added here dynamically -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">₹0</span>
+            </div>
+            <button class="checkout-btn" id="checkoutBtn">
+                <i class="fas fa-lock"></i>
+                Proceed to Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Shop Hero -->
+        <section class="shop-hero">
+            <div class="container">
+                <div class="shop-hero-content">
+                    <h1 id="welcomeTitle">Welcome to Our Shop!</h1>
+                    <p>Discover quality products from trusted sellers across India. Happy shopping!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shop Layout -->
+        <div class="shop-container">
+            <div class="filters-overlay" id="filtersOverlay"></div>
+            <!-- Filters Sidebar -->
+            <aside class="filters-sidebar" id="filtersSidebar">
+                <div class="filters-header">
+                    <h3 class="filters-title">Filters</h3>
+                    <button class="btn-logout" id="clearFilters" style="padding: 6px 12px; font-size: 0.75rem;">
+                        Clear All
+                    </button>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Category</label>
+                    <div class="filter-options" id="categoryFilters">
+                        <button class="filter-option active" data-category="all">All Products</button>
+                        <button class="filter-option" data-category="electronics">Electronics</button>
+                        <button class="filter-option" data-category="fashion">Fashion</button>
+                        <button class="filter-option" data-category="home">Home & Kitchen</button>
+                        <button class="filter-option" data-category="beauty">Beauty</button>
+                        <button class="filter-option" data-category="books">Books</button>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Price Range</label>
+                    <div class="price-slider-container">
+                        <input type="range" min="0" max="50000" value="50000" class="price-input" id="priceRange">
+                        <div class="price-values">
+                            <span class="price-min">₹0</span>
+                            <span class="price-max" id="maxPriceValue">₹50,000</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Sort By</label>
+                    <div class="filter-options" id="sortOptions">
+                        <button class="filter-option active" data-sort="featured">Featured</button>
+                        <button class="filter-option" data-sort="price-low">Price: Low to High</button>
+                        <button class="filter-option" data-sort="price-high">Price: High to Low</button>
+                        <button class="filter-option" data-sort="rating">Highest Rated</button>
+                        <button class="filter-option" data-sort="newest">Newest Arrivals</button>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Seller Type</label>
+                    <div class="filter-options" id="sellerFilters">
+                        <button class="filter-option" data-seller="all">All Sellers</button>
+                        <button class="filter-option" data-seller="premium">Premium Sellers</button>
+                        <button class="filter-option" data-seller="verified">Verified Sellers</button>
+                        <button class="filter-option" data-seller="new">New Sellers</button>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Delivery Time</label>
+                    <div class="filter-options" id="deliveryFilters">
+                        <button class="filter-option" data-delivery="any">Any Delivery</button>
+                        <button class="filter-option" data-delivery="1day">1 Day Delivery</button>
+                        <button class="filter-option" data-delivery="2day">2 Day Delivery</button>
+                        <button class="filter-option" data-delivery="week">Within a Week</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Shop Content -->
+            <div class="shop-content">
+                <!-- Mobile Filters Toggle -->
+                <button class="mobile-filters-toggle" id="mobileFiltersToggle">
+                    <i class="fas fa-filter"></i>
+                    Filters
+                </button>
+                
+                <!-- Products Header -->
+                <div class="products-header">
+                    <h2 class="section-title">Featured Products</h2>
+                    <div class="product-count">
+                        <span id="productCount">0</span> products found
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading" id="loadingState">
+                    <div class="loading-spinner"></div>
+                    <p>Loading products...</p>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="products-grid" id="productsGrid" style="display: none;">
+                    <!-- Products will be loaded here dynamically -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h3 class="empty-state-title">No products found</h3>
+                    <p class="empty-state-text">Try adjusting your filters or check back later for new arrivals.</p>
+                    <button class="btn-logout" id="resetFiltersBtn" style="background: var(--gradient-premium); margin-top: 20px;">
+                        <i class="fas fa-redo"></i>
+                        Reset Filters
+                    </button>
+                </div>
+                
+                <!-- Promotion Section -->
+                <section class="promotion-section" id="promotionSection">
+                    <h2 class="section-title">Special Offers & Promotions</h2>
+                    <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
+                        Discover amazing deals from top sellers and premium service providers
+                    </p>
+                    
+                    <div class="promotion-grid">
+                        <!-- Promotion 1 - Featured Seller -->
+                        <div class="promotion-card large" onclick="showPromotion('featured-seller')">
+                            <div class="promotion-badge">Featured Seller</div>
+                            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                                 alt="Featured Seller Promotion" class="promotion-image">
+                            <div class="promotion-content">
+                                <h3 class="promotion-title">Meet Our Top Rated Seller</h3>
+                                <p class="promotion-subtitle">ElectroTech - 4.9★ rating with 5000+ satisfied customers</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Promotion 2 - New Arrivals -->
+                        <div class="promotion-card" onclick="showPromotion('new-arrivals')">
+                            <div class="promotion-badge">New Arrivals</div>
+                            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                                 alt="New Arrivals" class="promotion-image">
+                            <div class="promotion-content">
+                                <h3 class="promotion-title">Latest Tech Gadgets</h3>
+                                <p class="promotion-subtitle">Just launched! Be the first to explore</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Promotion 3 - Best Deals -->
+                        <div class="promotion-card" onclick="showPromotion('best-deals')">
+                            <div class="promotion-badge">Best Deals</div>
+                            <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                                 alt="Best Deals" class="promotion-image">
+                            <div class="promotion-content">
+                                <h3 class="promotion-title">Up to 60% OFF</h3>
+                                <p class="promotion-subtitle">Fashion & Lifestyle products</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Promotion 4 - Service Providers -->
+                        <div class="promotion-card" onclick="showPromotion('services')">
+                            <div class="promotion-badge">Services</div>
+                            <img src="https://images.unsplash.com/photo-1551836026-d5c2c49b63c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                                 alt="Service Providers" class="promotion-image">
+                            <div class="promotion-content">
+                                <h3 class="promotion-title">Book Trusted Professionals</h3>
+                                <p class="promotion-subtitle">Home services, tutors, repairs & more</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Service Providers Section -->
+        <section class="service-providers-section">
+            <div class="container">
+                <h2 class="section-title">Top Service Providers</h2>
+                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
+                    Book trusted professionals for various services. All providers are verified and rated by customers.
+                </p>
+                
+                <div class="providers-grid">
+                    <!-- Provider 1 -->
+                    <div class="provider-card">
+                        <div class="provider-avatar">
+                            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Rajesh Mehta">
+                        </div>
+                        <h3 class="provider-name">Rajesh Mehta</h3>
+                        <div class="provider-category">Home Services Expert</div>
+                        <div class="provider-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>4.8 (500+ reviews)</span>
+                        </div>
+                        <div class="provider-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Mumbai, Maharashtra</span>
+                        </div>
+                        <div class="provider-experience">
+                            10+ Years Experience
+                        </div>
+                        <ul class="provider-services">
+                            <li><i class="fas fa-check"></i> Plumbing & Electrical Work</li>
+                            <li><i class="fas fa-check"></i> Home Painting & Repair</li>
+                            <li><i class="fas fa-check"></i> Furniture Assembly</li>
+                            <li><i class="fas fa-check"></i> AC & Appliance Repair</li>
+                        </ul>
+                        <div class="provider-price">
+                            Starting from ₹499/service
+                        </div>
+                        <button class="btn-book-service" onclick="bookService('Rajesh Mehta')">
+                            <i class="fas fa-calendar-check"></i>
+                            Book Service
+                        </button>
+                    </div>
+                    
+                    <!-- Provider 2 -->
+                    <div class="provider-card">
+                        <div class="provider-avatar">
+                            <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Priya Sharma">
+                        </div>
+                        <h3 class="provider-name">Priya Sharma</h3>
+                        <div class="provider-category">Beauty & Wellness</div>
+                        <div class="provider-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <span>5.0 (300+ reviews)</span>
+                        </div>
+                        <div class="provider-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Delhi, NCR</span>
+                        </div>
+                        <div class="provider-experience">
+                            8+ Years Experience
+                        </div>
+                        <ul class="provider-services">
+                            <li><i class="fas fa-check"></i> Professional Makeup</li>
+                            <li><i class="fas fa-check"></i> Hair Styling & Treatment</li>
+                            <li><i class="fas fa-check"></i> Skincare & Facial</li>
+                            <li><i class="fas fa-check"></i> Bridal Makeup Packages</li>
+                        </ul>
+                        <div class="provider-price">
+                            Starting from ₹1,499/service
+                        </div>
+                        <button class="btn-book-service" onclick="bookService('Priya Sharma')">
+                            <i class="fas fa-calendar-check"></i>
+                            Book Service
+                        </button>
+                    </div>
+                    
+                    <!-- Provider 3 -->
+                    <div class="provider-card">
+                        <div class="provider-avatar">
+                            <img src="https://images.unsplash.com/photo-1551836026-d5c2c49b63c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Anjali Verma">
+                        </div>
+                        <h3 class="provider-name">Anjali Verma</h3>
+                        <div class="provider-category">Tutoring & Education</div>
+                        <div class="provider-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <span>5.0 (200+ reviews)</span>
+                        </div>
+                        <div class="provider-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Bangalore, Karnataka</span>
+                        </div>
+                        <div class="provider-experience">
+                            12+ Years Experience
+                        </div>
+                        <ul class="provider-services">
+                            <li><i class="fas fa-check"></i> Math & Science Tutoring</li>
+                            <li><i class="fas fa-check"></i> Competitive Exam Prep</li>
+                            <li><i class="fas fa-check"></i> Language Classes</li>
+                            <li><i class="fas fa-check"></i> Online & Home Tutoring</li>
+                        </ul>
+                        <div class="provider-price">
+                            Starting from ₹799/hour
+                        </div>
+                        <button class="btn-book-service" onclick="bookService('Anjali Verma')">
+                            <i class="fas fa-calendar-check"></i>
+                            Book Service
+                        </button>
+                    </div>
+                    
+                    <!-- Provider 4 -->
+                    <div class="provider-card">
+                        <div class="provider-avatar">
+                            <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Suresh Kumar">
+                        </div>
+                        <h3 class="provider-name">Suresh Kumar</h3>
+                        <div class="provider-category">Electronics Repair</div>
+                        <div class="provider-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                            <span>4.2 (150+ reviews)</span>
+                        </div>
+                        <div class="provider-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Chennai, Tamil Nadu</span>
+                        </div>
+                        <div class="provider-experience">
+                            15+ Years Experience
+                        </div>
+                        <ul class="provider-services">
+                            <li><i class="fas fa-check"></i> Mobile & Laptop Repair</li>
+                            <li><i class="fas fa-check"></i> TV & Home Appliance Repair</li>
+                            <li><i class="fas fa-check"></i> Data Recovery Services</li>
+                            <li><i class="fas fa-check"></i> 24/7 Emergency Service</li>
+                        </ul>
+                        <div class="provider-price">
+                            Starting from ₹299/service
+                        </div>
+                        <button class="btn-book-service" onclick="bookService('Suresh Kumar')">
+                            <i class="fas fa-calendar-check"></i>
+                            Book Service
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="footer-logo">69Shop.in</div>
+                    <p class="footer-description">
+                        India's premium marketplace connecting buyers with quality products and helping sellers grow their businesses. Join our community today!
+                    </p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3 class="footer-heading">Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="/shop.html"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="/shop.html"><i class="fas fa-store"></i> Shop</a></li>
+                            <li><a href="/#sell"><i class="fas fa-briefcase"></i> Sell on 69Shop</a></li>
+                            <li><a href="/#about"><i class="fas fa-info-circle"></i> About Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3 class="footer-heading">For Sellers</h3>
+                    <ul class="footer-links">
+                        <li><a href="/#sell"><i class="fas fa-rocket"></i> Start Selling</a></li>
+                        <li><a href="#"><i class="fas fa-chart-line"></i> Seller Dashboard</a></li>
+                        <li><a href="#"><i class="fas fa-graduation-cap"></i> Seller Education</a></li>
+                        <li><a href="#"><i class="fas fa-handshake"></i> Partner Program</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3 class="footer-heading">Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="/#contact"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                        <li><a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
+                        <li><a href="#"><i class="fas fa-truck"></i> Shipping Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2023 69Shop.in - India's Premium Marketplace. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // =============================================
+        // ENHANCED SEARCH FUNCTIONALITY
+        // =============================================
+        class SearchManager {
+            constructor() {
+                this.searchInput = document.getElementById('searchInput');
+                this.searchResults = document.getElementById('searchResults');
+                this.searchTimeout = null;
+                this.allProducts = [];
+                this.allProviders = [];
+                this.initializeSearch();
+            }
+
+            async initializeSearch() {
+                // Get all products and providers
+                await this.loadAllData();
+                
+                // Add event listeners
+                this.searchInput.addEventListener('input', (e) => this.handleSearch(e));
+                this.searchInput.addEventListener('focus', () => this.showSearchResults());
+                this.searchInput.addEventListener('blur', () => {
+                    // Hide results after a short delay to allow clicking on results
+                    setTimeout(() => {
+                        this.hideSearchResults();
+                    }, 200);
+                });
+
+                // Close search results when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!this.searchInput.contains(e.target) && !this.searchResults.contains(e.target)) {
+                        this.hideSearchResults();
+                    }
+                });
+            }
+
+            async loadAllData() {
+                // In a real app, you would fetch from API/database
+                // For now, we'll use the existing product data
+                this.allProducts = productManager?.products || [];
+                this.allProviders = [
+                    { name: 'Rajesh Mehta', category: 'Home Services', type: 'provider' },
+                    { name: 'Priya Sharma', category: 'Beauty & Wellness', type: 'provider' },
+                    { name: 'Anjali Verma', category: 'Tutoring & Education', type: 'provider' },
+                    { name: 'Suresh Kumar', category: 'Electronics Repair', type: 'provider' }
+                ];
+            }
+
+            handleSearch(e) {
+                const searchTerm = e.target.value.trim().toLowerCase();
+                
+                // Clear previous timeout
+                if (this.searchTimeout) {
+                    clearTimeout(this.searchTimeout);
+                }
+
+                // Hide results if search term is empty
+                if (searchTerm === '') {
+                    this.hideSearchResults();
+                    return;
+                }
+
+                // Debounce search to avoid too many searches
+                this.searchTimeout = setTimeout(() => {
+                    this.performSearch(searchTerm);
+                }, 300);
+            }
+
+            performSearch(searchTerm) {
+                const results = [];
+                
+                // Search in products
+                this.allProducts.forEach(product => {
+                    const productName = product.name.toLowerCase();
+                    const productDescription = product.description.toLowerCase();
+                    const productCategory = product.category.toLowerCase();
+                    const productSeller = product.seller.toLowerCase();
+                    
+                    // Calculate relevance score
+                    let score = 0;
+                    if (productName.includes(searchTerm)) score += 10;
+                    if (productDescription.includes(searchTerm)) score += 5;
+                    if (productCategory.includes(searchTerm)) score += 3;
+                    if (productSeller.includes(searchTerm)) score += 2;
+                    
+                    if (score > 0) {
+                        results.push({
+                            ...product,
+                            type: 'product',
+                            relevance: score
+                        });
+                    }
+                });
+
+                // Search in service providers
+                this.allProviders.forEach(provider => {
+                    const providerName = provider.name.toLowerCase();
+                    const providerCategory = provider.category.toLowerCase();
+                    
+                    let score = 0;
+                    if (providerName.includes(searchTerm)) score += 10;
+                    if (providerCategory.includes(searchTerm)) score += 5;
+                    
+                    if (score > 0) {
+                        results.push({
+                            ...provider,
+                            type: 'provider',
+                            relevance: score
+                        });
+                    }
+                });
+
+                // Sort by relevance (highest first)
+                results.sort((a, b) => b.relevance - a.relevance);
+
+                // Display results
+                this.displaySearchResults(results, searchTerm);
+                this.showSearchResults();
+            }
+
+            displaySearchResults(results, searchTerm) {
+                if (results.length === 0) {
+                    this.searchResults.innerHTML = `
+                        <div class="search-no-results">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                            <p>No results found for "${searchTerm}"</p>
+                            <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 8px;">Try different keywords or check spelling</p>
+                            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--light-grey);">
+                                <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 8px;">Popular searches:</p>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <span class="filter-tag" style="cursor: pointer;" onclick="this.searchInput.value='headphones';this.handleSearch({target:{value:'headphones'}})">Headphones</span>
+                                    <span class="filter-tag" style="cursor: pointer;" onclick="this.searchInput.value='tshirt';this.handleSearch({target:{value:'tshirt'}})">T-Shirts</span>
+                                    <span class="filter-tag" style="cursor: pointer;" onclick="this.searchInput.value='home services';this.handleSearch({target:{value:'home services'}})">Home Services</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Limit results to 10 items
+                const limitedResults = results.slice(0, 10);
+                
+                this.searchResults.innerHTML = limitedResults.map(item => `
+                    <div class="search-result-item" data-id="${item.id || item.name}" data-type="${item.type}">
+                        <div class="search-result-image">
+                            <img src="${item.image || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80'}" 
+                                 alt="${item.name}">
+                        </div>
+                        <div class="search-result-info">
+                            <div class="search-result-name">${item.name}</div>
+                            ${item.price ? `<div class="search-result-price">₹${item.price.toLocaleString()}</div>` : ''}
+                            <div class="search-result-category">
+                                ${item.type === 'product' ? 'Product' : 'Service Provider'} • ${item.category}
+                                ${item.relevance >= 10 ? '<span style="color: var(--blue-primary); margin-left: 8px;">🔥 Best Match</span>' : ''}
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: var(--text-light);"></i>
+                    </div>
+                `).join('');
+
+                // Add click handlers to search results
+                this.searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const id = e.currentTarget.dataset.id;
+                        const type = e.currentTarget.dataset.type;
+                        this.handleSearchResultClick(id, type);
+                    });
+                });
+            }
+
+            handleSearchResultClick(id, type) {
+                if (type === 'product') {
+                    // Find and highlight the product in the grid
+                    const productCard = document.querySelector(`.product-card[data-id="${id}"]`);
+                    if (productCard) {
+                        this.highlightProductInGrid(productCard);
+                    } else {
+                        // Filter products to show only matching ones
+                        productManager?.filterBySearch(id);
+                    }
+                } else if (type === 'provider') {
+                    // Scroll to service providers section
+                    const providersSection = document.querySelector('.service-providers-section');
+                    if (providersSection) {
+                        providersSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+                
+                // Clear search and hide results
+                this.searchInput.value = '';
+                this.hideSearchResults();
+            }
+
+            highlightProductInGrid(productCard) {
+                // Scroll to the product
+                productCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Add highlight animation
+                productCard.style.animation = 'highlightPulse 2s ease-in-out';
+                setTimeout(() => {
+                    productCard.style.animation = '';
+                }, 2000);
+                
+                this.showNotification(`Found: ${productCard.querySelector('.product-name').textContent}`);
+            }
+
+            showSearchResults() {
+                this.searchResults.classList.add('active');
+            }
+
+            hideSearchResults() {
+                this.searchResults.classList.remove('active');
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: var(--blue-primary);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: var(--radius-md);
+                    box-shadow: var(--shadow-lg);
+                    z-index: 9999;
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-size: 0.9rem;
+                `;
+                notification.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    ${message}
+                `;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 10);
+                
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 2000);
+            }
+        }
+
+        // =============================================
+        // ENHANCED PRODUCT MANAGER WITH FILTER BAR
+        // =============================================
+        class EnhancedProductManager {
+            constructor() {
+                this.db = firebase.firestore();
+                this.products = [];
+                this.filteredProducts = [];
+                this.currentFilters = {
+                    category: 'all',
+                    maxPrice: 50000,
+                    sortBy: 'featured',
+                    seller: 'all',
+                    delivery: 'any',
+                    searchTerm: ''
+                };
+                this.wishlist = new Set();
+                this.cart = [];
+                this.filterBar = null;
+                this.initialize();
+            }
+
+            async initialize() {
+                await this.loadProducts();
+                this.loadCartFromStorage();
+                this.loadWishlistFromStorage();
+                this.renderProducts();
+                this.setupEventListeners();
+                this.initializeFilterBar();
+            }
+
+            initializeFilterBar() {
+                this.filterBar = document.getElementById('filterBar');
+                this.updateFilterBar();
+                
+                // Listen for scroll to show/hide filter bar
+                let lastScrollTop = 0;
+                window.addEventListener('scroll', () => {
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    
+                    // Show filter bar when scrolled past shop content
+                    const shopContent = document.querySelector('.shop-content');
+                    if (shopContent) {
+                        const shopContentTop = shopContent.offsetTop - 100;
+                        
+                        if (scrollTop > shopContentTop) {
+                            this.filterBar.classList.add('active');
+                            
+                            // Hide filter bar on scroll down, show on scroll up
+                            if (scrollTop > lastScrollTop) {
+                                this.filterBar.style.transform = 'translateY(-100%)';
+                            } else {
+                                this.filterBar.style.transform = 'translateY(0)';
+                            }
+                        } else {
+                            this.filterBar.classList.remove('active');
+                        }
+                    }
+                    
+                    lastScrollTop = scrollTop;
+                });
+            }
+
+            updateFilterBar() {
+                const activeFilters = document.getElementById('activeFilters');
+                if (!activeFilters) return;
+                
+                const filters = [];
+                
+                // Add category filter
+                if (this.currentFilters.category !== 'all') {
+                    filters.push({
+                        type: 'category',
+                        label: `Category: ${this.currentFilters.category}`,
+                        value: this.currentFilters.category
+                    });
+                }
+                
+                // Add price filter
+                if (this.currentFilters.maxPrice < 50000) {
+                    filters.push({
+                        type: 'price',
+                        label: `Max Price: ₹${this.currentFilters.maxPrice.toLocaleString()}`,
+                        value: this.currentFilters.maxPrice
+                    });
+                }
+                
+                // Add seller filter
+                if (this.currentFilters.seller !== 'all') {
+                    filters.push({
+                        type: 'seller',
+                        label: `Seller: ${this.currentFilters.seller}`,
+                        value: this.currentFilters.seller
+                    });
+                }
+                
+                // Add delivery filter
+                if (this.currentFilters.delivery !== 'any') {
+                    filters.push({
+                        type: 'delivery',
+                        label: `Delivery: ${this.currentFilters.delivery}`,
+                        value: this.currentFilters.delivery
+                    });
+                }
+                
+                // Add search term filter
+                if (this.currentFilters.searchTerm) {
+                    filters.push({
+                        type: 'search',
+                        label: `Search: "${this.currentFilters.searchTerm}"`,
+                        value: this.currentFilters.searchTerm
+                    });
+                }
+                
+                // Render filter tags
+                activeFilters.innerHTML = filters.map(filter => `
+                    <div class="filter-tag" data-type="${filter.type}" data-value="${filter.value}">
+                        <span>${filter.label}</span>
+                        <button class="filter-tag-remove" onclick="productManager.removeFilter('${filter.type}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `).join('');
+                
+                // Update filter bar visibility
+                if (filters.length > 0) {
+                    this.filterBar?.classList.add('active');
+                }
+            }
+
+            removeFilter(filterType) {
+                switch (filterType) {
+                    case 'category':
+                        this.currentFilters.category = 'all';
+                        this.resetCategoryButtons();
+                        break;
+                    case 'price':
+                        this.currentFilters.maxPrice = 50000;
+                        this.resetPriceSlider();
+                        break;
+                    case 'seller':
+                        this.currentFilters.seller = 'all';
+                        this.resetSellerButtons();
+                        break;
+                    case 'delivery':
+                        this.currentFilters.delivery = 'any';
+                        this.resetDeliveryButtons();
+                        break;
+                    case 'search':
+                        this.currentFilters.searchTerm = '';
+                        break;
+                }
+                
+                this.renderProducts();
+                this.updateFilterBar();
+            }
+
+            resetCategoryButtons() {
+                document.querySelectorAll('#categoryFilters .filter-option').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.category === 'all') {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            resetPriceSlider() {
+                const priceRange = document.getElementById('priceRange');
+                const maxPriceValue = document.getElementById('maxPriceValue');
+                
+                if (priceRange) priceRange.value = 50000;
+                if (maxPriceValue) maxPriceValue.textContent = '₹50,000';
+            }
+
+            resetSellerButtons() {
+                document.querySelectorAll('#sellerFilters .filter-option').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.seller === 'all') {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            resetDeliveryButtons() {
+                document.querySelectorAll('#deliveryFilters .filter-option').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.delivery === 'any') {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            async loadProducts() {
+                try {
+                    const productsSnapshot = await this.db.collection('products')
+                        .where('status', '==', 'active')
+                        .get();
+                    
+                    this.products = productsSnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        price: parseFloat(doc.data().price) || 0,
+                        rating: parseFloat(doc.data().rating) || 4.0,
+                        sellerType: doc.data().sellerType || 'regular',
+                        isVerified: doc.data().isVerified || false,
+                        deliveryTime: doc.data().deliveryTime || 'standard',
+                        createdAt: doc.data().createdAt || new Date().toISOString()
+                    }));
+                    
+                    // If no products in Firestore, use sample data
+                    if (this.products.length === 0) {
+                        this.products = this.getSampleProducts();
+                    }
+                    
+                    console.log(`Loaded ${this.products.length} products`);
+                } catch (error) {
+                    console.error("Error loading products:", error);
+                    this.products = this.getSampleProducts();
+                }
+            }
+
+            getSampleProducts() {
+                const now = new Date();
+                const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+                
+                return [
+                    {
+                        id: '1',
+                        name: 'Wireless Bluetooth Headphones',
+                        description: 'Noise cancelling over-ear headphones with 30hr battery life',
+                        price: 2999,
+                        category: 'electronics',
+                        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                        seller: 'AudioTech India',
+                        rating: 4.5,
+                        stock: 50,
+                        sellerType: 'premium',
+                        isVerified: true,
+                        deliveryTime: '2day',
+                        createdAt: oneWeekAgo.toISOString()
+                    },
+                    {
+                        id: '2',
+                        name: 'Premium Cotton T-Shirt',
+                        description: '100% cotton crew neck t-shirt, available in multiple colors',
+                        price: 899,
+                        category: 'fashion',
+                        image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                        seller: 'FashionHub',
+                        rating: 4.2,
+                        stock: 100,
+                        sellerType: 'verified',
+                        isVerified: true,
+                        deliveryTime: '1day',
+                        createdAt: twoWeeksAgo.toISOString()
+                    },
+                    {
+                        id: '3',
+                        name: 'Smartphone Stand',
+                        description: 'Adjustable aluminum stand for phones and tablets',
+                        price: 499,
+                        category: 'electronics',
+                        image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                        seller: 'TechGadgets',
+                        rating: 4.0,
+                        stock: 75,
+                        sellerType: 'new',
+                        isVerified: false,
+                        deliveryTime: 'week',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '4',
+                        name: 'Ceramic Coffee Mug Set',
+                        description: 'Set of 4 handcrafted ceramic mugs, dishwasher safe',
+                        price: 1299,
+                        category: 'home',
+                        image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                        seller: 'HomeEssentials',
+                        rating: 4.7,
+                        stock: 40,
+                        sellerType: 'premium',
+                        isVerified: true,
+                        deliveryTime: '2day',
+                        createdAt: oneWeekAgo.toISOString()
+                    },
+                    {
+                        id: '5',
+                        name: 'Professional Makeup Kit',
+                        description: 'Complete makeup kit with 12 eyeshadows, 6 lipsticks, and brushes',
+                        price: 2499,
+                        category: 'beauty',
+                        image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                        seller: 'BeautyStudio',
+                        rating: 4.8,
+                        stock: 30,
+                        sellerType: 'verified',
+                        isVerified: true,
+                        deliveryTime: '1day',
+                        createdAt: twoWeeksAgo.toISOString()
+                    },
+                    {
+                        id: '6',
+                        name: 'Best Selling Novel Collection',
+                        description: 'Set of 3 best selling novels by popular authors',
+                        price: 799,
+                        category: 'books',
+                        image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                        seller: 'BookWorld',
+                        rating: 4.6,
+                        stock: 60,
+                        sellerType: 'regular',
+                        isVerified: true,
+                        deliveryTime: 'week',
+                        createdAt: oneWeekAgo.toISOString()
+                    },
+                    {
+                        id: '7',
+                        name: 'Yoga Mat Premium',
+                        description: 'Non-slip, eco-friendly yoga mat with carrying strap',
+                        price: 1599,
+                        category: 'home',
+                        image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                        seller: 'FitLife',
+                        rating: 4.3,
+                        stock: 45,
+                        sellerType: 'new',
+                        isVerified: false,
+                        deliveryTime: '2day',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '8',
+                        name: 'Wireless Mouse',
+                        description: 'Ergonomic wireless mouse with silent click technology',
+                        price: 699,
+                        category: 'electronics',
+                        image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                        seller: 'TechZone',
+                        rating: 4.1,
+                        stock: 85,
+                        sellerType: 'verified',
+                        isVerified: true,
+                        deliveryTime: '1day',
+                        createdAt: twoWeeksAgo.toISOString()
+                    }
+                ];
+            }
+
+            applyFilters() {
+                this.filteredProducts = [...this.products];
+                
+                // Apply category filter
+                if (this.currentFilters.category !== 'all') {
+                    this.filteredProducts = this.filteredProducts.filter(
+                        product => product.category === this.currentFilters.category
+                    );
+                }
+                
+                // Apply price filter
+                this.filteredProducts = this.filteredProducts.filter(
+                    product => product.price <= this.currentFilters.maxPrice
+                );
+                
+                // Apply seller filter
+                if (this.currentFilters.seller !== 'all') {
+                    this.filteredProducts = this.filteredProducts.filter(product => {
+                        if (this.currentFilters.seller === 'premium') {
+                            return product.sellerType === 'premium';
+                        } else if (this.currentFilters.seller === 'verified') {
+                            return product.isVerified === true;
+                        } else if (this.currentFilters.seller === 'new') {
+                            return product.sellerType === 'new';
+                        }
+                        return true;
+                    });
+                }
+                
+                // Apply delivery filter
+                if (this.currentFilters.delivery !== 'any') {
+                    this.filteredProducts = this.filteredProducts.filter(
+                        product => product.deliveryTime === this.currentFilters.delivery
+                    );
+                }
+                
+                // Apply search filter
+                if (this.currentFilters.searchTerm) {
+                    const searchTerm = this.currentFilters.searchTerm.toLowerCase();
+                    this.filteredProducts = this.filteredProducts.filter(product =>
+                        product.name.toLowerCase().includes(searchTerm) ||
+                        product.description.toLowerCase().includes(searchTerm) ||
+                        product.seller.toLowerCase().includes(searchTerm) ||
+                        product.category.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                // Apply sorting
+                this.sortProducts();
+                
+                return this.filteredProducts;
+            }
+
+            sortProducts() {
+                switch (this.currentFilters.sortBy) {
+                    case 'price-low':
+                        this.filteredProducts.sort((a, b) => a.price - b.price);
+                        break;
+                    case 'price-high':
+                        this.filteredProducts.sort((a, b) => b.price - a.price);
+                        break;
+                    case 'rating':
+                        this.filteredProducts.sort((a, b) => b.rating - a.rating);
+                        break;
+                    case 'newest':
+                        this.filteredProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                        break;
+                    case 'featured':
+                    default:
+                        // Featured: premium sellers first, then by rating
+                        this.filteredProducts.sort((a, b) => {
+                            if (a.sellerType === 'premium' && b.sellerType !== 'premium') return -1;
+                            if (a.sellerType !== 'premium' && b.sellerType === 'premium') return 1;
+                            return b.rating - a.rating;
+                        });
+                        break;
+                }
+            }
+
+            filterBySearch(searchTerm) {
+                this.currentFilters.searchTerm = searchTerm;
+                this.renderProducts();
+                this.updateFilterBar();
+            }
+
+            renderProducts() {
+                const productsGrid = document.getElementById('productsGrid');
+                const loadingState = document.getElementById('loadingState');
+                const emptyState = document.getElementById('emptyState');
+                const productCount = document.getElementById('productCount');
+                
+                if (!productsGrid) return;
+                
+                const filteredProducts = this.applyFilters();
+                
+                // Show/hide loading and empty states
+                if (loadingState) loadingState.style.display = 'none';
+                
+                if (filteredProducts.length === 0) {
+                    productsGrid.style.display = 'none';
+                    if (emptyState) emptyState.style.display = 'block';
+                } else {
+                    productsGrid.style.display = 'grid';
+                    if (emptyState) emptyState.style.display = 'none';
+                    
+                    // Render products
+                    productsGrid.innerHTML = filteredProducts.map(product => {
+                        const isNew = new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                        const isPremium = product.sellerType === 'premium';
+                        const isVerified = product.isVerified;
+                        
+                        let badges = [];
+                        if (isNew) badges.push('NEW');
+                        if (isPremium) badges.push('PREMIUM');
+                        if (isVerified) badges.push('VERIFIED');
+                        if (product.deliveryTime === '1day') badges.push('1-DAY DELIVERY');
+                        
+                        return `
+                        <div class="product-card" data-id="${product.id}">
+                            ${badges.map(badge => `<div class="product-badge">${badge}</div>`).join('')}
+                            <div class="product-image">
+                                <img src="${product.image}" alt="${product.name}" loading="lazy">
+                            </div>
+                            <div class="product-content">
+                                <h3 class="product-name">${product.name}</h3>
+                                <p class="product-description">${product.description}</p>
+                                <div class="product-price">₹${product.price.toLocaleString()}</div>
+                                <div class="product-seller">
+                                    <i class="fas fa-store"></i>
+                                    <span>${product.seller}</span>
+                                    <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-star" style="color: #FFD700;"></i>
+                                        <span>${product.rating.toFixed(1)}</span>
+                                    </div>
+                                </div>
+                                <div class="product-actions">
+                                    <button class="btn-add-to-cart" onclick="productManager.addToCart('${product.id}')">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Add to Cart
+                                    </button>
+                                    <button class="btn-wishlist ${this.wishlist.has(product.id) ? 'active' : ''}" 
+                                            onclick="productManager.toggleWishlist('${product.id}')"
+                                            aria-label="${this.wishlist.has(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `}).join('');
+                }
+                
+                // Update product count
+                if (productCount) {
+                    productCount.textContent = filteredProducts.length;
+                }
+                
+                // Update filter bar
+                this.updateFilterBar();
+            }
+
+            // ... (rest of the methods remain the same as original ProductManager)
+
+            addToCart(productId) {
+                const product = this.products.find(p => p.id === productId);
+                if (!product) return;
+                
+                // Check if product is already in cart
+                const existingItem = this.cart.find(item => item.id === productId);
+                
+                if (existingItem) {
+                    if (existingItem.quantity < product.stock) {
+                        existingItem.quantity++;
+                    } else {
+                        this.showNotification('Maximum stock reached!');
+                        return;
+                    }
+                } else {
+                    this.cart.push({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image,
+                        quantity: 1,
+                        maxQuantity: product.stock
+                    });
+                }
+                
+                this.saveCartToStorage();
+                this.updateCartDisplay();
+                this.showNotification(`${product.name} added to cart!`);
+            }
+
+            removeFromCart(productId) {
+                this.cart = this.cart.filter(item => item.id !== productId);
+                this.saveCartToStorage();
+                this.updateCartDisplay();
+            }
+
+            updateCartQuantity(productId, newQuantity) {
+                const item = this.cart.find(item => item.id === productId);
+                if (item) {
+                    if (newQuantity <= 0) {
+                        this.removeFromCart(productId);
+                    } else if (newQuantity <= item.maxQuantity) {
+                        item.quantity = newQuantity;
+                        this.saveCartToStorage();
+                        this.updateCartDisplay();
+                    } else {
+                        this.showNotification('Maximum stock reached!');
+                    }
+                }
+            }
+
+            toggleWishlist(productId) {
+                if (this.wishlist.has(productId)) {
+                    this.wishlist.delete(productId);
+                } else {
+                    this.wishlist.add(productId);
+                }
+                this.saveWishlistToStorage();
+                this.renderProducts();
+            }
+
+            loadCartFromStorage() {
+                try {
+                    const savedCart = localStorage.getItem('69shop_cart');
+                    if (savedCart) {
+                        this.cart = JSON.parse(savedCart);
+                    }
+                } catch (error) {
+                    console.error("Error loading cart:", error);
+                    this.cart = [];
+                }
+            }
+
+            saveCartToStorage() {
+                try {
+                    localStorage.setItem('69shop_cart', JSON.stringify(this.cart));
+                } catch (error) {
+                    console.error("Error saving cart:", error);
+                }
+            }
+
+            loadWishlistFromStorage() {
+                try {
+                    const savedWishlist = localStorage.getItem('69shop_wishlist');
+                    if (savedWishlist) {
+                        this.wishlist = new Set(JSON.parse(savedWishlist));
+                    }
+                } catch (error) {
+                    console.error("Error loading wishlist:", error);
+                    this.wishlist = new Set();
+                }
+            }
+
+            saveWishlistToStorage() {
+                try {
+                    localStorage.setItem('69shop_wishlist', JSON.stringify([...this.wishlist]));
+                } catch (error) {
+                    console.error("Error saving wishlist:", error);
+                }
+            }
+
+            updateCartDisplay() {
+                const cartCount = document.getElementById('cartCount');
+                const cartTotal = document.getElementById('cartTotal');
+                const cartItems = document.getElementById('cartItems');
+                
+                // Update cart count
+                if (cartCount) {
+                    const totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+                    cartCount.textContent = totalItems;
+                }
+                
+                // Update cart total
+                if (cartTotal) {
+                    const total = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                    cartTotal.textContent = `₹${total.toLocaleString()}`;
+                }
+                
+                // Update cart items display
+                if (cartItems) {
+                    if (this.cart.length === 0) {
+                        cartItems.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <h3 class="empty-state-title">Your cart is empty</h3>
+                                <p class="empty-state-text">Add some products to get started!</p>
+                            </div>
+                        `;
+                    } else {
+                        cartItems.innerHTML = this.cart.map(item => `
+                            <div class="cart-item">
+                                <div class="cart-item-image">
+                                    <img src="${item.image}" alt="${item.name}">
+                                </div>
+                                <div class="cart-item-details">
+                                    <div class="cart-item-name">${item.name}</div>
+                                    <div class="cart-item-price">₹${(item.price * item.quantity).toLocaleString()}</div>
+                                    <div class="cart-item-actions">
+                                        <div class="quantity-control">
+                                            <button class="quantity-btn" onclick="productManager.updateCartQuantity('${item.id}', ${item.quantity - 1})">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                            <span class="quantity">${item.quantity}</span>
+                                            <button class="quantity-btn" onclick="productManager.updateCartQuantity('${item.id}', ${item.quantity + 1})">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                        <button class="remove-item" onclick="productManager.removeFromCart('${item.id}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            }
+
+            clearFilters() {
+                this.currentFilters = {
+                    category: 'all',
+                    maxPrice: 50000,
+                    sortBy: 'featured',
+                    seller: 'all',
+                    delivery: 'any',
+                    searchTerm: ''
+                };
+                
+                // Reset UI elements
+                this.resetCategoryButtons();
+                this.resetPriceSlider();
+                this.resetSellerButtons();
+                this.resetDeliveryButtons();
+                
+                // Reset sort buttons
+                document.querySelectorAll('#sortOptions .filter-option').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.sort === 'featured') {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                this.renderProducts();
+                this.updateFilterBar();
+            }
+
+            setupEventListeners() {
+                // Category filters
+                document.querySelectorAll('#categoryFilters .filter-option').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Update active state
+                        document.querySelectorAll('#categoryFilters .filter-option').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        // Update filter
+                        this.currentFilters.category = btn.dataset.category;
+                        this.renderProducts();
+                        this.updateFilterBar();
+                    });
+                });
+                
+                // Price range
+                const priceRange = document.getElementById('priceRange');
+                const maxPriceValue = document.getElementById('maxPriceValue');
+                
+                if (priceRange) {
+                    priceRange.addEventListener('input', (e) => {
+                        const value = parseInt(e.target.value);
+                        this.currentFilters.maxPrice = value;
+                        
+                        if (maxPriceValue) {
+                            maxPriceValue.textContent = `₹${value.toLocaleString()}`;
+                        }
+                    });
+                    
+                    priceRange.addEventListener('change', () => {
+                        this.renderProducts();
+                        this.updateFilterBar();
+                    });
+                }
+                
+                // Sort options
+                document.querySelectorAll('#sortOptions .filter-option').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Update active state
+                        document.querySelectorAll('#sortOptions .filter-option').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        // Update sort
+                        this.currentFilters.sortBy = btn.dataset.sort;
+                        this.renderProducts();
+                    });
+                });
+                
+                // Seller filters
+                document.querySelectorAll('#sellerFilters .filter-option').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Update active state
+                        document.querySelectorAll('#sellerFilters .filter-option').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        // Update filter
+                        this.currentFilters.seller = btn.dataset.seller;
+                        this.renderProducts();
+                        this.updateFilterBar();
+                    });
+                });
+                
+                // Delivery filters
+                document.querySelectorAll('#deliveryFilters .filter-option').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Update active state
+                        document.querySelectorAll('#deliveryFilters .filter-option').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        // Update filter
+                        this.currentFilters.delivery = btn.dataset.delivery;
+                        this.renderProducts();
+                        this.updateFilterBar();
+                    });
+                });
+                
+                // Clear filters button
+                const clearFiltersBtn = document.getElementById('clearFilters');
+                if (clearFiltersBtn) {
+                    clearFiltersBtn.addEventListener('click', () => this.clearFilters());
+                }
+                
+                // Reset filters button
+                const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+                if (resetFiltersBtn) {
+                    resetFiltersBtn.addEventListener('click', () => this.clearFilters());
+                }
+                
+                // Clear all filters in filter bar
+                const clearAllFiltersBtn = document.getElementById('clearAllFilters');
+                if (clearAllFiltersBtn) {
+                    clearAllFiltersBtn.addEventListener('click', () => this.clearFilters());
+                }
+                
+                // Toggle filters button in filter bar
+                const toggleFiltersBtn = document.getElementById('toggleFilters');
+                if (toggleFiltersBtn) {
+                    toggleFiltersBtn.addEventListener('click', () => {
+                        if (window.uiManager && typeof uiManager.toggleFiltersSidebar === 'function') {
+                            uiManager.toggleFiltersSidebar();
+                        } else {
+                            const filtersSidebar = document.getElementById('filtersSidebar');
+                            if (filtersSidebar) {
+                                filtersSidebar.classList.toggle('active');
+                            }
+                        }
+                    });
+                }
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: ${type === 'error' ? '#FF6B6B' : 'var(--blue-primary)'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: var(--radius-md);
+                    box-shadow: var(--shadow-lg);
+                    z-index: 9999;
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-size: 0.9rem;
+                `;
+                notification.innerHTML = `
+                    <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+                    ${message}
+                `;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 10);
+                
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 2000);
+            }
+        }
+
+        // =============================================
+        // AUTH MANAGER (same as before)
+        // =============================================
+        class AuthManager {
+            constructor() {
+                this.auth = firebase.auth();
+                this.db = firebase.firestore();
+                this.unsubscribe = null;
+                this.currentUserData = null;
+                
+                // Initialize auth state listener
+                this.initAuthStateListener();
+            }
+
+            initAuthStateListener() {
+                this.unsubscribe = this.auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        console.log("User authenticated:", user.email);
+                        await this.loadUserData(user);
+                        this.updateUserDisplay();
+                    } else {
+                        console.log("No user authenticated, redirecting to login...");
+                        window.location.href = '/shop-login.html';
+                    }
+                });
+            }
+
+            async loadUserData(firebaseUser) {
+                try {
+                    // Try to get user data from Firestore
+                    const userDoc = await this.db.collection('users').doc(firebaseUser.uid).get();
+                    
+                    if (userDoc.exists) {
+                        this.currentUserData = userDoc.data();
+                        console.log("Loaded user data from Firestore:", this.currentUserData);
+                    } else {
+                        // If no Firestore document, create one
+                        this.currentUserData = {
+                            name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+                            email: firebaseUser.email,
+                            accountType: 'buyer',
+                            createdAt: new Date().toISOString()
+                        };
+                        
+                        // Create user document in Firestore
+                        await this.db.collection('users').doc(firebaseUser.uid).set({
+                            ...this.currentUserData,
+                            uid: firebaseUser.uid,
+                            lastLogin: new Date().toISOString()
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error loading user data:", error);
+                    // Fallback to basic user info
+                    this.currentUserData = {
+                        name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+                        email: firebaseUser.email,
+                        accountType: 'buyer'
+                    };
+                }
+            }
+
+            updateUserDisplay() {
+                if (!this.currentUserData) return;
+                
+                const userName = document.getElementById('userName');
+                const userAvatar = document.getElementById('userAvatar');
+                const profileNameLarge = document.getElementById('profileNameLarge');
+                const profileEmail = document.getElementById('profileEmail');
+                const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+                const profileBadge = document.getElementById('profileBadge');
+                const welcomeTitle = document.getElementById('welcomeTitle');
+                
+                // Extract first letter for avatar
+                const firstLetter = this.currentUserData.name.charAt(0).toUpperCase();
+                
+                // Update all user display elements
+                if (userName) userName.textContent = this.currentUserData.name;
+                if (userAvatar) userAvatar.textContent = firstLetter;
+                if (profileNameLarge) profileNameLarge.textContent = this.currentUserData.name;
+                if (profileEmail) profileEmail.textContent = this.currentUserData.email;
+                if (profileAvatarLarge) profileAvatarLarge.textContent = firstLetter;
+                if (profileBadge) profileBadge.textContent = 
+                    this.currentUserData.accountType === 'seller' ? 'Seller Account' : 'Buyer Account';
+                if (welcomeTitle) welcomeTitle.textContent = `Welcome, ${this.currentUserData.name}!`;
+            }
+
+            async logout() {
+                try {
+                    await this.auth.signOut();
+                    window.location.href = '/shop-login.html';
+                } catch (error) {
+                    console.error("Logout error:", error);
+                    alert('Error logging out. Please try again.');
+                }
+            }
+
+            getUserData() {
+                return this.currentUserData;
+            }
+
+            getCurrentUser() {
+                return this.auth.currentUser;
+            }
+
+            cleanup() {
+                if (this.unsubscribe) {
+                    this.unsubscribe();
+                }
+            }
+        }
+
+        // =============================================
+        // UI MANAGER (enhanced)
+        // =============================================
+        class UIManager {
+            constructor() {
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                // Header scroll effect
+                window.addEventListener('scroll', () => {
+                    const header = document.querySelector('.header');
+                    if (window.scrollY > 50) {
+                        header.classList.add('scrolled');
+                    } else {
+                        header.classList.remove('scrolled');
+                    }
+                });
+
+                // Profile sidebar toggle
+                const profileBtn = document.getElementById('userProfileBtn');
+                const closeProfile = document.getElementById('closeProfile');
+                const profileOverlay = document.getElementById('profileOverlay');
+                const profileSidebar = document.getElementById('profileSidebar');
+
+                if (profileBtn) {
+                    profileBtn.addEventListener('click', () => this.toggleProfileSidebar());
+                }
+                
+                if (closeProfile) {
+                    closeProfile.addEventListener('click', () => this.closeProfileSidebar());
+                }
+                
+                if (profileOverlay) {
+                    profileOverlay.addEventListener('click', () => this.closeProfileSidebar());
+                }
+
+                // Cart sidebar toggle
+                const cartBtn = document.getElementById('cartBtn');
+                const closeCart = document.getElementById('closeCart');
+                const cartOverlay = document.getElementById('cartOverlay');
+                const cartSidebar = document.getElementById('cartSidebar');
+
+                if (cartBtn) {
+                    cartBtn.addEventListener('click', () => this.toggleCartSidebar());
+                }
+                
+                if (closeCart) {
+                    closeCart.addEventListener('click', () => this.closeCartSidebar());
+                }
+                
+                if (cartOverlay) {
+                    cartOverlay.addEventListener('click', () => this.closeCartSidebar());
+                }
+
+                // Mobile search toggle
+                const searchMobileToggle = document.getElementById('searchMobileToggle');
+                const searchContainer = document.getElementById('searchContainer');
+                
+                if (searchMobileToggle && searchContainer) {
+                    searchMobileToggle.addEventListener('click', () => {
+                        searchContainer.classList.toggle('active');
+                        if (searchContainer.classList.contains('active')) {
+                            document.getElementById('searchInput').focus();
+                        }
+                    });
+                }
+
+                // Mobile filters toggle
+                const mobileFiltersToggle = document.getElementById('mobileFiltersToggle');
+                const filtersSidebar = document.getElementById('filtersSidebar');
+                const filtersOverlay = document.getElementById('filtersOverlay');
+                
+                if (mobileFiltersToggle && filtersSidebar) {
+                    mobileFiltersToggle.addEventListener('click', () => {
+                        this.toggleFiltersSidebar();
+                    });
+                }
+
+                if (filtersOverlay) {
+                    filtersOverlay.addEventListener('click', () => this.toggleFiltersSidebar(false));
+                }
+
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 992) {
+                        this.toggleFiltersSidebar(false);
+                    }
+                });
+
+                // Checkout button
+                const checkoutBtn = document.getElementById('checkoutBtn');
+                if (checkoutBtn) {
+                    checkoutBtn.addEventListener('click', () => this.handleCheckout());
+                }
+
+                // Logout button
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn && authManager) {
+                    logoutBtn.addEventListener('click', () => authManager.logout());
+                }
+
+                // Profile menu items
+                this.setupProfileMenuItems();
+            }
+
+            toggleProfileSidebar() {
+                const profileSidebar = document.getElementById('profileSidebar');
+                const profileOverlay = document.getElementById('profileOverlay');
+                
+                if (profileSidebar && profileOverlay) {
+                    profileSidebar.classList.toggle('active');
+                    profileOverlay.classList.toggle('active');
+                    document.body.style.overflow = profileSidebar.classList.contains('active') ? 'hidden' : '';
+                }
+            }
+
+            closeProfileSidebar() {
+                const profileSidebar = document.getElementById('profileSidebar');
+                const profileOverlay = document.getElementById('profileOverlay');
+                
+                if (profileSidebar && profileOverlay) {
+                    profileSidebar.classList.remove('active');
+                    profileOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            toggleCartSidebar() {
+                const cartSidebar = document.getElementById('cartSidebar');
+                const cartOverlay = document.getElementById('cartOverlay');
+                
+                if (cartSidebar && cartOverlay) {
+                    cartSidebar.classList.toggle('active');
+                    cartOverlay.classList.toggle('active');
+                    document.body.style.overflow = cartSidebar.classList.contains('active') ? 'hidden' : '';
+                }
+            }
+
+            closeCartSidebar() {
+                const cartSidebar = document.getElementById('cartSidebar');
+                const cartOverlay = document.getElementById('cartOverlay');
+                
+                if (cartSidebar && cartOverlay) {
+                    cartSidebar.classList.remove('active');
+                    cartOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            toggleFiltersSidebar(forceState) {
+                const filtersSidebar = document.getElementById('filtersSidebar');
+                const filtersOverlay = document.getElementById('filtersOverlay');
+                if (!filtersSidebar) return;
+                const shouldOpen = typeof forceState === 'boolean'
+                    ? forceState
+                    : !filtersSidebar.classList.contains('active');
+                filtersSidebar.classList.toggle('active', shouldOpen);
+                if (filtersOverlay) {
+                    filtersOverlay.classList.toggle('active', shouldOpen);
+                }
+                document.body.style.overflow = shouldOpen ? 'hidden' : '';
+            }
+
+            setupProfileMenuItems() {
+                const profileLinks = document.querySelectorAll('[data-profile-link]');
+                profileLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        this.closeProfileSidebar();
+                    });
+                });
+
+                const homeBtn = document.getElementById('profileHome');
+                if (homeBtn) {
+                    homeBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        window.location.href = '/shop.html';
+                    });
+                }
+
+                const sellBtn = document.getElementById('profileSell');
+                if (sellBtn) {
+                    sellBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        window.location.href = '/#sell';
+                    });
+                }
+            }
+
+            handleCheckout() {
+                if (productManager.cart.length === 0) {
+                    this.showNotification('Your cart is empty!', 'error');
+                    return;
+                }
+
+                this.showNotification('Proceeding to checkout... Redirecting to payment page.');
+                // In a real application, you would redirect to a checkout page
+                // setTimeout(() => {
+                //     window.location.href = '/checkout.html';
+                // }, 1500);
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: ${type === 'error' ? '#FF6B6B' : 'var(--blue-primary)'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: var(--radius-md);
+                    box-shadow: var(--shadow-lg);
+                    z-index: 9999;
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-size: 0.9rem;
+                `;
+                notification.innerHTML = `
+                    <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+                    ${message}
+                `;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 10);
+                
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // =============================================
+        // INITIALIZE APPLICATION
+        // =============================================
+        let authManager, productManager, uiManager, searchManager;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize managers
+            authManager = new AuthManager();
+            productManager = new EnhancedProductManager();
+            uiManager = new UIManager();
+            searchManager = new SearchManager();
+
+            // Update cart display on load
+            productManager.updateCartDisplay();
+            
+            // Add CSS for animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes highlightPulse {
+                    0% { box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.7); }
+                    70% { box-shadow: 0 0 0 10px rgba(0, 102, 255, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(0, 102, 255, 0); }
+                }
+                
+                .text-center {
+                    text-align: center;
+                }
+                
+                .mb-4 {
+                    margin-bottom: 1rem;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // Helper functions
+        function showPromotion(type) {
+            let message = '';
+            switch(type) {
+                case 'featured-seller':
+                    message = 'Viewing featured seller ElectroTech - Check out their premium electronics collection!';
+                    break;
+                case 'new-arrivals':
+                    message = 'Exploring new arrivals - Latest tech gadgets just added!';
+                    break;
+                case 'best-deals':
+                    message = 'Viewing best deals - Up to 60% OFF on fashion & lifestyle products!';
+                    break;
+                case 'services':
+                    message = 'Viewing service providers - Book trusted professionals for various services!';
+                    break;
+                default:
+                    message = 'Viewing promotion';
+            }
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: var(--blue-primary);
+                color: white;
+                padding: 12px 20px;
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-lg);
+                z-index: 9999;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 0.9rem;
+            `;
+            notification.innerHTML = `
+                <i class="fas fa-bullhorn"></i>
+                ${message}
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 10);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        window.handleShopLogoClick = function(event) {
+            if (!event) return;
+            const user = auth.currentUser;
+            if (user) {
+                event.preventDefault();
+                window.location.href = '/shop.html';
+            }
+        };
+
+        function bookService(providerName) {
+            alert(`Booking service with ${providerName}...\n\nThis will open the booking form in a future update.`);
+        }
+
+        // Make productManager globally accessible for inline onclick handlers
+        window.productManager = productManager;
+        window.bookService = bookService;
+        window.showPromotion = showPromotion;
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (authManager) {
+                authManager.cleanup();
+            }
+        });
+    </script>
+</body>
+</html>
