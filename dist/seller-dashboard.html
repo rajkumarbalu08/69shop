@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard - 69Shop.in</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            /* Seller Theme - Professional Purple */
+            --seller-primary: #7C3AED;
+            --seller-primary-dark: #6D28D9;
+            --seller-primary-light: #EDE9FE;
+            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            
+            /* Neutral Palette */
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --white: #FFFFFF;
+            
+            /* Status Colors */
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --danger: #EF4444;
+            --danger-light: #FEE2E2;
+            
+            /* Layout */
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            /* Transitions */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-100);
+            min-height: 100vh;
+            color: var(--slate-800);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--slate-200);
+            border-top-color: var(--seller-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        .loading-text { color: var(--slate-500); font-size: 0.9rem; }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .seller-layout { display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
+        .seller-sidebar {
+            width: var(--sidebar-width);
+            background: var(--slate-900);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--slate-700);
+        }
+        
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--seller-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--white);
+            font-weight: 700;
+        }
+        
+        .brand-text { display: flex; flex-direction: column; }
+        
+        .brand-name {
+            color: var(--white);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .brand-badge {
+            font-size: 0.65rem;
+            color: var(--seller-primary);
+            background: var(--seller-primary-light);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: fit-content;
+        }
+        
+        .sidebar-nav { flex: 1; padding: 20px 16px; overflow-y: auto; }
+        
+        .nav-section { margin-bottom: 28px; }
+        
+        .nav-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--slate-500);
+            padding: 0 12px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            color: var(--slate-400);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 4px;
+        }
+        
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        
+        .nav-link.active {
+            background: var(--seller-gradient);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+        
+        .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
+        
+        .nav-badge {
+            margin-left: auto;
+            background: var(--warning);
+            color: var(--slate-900);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
+        
+        .seller-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--slate-800);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+        
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--seller-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+        }
+        
+        .profile-info { flex: 1; min-width: 0; }
+        
+        .profile-name {
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .profile-status {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .profile-status.verified { color: var(--success); }
+        .profile-status.pending { color: var(--warning); }
+        
+        .btn-logout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--slate-700);
+            color: var(--slate-400);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-logout:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: var(--white);
+        }
+        
+        /* Main Content */
+        .seller-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
+        
+        .seller-header {
+            height: var(--header-height);
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        
+        .page-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+        
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        
+        .header-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: var(--slate-100);
+            color: var(--slate-600);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .header-btn:hover { background: var(--slate-200); }
+        
+        .header-btn .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 10px;
+            height: 10px;
+            background: var(--danger);
+            border: 2px solid var(--white);
+            border-radius: 50%;
+        }
+        
+        .btn-add-product {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--seller-gradient);
+            color: var(--white);
+            border: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .btn-add-product:hover {
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .seller-content { padding: 32px; }
+        
+        /* Welcome Banner */
+        .welcome-banner {
+            background: var(--seller-gradient);
+            border-radius: var(--radius-xl);
+            padding: 32px 40px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            right: -50px;
+            top: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        
+        .welcome-text h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-text p { opacity: 0.9; font-size: 0.95rem; }
+        
+        .verification-banner {
+            background: var(--warning-light);
+            border: 2px solid var(--warning);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .verification-banner.hidden { display: none; }
+        
+        .verification-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .verification-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--warning);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .verification-text h3 {
+            font-size: 1rem;
+            color: var(--slate-900);
+            margin-bottom: 4px;
+        }
+        
+        .verification-text p {
+            font-size: 0.85rem;
+            color: var(--slate-600);
+        }
+        
+        .btn-verify {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--warning);
+            color: var(--slate-900);
+            border: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        
+        .btn-verify:hover {
+            background: #D97706;
+            transform: translateY(-2px);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-100);
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+        
+        .stat-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        
+        .stat-icon.revenue { background: var(--success-light); color: var(--success); }
+        .stat-icon.orders { background: var(--info-light); color: var(--info); }
+        .stat-icon.products { background: var(--seller-primary-light); color: var(--seller-primary); }
+        .stat-icon.views { background: var(--warning-light); color: var(--warning); }
+        
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        .stat-trend.up { background: var(--success-light); color: var(--success); }
+        .stat-trend.down { background: var(--danger-light); color: var(--danger); }
+        
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--slate-900); margin-bottom: 4px; }
+        .stat-label { color: var(--slate-500); font-size: 0.9rem; }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-100);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .card-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--slate-900);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i { color: var(--seller-primary); }
+        
+        .btn-card {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .btn-card.primary { background: var(--seller-primary); color: var(--white); }
+        .btn-card.secondary { background: var(--slate-100); color: var(--slate-600); }
+        .btn-card:hover { opacity: 0.9; }
+        
+        .card-body { padding: 24px; }
+        
+        .chart-container { position: relative; height: 300px; }
+        
+        /* Orders List */
+        .orders-list { list-style: none; }
+        
+        .order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .order-item:last-child { border-bottom: none; }
+        
+        .order-info { display: flex; align-items: center; gap: 14px; }
+        
+        .order-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            background: var(--seller-primary-light);
+            color: var(--seller-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .order-details h4 { font-size: 0.9rem; color: var(--slate-900); margin-bottom: 4px; }
+        .order-details p { font-size: 0.8rem; color: var(--slate-500); }
+        
+        .order-amount { font-weight: 700; color: var(--success); font-size: 1rem; }
+        
+        /* Quick Actions */
+        .quick-actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px;
+            background: var(--slate-50);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--slate-700);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+        
+        .quick-action:hover {
+            background: var(--white);
+            border-color: var(--seller-primary);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .quick-action i {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        
+        .quick-action.products i { background: var(--seller-primary-light); color: var(--seller-primary); }
+        .quick-action.orders i { background: var(--info-light); color: var(--info); }
+        .quick-action.analytics i { background: var(--success-light); color: var(--success); }
+        .quick-action.settings i { background: var(--slate-200); color: var(--slate-600); }
+        
+        .quick-action-text { font-weight: 600; font-size: 0.9rem; }
+        .quick-action-desc { font-size: 0.75rem; color: var(--slate-500); }
+        
+        /* Low Stock Alert */
+        .alert-card {
+            background: var(--danger-light);
+            border: 1px solid #FECACA;
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+        }
+        
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .alert-header i {
+            color: var(--danger);
+            font-size: 1.25rem;
+        }
+        
+        .alert-header h3 {
+            font-size: 1rem;
+            color: var(--danger);
+            font-weight: 600;
+        }
+        
+        .alert-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+        }
+        
+        .alert-item:last-child { margin-bottom: 0; }
+        
+        .alert-product { font-size: 0.9rem; color: var(--slate-800); font-weight: 500; }
+        .alert-stock { font-size: 0.8rem; color: var(--danger); font-weight: 600; }
+        
+        /* Responsive */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .sidebar-overlay.show { display: block; }
+        
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 1024px) {
+            .seller-sidebar { transform: translateX(-100%); }
+            .seller-sidebar.open { transform: translateX(0); }
+            .seller-main { margin-left: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .seller-content { padding: 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .welcome-banner { flex-direction: column; text-align: center; gap: 20px; padding: 24px; }
+            .verification-banner { flex-direction: column; text-align: center; }
+            .quick-actions-grid { grid-template-columns: 1fr; }
+            .btn-add-product span { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Seller Dashboard...</div>
+    </div>
+
+    <div class="seller-layout">
+        <aside class="seller-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/seller-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">SELLER CENTER</span>
+                    </div>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/seller-dashboard.html" class="nav-link active">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/seller-products.html" class="nav-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="/seller-orders.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Orders</span>
+                        <span class="nav-badge" id="pendingOrdersBadge">0</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Business</div>
+                    <a href="/seller-analytics.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="/seller-payments.html" class="nav-link">
+                        <i class="fas fa-wallet"></i>
+                        <span>Payments</span>
+                    </a>
+                    <a href="/seller-services.html" class="nav-link">
+                        <i class="fas fa-concierge-bell"></i>
+                        <span>Services</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="/seller-verification.html" class="nav-link" id="verificationLink">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Verification</span>
+                    </a>
+                    <a href="/seller-settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="/shop.html" class="nav-link">
+                        <i class="fas fa-store"></i>
+                        <span>View Shop</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="seller-profile">
+                    <div class="profile-avatar" id="sellerAvatar">S</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="sellerName">Seller</div>
+                        <div class="profile-status" id="sellerStatus">
+                            <i class="fas fa-clock"></i>
+                            <span>Pending Verification</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </button>
+            </div>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        
+        <main class="seller-main">
+            <header class="seller-header">
+                <div class="header-left">
+                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">Dashboard</h1>
+                </div>
+                
+                <div class="header-right">
+                    <button class="header-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-dot"></span>
+                    </button>
+                    <a href="/seller-products.html?action=add" class="btn-add-product">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Product</span>
+                    </a>
+                </div>
+            </header>
+            
+            <div class="seller-content">
+                <!-- Verification Banner -->
+                <div class="verification-banner" id="verificationBanner">
+                    <div class="verification-info">
+                        <div class="verification-icon">
+                            <i class="fas fa-exclamation"></i>
+                        </div>
+                        <div class="verification-text">
+                            <h3>Complete Your Verification</h3>
+                            <p>Get verified to unlock all seller features and increase buyer trust!</p>
+                        </div>
+                    </div>
+                    <a href="/seller-verification.html" class="btn-verify">
+                        <i class="fas fa-shield-alt"></i>
+                        Verify Now
+                    </a>
+                </div>
+                
+                <!-- Welcome Banner -->
+                <div class="welcome-banner">
+                    <div class="welcome-text">
+                        <h2>Welcome back, <span id="welcomeName">Seller</span>! 🚀</h2>
+                        <p>Here's an overview of your store performance today.</p>
+                    </div>
+                </div>
+                
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon revenue"><i class="fas fa-rupee-sign"></i></div>
+                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 12.5%</div>
+                        </div>
+                        <div class="stat-value" id="totalRevenue">₹0</div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon orders"><i class="fas fa-shopping-bag"></i></div>
+                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 8.2%</div>
+                        </div>
+                        <div class="stat-value" id="totalOrders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon products"><i class="fas fa-box-open"></i></div>
+                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 5</div>
+                        </div>
+                        <div class="stat-value" id="totalProducts">0</div>
+                        <div class="stat-label">Active Products</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon views"><i class="fas fa-eye"></i></div>
+                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 23%</div>
+                        </div>
+                        <div class="stat-value" id="totalViews">0</div>
+                        <div class="stat-label">Product Views</div>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Sales Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-chart-area"></i> Sales Overview</h3>
+                            <div>
+                                <button class="btn-card secondary">Weekly</button>
+                                <button class="btn-card primary">Monthly</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Orders -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-clock"></i> Recent Orders</h3>
+                            <a href="/seller-orders.html" class="btn-card secondary">View All</a>
+                        </div>
+                        <div class="card-body">
+                            <ul class="orders-list" id="recentOrders">
+                                <li class="order-item">
+                                    <div class="order-info">
+                                        <div class="order-icon"><i class="fas fa-box"></i></div>
+                                        <div class="order-details">
+                                            <h4>Order #2026001</h4>
+                                            <p>2 items • Just now</p>
+                                        </div>
+                                    </div>
+                                    <div class="order-amount">₹1,499</div>
+                                </li>
+                                <li class="order-item">
+                                    <div class="order-info">
+                                        <div class="order-icon"><i class="fas fa-box"></i></div>
+                                        <div class="order-details">
+                                            <h4>Order #2026002</h4>
+                                            <p>1 item • 2 hours ago</p>
+                                        </div>
+                                    </div>
+                                    <div class="order-amount">₹899</div>
+                                </li>
+                                <li class="order-item">
+                                    <div class="order-info">
+                                        <div class="order-icon"><i class="fas fa-box"></i></div>
+                                        <div class="order-details">
+                                            <h4>Order #2026003</h4>
+                                            <p>3 items • Yesterday</p>
+                                        </div>
+                                    </div>
+                                    <div class="order-amount">₹2,599</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions & Alerts -->
+                <div class="dashboard-grid">
+                    <!-- Quick Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-actions-grid">
+                                <a href="/seller-products.html?action=add" class="quick-action products">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <div>
+                                        <div class="quick-action-text">Add Product</div>
+                                        <div class="quick-action-desc">List a new product</div>
+                                    </div>
+                                </a>
+                                <a href="/seller-orders.html" class="quick-action orders">
+                                    <i class="fas fa-truck"></i>
+                                    <div>
+                                        <div class="quick-action-text">Process Orders</div>
+                                        <div class="quick-action-desc">Ship pending orders</div>
+                                    </div>
+                                </a>
+                                <a href="/seller-analytics.html" class="quick-action analytics">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <div>
+                                        <div class="quick-action-text">View Analytics</div>
+                                        <div class="quick-action-desc">Performance insights</div>
+                                    </div>
+                                </a>
+                                <a href="/seller-settings.html" class="quick-action settings">
+                                    <i class="fas fa-sliders-h"></i>
+                                    <div>
+                                        <div class="quick-action-text">Store Settings</div>
+                                        <div class="quick-action-desc">Configure your store</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Low Stock Alert -->
+                    <div class="card" id="lowStockCard">
+                        <div class="card-body">
+                            <div class="alert-card">
+                                <div class="alert-header">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <h3>Low Stock Alert</h3>
+                                </div>
+                                <div id="lowStockItems">
+                                    <div class="alert-item">
+                                        <span class="alert-product">Wireless Headphones</span>
+                                        <span class="alert-stock">5 left</span>
+                                    </div>
+                                    <div class="alert-item">
+                                        <span class="alert-product">USB-C Cable</span>
+                                        <span class="alert-stock">3 left</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const firebaseConfig = window.firebaseConfig;
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            throw new Error('Missing Firebase configuration');
+        }
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        let salesChart = null;
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Check if user is a seller
+                const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                if (sellerDoc.exists || localStorage.getItem('69shop_user_type') === 'seller') {
+                    await initializeDashboard(user);
+                    hideLoading();
+                } else {
+                    window.location.href = '/seller-login.html';
+                }
+            } else {
+                window.location.href = '/seller-login.html';
+            }
+        });
+
+        async function initializeDashboard(user) {
+            // Set seller info
+            const firstName = user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Seller';
+            document.getElementById('welcomeName').textContent = firstName;
+            document.getElementById('sellerName').textContent = user.displayName || user.email;
+            document.getElementById('sellerAvatar').textContent = firstName.charAt(0).toUpperCase();
+            
+            // Check verification status
+            await checkVerificationStatus(user.uid);
+            
+            // Load stats
+            await loadDashboardStats(user.uid);
+            
+            // Initialize chart
+            initializeChart();
+        }
+
+        async function checkVerificationStatus(sellerId) {
+            try {
+                const verificationDoc = await db.collection('sellerVerification').doc(sellerId).get();
+                const sellerDoc = await db.collection('sellers').doc(sellerId).get();
+                
+                const statusEl = document.getElementById('sellerStatus');
+                const banner = document.getElementById('verificationBanner');
+                
+                if (verificationDoc.exists) {
+                    const status = verificationDoc.data().status;
+                    
+                    if (status === 'approved' || sellerDoc.data()?.verified) {
+                        statusEl.className = 'profile-status verified';
+                        statusEl.innerHTML = '<i class="fas fa-check-circle"></i><span>Verified Seller</span>';
+                        banner.classList.add('hidden');
+                    } else if (status === 'pending') {
+                        statusEl.className = 'profile-status pending';
+                        statusEl.innerHTML = '<i class="fas fa-clock"></i><span>Verification Pending</span>';
+                        banner.querySelector('.verification-text h3').textContent = 'Verification Under Review';
+                        banner.querySelector('.verification-text p').textContent = 'Your documents are being reviewed. This usually takes 24-48 hours.';
+                        banner.querySelector('.btn-verify').textContent = 'Check Status';
+                    } else if (status === 'rejected') {
+                        statusEl.className = 'profile-status';
+                        statusEl.style.color = 'var(--danger)';
+                        statusEl.innerHTML = '<i class="fas fa-times-circle"></i><span>Verification Rejected</span>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking verification:', error);
+            }
+        }
+
+        async function loadDashboardStats(sellerId) {
+            try {
+                // Get products count
+                const productsSnapshot = await db.collection('products')
+                    .where('sellerId', '==', sellerId)
+                    .get();
+                document.getElementById('totalProducts').textContent = productsSnapshot.size;
+                
+                // Calculate total orders and revenue
+                let totalOrders = 0;
+                let totalRevenue = 0;
+                
+                try {
+                    const ordersSnapshot = await db.collection('orders')
+                        .where('sellerId', '==', sellerId)
+                        .get();
+                    
+                    totalOrders = ordersSnapshot.size;
+                    ordersSnapshot.forEach(doc => {
+                        const order = doc.data();
+                        totalRevenue += parseFloat(order.total || order.amount || 0);
+                    });
+                } catch (e) {
+                    console.log('Orders may not exist yet');
+                }
+                
+                document.getElementById('totalOrders').textContent = totalOrders;
+                document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
+                document.getElementById('totalViews').textContent = Math.floor(Math.random() * 500) + 100; // Placeholder
+                
+                // Check for low stock
+                const lowStock = [];
+                productsSnapshot.forEach(doc => {
+                    const product = doc.data();
+                    if (product.stock && product.stock <= 10) {
+                        lowStock.push({ name: product.name, stock: product.stock });
+                    }
+                });
+                
+                if (lowStock.length > 0) {
+                    const lowStockItems = document.getElementById('lowStockItems');
+                    lowStockItems.innerHTML = lowStock.slice(0, 5).map(item => `
+                        <div class="alert-item">
+                            <span class="alert-product">${item.name}</span>
+                            <span class="alert-stock">${item.stock} left</span>
+                        </div>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function initializeChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Sales',
+                        data: [1200, 1900, 1500, 2500, 2200, 3000, 2800],
+                        fill: true,
+                        backgroundColor: (context) => {
+                            const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                            gradient.addColorStop(0, 'rgba(124, 58, 237, 0.2)');
+                            gradient.addColorStop(1, 'rgba(124, 58, 237, 0)');
+                            return gradient;
+                        },
+                        borderColor: '#7C3AED',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        pointBackgroundColor: '#7C3AED',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: '#1E293B',
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.parsed.y.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748B' } },
+                        y: {
+                            grid: { color: '#F1F5F9' },
+                            ticks: {
+                                color: '#64748B',
+                                callback: function(value) { return '₹' + (value / 1000) + 'K'; }
+                            }
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
+                }
+            });
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        async function logout() {
+            try {
+                localStorage.removeItem('69shop_user_type');
+                await auth.signOut();
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function checkResponsive() {
+            const menuToggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 1024) {
+                menuToggle.style.display = 'flex';
+            } else {
+                menuToggle.style.display = 'none';
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebarOverlay').classList.remove('show');
+            }
+        }
+
+        window.addEventListener('resize', checkResponsive);
+        checkResponsive();
+    </script>
+</body>
+</html>

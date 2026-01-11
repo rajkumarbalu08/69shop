@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments - Seller Center - 69Shop.in</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            /* Seller Theme - Professional Purple */
+            --seller-primary: #7C3AED;
+            --seller-primary-dark: #6D28D9;
+            --seller-primary-light: #EDE9FE;
+            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            
+            /* Neutral Palette */
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --white: #FFFFFF;
+            
+            /* Status Colors */
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --danger: #EF4444;
+            --danger-light: #FEE2E2;
+            
+            /* Layout */
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            /* Transitions */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-100);
+            min-height: 100vh;
+            color: var(--slate-800);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--slate-200);
+            border-top-color: var(--seller-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        .loading-text { color: var(--slate-500); font-size: 0.9rem; }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .seller-layout { display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
+        .seller-sidebar {
+            width: var(--sidebar-width);
+            background: var(--slate-900);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--slate-700);
+        }
+        
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--seller-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--white);
+            font-weight: 700;
+        }
+        
+        .brand-text { display: flex; flex-direction: column; }
+        
+        .brand-name {
+            color: var(--white);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .brand-badge {
+            font-size: 0.65rem;
+            color: var(--seller-primary);
+            background: var(--seller-primary-light);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: fit-content;
+        }
+        
+        .sidebar-nav { flex: 1; padding: 20px 16px; overflow-y: auto; }
+        
+        .nav-section { margin-bottom: 28px; }
+        
+        .nav-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--slate-500);
+            padding: 0 12px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            color: var(--slate-400);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 4px;
+        }
+        
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        
+        .nav-link.active {
+            background: var(--seller-gradient);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+        
+        .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
+        
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
+        
+        .seller-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--slate-800);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+        
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--seller-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+        }
+        
+        .profile-info { flex: 1; min-width: 0; }
+        
+        .profile-name {
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .profile-status {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .profile-status.verified { color: var(--success); }
+        .profile-status.pending { color: var(--warning); }
+        
+        .btn-logout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--slate-700);
+            color: var(--slate-400);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-logout:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: var(--white);
+        }
+        
+        /* Main Content */
+        .seller-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
+        
+        .seller-header {
+            height: var(--header-height);
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        
+        .page-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+        
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        
+        .btn-withdraw {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--success);
+            color: var(--white);
+            border: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-withdraw:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        
+        .seller-content { padding: 32px; }
+        
+        /* Balance Cards */
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .balance-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-100);
+        }
+        
+        .balance-card.primary {
+            background: var(--seller-gradient);
+            color: var(--white);
+            border: none;
+        }
+        
+        .balance-label {
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+        
+        .balance-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .balance-card.primary .balance-value { color: var(--white); }
+        
+        .balance-sub {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+        
+        .balance-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 1.25rem;
+        }
+        
+        .balance-card:not(.primary) .balance-icon {
+            background: var(--seller-primary-light);
+            color: var(--seller-primary);
+        }
+        
+        /* Bank Account Section */
+        .bank-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-100);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .card-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--slate-900);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i { color: var(--seller-primary); }
+        
+        .btn-card {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .btn-card.primary { background: var(--seller-primary); color: var(--white); }
+        .btn-card.secondary { background: var(--slate-100); color: var(--slate-600); }
+        .btn-card:hover { opacity: 0.9; }
+        
+        .card-body { padding: 24px; }
+        
+        /* Bank Account Card */
+        .bank-account {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: var(--slate-50);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--slate-200);
+        }
+        
+        .bank-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--seller-primary);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .bank-details { flex: 1; }
+        .bank-name { font-weight: 600; color: var(--slate-900); margin-bottom: 4px; }
+        .bank-number { font-size: 0.9rem; color: var(--slate-500); font-family: monospace; }
+        .bank-ifsc { font-size: 0.8rem; color: var(--slate-400); margin-top: 4px; }
+        
+        .bank-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--success-light);
+            color: var(--success);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .no-bank {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--slate-500);
+        }
+        
+        .no-bank i {
+            font-size: 3rem;
+            color: var(--slate-300);
+            margin-bottom: 16px;
+        }
+        
+        .no-bank h3 { color: var(--slate-700); margin-bottom: 8px; }
+        
+        .btn-add-bank {
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--seller-primary);
+            color: var(--white);
+            border: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-add-bank:hover { background: var(--seller-primary-dark); }
+        
+        /* Transaction History */
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .transactions-table th,
+        .transactions-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .transactions-table th {
+            background: var(--slate-50);
+            color: var(--slate-600);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .transactions-table td { font-size: 0.9rem; color: var(--slate-700); }
+        
+        .transactions-table tr:hover { background: var(--slate-50); }
+        
+        .tx-type {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tx-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .tx-icon.credit { background: var(--success-light); color: var(--success); }
+        .tx-icon.debit { background: var(--danger-light); color: var(--danger); }
+        
+        .tx-amount.credit { color: var(--success); font-weight: 600; }
+        .tx-amount.debit { color: var(--danger); font-weight: 600; }
+        
+        .tx-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .tx-status.completed { background: var(--success-light); color: var(--success); }
+        .tx-status.pending { background: var(--warning-light); color: var(--warning); }
+        .tx-status.failed { background: var(--danger-light); color: var(--danger); }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--slate-100);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: var(--slate-400);
+        }
+        
+        .empty-title { font-size: 1.25rem; font-weight: 600; color: var(--slate-900); margin-bottom: 8px; }
+        .empty-desc { color: var(--slate-500); max-width: 300px; margin: 0 auto; }
+        
+        /* Payout Schedule */
+        .payout-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: var(--info-light);
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+        }
+        
+        .payout-info i { font-size: 1.5rem; color: var(--info); }
+        .payout-text { flex: 1; }
+        .payout-text strong { color: var(--slate-900); }
+        .payout-text p { font-size: 0.85rem; color: var(--slate-600); margin-top: 4px; }
+        
+        /* Responsive */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .sidebar-overlay.show { display: block; }
+        
+        @media (max-width: 1200px) {
+            .balance-grid { grid-template-columns: 1fr; }
+            .bank-section { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 1024px) {
+            .seller-sidebar { transform: translateX(-100%); }
+            .seller-sidebar.open { transform: translateX(0); }
+            .seller-main { margin-left: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .seller-content { padding: 20px; }
+            .transactions-table { display: block; overflow-x: auto; }
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.show { display: flex; }
+        
+        .modal {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            margin: 20px;
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .modal-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--slate-100);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        
+        .modal-close:hover { background: var(--slate-200); }
+        
+        .modal-body { padding: 24px; }
+        
+        .form-group { margin-bottom: 20px; }
+        
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--slate-700);
+            margin-bottom: 8px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--seller-primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--seller-gradient);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Payments...</div>
+    </div>
+
+    <div class="seller-layout">
+        <aside class="seller-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/seller-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">SELLER CENTER</span>
+                    </div>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/seller-dashboard.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/seller-products.html" class="nav-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="/seller-orders.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Orders</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Business</div>
+                    <a href="/seller-analytics.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="/seller-payments.html" class="nav-link active">
+                        <i class="fas fa-wallet"></i>
+                        <span>Payments</span>
+                    </a>
+                    <a href="/seller-services.html" class="nav-link">
+                        <i class="fas fa-concierge-bell"></i>
+                        <span>Services</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="/seller-verification.html" class="nav-link">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Verification</span>
+                    </a>
+                    <a href="/seller-settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="/shop.html" class="nav-link">
+                        <i class="fas fa-store"></i>
+                        <span>View Shop</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="seller-profile">
+                    <div class="profile-avatar" id="sellerAvatar">S</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="sellerName">Seller</div>
+                        <div class="profile-status pending" id="sellerStatus">
+                            <i class="fas fa-clock"></i>
+                            <span>Pending</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </button>
+            </div>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        
+        <main class="seller-main">
+            <header class="seller-header">
+                <div class="header-left">
+                    <h1 class="page-title">Payments</h1>
+                </div>
+                <div class="header-right">
+                    <button class="btn-withdraw" onclick="requestWithdrawal()">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Request Withdrawal
+                    </button>
+                </div>
+            </header>
+            
+            <div class="seller-content">
+                <!-- Balance Overview -->
+                <div class="balance-grid">
+                    <div class="balance-card primary">
+                        <div class="balance-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="balance-label">Available Balance</div>
+                        <div class="balance-value" id="availableBalance">₹0</div>
+                        <div class="balance-sub">Ready to withdraw</div>
+                    </div>
+                    
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="balance-label">Pending Balance</div>
+                        <div class="balance-value" id="pendingBalance">₹0</div>
+                        <div class="balance-sub">Will be available in 3-5 days</div>
+                    </div>
+                    
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="balance-label">Total Earned</div>
+                        <div class="balance-value" id="totalEarned">₹0</div>
+                        <div class="balance-sub">All time earnings</div>
+                    </div>
+                </div>
+                
+                <!-- Bank Section -->
+                <div class="bank-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-university"></i>
+                                Bank Account
+                            </h2>
+                            <button class="btn-card secondary" onclick="openBankModal()">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                        <div class="card-body" id="bankAccountContainer">
+                            <div class="no-bank">
+                                <i class="fas fa-university"></i>
+                                <h3>No Bank Account Added</h3>
+                                <p>Add your bank account to receive payments</p>
+                                <button class="btn-add-bank" onclick="openBankModal()">
+                                    <i class="fas fa-plus"></i>
+                                    Add Bank Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-calendar-alt"></i>
+                                Payout Schedule
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="payout-info">
+                                <i class="fas fa-info-circle"></i>
+                                <div class="payout-text">
+                                    <strong>Weekly Payouts</strong>
+                                    <p>Payouts are processed every Monday. Minimum withdrawal amount is ₹500.</p>
+                                </div>
+                            </div>
+                            
+                            <div style="padding: 16px; background: var(--slate-50); border-radius: var(--radius-md);">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <span style="color: var(--slate-600);">Next Payout Date</span>
+                                    <strong id="nextPayoutDate">--</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--slate-600);">Estimated Amount</span>
+                                    <strong style="color: var(--success);" id="estimatedPayout">₹0</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transaction History -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-history"></i>
+                            Transaction History
+                        </h2>
+                        <button class="btn-card secondary">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <table class="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsTable">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--slate-500);">
+                                        No transactions yet
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Bank Account Modal -->
+    <div class="modal-overlay" id="bankModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Bank Account</h3>
+                <button class="modal-close" onclick="closeBankModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="bankForm" onsubmit="saveBankAccount(event)">
+                    <div class="form-group">
+                        <label class="form-label">Account Holder Name</label>
+                        <input type="text" class="form-input" id="accountName" required placeholder="As per bank records">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bank Name</label>
+                        <input type="text" class="form-input" id="bankName" required placeholder="e.g., State Bank of India">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Account Number</label>
+                        <input type="text" class="form-input" id="accountNumber" required placeholder="Enter account number">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Account Number</label>
+                        <input type="text" class="form-input" id="confirmAccountNumber" required placeholder="Re-enter account number">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">IFSC Code</label>
+                        <input type="text" class="form-input" id="ifscCode" required placeholder="e.g., SBIN0001234" maxlength="11">
+                    </div>
+                    <button type="submit" class="btn-submit">Save Bank Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase initialization
+        const firebaseConfig = window.firebaseConfig;
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            throw new Error('Missing Firebase configuration.');
+        }
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        let currentSeller = null;
+        
+        // Auth state listener
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                    if (sellerDoc.exists) {
+                        currentSeller = { uid: user.uid, ...sellerDoc.data() };
+                        updateSellerInfo(currentSeller);
+                        await loadPaymentData();
+                    } else {
+                        window.location.href = '/seller-login.html';
+                    }
+                } catch (error) {
+                    console.error('Error loading seller:', error);
+                }
+            } else {
+                window.location.href = '/seller-login.html';
+            }
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+        
+        function updateSellerInfo(seller) {
+            document.getElementById('sellerName').textContent = seller.businessName || seller.name || 'Seller';
+            document.getElementById('sellerAvatar').textContent = (seller.businessName || seller.name || 'S').charAt(0).toUpperCase();
+        }
+        
+        async function loadPaymentData() {
+            try {
+                // Load orders to calculate earnings
+                const ordersSnapshot = await db.collection('orders')
+                    .where('sellerId', '==', currentSeller.uid)
+                    .get();
+                
+                let totalEarned = 0;
+                let pendingAmount = 0;
+                let availableAmount = 0;
+                
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    const amount = order.total || order.amount || 0;
+                    totalEarned += amount;
+                    
+                    if (order.status === 'delivered') {
+                        availableAmount += amount;
+                    } else if (order.status !== 'cancelled' && order.status !== 'returned') {
+                        pendingAmount += amount;
+                    }
+                });
+                
+                // Apply platform fee (10%)
+                availableAmount = availableAmount * 0.9;
+                pendingAmount = pendingAmount * 0.9;
+                totalEarned = totalEarned * 0.9;
+                
+                document.getElementById('availableBalance').textContent = `₹${Math.round(availableAmount).toLocaleString()}`;
+                document.getElementById('pendingBalance').textContent = `₹${Math.round(pendingAmount).toLocaleString()}`;
+                document.getElementById('totalEarned').textContent = `₹${Math.round(totalEarned).toLocaleString()}`;
+                document.getElementById('estimatedPayout').textContent = `₹${Math.round(availableAmount).toLocaleString()}`;
+                
+                // Set next payout date (next Monday)
+                const today = new Date();
+                const nextMonday = new Date(today);
+                nextMonday.setDate(today.getDate() + (8 - today.getDay()) % 7);
+                document.getElementById('nextPayoutDate').textContent = nextMonday.toLocaleDateString('en-IN', { 
+                    weekday: 'short', 
+                    day: 'numeric', 
+                    month: 'short' 
+                });
+                
+                // Load bank account
+                loadBankAccount();
+                
+                // Load transactions
+                loadTransactions();
+                
+            } catch (error) {
+                console.error('Error loading payment data:', error);
+            }
+        }
+        
+        async function loadBankAccount() {
+            if (currentSeller.bankAccount) {
+                const bank = currentSeller.bankAccount;
+                document.getElementById('bankAccountContainer').innerHTML = `
+                    <div class="bank-account">
+                        <div class="bank-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="bank-details">
+                            <div class="bank-name">${bank.bankName}</div>
+                            <div class="bank-number">**** **** ${bank.accountNumber.slice(-4)}</div>
+                            <div class="bank-ifsc">IFSC: ${bank.ifscCode}</div>
+                        </div>
+                        <div class="bank-status">
+                            <i class="fas fa-check-circle"></i>
+                            Verified
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        async function loadTransactions() {
+            try {
+                const txSnapshot = await db.collection('transactions')
+                    .where('sellerId', '==', currentSeller.uid)
+                    .orderBy('createdAt', 'desc')
+                    .limit(10)
+                    .get();
+                
+                const container = document.getElementById('transactionsTable');
+                
+                if (txSnapshot.empty) {
+                    container.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: var(--slate-500); padding: 40px;">
+                                No transactions yet
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = txSnapshot.docs.map(doc => {
+                    const tx = doc.data();
+                    const isCredit = tx.type === 'credit' || tx.type === 'sale';
+                    const date = tx.createdAt?.toDate?.() || new Date();
+                    
+                    return `
+                        <tr>
+                            <td>
+                                <div class="tx-type">
+                                    <div class="tx-icon ${isCredit ? 'credit' : 'debit'}">
+                                        <i class="fas fa-${isCredit ? 'arrow-down' : 'arrow-up'}"></i>
+                                    </div>
+                                    <div>
+                                        <strong>${tx.description || (isCredit ? 'Payment Received' : 'Withdrawal')}</strong>
+                                        <div style="font-size: 0.8rem; color: var(--slate-500);">${tx.reference || doc.id.slice(0, 8)}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                            <td class="tx-amount ${isCredit ? 'credit' : 'debit'}">
+                                ${isCredit ? '+' : '-'}₹${(tx.amount || 0).toLocaleString()}
+                            </td>
+                            <td>
+                                <span class="tx-status ${tx.status || 'completed'}">${tx.status || 'Completed'}</span>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+            }
+        }
+        
+        function openBankModal() {
+            document.getElementById('bankModal').classList.add('show');
+            if (currentSeller.bankAccount) {
+                document.getElementById('accountName').value = currentSeller.bankAccount.accountName || '';
+                document.getElementById('bankName').value = currentSeller.bankAccount.bankName || '';
+                document.getElementById('accountNumber').value = currentSeller.bankAccount.accountNumber || '';
+                document.getElementById('confirmAccountNumber').value = currentSeller.bankAccount.accountNumber || '';
+                document.getElementById('ifscCode').value = currentSeller.bankAccount.ifscCode || '';
+            }
+        }
+        
+        function closeBankModal() {
+            document.getElementById('bankModal').classList.remove('show');
+        }
+        
+        async function saveBankAccount(e) {
+            e.preventDefault();
+            
+            const accountNumber = document.getElementById('accountNumber').value;
+            const confirmAccountNumber = document.getElementById('confirmAccountNumber').value;
+            
+            if (accountNumber !== confirmAccountNumber) {
+                alert('Account numbers do not match!');
+                return;
+            }
+            
+            const bankData = {
+                accountName: document.getElementById('accountName').value,
+                bankName: document.getElementById('bankName').value,
+                accountNumber: accountNumber,
+                ifscCode: document.getElementById('ifscCode').value.toUpperCase()
+            };
+            
+            try {
+                await db.collection('sellers').doc(currentSeller.uid).update({
+                    bankAccount: bankData
+                });
+                
+                currentSeller.bankAccount = bankData;
+                loadBankAccount();
+                closeBankModal();
+                alert('Bank account saved successfully!');
+                
+            } catch (error) {
+                console.error('Error saving bank account:', error);
+                alert('Failed to save bank account. Please try again.');
+            }
+        }
+        
+        function requestWithdrawal() {
+            const available = parseInt(document.getElementById('availableBalance').textContent.replace(/[₹,]/g, ''));
+            
+            if (available < 500) {
+                alert('Minimum withdrawal amount is ₹500. Your available balance is ₹' + available);
+                return;
+            }
+            
+            if (!currentSeller.bankAccount) {
+                alert('Please add a bank account first.');
+                openBankModal();
+                return;
+            }
+            
+            if (confirm(`Request withdrawal of ₹${available.toLocaleString()} to your bank account?`)) {
+                // Create withdrawal request
+                db.collection('withdrawals').add({
+                    sellerId: currentSeller.uid,
+                    amount: available,
+                    bankAccount: currentSeller.bankAccount,
+                    status: 'pending',
+                    requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    alert('Withdrawal request submitted! It will be processed within 3-5 business days.');
+                }).catch(error => {
+                    console.error('Error requesting withdrawal:', error);
+                    alert('Failed to submit withdrawal request. Please try again.');
+                });
+            }
+        }
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+        
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = '/seller-login.html';
+            });
+        }
+    </script>
+</body>
+</html>

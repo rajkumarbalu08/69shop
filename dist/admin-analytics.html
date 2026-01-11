@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Admin | 69Shop.in</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            --admin-primary: #DC2626;
+            --admin-primary-dark: #B91C1C;
+            --admin-primary-light: #FEE2E2;
+            --admin-gradient: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --purple: #8B5CF6;
+            --purple-light: #EDE9FE;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--slate-100); min-height: 100vh; color: var(--slate-800); }
+        
+        .loading-overlay { position: fixed; inset: 0; background: var(--white); display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; gap: 20px; }
+        .loading-spinner { width: 48px; height: 48px; border: 3px solid var(--slate-200); border-top-color: var(--admin-primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: var(--sidebar-width); background: var(--slate-900); position: fixed; top: 0; left: 0; height: 100vh; z-index: 1000; display: flex; flex-direction: column; transition: var(--transition); }
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-700); }
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .brand-logo { width: 42px; height: 42px; background: var(--admin-gradient); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: var(--white); font-weight: 700; }
+        .brand-text { display: flex; flex-direction: column; }
+        .brand-name { color: var(--white); font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 700; }
+        .brand-badge { font-size: 0.65rem; color: var(--admin-primary); background: var(--admin-primary-light); padding: 2px 8px; border-radius: 10px; font-weight: 600; width: fit-content; }
+        
+        .sidebar-nav { flex: 1; padding: 20px 16px; overflow-y: auto; }
+        .nav-section { margin-bottom: 28px; }
+        .nav-section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate-500); padding: 0 12px; margin-bottom: 12px; font-weight: 600; }
+        .nav-link { display: flex; align-items: center; gap: 14px; padding: 14px 16px; color: var(--slate-400); text-decoration: none; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 500; transition: var(--transition); margin-bottom: 4px; }
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        .nav-link.active { background: var(--admin-gradient); color: var(--white); box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); }
+        .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
+        
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
+        .admin-profile { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--slate-800); border-radius: var(--radius-md); margin-bottom: 12px; }
+        .profile-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--admin-gradient); display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 600; }
+        .profile-info { flex: 1; min-width: 0; }
+        .profile-name { color: var(--white); font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .profile-role { color: var(--slate-400); font-size: 0.75rem; display: flex; align-items: center; gap: 4px; }
+        .profile-role i { color: var(--warning); font-size: 0.65rem; }
+        .btn-logout { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: transparent; border: 1px solid var(--slate-700); color: var(--slate-400); border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: var(--transition); }
+        .btn-logout:hover { background: var(--admin-primary); border-color: var(--admin-primary); color: var(--white); }
+        
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; visibility: hidden; transition: var(--transition); }
+        .sidebar-overlay.show { opacity: 1; visibility: visible; }
+        
+        .admin-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
+        .admin-header { height: var(--header-height); background: var(--white); border-bottom: 1px solid var(--slate-200); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--slate-500); }
+        .breadcrumb a { color: var(--admin-primary); text-decoration: none; }
+        .header-btn { width: 42px; height: 42px; border: none; background: var(--slate-100); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--slate-600); transition: var(--transition); }
+        .header-btn:hover { background: var(--slate-200); }
+        
+        .admin-content { padding: 32px; }
+        
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px; }
+        .stat-card { background: var(--white); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); }
+        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .stat-icon { width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+        .stat-icon.revenue { background: var(--success-light); color: var(--success); }
+        .stat-icon.orders { background: var(--info-light); color: var(--info); }
+        .stat-icon.users { background: var(--purple-light); color: var(--purple); }
+        .stat-icon.sellers { background: var(--warning-light); color: var(--warning); }
+        .stat-change { font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+        .stat-change.up { background: var(--success-light); color: var(--success); }
+        .stat-change.down { background: var(--admin-primary-light); color: var(--admin-primary); }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--slate-900); margin-bottom: 4px; }
+        .stat-label { color: var(--slate-500); font-size: 0.9rem; }
+        
+        /* Charts Grid */
+        .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 32px; }
+        .chart-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+        .chart-header { padding: 20px 24px; border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; }
+        .chart-title { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 600; color: var(--slate-900); }
+        .chart-body { padding: 24px; height: 350px; }
+        
+        /* Period Tabs */
+        .period-tabs { display: flex; gap: 4px; background: var(--slate-100); padding: 4px; border-radius: var(--radius-sm); }
+        .period-tab { padding: 8px 16px; border: none; background: none; font-size: 0.8rem; font-weight: 500; color: var(--slate-500); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); }
+        .period-tab.active { background: var(--white); color: var(--slate-900); box-shadow: var(--shadow-sm); }
+        
+        /* Top Lists */
+        .top-list { padding: 16px 24px; }
+        .top-item { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--slate-100); }
+        .top-item:last-child { border-bottom: none; }
+        .top-rank { width: 28px; height: 28px; border-radius: 50%; background: var(--slate-100); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: var(--slate-600); }
+        .top-rank.gold { background: #FEF3C7; color: #B45309; }
+        .top-rank.silver { background: var(--slate-200); color: var(--slate-700); }
+        .top-rank.bronze { background: #FFEDD5; color: #C2410C; }
+        .top-info { flex: 1; }
+        .top-name { font-weight: 600; color: var(--slate-900); font-size: 0.95rem; }
+        .top-meta { font-size: 0.8rem; color: var(--slate-500); }
+        .top-value { font-weight: 700; color: var(--slate-900); }
+        
+        @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .charts-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 1024px) { .admin-sidebar { transform: translateX(-100%); } .admin-sidebar.open { transform: translateX(0); } .admin-main { margin-left: 0; } .admin-content { padding: 20px; } }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading analytics...</div>
+    </div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">ADMIN PORTAL</span>
+                    </div>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/admin-dashboard.html" class="nav-link"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+                    <a href="/admin-sellers.html" class="nav-link"><i class="fas fa-store"></i><span>Sellers</span></a>
+                    <a href="/admin-users.html" class="nav-link"><i class="fas fa-users"></i><span>Users</span></a>
+                    <a href="/admin-products.html" class="nav-link"><i class="fas fa-box-open"></i><span>Products</span></a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="/admin-orders.html" class="nav-link"><i class="fas fa-shopping-bag"></i><span>Orders</span></a>
+                    <a href="/admin-analytics.html" class="nav-link active"><i class="fas fa-chart-line"></i><span>Analytics</span></a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="/admin-settings.html" class="nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+                    <a href="/" class="nav-link"><i class="fas fa-external-link-alt"></i><span>View Store</span></a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="admin-profile">
+                    <div class="profile-avatar" id="adminAvatar">A</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="adminName">Admin</div>
+                        <div class="profile-role"><i class="fas fa-crown"></i><span id="adminRole">Admin</span></div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Sign Out</button>
+            </div>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;"><i class="fas fa-bars"></i></button>
+                    <div>
+                        <h1 class="page-title">Analytics</h1>
+                        <div class="breadcrumb"><a href="/admin-dashboard.html">Admin</a><span>/</span><span>Analytics</span></div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <!-- Stats Overview -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon revenue"><i class="fas fa-rupee-sign"></i></div>
+                            <span class="stat-change up"><i class="fas fa-arrow-up"></i> 12%</span>
+                        </div>
+                        <div class="stat-value" id="totalRevenue">₹0</div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon orders"><i class="fas fa-shopping-bag"></i></div>
+                            <span class="stat-change up"><i class="fas fa-arrow-up"></i> 8%</span>
+                        </div>
+                        <div class="stat-value" id="totalOrders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon users"><i class="fas fa-users"></i></div>
+                            <span class="stat-change up"><i class="fas fa-arrow-up"></i> 15%</span>
+                        </div>
+                        <div class="stat-value" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon sellers"><i class="fas fa-store"></i></div>
+                            <span class="stat-change up"><i class="fas fa-arrow-up"></i> 5%</span>
+                        </div>
+                        <div class="stat-value" id="totalSellers">0</div>
+                        <div class="stat-label">Active Sellers</div>
+                    </div>
+                </div>
+                
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Revenue Trend</h3>
+                            <div class="period-tabs">
+                                <button class="period-tab" data-period="7">7D</button>
+                                <button class="period-tab active" data-period="30">30D</button>
+                                <button class="period-tab" data-period="90">90D</button>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Top Sellers</h3>
+                        </div>
+                        <div class="top-list" id="topSellersList">
+                            <!-- Loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Orders by Status</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="ordersChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Top Categories</h3>
+                        </div>
+                        <div class="top-list" id="topCategoriesList">
+                            <!-- Loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const LEAD_ADMIN_EMAIL = 'rajkumarbalu81@gmail.com';
+        
+        const firebaseConfig = window.firebaseConfig;
+        if (!firebaseConfig || !firebaseConfig.apiKey) throw new Error('Missing Firebase configuration');
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        let revenueChart = null;
+        let ordersChart = null;
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const isAdmin = await checkAdminStatus(user.email);
+                if (isAdmin) {
+                    await initializePage(user);
+                    hideLoading();
+                } else {
+                    window.location.href = '/admin-login.html';
+                }
+            } else {
+                window.location.href = '/admin-login.html';
+            }
+        });
+
+        async function checkAdminStatus(email) {
+            try {
+                const adminDoc = await db.collection('admins').doc(email).get();
+                return adminDoc.exists;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function initializePage(user) {
+            const firstName = user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Admin';
+            document.getElementById('adminName').textContent = user.displayName || user.email;
+            document.getElementById('adminAvatar').textContent = firstName.charAt(0).toUpperCase();
+            document.getElementById('adminRole').textContent = user.email === LEAD_ADMIN_EMAIL ? 'Lead Admin' : 'Admin';
+            
+            await loadStats();
+            initializeCharts();
+            loadTopSellers();
+            loadTopCategories();
+            setupPeriodTabs();
+        }
+
+        async function loadStats() {
+            try {
+                const [usersSnap, sellersSnap, productsSnap, ordersSnap] = await Promise.all([
+                    db.collection('users').get(),
+                    db.collection('sellers').get(),
+                    db.collection('products').get(),
+                    db.collection('orders').get()
+                ]);
+                
+                let totalRevenue = 0;
+                ordersSnap.forEach(doc => {
+                    const order = doc.data();
+                    totalRevenue += parseFloat(order.total || order.amount || 0);
+                });
+                
+                document.getElementById('totalUsers').textContent = usersSnap.size;
+                document.getElementById('totalSellers').textContent = sellersSnap.size;
+                document.getElementById('totalOrders').textContent = ordersSnap.size;
+                document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function initializeCharts() {
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: generateDateLabels(30),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: generateRandomData(30, 5000, 50000),
+                        fill: true,
+                        backgroundColor: (context) => {
+                            const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                            gradient.addColorStop(0, 'rgba(220, 38, 38, 0.2)');
+                            gradient.addColorStop(1, 'rgba(220, 38, 38, 0)');
+                            return gradient;
+                        },
+                        borderColor: '#DC2626',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: '#F1F5F9' }, ticks: { callback: (v) => '₹' + (v/1000) + 'K' } }
+                    }
+                }
+            });
+            
+            // Orders Chart
+            const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+            ordersChart = new Chart(ordersCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Delivered', 'Shipped', 'Processing', 'Pending'],
+                    datasets: [{
+                        data: [45, 25, 20, 10],
+                        backgroundColor: ['#10B981', '#8B5CF6', '#3B82F6', '#F59E0B'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        function generateDateLabels(days) {
+            const labels = [];
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }));
+            }
+            return labels;
+        }
+
+        function generateRandomData(count, min, max) {
+            return Array.from({ length: count }, () => Math.floor(Math.random() * (max - min) + min));
+        }
+
+        function loadTopSellers() {
+            const container = document.getElementById('topSellersList');
+            const sellers = [
+                { name: 'TechMart India', orders: 156, revenue: '₹2,45,000' },
+                { name: 'Fashion Hub', orders: 134, revenue: '₹1,89,000' },
+                { name: 'Home Essentials', orders: 98, revenue: '₹1,25,000' },
+                { name: 'Gadget World', orders: 87, revenue: '₹98,500' },
+                { name: 'Style Studio', orders: 76, revenue: '₹87,200' }
+            ];
+            
+            container.innerHTML = sellers.map((seller, i) => `
+                <div class="top-item">
+                    <div class="top-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${i + 1}</div>
+                    <div class="top-info">
+                        <div class="top-name">${seller.name}</div>
+                        <div class="top-meta">${seller.orders} orders</div>
+                    </div>
+                    <div class="top-value">${seller.revenue}</div>
+                </div>
+            `).join('');
+        }
+
+        function loadTopCategories() {
+            const container = document.getElementById('topCategoriesList');
+            const categories = [
+                { name: 'Electronics', products: 245, sales: '₹5,67,000' },
+                { name: 'Fashion', products: 189, sales: '₹3,45,000' },
+                { name: 'Home & Living', products: 156, sales: '₹2,89,000' },
+                { name: 'Beauty', products: 98, sales: '₹1,56,000' },
+                { name: 'Sports', products: 67, sales: '₹89,000' }
+            ];
+            
+            container.innerHTML = categories.map((cat, i) => `
+                <div class="top-item">
+                    <div class="top-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${i + 1}</div>
+                    <div class="top-info">
+                        <div class="top-name">${cat.name}</div>
+                        <div class="top-meta">${cat.products} products</div>
+                    </div>
+                    <div class="top-value">${cat.sales}</div>
+                </div>
+            `).join('');
+        }
+
+        function setupPeriodTabs() {
+            document.querySelectorAll('.period-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const days = parseInt(tab.dataset.period);
+                    updateRevenueChart(days);
+                });
+            });
+        }
+
+        function updateRevenueChart(days) {
+            revenueChart.data.labels = generateDateLabels(days);
+            revenueChart.data.datasets[0].data = generateRandomData(days, 5000, 50000);
+            revenueChart.update();
+        }
+
+        function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+        async function logout() { await auth.signOut(); window.location.href = '/admin-login.html'; }
+        
+        function checkResponsive() {
+            const menuToggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 1024) { menuToggle.style.display = 'flex'; } 
+            else { menuToggle.style.display = 'none'; document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); }
+        }
+        window.addEventListener('resize', checkResponsive);
+        checkResponsive();
+    </script>
+</body>
+</html>

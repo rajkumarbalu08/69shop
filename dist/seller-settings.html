@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Seller Center - 69Shop.in</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            /* Seller Theme - Professional Purple */
+            --seller-primary: #7C3AED;
+            --seller-primary-dark: #6D28D9;
+            --seller-primary-light: #EDE9FE;
+            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            
+            /* Neutral Palette */
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --white: #FFFFFF;
+            
+            /* Status Colors */
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --danger: #EF4444;
+            --danger-light: #FEE2E2;
+            
+            /* Layout */
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            /* Transitions */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-100);
+            min-height: 100vh;
+            color: var(--slate-800);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--slate-200);
+            border-top-color: var(--seller-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        .loading-text { color: var(--slate-500); font-size: 0.9rem; }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .seller-layout { display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
+        .seller-sidebar {
+            width: var(--sidebar-width);
+            background: var(--slate-900);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--slate-700);
+        }
+        
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--seller-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--white);
+            font-weight: 700;
+        }
+        
+        .brand-text { display: flex; flex-direction: column; }
+        
+        .brand-name {
+            color: var(--white);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .brand-badge {
+            font-size: 0.65rem;
+            color: var(--seller-primary);
+            background: var(--seller-primary-light);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: fit-content;
+        }
+        
+        .sidebar-nav { flex: 1; padding: 20px 16px; overflow-y: auto; }
+        
+        .nav-section { margin-bottom: 28px; }
+        
+        .nav-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--slate-500);
+            padding: 0 12px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            color: var(--slate-400);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 4px;
+        }
+        
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        
+        .nav-link.active {
+            background: var(--seller-gradient);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+        
+        .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
+        
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
+        
+        .seller-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--slate-800);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+        
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--seller-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+        }
+        
+        .profile-info { flex: 1; min-width: 0; }
+        
+        .profile-name {
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .profile-status {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .profile-status.verified { color: var(--success); }
+        .profile-status.pending { color: var(--warning); }
+        
+        .btn-logout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--slate-700);
+            color: var(--slate-400);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-logout:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: var(--white);
+        }
+        
+        /* Main Content */
+        .seller-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
+        
+        .seller-header {
+            height: var(--header-height);
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        
+        .page-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+        
+        .seller-content { padding: 32px; max-width: 900px; }
+        
+        /* Settings Sections */
+        .settings-section {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-100);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--slate-100);
+            background: var(--slate-50);
+        }
+        
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--slate-900);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i { color: var(--seller-primary); }
+        
+        .section-body { padding: 24px; }
+        
+        /* Profile Photo */
+        .profile-photo-section {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--slate-100);
+            margin-bottom: 24px;
+        }
+        
+        .profile-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--seller-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--white);
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .photo-upload h4 { color: var(--slate-900); }
+        .photo-upload p { font-size: 0.85rem; color: var(--slate-500); }
+        
+        .btn-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--slate-100);
+            color: var(--slate-700);
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-upload:hover { background: var(--slate-200); }
+        
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .form-group { margin-bottom: 0; }
+        
+        .form-group.full-width { grid-column: span 2; }
+        
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--slate-700);
+            margin-bottom: 8px;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--seller-primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+        
+        .form-textarea { resize: vertical; min-height: 100px; }
+        
+        .form-hint { font-size: 0.8rem; color: var(--slate-500); margin-top: 6px; }
+        
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .toggle-group:last-child { border-bottom: none; }
+        
+        .toggle-info h4 { font-weight: 500; color: var(--slate-900); margin-bottom: 4px; }
+        .toggle-info p { font-size: 0.85rem; color: var(--slate-500); }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--slate-300);
+            border-radius: 28px;
+            transition: var(--transition);
+        }
+        
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--white);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .toggle-switch input:checked + .toggle-slider { background: var(--seller-primary); }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
+        
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--slate-100);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--seller-gradient);
+            color: var(--white);
+        }
+        
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        
+        .btn-secondary {
+            background: var(--slate-100);
+            color: var(--slate-700);
+        }
+        
+        .btn-secondary:hover { background: var(--slate-200); }
+        
+        .btn-danger {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+        
+        .btn-danger:hover { background: var(--danger); color: var(--white); }
+        
+        /* Password Change */
+        .password-form { max-width: 400px; }
+        
+        .password-form .form-group { margin-bottom: 16px; }
+        
+        /* Danger Zone */
+        .danger-zone {
+            border: 2px solid var(--danger);
+        }
+        
+        .danger-zone .section-header {
+            background: var(--danger-light);
+        }
+        
+        .danger-zone .section-title i { color: var(--danger); }
+        
+        .danger-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .danger-item:last-child { border-bottom: none; }
+        
+        .danger-info h4 { color: var(--slate-900); margin-bottom: 4px; }
+        .danger-info p { font-size: 0.85rem; color: var(--slate-500); }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            background: var(--success);
+            color: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 3000;
+        }
+        
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: var(--danger); }
+        
+        /* Responsive */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .sidebar-overlay.show { display: block; }
+        
+        @media (max-width: 1024px) {
+            .seller-sidebar { transform: translateX(-100%); }
+            .seller-sidebar.open { transform: translateX(0); }
+            .seller-main { margin-left: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .seller-content { padding: 20px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+            .profile-photo-section { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Settings...</div>
+    </div>
+
+    <div class="seller-layout">
+        <aside class="seller-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/seller-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">SELLER CENTER</span>
+                    </div>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/seller-dashboard.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/seller-products.html" class="nav-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="/seller-orders.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Orders</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Business</div>
+                    <a href="/seller-analytics.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="/seller-payments.html" class="nav-link">
+                        <i class="fas fa-wallet"></i>
+                        <span>Payments</span>
+                    </a>
+                    <a href="/seller-services.html" class="nav-link">
+                        <i class="fas fa-concierge-bell"></i>
+                        <span>Services</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="/seller-verification.html" class="nav-link">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Verification</span>
+                    </a>
+                    <a href="/seller-settings.html" class="nav-link active">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="/shop.html" class="nav-link">
+                        <i class="fas fa-store"></i>
+                        <span>View Shop</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="seller-profile">
+                    <div class="profile-avatar" id="sellerAvatar">S</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="sellerName">Seller</div>
+                        <div class="profile-status pending" id="sellerStatus">
+                            <i class="fas fa-clock"></i>
+                            <span>Pending</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </button>
+            </div>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        
+        <main class="seller-main">
+            <header class="seller-header">
+                <div class="header-left">
+                    <h1 class="page-title">Settings</h1>
+                </div>
+            </header>
+            
+            <div class="seller-content">
+                <!-- Business Profile -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-store"></i>
+                            Business Profile
+                        </h2>
+                    </div>
+                    <div class="section-body">
+                        <div class="profile-photo-section">
+                            <div class="profile-photo" id="businessLogo">S</div>
+                            <div class="photo-upload">
+                                <h4>Business Logo</h4>
+                                <p>Upload a square image, at least 200x200px</p>
+                                <label class="btn-upload">
+                                    <i class="fas fa-upload"></i>
+                                    Upload Logo
+                                    <input type="file" accept="image/*" hidden id="logoInput" onchange="uploadLogo(this)">
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <form id="businessForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Business Name</label>
+                                    <input type="text" class="form-input" id="businessName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Business Email</label>
+                                    <input type="email" class="form-input" id="businessEmail" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-input" id="phone" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Category</label>
+                                    <select class="form-select" id="category">
+                                        <option value="">Select Category</option>
+                                        <option value="electronics">Electronics</option>
+                                        <option value="fashion">Fashion</option>
+                                        <option value="home">Home & Garden</option>
+                                        <option value="beauty">Beauty & Health</option>
+                                        <option value="sports">Sports & Outdoors</option>
+                                        <option value="books">Books & Media</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label class="form-label">Business Description</label>
+                                    <textarea class="form-textarea" id="description" placeholder="Tell customers about your business..."></textarea>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label class="form-label">Business Address</label>
+                                    <textarea class="form-textarea" id="address" rows="2" placeholder="Enter your business address"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Notification Settings -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-bell"></i>
+                            Notifications
+                        </h2>
+                    </div>
+                    <div class="section-body">
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <h4>Order Notifications</h4>
+                                <p>Get notified when you receive new orders</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notifyOrders" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <h4>Payment Notifications</h4>
+                                <p>Get notified about payments and withdrawals</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notifyPayments" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <h4>Low Stock Alerts</h4>
+                                <p>Get notified when products are running low</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notifyStock" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <h4>Marketing Emails</h4>
+                                <p>Receive tips and updates from 69Shop</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notifyMarketing">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Password Change -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-lock"></i>
+                            Security
+                        </h2>
+                    </div>
+                    <div class="section-body">
+                        <form class="password-form" id="passwordForm" onsubmit="changePassword(event)">
+                            <div class="form-group">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" class="form-input" id="currentPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-input" id="newPassword" required minlength="6">
+                                <p class="form-hint">At least 6 characters</p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-input" id="confirmPassword" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-key"></i>
+                                Change Password
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Danger Zone -->
+                <div class="settings-section danger-zone">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Danger Zone
+                        </h2>
+                    </div>
+                    <div class="section-body">
+                        <div class="danger-item">
+                            <div class="danger-info">
+                                <h4>Deactivate Account</h4>
+                                <p>Temporarily hide your shop from customers</p>
+                            </div>
+                            <button class="btn btn-secondary" onclick="deactivateAccount()">
+                                Deactivate
+                            </button>
+                        </div>
+                        
+                        <div class="danger-item">
+                            <div class="danger-info">
+                                <h4>Delete Account</h4>
+                                <p>Permanently delete your seller account and all data</p>
+                            </div>
+                            <button class="btn btn-danger" onclick="deleteAccount()">
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Settings saved successfully!</span>
+    </div>
+
+    <script>
+        // Firebase initialization
+        const firebaseConfig = window.firebaseConfig;
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            throw new Error('Missing Firebase configuration.');
+        }
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        
+        let currentSeller = null;
+        
+        // Auth state listener
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                    if (sellerDoc.exists) {
+                        currentSeller = { uid: user.uid, email: user.email, ...sellerDoc.data() };
+                        updateSellerInfo(currentSeller);
+                        populateForm(currentSeller);
+                    } else {
+                        window.location.href = '/seller-login.html';
+                    }
+                } catch (error) {
+                    console.error('Error loading seller:', error);
+                }
+            } else {
+                window.location.href = '/seller-login.html';
+            }
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+        
+        function updateSellerInfo(seller) {
+            document.getElementById('sellerName').textContent = seller.businessName || seller.name || 'Seller';
+            document.getElementById('sellerAvatar').textContent = (seller.businessName || seller.name || 'S').charAt(0).toUpperCase();
+            
+            if (seller.logoUrl) {
+                document.getElementById('businessLogo').innerHTML = `<img src="${seller.logoUrl}" alt="Logo">`;
+            } else {
+                document.getElementById('businessLogo').textContent = (seller.businessName || 'S').charAt(0).toUpperCase();
+            }
+        }
+        
+        function populateForm(seller) {
+            document.getElementById('businessName').value = seller.businessName || seller.name || '';
+            document.getElementById('businessEmail').value = seller.businessEmail || seller.email || '';
+            document.getElementById('phone').value = seller.phone || '';
+            document.getElementById('category').value = seller.category || '';
+            document.getElementById('description').value = seller.description || '';
+            document.getElementById('address').value = seller.address || '';
+            
+            // Notification settings
+            const notifications = seller.notifications || {};
+            document.getElementById('notifyOrders').checked = notifications.orders !== false;
+            document.getElementById('notifyPayments').checked = notifications.payments !== false;
+            document.getElementById('notifyStock').checked = notifications.stock !== false;
+            document.getElementById('notifyMarketing').checked = notifications.marketing === true;
+        }
+        
+        // Business form submission
+        document.getElementById('businessForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const updateData = {
+                businessName: document.getElementById('businessName').value,
+                businessEmail: document.getElementById('businessEmail').value,
+                phone: document.getElementById('phone').value,
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value,
+                address: document.getElementById('address').value,
+                notifications: {
+                    orders: document.getElementById('notifyOrders').checked,
+                    payments: document.getElementById('notifyPayments').checked,
+                    stock: document.getElementById('notifyStock').checked,
+                    marketing: document.getElementById('notifyMarketing').checked
+                },
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                await db.collection('sellers').doc(currentSeller.uid).update(updateData);
+                showToast('Settings saved successfully!');
+                currentSeller = { ...currentSeller, ...updateData };
+                updateSellerInfo(currentSeller);
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showToast('Failed to save settings. Please try again.', true);
+            }
+        });
+        
+        async function uploadLogo(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                showToast('Please select an image file', true);
+                return;
+            }
+            
+            try {
+                const storageRef = storage.ref(`seller-logos/${currentSeller.uid}`);
+                await storageRef.put(file);
+                const logoUrl = await storageRef.getDownloadURL();
+                
+                await db.collection('sellers').doc(currentSeller.uid).update({ logoUrl });
+                
+                document.getElementById('businessLogo').innerHTML = `<img src="${logoUrl}" alt="Logo">`;
+                showToast('Logo uploaded successfully!');
+            } catch (error) {
+                console.error('Error uploading logo:', error);
+                showToast('Failed to upload logo. Please try again.', true);
+            }
+        }
+        
+        async function changePassword(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showToast('New passwords do not match', true);
+                return;
+            }
+            
+            try {
+                const user = auth.currentUser;
+                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                await user.reauthenticateWithCredential(credential);
+                await user.updatePassword(newPassword);
+                
+                document.getElementById('passwordForm').reset();
+                showToast('Password changed successfully!');
+            } catch (error) {
+                console.error('Error changing password:', error);
+                if (error.code === 'auth/wrong-password') {
+                    showToast('Current password is incorrect', true);
+                } else {
+                    showToast('Failed to change password. Please try again.', true);
+                }
+            }
+        }
+        
+        function deactivateAccount() {
+            if (confirm('Are you sure you want to deactivate your account? Your shop will be hidden from customers.')) {
+                db.collection('sellers').doc(currentSeller.uid).update({
+                    isActive: false,
+                    deactivatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    showToast('Account deactivated. You can reactivate anytime.');
+                }).catch(error => {
+                    console.error('Error deactivating:', error);
+                    showToast('Failed to deactivate account', true);
+                });
+            }
+        }
+        
+        function deleteAccount() {
+            const confirmed = prompt('This action cannot be undone. Type "DELETE" to confirm:');
+            if (confirmed === 'DELETE') {
+                db.collection('sellers').doc(currentSeller.uid).update({
+                    deletionRequested: true,
+                    deletionRequestedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    alert('Your account deletion has been requested. It will be processed within 30 days. You can contact support to cancel.');
+                    logout();
+                }).catch(error => {
+                    console.error('Error requesting deletion:', error);
+                    showToast('Failed to request deletion', true);
+                });
+            }
+        }
+        
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.classList.toggle('error', isError);
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+        
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = '/seller-login.html';
+            });
+        }
+    </script>
+</body>
+</html>

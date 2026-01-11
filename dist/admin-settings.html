@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Admin | 69Shop.in</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            --admin-primary: #DC2626;
+            --admin-primary-dark: #B91C1C;
+            --admin-primary-light: #FEE2E2;
+            --admin-gradient: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --purple: #8B5CF6;
+            --purple-light: #EDE9FE;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-100);
+            min-height: 100vh;
+            color: var(--slate-800);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--slate-200);
+            border-top-color: var(--admin-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .admin-layout { display: flex; min-height: 100vh; }
+        
+        .admin-sidebar {
+            width: var(--sidebar-width);
+            background: var(--slate-900);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-700); }
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .brand-logo { width: 42px; height: 42px; background: var(--admin-gradient); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: var(--white); font-weight: 700; }
+        .brand-text { display: flex; flex-direction: column; }
+        .brand-name { color: var(--white); font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 700; }
+        .brand-badge { font-size: 0.65rem; color: var(--admin-primary); background: var(--admin-primary-light); padding: 2px 8px; border-radius: 10px; font-weight: 600; width: fit-content; }
+        
+        .sidebar-nav { flex: 1; padding: 20px 16px; overflow-y: auto; }
+        .nav-section { margin-bottom: 28px; }
+        .nav-section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate-500); padding: 0 12px; margin-bottom: 12px; font-weight: 600; }
+        
+        .nav-link { display: flex; align-items: center; gap: 14px; padding: 14px 16px; color: var(--slate-400); text-decoration: none; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 500; transition: var(--transition); margin-bottom: 4px; }
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        .nav-link.active { background: var(--admin-gradient); color: var(--white); box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); }
+        .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
+        
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
+        .admin-profile { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--slate-800); border-radius: var(--radius-md); margin-bottom: 12px; }
+        .profile-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--admin-gradient); display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 600; }
+        .profile-info { flex: 1; min-width: 0; }
+        .profile-name { color: var(--white); font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .profile-role { color: var(--slate-400); font-size: 0.75rem; display: flex; align-items: center; gap: 4px; }
+        .profile-role i { color: var(--warning); font-size: 0.65rem; }
+        
+        .btn-logout { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: transparent; border: 1px solid var(--slate-700); color: var(--slate-400); border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: var(--transition); }
+        .btn-logout:hover { background: var(--admin-primary); border-color: var(--admin-primary); color: var(--white); }
+        
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; visibility: hidden; transition: var(--transition); }
+        .sidebar-overlay.show { opacity: 1; visibility: visible; }
+        
+        .admin-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
+        
+        .admin-header { height: var(--header-height); background: var(--white); border-bottom: 1px solid var(--slate-200); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--slate-500); }
+        .breadcrumb a { color: var(--admin-primary); text-decoration: none; }
+        
+        .header-btn { width: 42px; height: 42px; border: none; background: var(--slate-100); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--slate-600); transition: var(--transition); }
+        .header-btn:hover { background: var(--slate-200); }
+        
+        .admin-content { padding: 32px; max-width: 1200px; }
+        
+        /* Settings Sections */
+        .settings-section { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 24px; overflow: hidden; }
+        
+        .section-header { padding: 24px; border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; }
+        .section-title { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 600; color: var(--slate-900); display: flex; align-items: center; gap: 12px; }
+        .section-title i { color: var(--admin-primary); }
+        .section-subtitle { font-size: 0.85rem; color: var(--slate-500); margin-top: 4px; }
+        
+        .section-body { padding: 24px; }
+        
+        /* Lead Admin Badge */
+        .lead-admin-badge { background: var(--warning-light); color: #B45309; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        .lead-admin-badge i { font-size: 0.7rem; }
+        
+        /* Admin List */
+        .admin-list { display: flex; flex-direction: column; gap: 12px; }
+        
+        .admin-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--slate-50); border-radius: var(--radius-md); }
+        .admin-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--admin-gradient); display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 600; font-size: 1.1rem; }
+        .admin-avatar.lead { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+        .admin-info { flex: 1; }
+        .admin-email { font-weight: 600; color: var(--slate-900); }
+        .admin-meta { font-size: 0.85rem; color: var(--slate-500); display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+        .admin-role-badge { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
+        .admin-role-badge.lead { background: var(--warning-light); color: #B45309; }
+        .admin-role-badge.admin { background: var(--info-light); color: #1D4ED8; }
+        
+        .admin-actions { display: flex; gap: 8px; }
+        
+        .btn-icon { width: 36px; height: 36px; border: none; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+        .btn-icon.delete { background: var(--admin-primary-light); color: var(--admin-primary); }
+        .btn-icon.delete:hover { background: var(--admin-primary); color: var(--white); }
+        .btn-icon:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* Add Admin Form */
+        .add-admin-form { display: flex; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--slate-200); }
+        .add-admin-form input { flex: 1; padding: 12px 16px; border: 1px solid var(--slate-200); border-radius: var(--radius-md); font-size: 0.9rem; outline: none; transition: var(--transition); }
+        .add-admin-form input:focus { border-color: var(--admin-primary); box-shadow: 0 0 0 3px var(--admin-primary-light); }
+        
+        .btn-primary { padding: 12px 24px; background: var(--admin-gradient); color: var(--white); border: none; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: var(--transition); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        
+        /* Notification Settings */
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--slate-100); }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-info h4 { font-size: 0.95rem; font-weight: 600; color: var(--slate-900); margin-bottom: 4px; }
+        .toggle-info p { font-size: 0.85rem; color: var(--slate-500); }
+        
+        .toggle-switch { position: relative; width: 52px; height: 28px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; inset: 0; background: var(--slate-300); border-radius: 28px; cursor: pointer; transition: var(--transition); }
+        .toggle-slider:before { content: ''; position: absolute; width: 22px; height: 22px; left: 3px; bottom: 3px; background: var(--white); border-radius: 50%; transition: var(--transition); }
+        .toggle-switch input:checked + .toggle-slider { background: var(--success); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(24px); }
+        
+        /* Restricted Access */
+        .restricted-notice { background: var(--warning-light); border: 1px solid #FCD34D; border-radius: var(--radius-md); padding: 20px; display: flex; align-items: flex-start; gap: 16px; }
+        .restricted-notice i { font-size: 1.5rem; color: var(--warning); }
+        .restricted-notice h4 { font-size: 1rem; font-weight: 600; color: #92400E; margin-bottom: 4px; }
+        .restricted-notice p { font-size: 0.9rem; color: #A16207; }
+        
+        /* Toast Notification */
+        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--slate-900); color: var(--white); padding: 16px 24px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 12px; z-index: 10000; transform: translateY(100px); opacity: 0; transition: var(--transition); }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--admin-primary); }
+        
+        @media (max-width: 1024px) {
+            .admin-sidebar { transform: translateX(-100%); }
+            .admin-sidebar.open { transform: translateX(0); }
+            .admin-main { margin-left: 0; }
+            .admin-content { padding: 20px; }
+        }
+        
+        @media (max-width: 768px) {
+            .add-admin-form { flex-direction: column; }
+            .admin-item { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading settings...</div>
+    </div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">ADMIN PORTAL</span>
+                    </div>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/admin-dashboard.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/admin-sellers.html" class="nav-link">
+                        <i class="fas fa-store"></i>
+                        <span>Sellers</span>
+                    </a>
+                    <a href="/admin-users.html" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="/admin-products.html" class="nav-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="/admin-orders.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="/admin-analytics.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="/admin-settings.html" class="nav-link active">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>View Store</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="admin-profile">
+                    <div class="profile-avatar" id="adminAvatar">A</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="adminName">Admin</div>
+                        <div class="profile-role">
+                            <i class="fas fa-crown"></i>
+                            <span id="adminRole">Admin</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </button>
+            </div>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="page-title">Settings</h1>
+                        <div class="breadcrumb">
+                            <a href="/admin-dashboard.html">Admin</a>
+                            <span>/</span>
+                            <span>Settings</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <!-- Admin Management Section - Lead Admin Only -->
+                <div class="settings-section" id="adminManagementSection">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title"><i class="fas fa-user-shield"></i> Admin Management</h2>
+                            <p class="section-subtitle">Manage admin access to the platform</p>
+                        </div>
+                        <span class="lead-admin-badge"><i class="fas fa-crown"></i> Lead Admin Only</span>
+                    </div>
+                    <div class="section-body">
+                        <div id="adminManagementContent">
+                            <!-- Content loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Settings -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title"><i class="fas fa-bell"></i> Notifications</h2>
+                            <p class="section-subtitle">Configure alert preferences</p>
+                        </div>
+                    </div>
+                    <div class="section-body">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <h4>New Seller Verification</h4>
+                                <p>Get notified when a seller submits verification documents</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <h4>Product Moderation Alerts</h4>
+                                <p>Notify when products need approval or review</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <h4>Order Issues</h4>
+                                <p>Alert for disputed or problematic orders</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <h4>Weekly Reports</h4>
+                                <p>Receive weekly platform performance summary</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Platform Settings -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title"><i class="fas fa-sliders-h"></i> Platform Settings</h2>
+                            <p class="section-subtitle">General platform configuration</p>
+                        </div>
+                    </div>
+                    <div class="section-body">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <h4>Maintenance Mode</h4>
+                                <p>Temporarily disable the store for visitors</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <h4>New Seller Registration</h4>
+                                <p>Allow new sellers to register on the platform</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <h4>Automatic Product Approval</h4>
+                                <p>Auto-approve products from verified sellers</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const LEAD_ADMIN_EMAIL = 'rajkumarbalu81@gmail.com';
+        
+        const firebaseConfig = window.firebaseConfig;
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            throw new Error('Missing Firebase configuration');
+        }
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        let currentUser = null;
+        let isLeadAdmin = false;
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const isAdmin = await checkAdminStatus(user.email);
+                if (isAdmin) {
+                    currentUser = user;
+                    isLeadAdmin = user.email === LEAD_ADMIN_EMAIL;
+                    await initializePage(user);
+                    hideLoading();
+                } else {
+                    window.location.href = '/admin-login.html';
+                }
+            } else {
+                window.location.href = '/admin-login.html';
+            }
+        });
+
+        async function checkAdminStatus(email) {
+            try {
+                const adminDoc = await db.collection('admins').doc(email).get();
+                return adminDoc.exists;
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                return false;
+            }
+        }
+
+        async function initializePage(user) {
+            const firstName = user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Admin';
+            document.getElementById('adminName').textContent = user.displayName || user.email;
+            document.getElementById('adminAvatar').textContent = firstName.charAt(0).toUpperCase();
+            document.getElementById('adminRole').textContent = isLeadAdmin ? 'Lead Admin' : 'Admin';
+            
+            await loadAdminManagement();
+        }
+
+        async function loadAdminManagement() {
+            const container = document.getElementById('adminManagementContent');
+            
+            if (!isLeadAdmin) {
+                container.innerHTML = `
+                    <div class="restricted-notice">
+                        <i class="fas fa-lock"></i>
+                        <div>
+                            <h4>Restricted Access</h4>
+                            <p>Only the Lead Admin can manage admin accounts. Contact ${LEAD_ADMIN_EMAIL} for access changes.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const adminsSnapshot = await db.collection('admins').get();
+                const admins = adminsSnapshot.docs.map(doc => ({
+                    email: doc.id,
+                    ...doc.data()
+                }));
+                
+                container.innerHTML = `
+                    <div class="admin-list">
+                        ${admins.map(admin => {
+                            const isLead = admin.email === LEAD_ADMIN_EMAIL;
+                            const initial = admin.email.charAt(0).toUpperCase();
+                            const addedDate = admin.addedAt?.toDate?.() || new Date();
+                            
+                            return `
+                                <div class="admin-item">
+                                    <div class="admin-avatar ${isLead ? 'lead' : ''}">${initial}</div>
+                                    <div class="admin-info">
+                                        <div class="admin-email">${admin.email}</div>
+                                        <div class="admin-meta">
+                                            <span class="admin-role-badge ${isLead ? 'lead' : 'admin'}">${isLead ? 'Lead Admin' : 'Admin'}</span>
+                                            <span>Added ${addedDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                        </div>
+                                    </div>
+                                    <div class="admin-actions">
+                                        <button class="btn-icon delete" onclick="removeAdmin('${admin.email}')" ${isLead ? 'disabled title="Cannot remove Lead Admin"' : 'title="Remove Admin"'}>
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    
+                    <form class="add-admin-form" onsubmit="addAdmin(event)">
+                        <input type="email" id="newAdminEmail" placeholder="Enter email address to add as admin" required>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Add Admin
+                        </button>
+                    </form>
+                `;
+                
+            } catch (error) {
+                console.error('Error loading admins:', error);
+                container.innerHTML = `
+                    <div class="restricted-notice" style="background: var(--admin-primary-light); border-color: var(--admin-primary);">
+                        <i class="fas fa-exclamation-circle" style="color: var(--admin-primary);"></i>
+                        <div>
+                            <h4 style="color: var(--admin-primary-dark);">Error Loading Admins</h4>
+                            <p style="color: var(--admin-primary);">${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function addAdmin(event) {
+            event.preventDefault();
+            
+            if (!isLeadAdmin) {
+                showToast('Only Lead Admin can add admins', 'error');
+                return;
+            }
+            
+            const emailInput = document.getElementById('newAdminEmail');
+            const email = emailInput.value.trim().toLowerCase();
+            
+            if (!email) {
+                showToast('Please enter an email address', 'error');
+                return;
+            }
+            
+            // Basic email validation
+            if (!email.includes('@') || !email.includes('.')) {
+                showToast('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            try {
+                // Check if already an admin
+                const existingAdmin = await db.collection('admins').doc(email).get();
+                if (existingAdmin.exists) {
+                    showToast('This email is already an admin', 'error');
+                    return;
+                }
+                
+                // Add to admins collection
+                await db.collection('admins').doc(email).set({
+                    email: email,
+                    role: 'admin',
+                    addedBy: currentUser.email,
+                    addedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true
+                });
+                
+                showToast(`${email} added as admin successfully!`, 'success');
+                emailInput.value = '';
+                
+                // Reload admin list
+                await loadAdminManagement();
+                
+            } catch (error) {
+                console.error('Error adding admin:', error);
+                showToast('Failed to add admin: ' + error.message, 'error');
+            }
+        }
+
+        async function removeAdmin(email) {
+            if (!isLeadAdmin) {
+                showToast('Only Lead Admin can remove admins', 'error');
+                return;
+            }
+            
+            if (email === LEAD_ADMIN_EMAIL) {
+                showToast('Cannot remove the Lead Admin', 'error');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to remove ${email} as an admin?`)) {
+                return;
+            }
+            
+            try {
+                await db.collection('admins').doc(email).delete();
+                showToast(`${email} removed from admins`, 'success');
+                await loadAdminManagement();
+            } catch (error) {
+                console.error('Error removing admin:', error);
+                showToast('Failed to remove admin: ' + error.message, 'error');
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                window.location.href = '/admin-login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function checkResponsive() {
+            const menuToggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 1024) {
+                menuToggle.style.display = 'flex';
+            } else {
+                menuToggle.style.display = 'none';
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebarOverlay').classList.remove('show');
+            }
+        }
+
+        window.addEventListener('resize', checkResponsive);
+        checkResponsive();
+    </script>
+</body>
+</html>
