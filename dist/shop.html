@@ -1745,7 +1745,14 @@
                             .where('status', '==', 'active')
                             .get();
                         
-                        firestoreProducts = productsSnapshot.docs.map(doc => ({
+                        firestoreProducts = productsSnapshot.docs
+                            // Filter out rejected products - only show approved or pending
+                            .filter(doc => {
+                                const data = doc.data();
+                                // Show if approved, or if no approvalStatus (legacy products)
+                                return data.approvalStatus !== 'rejected';
+                            })
+                            .map(doc => ({
                             id: doc.id,
                             ...doc.data(),
                             price: parseFloat(doc.data().price) || 0,

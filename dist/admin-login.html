@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - 69Shop.in</title>
+    <meta name="description" content="Admin portal for 69Shop.in management">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            --admin-primary: #DC2626;
+            --admin-dark: #991B1B;
+            --admin-light: #FEE2E2;
+            --admin-gradient: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+            --primary-black: #1A1A1A;
+            --secondary-black: #2D2D2D;
+            --dark-grey: #404040;
+            --medium-grey: #666666;
+            --light-grey: #F8F8F8;
+            --white: #FFFFFF;
+            --green: #22C55E;
+            --shadow-sm: 0 2px 8px rgba(26, 26, 26, 0.05);
+            --shadow-md: 0 4px 16px rgba(26, 26, 26, 0.08);
+            --shadow-lg: 0 8px 32px rgba(26, 26, 26, 0.12);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--admin-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+        }
+        
+        .login-header {
+            background: var(--primary-black);
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .login-header img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+        }
+        
+        .login-header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            color: var(--white);
+            margin-bottom: 5px;
+        }
+        
+        .login-header p {
+            color: var(--admin-light);
+            font-size: 0.875rem;
+        }
+        
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--admin-primary);
+            color: var(--white);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        
+        .login-body {
+            padding: 30px;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.875rem;
+        }
+        
+        .alert.error {
+            background: var(--admin-light);
+            color: var(--admin-dark);
+            border: 1px solid var(--admin-primary);
+        }
+        
+        .alert.success {
+            background: #DCFCE7;
+            color: #166534;
+            border: 1px solid var(--green);
+        }
+        
+        .alert.show {
+            display: flex;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--primary-black);
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E5E7EB;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--admin-primary);
+            box-shadow: 0 0 0 3px var(--admin-light);
+        }
+        
+        .password-wrapper {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--medium-grey);
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--admin-gradient);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+        
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-login .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: var(--white);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+        
+        .btn-login.loading .spinner {
+            display: block;
+        }
+        
+        .btn-login.loading .btn-text {
+            display: none;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: var(--medium-grey);
+            font-size: 0.875rem;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #E5E7EB;
+        }
+        
+        .divider span {
+            padding: 0 15px;
+        }
+        
+        .btn-google {
+            width: 100%;
+            padding: 12px;
+            background: var(--white);
+            color: var(--primary-black);
+            border: 2px solid #E5E7EB;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        
+        .btn-google:hover {
+            background: var(--light-grey);
+            border-color: var(--medium-grey);
+        }
+        
+        .btn-google img {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .login-footer {
+            text-align: center;
+            padding: 20px 30px 30px;
+            border-top: 1px solid #E5E7EB;
+        }
+        
+        .login-footer a {
+            color: var(--admin-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .security-note {
+            background: var(--light-grey);
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: var(--medium-grey);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .security-note i {
+            color: var(--admin-primary);
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="/Logo/69shopc.png" alt="69Shop.in" onerror="this.style.display='none'">
+            <h1>69Shop.in</h1>
+            <p>Administration Portal</p>
+            <div class="admin-badge">
+                <i class="fas fa-shield-halved"></i>
+                Authorized Personnel Only
+            </div>
+        </div>
+        
+        <div class="login-body">
+            <div class="alert error" id="errorAlert">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Invalid credentials</span>
+            </div>
+            
+            <div class="alert success" id="successAlert">
+                <i class="fas fa-check-circle"></i>
+                <span id="successText">Login successful! Redirecting...</span>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Admin Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="admin@69shop.in" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="passwordIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <div class="spinner"></div>
+                    <span class="btn-text"><i class="fas fa-sign-in-alt"></i> Sign In</span>
+                </button>
+            </form>
+            
+            <div class="divider"><span>or</span></div>
+            
+            <button class="btn-google" onclick="googleLogin()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                Sign in with Google
+            </button>
+            
+            <div class="security-note">
+                <i class="fas fa-lock"></i>
+                <div>
+                    <strong>Restricted Access:</strong> This portal is for authorized 69Shop.in administrators only. 
+                    All login attempts are logged and monitored.
+                </div>
+            </div>
+        </div>
+        
+        <div class="login-footer">
+            <a href="/index.html"><i class="fas fa-arrow-left"></i> Back to Main Site</a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = window.firebaseConfig;
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            throw new Error('Missing Firebase configuration');
+        }
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Check if already logged in as admin
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const isAdmin = await checkAdminStatus(user.email);
+                if (isAdmin) {
+                    window.location.href = '/admin-dashboard.html';
+                }
+            }
+        });
+
+        // Check admin status in Firestore
+        async function checkAdminStatus(email) {
+            try {
+                const adminDoc = await db.collection('admins').doc(email).get();
+                return adminDoc.exists;
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                return false;
+            }
+        }
+
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('passwordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.classList.remove('fa-eye');
+                passwordIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.classList.remove('fa-eye-slash');
+                passwordIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorAlert = document.getElementById('errorAlert');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorAlert.classList.add('show');
+            document.getElementById('successAlert').classList.remove('show');
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successAlert = document.getElementById('successAlert');
+            const successText = document.getElementById('successText');
+            successText.textContent = message;
+            successAlert.classList.add('show');
+            document.getElementById('errorAlert').classList.remove('show');
+        }
+
+        // Set loading state
+        function setLoading(loading) {
+            const btn = document.getElementById('loginBtn');
+            if (loading) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+            } else {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            setLoading(true);
+            document.getElementById('errorAlert').classList.remove('show');
+            
+            try {
+                // Sign in with email/password
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                
+                // Check if user is admin
+                const isAdmin = await checkAdminStatus(userCredential.user.email);
+                
+                if (isAdmin) {
+                    showSuccess('Login successful! Redirecting to dashboard...');
+                    setTimeout(() => {
+                        window.location.href = '/admin-dashboard.html';
+                    }, 1000);
+                } else {
+                    await auth.signOut();
+                    showError('Access denied. You are not authorized as an administrator.');
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                let message = 'Login failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        message = 'No account found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        message = 'Incorrect password.';
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'Invalid email address.';
+                        break;
+                    case 'auth/too-many-requests':
+                        message = 'Too many failed attempts. Please try again later.';
+                        break;
+                }
+                
+                showError(message);
+                setLoading(false);
+            }
+        });
+
+        // Google Sign In
+        async function googleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            try {
+                const result = await auth.signInWithPopup(provider);
+                
+                // Check if user is admin
+                const isAdmin = await checkAdminStatus(result.user.email);
+                
+                if (isAdmin) {
+                    showSuccess('Login successful! Redirecting to dashboard...');
+                    setTimeout(() => {
+                        window.location.href = '/admin-dashboard.html';
+                    }, 1000);
+                } else {
+                    await auth.signOut();
+                    showError('Access denied. Your Google account is not authorized as an administrator.');
+                }
+            } catch (error) {
+                console.error('Google login error:', error);
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showError('Google sign-in failed. Please try again.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

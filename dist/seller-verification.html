@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Verification - 69Shop.in</title>
+    <meta name="description" content="Complete your seller verification to start selling on 69Shop.in">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            --primary-black: #1A1A1A;
+            --secondary-black: #2D2D2D;
+            --dark-grey: #404040;
+            --medium-grey: #666666;
+            --light-grey: #F8F8F8;
+            --white: #FFFFFF;
+            --seller-primary: #7C3AED;
+            --seller-light: #EDE9FE;
+            --seller-dark: #5B21B6;
+            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --green: #22C55E;
+            --green-light: #DCFCE7;
+            --yellow: #F59E0B;
+            --yellow-light: #FEF3C7;
+            --red: #EF4444;
+            --red-light: #FEE2E2;
+            --blue: #0066ff;
+            --shadow-sm: 0 2px 8px rgba(26, 26, 26, 0.05);
+            --shadow-md: 0 4px 16px rgba(26, 26, 26, 0.08);
+            --shadow-lg: 0 8px 32px rgba(26, 26, 26, 0.12);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light-grey);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: var(--seller-gradient);
+            padding: 16px 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .logo img {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .logo-text h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .logo-text span {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+        
+        .verification-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 24px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            color: var(--primary-black);
+            margin-bottom: 8px;
+        }
+        
+        .card-header p {
+            color: var(--medium-grey);
+        }
+        
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            padding: 24px;
+            background: var(--light-grey);
+            border-bottom: 1px solid #eee;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: calc(50% + 20px);
+            width: calc(100% - 40px);
+            height: 2px;
+            background: #ddd;
+        }
+        
+        .step.completed:not(:last-child)::after {
+            background: var(--green);
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ddd;
+            color: var(--medium-grey);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step.active .step-number {
+            background: var(--seller-primary);
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background: var(--green);
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 0.8rem;
+            color: var(--medium-grey);
+            margin-top: 8px;
+            text-align: center;
+        }
+        
+        .step.active .step-label {
+            color: var(--seller-primary);
+            font-weight: 500;
+        }
+        
+        /* Form Sections */
+        .form-section {
+            padding: 24px;
+            display: none;
+        }
+        
+        .form-section.active {
+            display: block;
+        }
+        
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            color: var(--primary-black);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: var(--seller-primary);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: var(--primary-black);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .form-group label .required {
+            color: var(--red);
+        }
+        
+        .form-group label .optional {
+            color: var(--medium-grey);
+            font-weight: 400;
+            font-size: 0.8rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--seller-primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--medium-grey);
+            margin-top: 6px;
+        }
+        
+        /* Document Upload */
+        .document-upload {
+            border: 2px dashed #ddd;
+            border-radius: var(--radius-md);
+            padding: 24px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .document-upload:hover {
+            border-color: var(--seller-primary);
+            background: var(--seller-light);
+        }
+        
+        .document-upload.has-file {
+            border-color: var(--green);
+            background: var(--green-light);
+        }
+        
+        .document-upload i {
+            font-size: 2rem;
+            color: var(--medium-grey);
+            margin-bottom: 10px;
+        }
+        
+        .document-upload.has-file i {
+            color: var(--green);
+        }
+        
+        .document-upload p {
+            color: var(--medium-grey);
+            font-size: 0.9rem;
+        }
+        
+        .document-upload input[type="file"] {
+            display: none;
+        }
+        
+        .uploaded-file {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: var(--radius-sm);
+        }
+        
+        .uploaded-file span {
+            flex: 1;
+            font-size: 0.85rem;
+            color: var(--primary-black);
+        }
+        
+        .uploaded-file button {
+            background: none;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+        }
+        
+        /* Benefit Tiers */
+        .benefit-tiers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+        
+        .benefit-tier {
+            border: 2px solid #eee;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .benefit-tier.unlocked {
+            border-color: var(--green);
+            background: var(--green-light);
+        }
+        
+        .benefit-tier.current {
+            border-color: var(--seller-primary);
+            background: var(--seller-light);
+        }
+        
+        .tier-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 1.2rem;
+        }
+        
+        .benefit-tier.unlocked .tier-icon {
+            background: var(--green);
+            color: white;
+        }
+        
+        .benefit-tier.current .tier-icon {
+            background: var(--seller-primary);
+            color: white;
+        }
+        
+        .tier-name {
+            font-weight: 600;
+            color: var(--primary-black);
+            margin-bottom: 8px;
+        }
+        
+        .tier-benefits {
+            font-size: 0.8rem;
+            color: var(--medium-grey);
+            text-align: left;
+        }
+        
+        .tier-benefits li {
+            margin-bottom: 4px;
+            list-style: none;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        
+        .tier-benefits li i {
+            color: var(--green);
+            margin-top: 2px;
+        }
+        
+        .tier-benefits li.locked i {
+            color: #ddd;
+        }
+        
+        /* Buttons */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 24px;
+            border-top: 1px solid #eee;
+            background: var(--light-grey);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--primary-black);
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--light-grey);
+        }
+        
+        .btn-primary {
+            background: var(--seller-gradient);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Status Banner */
+        .status-banner {
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .status-banner.pending {
+            background: var(--yellow-light);
+            color: #92400E;
+        }
+        
+        .status-banner.approved {
+            background: var(--green-light);
+            color: #166534;
+        }
+        
+        .status-banner.rejected {
+            background: var(--red-light);
+            color: #991B1B;
+        }
+        
+        .status-banner i {
+            font-size: 1.2rem;
+        }
+        
+        /* Verification Checklist */
+        .verification-checklist {
+            background: var(--light-grey);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+        
+        .checklist-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+        
+        .checklist-icon.done {
+            background: var(--green);
+            color: white;
+        }
+        
+        .checklist-icon.pending {
+            background: #ddd;
+            color: white;
+        }
+        
+        .checklist-icon.optional {
+            background: var(--yellow);
+            color: white;
+        }
+        
+        .checklist-text {
+            flex: 1;
+        }
+        
+        .checklist-text strong {
+            display: block;
+            color: var(--primary-black);
+            margin-bottom: 2px;
+        }
+        
+        .checklist-text span {
+            font-size: 0.8rem;
+            color: var(--medium-grey);
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            
+            .benefit-tiers {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress-steps {
+                padding: 16px;
+            }
+            
+            .step-label {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <a href="/" class="logo">
+                <img src="/Logo/69shopc.png" alt="69Shop.in Logo">
+                <div class="logo-text">
+                    <h1>69SHOP.IN</h1>
+                    <span>Seller Verification</span>
+                </div>
+            </a>
+        </div>
+        <div class="header-right">
+            <span id="userEmail" style="opacity: 0.9;"></span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="verification-card">
+            <!-- Status Banner (shown after submission) -->
+            <div class="status-banner pending" id="statusBanner" style="display: none;">
+                <i class="fas fa-clock"></i>
+                <div>
+                    <strong>Verification Pending</strong>
+                    <p style="font-size: 0.85rem; margin-top: 2px;">Our team is reviewing your documents. This usually takes 1-2 business days.</p>
+                </div>
+            </div>
+            
+            <div class="card-header">
+                <h1><i class="fas fa-shield-alt" style="color: var(--seller-primary);"></i> Seller Verification</h1>
+                <p>Complete verification to unlock all seller benefits and start selling on 69Shop.in</p>
+            </div>
+            
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Business Info</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Documents</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Bank Details</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Review</div>
+                </div>
+            </div>
+            
+            <form id="verificationForm">
+                <!-- Step 1: Business Information -->
+                <div class="form-section active" data-section="1">
+                    <h3 class="section-title"><i class="fas fa-building"></i> Business Information</h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Business Name <span class="required">*</span></label>
+                            <input type="text" id="businessName" required placeholder="Your business or brand name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Business Type <span class="required">*</span></label>
+                            <select id="businessType" required>
+                                <option value="">Select type</option>
+                                <option value="individual">Individual / Sole Proprietor</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="llp">LLP</option>
+                                <option value="pvt_ltd">Private Limited</option>
+                                <option value="public_ltd">Public Limited</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Primary Category <span class="required">*</span></label>
+                            <select id="primaryCategory" required>
+                                <option value="">Select category</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="fashion">Fashion & Apparel</option>
+                                <option value="home">Home & Living</option>
+                                <option value="beauty">Beauty & Personal Care</option>
+                                <option value="sports">Sports & Outdoors</option>
+                                <option value="services">Services</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Phone Number <span class="required">*</span></label>
+                            <input type="tel" id="phoneNumber" required placeholder="+91 XXXXX XXXXX">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label>Business Address <span class="required">*</span></label>
+                            <textarea id="businessAddress" required placeholder="Full business address including city, state, and PIN code"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>City <span class="required">*</span></label>
+                            <input type="text" id="city" required placeholder="City">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>State <span class="required">*</span></label>
+                            <select id="state" required>
+                                <option value="">Select state</option>
+                                <option value="AN">Andaman and Nicobar Islands</option>
+                                <option value="AP">Andhra Pradesh</option>
+                                <option value="AR">Arunachal Pradesh</option>
+                                <option value="AS">Assam</option>
+                                <option value="BR">Bihar</option>
+                                <option value="CH">Chandigarh</option>
+                                <option value="CT">Chhattisgarh</option>
+                                <option value="DL">Delhi</option>
+                                <option value="GA">Goa</option>
+                                <option value="GJ">Gujarat</option>
+                                <option value="HR">Haryana</option>
+                                <option value="HP">Himachal Pradesh</option>
+                                <option value="JK">Jammu and Kashmir</option>
+                                <option value="JH">Jharkhand</option>
+                                <option value="KA">Karnataka</option>
+                                <option value="KL">Kerala</option>
+                                <option value="MP">Madhya Pradesh</option>
+                                <option value="MH">Maharashtra</option>
+                                <option value="MN">Manipur</option>
+                                <option value="ML">Meghalaya</option>
+                                <option value="MZ">Mizoram</option>
+                                <option value="NL">Nagaland</option>
+                                <option value="OR">Odisha</option>
+                                <option value="PB">Punjab</option>
+                                <option value="RJ">Rajasthan</option>
+                                <option value="SK">Sikkim</option>
+                                <option value="TN">Tamil Nadu</option>
+                                <option value="TG">Telangana</option>
+                                <option value="TR">Tripura</option>
+                                <option value="UP">Uttar Pradesh</option>
+                                <option value="UT">Uttarakhand</option>
+                                <option value="WB">West Bengal</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>PIN Code <span class="required">*</span></label>
+                            <input type="text" id="pinCode" required placeholder="6-digit PIN code" maxlength="6" pattern="[0-9]{6}">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Documents -->
+                <div class="form-section" data-section="2">
+                    <h3 class="section-title"><i class="fas fa-file-alt"></i> Business Documents</h3>
+                    
+                    <div class="verification-checklist">
+                        <div class="checklist-item">
+                            <div class="checklist-icon pending" id="panIcon"><i class="fas fa-check"></i></div>
+                            <div class="checklist-text">
+                                <strong>PAN Card</strong>
+                                <span>Required for tax compliance</span>
+                            </div>
+                        </div>
+                        <div class="checklist-item">
+                            <div class="checklist-icon optional" id="gstIcon"><i class="fas fa-check"></i></div>
+                            <div class="checklist-text">
+                                <strong>GST Certificate</strong>
+                                <span>Optional - Unlocks GST invoicing & higher limits</span>
+                            </div>
+                        </div>
+                        <div class="checklist-item">
+                            <div class="checklist-icon optional" id="msmeIcon"><i class="fas fa-check"></i></div>
+                            <div class="checklist-text">
+                                <strong>MSME/Udyam Certificate</strong>
+                                <span>Optional - Unlocks priority support & lower fees</span>
+                            </div>
+                        </div>
+                        <div class="checklist-item">
+                            <div class="checklist-icon optional" id="fssaiIcon"><i class="fas fa-check"></i></div>
+                            <div class="checklist-text">
+                                <strong>FSSAI License</strong>
+                                <span>Required only for food products</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>PAN Number <span class="required">*</span></label>
+                            <input type="text" id="panNumber" required placeholder="ABCDE1234F" maxlength="10" style="text-transform: uppercase;">
+                            <p class="form-hint">10-character alphanumeric PAN</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>PAN Card Upload <span class="required">*</span></label>
+                            <div class="document-upload" id="panUpload">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to upload PAN card</p>
+                                <input type="file" id="panFile" accept="image/*,.pdf">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>GST Number <span class="optional">(Optional)</span></label>
+                            <input type="text" id="gstNumber" placeholder="22AAAAA0000A1Z5" maxlength="15" style="text-transform: uppercase;">
+                            <p class="form-hint">15-character GSTIN for registered businesses</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>GST Certificate <span class="optional">(Optional)</span></label>
+                            <div class="document-upload" id="gstUpload">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to upload GST certificate</p>
+                                <input type="file" id="gstFile" accept="image/*,.pdf">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>MSME/Udyam Number <span class="optional">(Optional)</span></label>
+                            <input type="text" id="msmeNumber" placeholder="UDYAM-XX-00-0000000" style="text-transform: uppercase;">
+                            <p class="form-hint">Udyam registration number</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>MSME Certificate <span class="optional">(Optional)</span></label>
+                            <div class="document-upload" id="msmeUpload">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to upload MSME certificate</p>
+                                <input type="file" id="msmeFile" accept="image/*,.pdf">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>FSSAI License <span class="optional">(For food sellers)</span></label>
+                            <input type="text" id="fssaiNumber" placeholder="License number">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>FSSAI Certificate <span class="optional">(For food sellers)</span></label>
+                            <div class="document-upload" id="fssaiUpload">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to upload FSSAI license</p>
+                                <input type="file" id="fssaiFile" accept="image/*,.pdf">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Bank Details -->
+                <div class="form-section" data-section="3">
+                    <h3 class="section-title"><i class="fas fa-university"></i> Bank Account Details</h3>
+                    <p style="color: var(--medium-grey); margin-bottom: 20px;">
+                        <i class="fas fa-lock" style="color: var(--green);"></i> 
+                        Your bank details are encrypted and secure. Payouts will be sent to this account.
+                    </p>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Account Holder Name <span class="required">*</span></label>
+                            <input type="text" id="accountName" required placeholder="Name as per bank records">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Account Number <span class="required">*</span></label>
+                            <input type="text" id="accountNumber" required placeholder="Bank account number">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Confirm Account Number <span class="required">*</span></label>
+                            <input type="text" id="confirmAccountNumber" required placeholder="Re-enter account number">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>IFSC Code <span class="required">*</span></label>
+                            <input type="text" id="ifscCode" required placeholder="SBIN0001234" maxlength="11" style="text-transform: uppercase;">
+                            <p class="form-hint">11-character IFSC code</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Bank Name <span class="required">*</span></label>
+                            <input type="text" id="bankName" required placeholder="Bank name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Branch <span class="required">*</span></label>
+                            <input type="text" id="branchName" required placeholder="Branch name">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label>Cancelled Cheque / Passbook <span class="required">*</span></label>
+                            <div class="document-upload" id="chequeUpload">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Upload cancelled cheque or passbook front page</p>
+                                <input type="file" id="chequeFile" accept="image/*,.pdf">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Review & Benefits -->
+                <div class="form-section" data-section="4">
+                    <h3 class="section-title"><i class="fas fa-star"></i> Your Seller Benefits</h3>
+                    <p style="color: var(--medium-grey); margin-bottom: 20px;">
+                        Based on your documents, here are the benefits you'll unlock:
+                    </p>
+                    
+                    <div class="benefit-tiers">
+                        <div class="benefit-tier current" id="basicTier">
+                            <div class="tier-icon"><i class="fas fa-seedling"></i></div>
+                            <div class="tier-name">Basic Seller</div>
+                            <ul class="tier-benefits">
+                                <li><i class="fas fa-check"></i> List up to 50 products</li>
+                                <li><i class="fas fa-check"></i> Standard commission rates</li>
+                                <li><i class="fas fa-check"></i> Email support</li>
+                                <li><i class="fas fa-check"></i> Weekly payouts</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="benefit-tier" id="gstTier">
+                            <div class="tier-icon"><i class="fas fa-file-invoice"></i></div>
+                            <div class="tier-name">GST Verified</div>
+                            <ul class="tier-benefits">
+                                <li><i class="fas fa-check"></i> Unlimited products</li>
+                                <li><i class="fas fa-check"></i> GST invoicing</li>
+                                <li><i class="fas fa-check"></i> B2B marketplace access</li>
+                                <li><i class="fas fa-check"></i> Lower commission (-2%)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="benefit-tier" id="msmeTier">
+                            <div class="tier-icon"><i class="fas fa-award"></i></div>
+                            <div class="tier-name">MSME Partner</div>
+                            <ul class="tier-benefits">
+                                <li><i class="fas fa-check"></i> Priority support</li>
+                                <li><i class="fas fa-check"></i> Featured listings</li>
+                                <li><i class="fas fa-check"></i> Lowest commission (-5%)</li>
+                                <li><i class="fas fa-check"></i> Daily payouts</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding: 20px; background: var(--light-grey); border-radius: var(--radius-md);">
+                        <h4 style="margin-bottom: 12px;"><i class="fas fa-clipboard-check" style="color: var(--seller-primary);"></i> Verification Summary</h4>
+                        <div id="verificationSummary">
+                            <!-- Summary will be populated by JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group full-width" style="margin-top: 20px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="termsAgree" required style="margin-top: 4px;">
+                            <span>I confirm that all information provided is accurate and I agree to 69Shop.in's 
+                            <a href="/docs/terms.html" target="_blank" style="color: var(--seller-primary);">Terms of Service</a> and 
+                            <a href="/docs/seller-agreement.html" target="_blank" style="color: var(--seller-primary);">Seller Agreement</a>.</span>
+                        </label>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="prevBtn" style="visibility: hidden;">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button type="button" class="btn btn-primary" id="nextBtn">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Firebase initialization
+        let auth, db, storage, currentUser;
+        
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (firebaseConfig && firebaseConfig.apiKey) {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                auth = firebase.auth();
+                db = firebase.firestore();
+                storage = firebase.storage();
+            }
+        } catch (error) {
+            console.error('Firebase init error:', error);
+        }
+        
+        // State
+        let currentStep = 1;
+        const totalSteps = 4;
+        const uploadedFiles = {};
+        
+        // Auth check
+        if (auth) {
+            auth.onAuthStateChanged(user => {
+                if (!user) {
+                    window.location.href = '/seller-login.html?redirect=seller-verification';
+                    return;
+                }
+                currentUser = user;
+                document.getElementById('userEmail').textContent = user.email;
+                loadExistingData();
+            });
+        }
+        
+        async function loadExistingData() {
+            if (!db || !currentUser) return;
+            
+            try {
+                const doc = await db.collection('sellerVerification').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    
+                    // Show status if already submitted
+                    if (data.status) {
+                        const banner = document.getElementById('statusBanner');
+                        banner.style.display = 'flex';
+                        banner.className = 'status-banner ' + data.status;
+                        
+                        if (data.status === 'approved') {
+                            banner.innerHTML = `
+                                <i class="fas fa-check-circle"></i>
+                                <div>
+                                    <strong>Verification Approved!</strong>
+                                    <p style="font-size: 0.85rem; margin-top: 2px;">You're all set to start selling on 69Shop.in</p>
+                                </div>
+                            `;
+                        } else if (data.status === 'rejected') {
+                            banner.innerHTML = `
+                                <i class="fas fa-times-circle"></i>
+                                <div>
+                                    <strong>Verification Rejected</strong>
+                                    <p style="font-size: 0.85rem; margin-top: 2px;">Reason: ${data.rejectionReason || 'Please contact support'}</p>
+                                </div>
+                            `;
+                        }
+                    }
+                    
+                    // Populate form fields
+                    Object.keys(data).forEach(key => {
+                        const el = document.getElementById(key);
+                        if (el && data[key]) {
+                            el.value = data[key];
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+        
+        // Navigation
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (validateStep(currentStep)) {
+                if (currentStep < totalSteps) {
+                    goToStep(currentStep + 1);
+                } else {
+                    submitVerification();
+                }
+            }
+        });
+        
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentStep > 1) {
+                goToStep(currentStep - 1);
+            }
+        });
+        
+        function goToStep(step) {
+            // Update step indicators
+            document.querySelectorAll('.step').forEach((el, i) => {
+                el.classList.remove('active', 'completed');
+                if (i + 1 < step) el.classList.add('completed');
+                if (i + 1 === step) el.classList.add('active');
+            });
+            
+            // Update sections
+            document.querySelectorAll('.form-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${step}"]`).classList.add('active');
+            
+            // Update buttons
+            document.getElementById('prevBtn').style.visibility = step === 1 ? 'hidden' : 'visible';
+            
+            const nextBtn = document.getElementById('nextBtn');
+            if (step === totalSteps) {
+                nextBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit for Verification';
+            } else {
+                nextBtn.innerHTML = 'Next <i class="fas fa-arrow-right"></i>';
+            }
+            
+            currentStep = step;
+            
+            // Update summary on last step
+            if (step === 4) {
+                updateSummary();
+                updateBenefitTiers();
+            }
+        }
+        
+        function validateStep(step) {
+            const section = document.querySelector(`[data-section="${step}"]`);
+            const requiredFields = section.querySelectorAll('[required]');
+            let valid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = 'var(--red)';
+                    valid = false;
+                } else {
+                    field.style.borderColor = '#ddd';
+                }
+            });
+            
+            // Special validations
+            if (step === 2) {
+                const panNumber = document.getElementById('panNumber').value;
+                if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber.toUpperCase())) {
+                    showToast('Invalid PAN format', 'error');
+                    valid = false;
+                }
+            }
+            
+            if (step === 3) {
+                const accNum = document.getElementById('accountNumber').value;
+                const confirmAcc = document.getElementById('confirmAccountNumber').value;
+                if (accNum !== confirmAcc) {
+                    showToast('Account numbers do not match', 'error');
+                    valid = false;
+                }
+            }
+            
+            if (!valid) {
+                showToast('Please fill all required fields', 'error');
+            }
+            
+            return valid;
+        }
+        
+        function updateSummary() {
+            const summary = document.getElementById('verificationSummary');
+            const businessName = document.getElementById('businessName').value;
+            const businessType = document.getElementById('businessType').value;
+            const hasGST = !!document.getElementById('gstNumber').value;
+            const hasMSME = !!document.getElementById('msmeNumber').value;
+            
+            summary.innerHTML = `
+                <p><strong>Business:</strong> ${businessName} (${businessType})</p>
+                <p><strong>PAN:</strong> ${document.getElementById('panNumber').value.toUpperCase()}</p>
+                ${hasGST ? `<p><strong>GST:</strong> ${document.getElementById('gstNumber').value.toUpperCase()} ✓</p>` : '<p><strong>GST:</strong> Not provided</p>'}
+                ${hasMSME ? `<p><strong>MSME:</strong> ${document.getElementById('msmeNumber').value.toUpperCase()} ✓</p>` : '<p><strong>MSME:</strong> Not provided</p>'}
+                <p><strong>Bank:</strong> ${document.getElementById('bankName').value} - ${document.getElementById('accountNumber').value.replace(/.(?=.{4})/g, '*')}</p>
+            `;
+        }
+        
+        function updateBenefitTiers() {
+            const hasGST = !!document.getElementById('gstNumber').value;
+            const hasMSME = !!document.getElementById('msmeNumber').value;
+            
+            const gstTier = document.getElementById('gstTier');
+            const msmeTier = document.getElementById('msmeTier');
+            
+            if (hasGST) {
+                gstTier.classList.add('unlocked');
+            } else {
+                gstTier.classList.remove('unlocked');
+            }
+            
+            if (hasMSME) {
+                msmeTier.classList.add('unlocked');
+            } else {
+                msmeTier.classList.remove('unlocked');
+            }
+        }
+        
+        // File uploads
+        document.querySelectorAll('.document-upload').forEach(upload => {
+            const input = upload.querySelector('input[type="file"]');
+            
+            upload.addEventListener('click', () => input.click());
+            
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadedFiles[input.id] = file;
+                    upload.classList.add('has-file');
+                    upload.querySelector('p').textContent = file.name;
+                    
+                    // Update checklist icon
+                    const iconId = input.id.replace('File', 'Icon');
+                    const icon = document.getElementById(iconId);
+                    if (icon) {
+                        icon.classList.remove('pending', 'optional');
+                        icon.classList.add('done');
+                    }
+                }
+            });
+        });
+        
+        async function submitVerification() {
+            const btn = document.getElementById('nextBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            
+            try {
+                // Collect all form data
+                const formData = {
+                    businessName: document.getElementById('businessName').value,
+                    businessType: document.getElementById('businessType').value,
+                    primaryCategory: document.getElementById('primaryCategory').value,
+                    phoneNumber: document.getElementById('phoneNumber').value,
+                    businessAddress: document.getElementById('businessAddress').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    pinCode: document.getElementById('pinCode').value,
+                    panNumber: document.getElementById('panNumber').value.toUpperCase(),
+                    gstNumber: document.getElementById('gstNumber').value.toUpperCase() || null,
+                    msmeNumber: document.getElementById('msmeNumber').value.toUpperCase() || null,
+                    fssaiNumber: document.getElementById('fssaiNumber').value || null,
+                    accountName: document.getElementById('accountName').value,
+                    accountNumber: document.getElementById('accountNumber').value,
+                    ifscCode: document.getElementById('ifscCode').value.toUpperCase(),
+                    bankName: document.getElementById('bankName').value,
+                    branchName: document.getElementById('branchName').value,
+                    status: 'pending',
+                    submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email
+                };
+                
+                // Upload documents to Storage
+                if (storage) {
+                    for (const [key, file] of Object.entries(uploadedFiles)) {
+                        try {
+                            const fileName = `seller-documents/${currentUser.uid}/${key}_${Date.now()}_${file.name}`;
+                            const ref = storage.ref(fileName);
+                            await ref.put(file);
+                            const url = await ref.getDownloadURL();
+                            formData[key + 'Url'] = url;
+                        } catch (uploadError) {
+                            console.error(`Error uploading ${key}:`, uploadError);
+                        }
+                    }
+                }
+                
+                // Save to Firestore
+                if (db) {
+                    await db.collection('sellerVerification').doc(currentUser.uid).set(formData, { merge: true });
+                    
+                    // Update seller profile status
+                    await db.collection('sellers').doc(currentUser.uid).set({
+                        verificationStatus: 'pending',
+                        verificationSubmittedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                }
+                
+                showToast('Verification submitted successfully!');
+                
+                // Show success state
+                document.getElementById('statusBanner').style.display = 'flex';
+                
+                setTimeout(() => {
+                    window.location.href = '/seller-dashboard.html';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Submission error:', error);
+                showToast('Error submitting verification: ' + error.message, 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit for Verification';
+            }
+        }
+        
+        function showToast(msg, type = 'success') {
+            const bgColor = type === 'error' ? '#EF4444' : 'var(--seller-primary)';
+            const icon = type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
+            const el = document.createElement('div');
+            el.style.cssText = `position:fixed;top:80px;right:20px;background:${bgColor};color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;transform:translateX(120%);transition:transform 0.25s ease;`;
+            el.innerHTML = `<i class="fas ${icon}"></i> ${msg}`;
+            document.body.appendChild(el);
+            requestAnimationFrame(() => el.style.transform = 'translateX(0)');
+            setTimeout(() => { el.style.transform = 'translateX(120%)'; setTimeout(() => el.remove(), 250); }, 3000);
+        }
+    </script>
+</body>
+</html>

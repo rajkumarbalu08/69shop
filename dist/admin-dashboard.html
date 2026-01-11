@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - 69Shop.in</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            --admin-primary: #DC2626;
+            --admin-primary-dark: #B91C1C;
+            --admin-primary-light: #FEE2E2;
+            --admin-gradient: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --purple: #8B5CF6;
+            --purple-light: #EDE9FE;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-100);
+            min-height: 100vh;
+            color: var(--slate-800);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--slate-200);
+            border-top-color: var(--admin-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        .loading-text { color: var(--slate-500); font-size: 0.9rem; }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .admin-layout { display: flex; min-height: 100vh; }
+        
+        .admin-sidebar {
+            width: var(--sidebar-width);
+            background: var(--slate-900);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--slate-700);
+        }
+        
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--admin-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--white);
+            font-weight: 700;
+        }
+        
+        .brand-text { display: flex; flex-direction: column; }
+        
+        .brand-name {
+            color: var(--white);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .brand-badge {
+            font-size: 0.65rem;
+            color: var(--admin-primary);
+            background: var(--admin-primary-light);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: fit-content;
+        }
+        
+        .sidebar-nav { flex: 1; padding: 20px 16px; overflow-y: auto; }
+        
+        .nav-section { margin-bottom: 28px; }
+        
+        .nav-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--slate-500);
+            padding: 0 12px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            color: var(--slate-400);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 4px;
+        }
+        
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        
+        .nav-link.active {
+            background: var(--admin-gradient);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+        
+        .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
+        
+        .nav-badge {
+            margin-left: auto;
+            background: var(--warning);
+            color: var(--slate-900);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+            min-width: 22px;
+            text-align: center;
+        }
+        
+        .nav-link.active .nav-badge { background: var(--white); color: var(--admin-primary); }
+        
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
+        
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--slate-800);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+        
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--admin-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+        }
+        
+        .profile-info { flex: 1; min-width: 0; }
+        
+        .profile-name {
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .profile-role {
+            color: var(--slate-400);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .profile-role i { color: var(--warning); font-size: 0.65rem; }
+        
+        .btn-logout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--slate-700);
+            color: var(--slate-400);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-logout:hover {
+            background: var(--admin-primary);
+            border-color: var(--admin-primary);
+            color: var(--white);
+        }
+        
+        .admin-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
+        
+        .admin-header {
+            height: var(--header-height);
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        
+        .page-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--slate-500);
+        }
+        
+        .breadcrumb a { color: var(--slate-500); text-decoration: none; }
+        .breadcrumb a:hover { color: var(--admin-primary); }
+        
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        
+        .header-search { position: relative; }
+        
+        .header-search input {
+            width: 280px;
+            padding: 10px 16px 10px 42px;
+            border: 1px solid var(--slate-200);
+            border-radius: 25px;
+            font-size: 0.9rem;
+            background: var(--slate-50);
+            transition: var(--transition);
+        }
+        
+        .header-search input:focus {
+            outline: none;
+            border-color: var(--admin-primary);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        
+        .header-search i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-400);
+        }
+        
+        .header-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: var(--slate-100);
+            color: var(--slate-600);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .header-btn:hover { background: var(--slate-200); color: var(--slate-900); }
+        
+        .header-btn .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 10px;
+            height: 10px;
+            background: var(--admin-primary);
+            border: 2px solid var(--white);
+            border-radius: 50%;
+        }
+        
+        .admin-content { padding: 32px; }
+        
+        .welcome-banner {
+            background: var(--admin-gradient);
+            border-radius: var(--radius-xl);
+            padding: 32px 40px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            right: -50px;
+            top: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        
+        .welcome-text h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-text p { opacity: 0.9; font-size: 0.95rem; }
+        
+        .welcome-date { text-align: right; z-index: 1; }
+        .welcome-date .date { font-size: 2rem; font-weight: 700; line-height: 1; }
+        .welcome-date .month-year { font-size: 0.9rem; opacity: 0.9; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-100);
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+        
+        .stat-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        
+        .stat-icon.revenue { background: var(--success-light); color: var(--success); }
+        .stat-icon.orders { background: var(--info-light); color: var(--info); }
+        .stat-icon.users { background: var(--purple-light); color: var(--purple); }
+        .stat-icon.products { background: var(--warning-light); color: var(--warning); }
+        
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        .stat-trend.up { background: var(--success-light); color: var(--success); }
+        .stat-trend.down { background: var(--admin-primary-light); color: var(--admin-primary); }
+        
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--slate-900); margin-bottom: 4px; }
+        .stat-label { color: var(--slate-500); font-size: 0.9rem; }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-100);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .card-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--slate-900);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i { color: var(--admin-primary); }
+        
+        .card-actions { display: flex; gap: 8px; }
+        
+        .btn-card {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .btn-card.primary { background: var(--admin-primary); color: var(--white); }
+        .btn-card.secondary { background: var(--slate-100); color: var(--slate-600); }
+        .btn-card:hover { opacity: 0.9; }
+        
+        .card-body { padding: 24px; }
+        
+        .chart-container { position: relative; height: 300px; }
+        
+        .activity-list { list-style: none; }
+        
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .activity-item:last-child { border-bottom: none; }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .activity-icon.seller { background: var(--purple-light); color: var(--purple); }
+        .activity-icon.product { background: var(--warning-light); color: var(--warning); }
+        .activity-icon.order { background: var(--info-light); color: var(--info); }
+        .activity-icon.user { background: var(--success-light); color: var(--success); }
+        
+        .activity-content { flex: 1; }
+        .activity-text { font-size: 0.9rem; color: var(--slate-700); margin-bottom: 4px; }
+        .activity-text strong { color: var(--slate-900); }
+        .activity-time { font-size: 0.75rem; color: var(--slate-400); }
+        
+        .quick-actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px;
+            background: var(--slate-50);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--slate-700);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+        
+        .quick-action:hover {
+            background: var(--white);
+            border-color: var(--admin-primary);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .quick-action i {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        
+        .quick-action.sellers i { background: var(--purple-light); color: var(--purple); }
+        .quick-action.users i { background: var(--info-light); color: var(--info); }
+        .quick-action.products i { background: var(--warning-light); color: var(--warning); }
+        .quick-action.settings i { background: var(--slate-200); color: var(--slate-600); }
+        
+        .quick-action-text { font-weight: 600; font-size: 0.9rem; }
+        .quick-action-desc { font-size: 0.75rem; color: var(--slate-500); }
+        
+        .data-table { width: 100%; border-collapse: collapse; }
+        
+        .data-table th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--slate-500);
+            background: var(--slate-50);
+            border-bottom: 1px solid var(--slate-200);
+        }
+        
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--slate-100);
+            font-size: 0.9rem;
+        }
+        
+        .data-table tbody tr { transition: var(--transition); }
+        .data-table tbody tr:hover { background: var(--slate-50); }
+        
+        .user-cell { display: flex; align-items: center; gap: 12px; }
+        
+        .user-avatar-sm {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.pending { background: var(--warning-light); color: #B45309; }
+        .status-badge.approved { background: var(--success-light); color: #047857; }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .sidebar-overlay.show { display: block; }
+        
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 1024px) {
+            .admin-sidebar { transform: translateX(-100%); }
+            .admin-sidebar.open { transform: translateX(0); }
+            .admin-main { margin-left: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .admin-content { padding: 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .welcome-banner { flex-direction: column; text-align: center; gap: 20px; }
+            .welcome-date { text-align: center; }
+            .header-search { display: none; }
+            .quick-actions-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Admin Panel...</div>
+    </div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">ADMIN PORTAL</span>
+                    </div>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/admin-dashboard.html" class="nav-link active">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/admin-sellers.html" class="nav-link">
+                        <i class="fas fa-store"></i>
+                        <span>Sellers</span>
+                        <span class="nav-badge" id="pendingSellersBadge">0</span>
+                    </a>
+                    <a href="/admin-users.html" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="/admin-products.html" class="nav-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                        <span class="nav-badge" id="pendingProductsBadge">0</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="/admin-orders.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="/admin-analytics.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="/admin-settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>View Store</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="admin-profile">
+                    <div class="profile-avatar" id="adminAvatar">A</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="adminName">Admin</div>
+                        <div class="profile-role">
+                            <i class="fas fa-crown"></i>
+                            <span id="adminRole">Lead Admin</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </button>
+            </div>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="page-title">Dashboard</h1>
+                        <div class="breadcrumb">
+                            <a href="/admin-dashboard.html">Admin</a>
+                            <span>/</span>
+                            <span>Dashboard</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="header-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search anything...">
+                    </div>
+                    <button class="header-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-dot"></span>
+                    </button>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <div class="welcome-banner">
+                    <div class="welcome-text">
+                        <h2>Welcome back, <span id="welcomeName">Admin</span>! 👋</h2>
+                        <p>Here's what's happening with your marketplace today.</p>
+                    </div>
+                    <div class="welcome-date">
+                        <div class="date" id="currentDate">12</div>
+                        <div class="month-year" id="currentMonthYear">January 2026</div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon revenue"><i class="fas fa-rupee-sign"></i></div>
+                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 12.5%</div>
+                        </div>
+                        <div class="stat-value" id="totalRevenue">₹0</div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon orders"><i class="fas fa-shopping-bag"></i></div>
+                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 8.2%</div>
+                        </div>
+                        <div class="stat-value" id="totalOrders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon users"><i class="fas fa-users"></i></div>
+                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 15.3%</div>
+                        </div>
+                        <div class="stat-value" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon products"><i class="fas fa-box-open"></i></div>
+                            <div class="stat-trend down"><i class="fas fa-arrow-down"></i> 2.1%</div>
+                        </div>
+                        <div class="stat-value" id="totalProducts">0</div>
+                        <div class="stat-label">Total Products</div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-chart-area"></i> Revenue Overview</h3>
+                            <div class="card-actions">
+                                <button class="btn-card secondary">Weekly</button>
+                                <button class="btn-card primary">Monthly</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-clock"></i> Recent Activity</h3>
+                            <button class="btn-card secondary">View All</button>
+                        </div>
+                        <div class="card-body">
+                            <ul class="activity-list" id="activityList">
+                                <li class="activity-item">
+                                    <div class="activity-icon seller"><i class="fas fa-store"></i></div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">New seller <strong>registered</strong></div>
+                                        <div class="activity-time">2 minutes ago</div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <div class="activity-icon order"><i class="fas fa-shopping-bag"></i></div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">Order <strong>completed</strong></div>
+                                        <div class="activity-time">15 minutes ago</div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <div class="activity-icon user"><i class="fas fa-user-plus"></i></div>
+                                    <div class="activity-content">
+                                        <div class="activity-text"><strong>New users</strong> registered today</div>
+                                        <div class="activity-time">3 hours ago</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-actions-grid">
+                                <a href="/admin-sellers.html" class="quick-action sellers">
+                                    <i class="fas fa-user-check"></i>
+                                    <div>
+                                        <div class="quick-action-text">Verify Sellers</div>
+                                        <div class="quick-action-desc">Review pending applications</div>
+                                    </div>
+                                </a>
+                                <a href="/admin-users.html" class="quick-action users">
+                                    <i class="fas fa-users-cog"></i>
+                                    <div>
+                                        <div class="quick-action-text">Manage Users</div>
+                                        <div class="quick-action-desc">View and manage users</div>
+                                    </div>
+                                </a>
+                                <a href="/admin-products.html" class="quick-action products">
+                                    <i class="fas fa-box-open"></i>
+                                    <div>
+                                        <div class="quick-action-text">Approve Products</div>
+                                        <div class="quick-action-desc">Moderate product listings</div>
+                                    </div>
+                                </a>
+                                <a href="/admin-settings.html" class="quick-action settings">
+                                    <i class="fas fa-sliders-h"></i>
+                                    <div>
+                                        <div class="quick-action-text">Settings</div>
+                                        <div class="quick-action-desc">Configure platform</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-user-clock"></i> Pending Verifications</h3>
+                            <a href="/admin-sellers.html" class="btn-card primary">View All</a>
+                        </div>
+                        <div class="card-body" style="padding: 0;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Seller</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pendingVerificationsTable">
+                                    <tr>
+                                        <td colspan="3" style="text-align: center; color: var(--slate-400); padding: 40px;">
+                                            <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                            No pending verifications
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const LEAD_ADMIN_EMAIL = 'rajkumarbalu81@gmail.com';
+        
+        const firebaseConfig = window.firebaseConfig;
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            throw new Error('Missing Firebase configuration');
+        }
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        let revenueChart = null;
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const isAdmin = await checkAdminStatus(user.email);
+                if (isAdmin) {
+                    await initializeDashboard(user);
+                    hideLoading();
+                } else {
+                    window.location.href = '/admin-login.html';
+                }
+            } else {
+                window.location.href = '/admin-login.html';
+            }
+        });
+
+        async function checkAdminStatus(email) {
+            try {
+                const adminDoc = await db.collection('admins').doc(email).get();
+                return adminDoc.exists;
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                return false;
+            }
+        }
+
+        async function initializeDashboard(user) {
+            const firstName = user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Admin';
+            document.getElementById('welcomeName').textContent = firstName;
+            document.getElementById('adminName').textContent = user.displayName || user.email;
+            document.getElementById('adminAvatar').textContent = firstName.charAt(0).toUpperCase();
+            
+            const isLeadAdmin = user.email === LEAD_ADMIN_EMAIL;
+            document.getElementById('adminRole').textContent = isLeadAdmin ? 'Lead Admin' : 'Admin';
+            
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.getDate();
+            document.getElementById('currentMonthYear').textContent = now.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+            
+            await loadDashboardStats();
+            initializeChart();
+            await loadPendingVerifications();
+        }
+
+        async function loadDashboardStats() {
+            try {
+                const usersSnapshot = await db.collection('users').get();
+                document.getElementById('totalUsers').textContent = usersSnapshot.size;
+                
+                const productsSnapshot = await db.collection('products').get();
+                document.getElementById('totalProducts').textContent = productsSnapshot.size;
+                
+                const pendingSellersSnapshot = await db.collection('sellerVerifications')
+                    .where('status', '==', 'pending').get();
+                document.getElementById('pendingSellersBadge').textContent = pendingSellersSnapshot.size;
+                
+                const pendingProductsSnapshot = await db.collection('products')
+                    .where('approvalStatus', '==', 'pending').get();
+                document.getElementById('pendingProductsBadge').textContent = pendingProductsSnapshot.size;
+                
+                let totalRevenue = 0;
+                let totalOrders = 0;
+                
+                try {
+                    const ordersSnapshot = await db.collection('orders').get();
+                    totalOrders = ordersSnapshot.size;
+                    ordersSnapshot.forEach(doc => {
+                        const order = doc.data();
+                        totalRevenue += parseFloat(order.total || order.amount || 0);
+                    });
+                } catch (e) {}
+                
+                document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
+                document.getElementById('totalOrders').textContent = totalOrders;
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadPendingVerifications() {
+            try {
+                const snapshot = await db.collection('sellerVerifications')
+                    .where('status', '==', 'pending')
+                    .orderBy('submittedAt', 'desc')
+                    .limit(5)
+                    .get();
+                
+                const tbody = document.getElementById('pendingVerificationsTable');
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: var(--slate-400); padding: 40px;">
+                                <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                No pending verifications
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                tbody.innerHTML = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    const initial = (data.businessName || data.sellerName || 'S').charAt(0).toUpperCase();
+                    const date = data.submittedAt?.toDate?.() || new Date();
+                    
+                    return `
+                        <tr>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar-sm" style="background: var(--purple-light); color: var(--purple);">${initial}</div>
+                                    <span>${data.businessName || data.sellerName || 'Unknown'}</span>
+                                </div>
+                            </td>
+                            <td><span class="status-badge pending"><i class="fas fa-clock"></i> Pending</span></td>
+                            <td>${date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</td>
+                        </tr>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading verifications:', error);
+            }
+        }
+
+        function initializeChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 40000, 38000, 45000, 50000],
+                        fill: true,
+                        backgroundColor: (context) => {
+                            const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                            gradient.addColorStop(0, 'rgba(220, 38, 38, 0.2)');
+                            gradient.addColorStop(1, 'rgba(220, 38, 38, 0)');
+                            return gradient;
+                        },
+                        borderColor: '#DC2626',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        pointBackgroundColor: '#DC2626',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: '#1E293B',
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.parsed.y.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748B' } },
+                        y: {
+                            grid: { color: '#F1F5F9' },
+                            ticks: {
+                                color: '#64748B',
+                                callback: function(value) { return '₹' + (value / 1000) + 'K'; }
+                            }
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
+                }
+            });
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                window.location.href = '/admin-login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function checkResponsive() {
+            const menuToggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 1024) {
+                menuToggle.style.display = 'flex';
+            } else {
+                menuToggle.style.display = 'none';
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebarOverlay').classList.remove('show');
+            }
+        }
+
+        window.addEventListener('resize', checkResponsive);
+        checkResponsive();
+    </script>
+</body>
+</html>
