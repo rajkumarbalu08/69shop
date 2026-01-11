@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -18,217 +18,332 @@
     <style>
         :root {
             --admin-primary: #DC2626;
-            --admin-dark: #991B1B;
-            --admin-light: #FEE2E2;
+            --admin-primary-dark: #B91C1C;
+            --admin-primary-light: #FEE2E2;
             --admin-gradient: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
-            --primary-black: #1A1A1A;
-            --secondary-black: #2D2D2D;
-            --dark-grey: #404040;
-            --medium-grey: #666666;
-            --light-grey: #F8F8F8;
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
             --white: #FFFFFF;
-            --green: #22C55E;
-            --green-light: #DCFCE7;
-            --yellow: #F59E0B;
-            --yellow-light: #FEF3C7;
-            --blue: #3B82F6;
-            --blue-light: #DBEAFE;
-            --purple: #7C3AED;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --purple: #8B5CF6;
             --purple-light: #EDE9FE;
-            --shadow-sm: 0 2px 8px rgba(26, 26, 26, 0.05);
-            --shadow-md: 0 4px 16px rgba(26, 26, 26, 0.08);
-            --shadow-lg: 0 8px 32px rgba(26, 26, 26, 0.12);
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
             --radius-sm: 6px;
-            --radius-md: 12px;
+            --radius-md: 10px;
             --radius-lg: 16px;
+            --radius-xl: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--light-grey);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-100);
             min-height: 100vh;
+            color: var(--slate-800);
         }
         
-        /* Loading State */
         .loading-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background: var(--white);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
         }
         
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--admin-light);
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--slate-200);
             border-top-color: var(--admin-primary);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        .loading-text { color: var(--slate-500); font-size: 0.9rem; }
         
-        /* Top Navigation */
-        .admin-topbar {
-            background: var(--admin-gradient);
-            padding: 0 24px;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .admin-layout { display: flex; min-height: 100vh; }
+        
+        .admin-sidebar {
+            width: var(--sidebar-width);
+            background: var(--slate-900);
+            position: fixed;
             top: 0;
+            left: 0;
+            height: 100vh;
             z-index: 1000;
-            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
         }
         
-        .admin-topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--slate-700);
         }
         
-        .admin-logo {
+        .sidebar-brand {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             text-decoration: none;
+        }
+        
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--admin-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
             color: var(--white);
+            font-weight: 700;
         }
         
-        .admin-logo img {
-            width: 36px;
-            height: 36px;
-        }
+        .brand-text { display: flex; flex-direction: column; }
         
-        .admin-logo-text h1 {
+        .brand-name {
+            color: var(--white);
             font-family: 'Poppins', sans-serif;
             font-size: 1.1rem;
             font-weight: 700;
         }
         
-        .admin-logo-text span {
+        .brand-badge {
+            font-size: 0.65rem;
+            color: var(--admin-primary);
+            background: var(--admin-primary-light);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: fit-content;
+        }
+        
+        .sidebar-nav { flex: 1; padding: 20px 16px; overflow-y: auto; }
+        
+        .nav-section { margin-bottom: 28px; }
+        
+        .nav-section-title {
             font-size: 0.7rem;
-            opacity: 0.9;
-            background: rgba(255,255,255,0.2);
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-        
-        .admin-nav {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .admin-nav a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            padding: 10px 16px;
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .admin-nav a:hover,
-        .admin-nav a.active {
-            background: rgba(255,255,255,0.2);
-            color: var(--white);
-        }
-        
-        .admin-nav a .badge {
-            background: var(--yellow);
-            color: var(--primary-black);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--slate-500);
+            padding: 0 12px;
+            margin-bottom: 12px;
             font-weight: 600;
         }
         
-        .admin-topbar-right {
+        .nav-link {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 14px;
+            padding: 14px 16px;
+            color: var(--slate-400);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 4px;
         }
         
-        .btn-logout {
-            background: rgba(255,255,255,0.2);
-            border: none;
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        
+        .nav-link.active {
+            background: var(--admin-gradient);
             color: var(--white);
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
-            font-size: 0.875rem;
-            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+        
+        .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
+        
+        .nav-badge {
+            margin-left: auto;
+            background: var(--warning);
+            color: var(--slate-900);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+            min-width: 22px;
+            text-align: center;
+        }
+        
+        .nav-link.active .nav-badge { background: var(--white); color: var(--admin-primary); }
+        
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
+        
+        .admin-profile {
             display: flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
+            gap: 12px;
+            padding: 12px;
+            background: var(--slate-800);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+        
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--admin-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+        }
+        
+        .profile-info { flex: 1; min-width: 0; }
+        
+        .profile-name {
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .profile-role {
+            color: var(--slate-400);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .profile-role i { color: var(--warning); font-size: 0.65rem; }
+        
+        .btn-logout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--slate-700);
+            color: var(--slate-400);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
         }
         
         .btn-logout:hover {
-            background: rgba(255,255,255,0.3);
+            background: var(--admin-primary);
+            border-color: var(--admin-primary);
+            color: var(--white);
         }
         
-        /* Main Content */
-        .admin-main {
-            padding: 24px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        .admin-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
         
-        .page-header {
+        .admin-header {
+            height: var(--header-height);
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 16px;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
-        .page-header h1 {
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        
+        .page-title {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.75rem;
-            color: var(--primary-black);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--slate-900);
         }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--slate-500);
+        }
+        
+        .breadcrumb a { color: var(--slate-500); text-decoration: none; }
+        .breadcrumb a:hover { color: var(--admin-primary); }
+        
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        
+        .header-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: var(--slate-100);
+            color: var(--slate-600);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .header-btn:hover { background: var(--slate-200); color: var(--slate-900); }
+        
+        .admin-content { padding: 32px; }
         
         /* Filters */
-        .filters {
+        .filters-bar {
             display: flex;
             gap: 12px;
+            margin-bottom: 24px;
             flex-wrap: wrap;
         }
         
         .filter-btn {
             padding: 10px 20px;
-            border: 2px solid #E5E7EB;
+            border: 2px solid var(--slate-200);
             background: var(--white);
             border-radius: 25px;
             font-size: 0.875rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition);
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
-        .filter-btn:hover {
-            border-color: var(--admin-primary);
-            color: var(--admin-primary);
-        }
+        .filter-btn:hover { border-color: var(--admin-primary); color: var(--admin-primary); }
         
         .filter-btn.active {
             background: var(--admin-primary);
@@ -243,15 +358,14 @@
             font-size: 0.75rem;
         }
         
-        .filter-btn.active .count {
-            background: rgba(255,255,255,0.3);
-        }
+        .filter-btn.active .count { background: rgba(255,255,255,0.3); }
         
-        /* Sellers Table */
-        .sellers-card {
+        /* Table Card */
+        .card {
             background: var(--white);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-100);
             overflow: hidden;
         }
         
@@ -267,29 +381,19 @@
         }
         
         .sellers-table th {
-            background: var(--light-grey);
+            background: var(--slate-50);
             font-weight: 600;
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: var(--medium-grey);
-            border-bottom: 1px solid #E5E7EB;
+            color: var(--slate-500);
+            border-bottom: 1px solid var(--slate-200);
         }
         
-        .sellers-table tr {
-            border-bottom: 1px solid #F3F4F6;
-            transition: background 0.2s;
-        }
+        .sellers-table tr { border-bottom: 1px solid var(--slate-100); }
+        .sellers-table tbody tr:hover { background: var(--slate-50); }
         
-        .sellers-table tbody tr:hover {
-            background: var(--light-grey);
-        }
-        
-        .seller-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .seller-info { display: flex; align-items: center; gap: 12px; }
         
         .seller-avatar {
             width: 44px;
@@ -304,17 +408,8 @@
             font-size: 1rem;
         }
         
-        .seller-details h4 {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--primary-black);
-            margin-bottom: 2px;
-        }
-        
-        .seller-details p {
-            font-size: 0.8rem;
-            color: var(--medium-grey);
-        }
+        .seller-details h4 { font-size: 0.95rem; font-weight: 600; color: var(--slate-900); margin-bottom: 2px; }
+        .seller-details p { font-size: 0.8rem; color: var(--slate-500); }
         
         .status-badge {
             padding: 6px 12px;
@@ -326,26 +421,11 @@
             gap: 5px;
         }
         
-        .status-badge.pending {
-            background: var(--yellow-light);
-            color: #B45309;
-        }
+        .status-badge.pending { background: var(--warning-light); color: #B45309; }
+        .status-badge.approved { background: var(--success-light); color: #166534; }
+        .status-badge.rejected { background: var(--admin-primary-light); color: var(--admin-primary-dark); }
         
-        .status-badge.approved {
-            background: var(--green-light);
-            color: #166534;
-        }
-        
-        .status-badge.rejected {
-            background: var(--admin-light);
-            color: var(--admin-dark);
-        }
-        
-        .doc-badges {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
+        .doc-badges { display: flex; gap: 6px; flex-wrap: wrap; }
         
         .doc-badge {
             padding: 4px 8px;
@@ -354,15 +434,12 @@
             font-weight: 500;
         }
         
-        .doc-badge.gst { background: var(--blue-light); color: var(--blue); }
+        .doc-badge.gst { background: var(--info-light); color: var(--info); }
         .doc-badge.pan { background: var(--purple-light); color: var(--purple); }
-        .doc-badge.msme { background: var(--green-light); color: var(--green); }
-        .doc-badge.bank { background: var(--yellow-light); color: #B45309; }
+        .doc-badge.msme { background: var(--success-light); color: var(--success); }
+        .doc-badge.bank { background: var(--warning-light); color: #B45309; }
         
-        .action-btns {
-            display: flex;
-            gap: 8px;
-        }
+        .action-btns { display: flex; gap: 8px; }
         
         .btn-sm {
             padding: 8px 14px;
@@ -371,68 +448,30 @@
             font-weight: 500;
             cursor: pointer;
             border: none;
-            transition: all 0.2s;
+            transition: var(--transition);
             display: flex;
             align-items: center;
             gap: 5px;
         }
         
-        .btn-sm.view {
-            background: var(--blue-light);
-            color: var(--blue);
-        }
+        .btn-sm.view { background: var(--info-light); color: var(--info); }
+        .btn-sm.view:hover { background: var(--info); color: var(--white); }
+        .btn-sm.approve { background: var(--success-light); color: var(--success); }
+        .btn-sm.approve:hover { background: var(--success); color: var(--white); }
         
-        .btn-sm.view:hover {
-            background: var(--blue);
-            color: var(--white);
-        }
-        
-        .btn-sm.approve {
-            background: var(--green-light);
-            color: var(--green);
-        }
-        
-        .btn-sm.approve:hover {
-            background: var(--green);
-            color: var(--white);
-        }
-        
-        .btn-sm.reject {
-            background: var(--admin-light);
-            color: var(--admin-primary);
-        }
-        
-        .btn-sm.reject:hover {
-            background: var(--admin-primary);
-            color: var(--white);
-        }
-        
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: var(--medium-grey);
+            color: var(--slate-500);
         }
         
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
+        .empty-state i { font-size: 4rem; margin-bottom: 20px; opacity: 0.3; }
+        .empty-state h3 { font-size: 1.25rem; margin-bottom: 8px; color: var(--slate-700); }
         
-        .empty-state h3 {
-            font-size: 1.25rem;
-            margin-bottom: 8px;
-            color: var(--dark-grey);
-        }
-        
-        /* Detail Modal */
+        /* Modal */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background: rgba(0,0,0,0.6);
             display: none;
             align-items: center;
@@ -441,9 +480,7 @@
             padding: 20px;
         }
         
-        .modal-overlay.show {
-            display: flex;
-        }
+        .modal-overlay.show { display: flex; }
         
         .modal {
             background: var(--white);
@@ -457,7 +494,7 @@
         
         .modal-header {
             padding: 24px;
-            border-bottom: 1px solid #E5E7EB;
+            border-bottom: 1px solid var(--slate-200);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -470,43 +507,33 @@
         .modal-header h2 {
             font-family: 'Poppins', sans-serif;
             font-size: 1.25rem;
-            color: var(--primary-black);
+            color: var(--slate-900);
         }
         
         .modal-close {
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: var(--light-grey);
+            background: var(--slate-100);
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: var(--transition);
         }
         
-        .modal-close:hover {
-            background: var(--admin-light);
-            color: var(--admin-primary);
-        }
+        .modal-close:hover { background: var(--admin-primary-light); color: var(--admin-primary); }
         
-        .modal-body {
-            padding: 24px;
-        }
+        .modal-body { padding: 24px; }
         
-        .detail-section {
-            margin-bottom: 24px;
-        }
-        
-        .detail-section:last-child {
-            margin-bottom: 0;
-        }
+        .detail-section { margin-bottom: 24px; }
+        .detail-section:last-child { margin-bottom: 0; }
         
         .detail-section h3 {
             font-size: 0.9rem;
             font-weight: 600;
-            color: var(--medium-grey);
+            color: var(--slate-500);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 12px;
@@ -522,55 +549,36 @@
         }
         
         .detail-item {
-            background: var(--light-grey);
+            background: var(--slate-50);
             padding: 14px;
             border-radius: var(--radius-sm);
         }
         
-        .detail-item.full {
-            grid-column: 1 / -1;
-        }
+        .detail-item.full { grid-column: 1 / -1; }
+        .detail-item label { display: block; font-size: 0.75rem; color: var(--slate-500); margin-bottom: 4px; }
+        .detail-item span { font-weight: 500; color: var(--slate-900); }
         
-        .detail-item label {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--medium-grey);
-            margin-bottom: 4px;
-        }
-        
-        .detail-item span {
-            font-weight: 500;
-            color: var(--primary-black);
-        }
-        
-        .document-preview {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
+        .document-preview { display: flex; gap: 12px; flex-wrap: wrap; }
         
         .doc-link {
             display: flex;
             align-items: center;
             gap: 8px;
             padding: 10px 14px;
-            background: var(--blue-light);
-            color: var(--blue);
+            background: var(--info-light);
+            color: var(--info);
             border-radius: var(--radius-sm);
             text-decoration: none;
             font-size: 0.85rem;
             font-weight: 500;
-            transition: all 0.2s;
+            transition: var(--transition);
         }
         
-        .doc-link:hover {
-            background: var(--blue);
-            color: var(--white);
-        }
+        .doc-link:hover { background: var(--info); color: var(--white); }
         
         .modal-footer {
             padding: 20px 24px;
-            border-top: 1px solid #E5E7EB;
+            border-top: 1px solid var(--slate-200);
             display: flex;
             gap: 12px;
             justify-content: flex-end;
@@ -589,46 +597,22 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s;
+            transition: var(--transition);
         }
         
-        .btn-modal.cancel {
-            background: var(--light-grey);
-            color: var(--dark-grey);
-        }
+        .btn-modal.cancel { background: var(--slate-100); color: var(--slate-600); }
+        .btn-modal.cancel:hover { background: var(--slate-200); }
+        .btn-modal.reject { background: var(--admin-primary-light); color: var(--admin-primary); }
+        .btn-modal.reject:hover { background: var(--admin-primary); color: var(--white); }
+        .btn-modal.approve { background: var(--success); color: var(--white); }
+        .btn-modal.approve:hover { background: #059669; }
         
-        .btn-modal.cancel:hover {
-            background: #E5E7EB;
-        }
-        
-        .btn-modal.reject {
-            background: var(--admin-light);
-            color: var(--admin-primary);
-        }
-        
-        .btn-modal.reject:hover {
-            background: var(--admin-primary);
-            color: var(--white);
-        }
-        
-        .btn-modal.approve {
-            background: var(--green);
-            color: var(--white);
-        }
-        
-        .btn-modal.approve:hover {
-            background: #16A34A;
-        }
-        
-        /* Rejection Modal */
-        .rejection-form {
-            margin-top: 16px;
-        }
+        .rejection-form { margin-top: 16px; }
         
         .rejection-form textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #E5E7EB;
+            border: 2px solid var(--slate-200);
             border-radius: var(--radius-sm);
             font-family: inherit;
             font-size: 0.9rem;
@@ -636,10 +620,7 @@
             min-height: 100px;
         }
         
-        .rejection-form textarea:focus {
-            outline: none;
-            border-color: var(--admin-primary);
-        }
+        .rejection-form textarea:focus { outline: none; border-color: var(--admin-primary); }
         
         /* Toast */
         .toast {
@@ -656,144 +637,195 @@
             z-index: 3000;
             transform: translateY(100px);
             opacity: 0;
-            transition: all 0.3s;
+            transition: var(--transition);
         }
         
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .toast.success { background: var(--green); }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: var(--success); }
         .toast.error { background: var(--admin-primary); }
         
         /* Responsive */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .sidebar-overlay.show { display: block; }
+        
         @media (max-width: 1024px) {
-            .sellers-table {
-                display: block;
-                overflow-x: auto;
-            }
+            .admin-sidebar { transform: translateX(-100%); }
+            .admin-sidebar.open { transform: translateX(0); }
+            .admin-main { margin-left: 0; }
+            .sellers-table { display: block; overflow-x: auto; }
         }
         
         @media (max-width: 768px) {
-            .admin-nav {
-                display: none;
-            }
-            
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .detail-grid {
-                grid-template-columns: 1fr;
-            }
+            .admin-content { padding: 20px; }
+            .filters-bar { flex-direction: column; }
+            .detail-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Sellers...</div>
     </div>
 
-    <!-- Top Navigation -->
-    <nav class="admin-topbar">
-        <div class="admin-topbar-left">
-            <a href="/admin-dashboard.html" class="admin-logo">
-                <img src="/Logo/69shopc.png" alt="69Shop.in" onerror="this.style.display='none'">
-                <div class="admin-logo-text">
-                    <h1>69Shop.in</h1>
-                    <span>Admin Portal</span>
+    <div class="admin-layout">
+        <aside class="admin-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">ADMIN PORTAL</span>
+                    </div>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/admin-dashboard.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/admin-sellers.html" class="nav-link active">
+                        <i class="fas fa-store"></i>
+                        <span>Sellers</span>
+                        <span class="nav-badge" id="pendingSellersBadge">0</span>
+                    </a>
+                    <a href="/admin-users.html" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="/admin-products.html" class="nav-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                    </a>
                 </div>
-            </a>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="/admin-orders.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="/admin-analytics.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="/admin-settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>View Store</span>
+                    </a>
+                </div>
+            </nav>
             
-            <div class="admin-nav">
-                <a href="/admin-dashboard.html">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a>
-                <a href="/admin-sellers.html" class="active">
-                    <i class="fas fa-store"></i> Sellers
-                    <span class="badge" id="pendingBadge">0</span>
-                </a>
-                <a href="/admin-users.html">
-                    <i class="fas fa-users"></i> Users
-                </a>
-                <a href="/admin-products.html">
-                    <i class="fas fa-box"></i> Products
-                </a>
-            </div>
-        </div>
-        
-        <div class="admin-topbar-right">
-            <button class="btn-logout" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="admin-main">
-        <div class="page-header">
-            <h1><i class="fas fa-user-check"></i> Seller Verifications</h1>
-            
-            <div class="filters">
-                <button class="filter-btn active" data-status="all">
-                    All <span class="count" id="countAll">0</span>
-                </button>
-                <button class="filter-btn" data-status="pending">
-                    <i class="fas fa-clock"></i> Pending <span class="count" id="countPending">0</span>
-                </button>
-                <button class="filter-btn" data-status="approved">
-                    <i class="fas fa-check"></i> Approved <span class="count" id="countApproved">0</span>
-                </button>
-                <button class="filter-btn" data-status="rejected">
-                    <i class="fas fa-times"></i> Rejected <span class="count" id="countRejected">0</span>
+            <div class="sidebar-footer">
+                <div class="admin-profile">
+                    <div class="profile-avatar" id="adminAvatar">A</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="adminName">Admin</div>
+                        <div class="profile-role">
+                            <i class="fas fa-crown"></i>
+                            <span id="adminRole">Admin</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
                 </button>
             </div>
-        </div>
+        </aside>
         
-        <!-- Sellers Table -->
-        <div class="sellers-card">
-            <table class="sellers-table">
-                <thead>
-                    <tr>
-                        <th>Seller</th>
-                        <th>Business Type</th>
-                        <th>Documents</th>
-                        <th>Status</th>
-                        <th>Submitted</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="sellersTableBody">
-                    <tr>
-                        <td colspan="6">
-                            <div class="empty-state">
-                                <i class="fas fa-store"></i>
-                                <h3>No Seller Verifications</h3>
-                                <p>When sellers submit verification requests, they'll appear here.</p>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
-
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="page-title">Seller Verifications</h1>
+                        <div class="breadcrumb">
+                            <a href="/admin-dashboard.html">Admin</a>
+                            <span>/</span>
+                            <span>Sellers</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <div class="filters-bar">
+                    <button class="filter-btn active" data-status="all">
+                        All <span class="count" id="countAll">0</span>
+                    </button>
+                    <button class="filter-btn" data-status="pending">
+                        <i class="fas fa-clock"></i> Pending <span class="count" id="countPending">0</span>
+                    </button>
+                    <button class="filter-btn" data-status="approved">
+                        <i class="fas fa-check-circle"></i> Approved <span class="count" id="countApproved">0</span>
+                    </button>
+                    <button class="filter-btn" data-status="rejected">
+                        <i class="fas fa-times-circle"></i> Rejected <span class="count" id="countRejected">0</span>
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <table class="sellers-table">
+                        <thead>
+                            <tr>
+                                <th>Seller</th>
+                                <th>Business Type</th>
+                                <th>Documents</th>
+                                <th>Status</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sellersTableBody">
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <i class="fas fa-store"></i>
+                                        <h3>Loading sellers...</h3>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    
     <!-- Detail Modal -->
     <div class="modal-overlay" id="detailModal">
         <div class="modal">
             <div class="modal-header">
-                <h2><i class="fas fa-store"></i> <span id="modalBusinessName">Seller Details</span></h2>
+                <h2 id="modalBusinessName">Seller Details</h2>
                 <button class="modal-close" onclick="closeModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body" id="modalBody">
-                <!-- Dynamic content -->
-            </div>
-            <div class="modal-footer" id="modalFooter">
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
                 <button class="btn-modal cancel" onclick="closeModal()">Close</button>
                 <button class="btn-modal reject" id="btnReject" onclick="showRejectionForm()">
                     <i class="fas fa-times"></i> Reject
@@ -804,15 +836,16 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Toast -->
     <div class="toast" id="toast">
         <i class="fas fa-check-circle"></i>
-        <span id="toastText">Action completed</span>
+        <span id="toastText">Success</span>
     </div>
 
     <script>
-        // Initialize Firebase
+        const LEAD_ADMIN_EMAIL = 'rajkumarbalu81@gmail.com';
+        
         const firebaseConfig = window.firebaseConfig;
         if (!firebaseConfig || !firebaseConfig.apiKey) {
             throw new Error('Missing Firebase configuration');
@@ -822,16 +855,16 @@
         }
         const auth = firebase.auth();
         const db = firebase.firestore();
-
-        let currentFilter = 'all';
+        
         let allVerifications = [];
+        let currentFilter = 'all';
         let currentSellerId = null;
 
-        // Auth state listener
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const isAdmin = await checkAdminStatus(user.email);
                 if (isAdmin) {
+                    initializePage(user);
                     await loadVerifications();
                     setupFilters();
                     checkUrlParams();
@@ -844,9 +877,9 @@
             }
         });
 
-        // Check admin status
         async function checkAdminStatus(email) {
             try {
+                if (email === LEAD_ADMIN_EMAIL) return true;
                 const adminDoc = await db.collection('admins').doc(email).get();
                 return adminDoc.exists;
             } catch (error) {
@@ -855,51 +888,40 @@
             }
         }
 
-        // Hide loading
+        function initializePage(user) {
+            const firstName = user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Admin';
+            document.getElementById('adminName').textContent = user.displayName || user.email;
+            document.getElementById('adminAvatar').textContent = firstName.charAt(0).toUpperCase();
+            document.getElementById('adminRole').textContent = user.email === LEAD_ADMIN_EMAIL ? 'Lead Admin' : 'Admin';
+        }
+
         function hideLoading() {
             document.getElementById('loadingOverlay').style.display = 'none';
         }
 
-        // Check URL params for specific seller
         function checkUrlParams() {
             const params = new URLSearchParams(window.location.search);
             const sellerId = params.get('id');
-            if (sellerId) {
-                viewSellerDetails(sellerId);
-            }
+            if (sellerId) viewSellerDetails(sellerId);
         }
 
-        // Load all verifications
         async function loadVerifications() {
             try {
-                const snapshot = await db.collection('sellerVerification')
-                    .orderBy('submittedAt', 'desc')
-                    .get();
-                
-                allVerifications = [];
-                snapshot.forEach(doc => {
-                    allVerifications.push({ id: doc.id, ...doc.data() });
-                });
-                
+                const snapshot = await db.collection('sellerVerification').orderBy('submittedAt', 'desc').get();
+                allVerifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 updateCounts();
                 renderTable();
-                
             } catch (error) {
                 console.error('Error loading verifications:', error);
-                // If index error, try without orderBy
                 if (error.code === 'failed-precondition') {
                     const snapshot = await db.collection('sellerVerification').get();
-                    allVerifications = [];
-                    snapshot.forEach(doc => {
-                        allVerifications.push({ id: doc.id, ...doc.data() });
-                    });
+                    allVerifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     updateCounts();
                     renderTable();
                 }
             }
         }
 
-        // Update counts
         function updateCounts() {
             const pending = allVerifications.filter(v => v.status === 'pending').length;
             const approved = allVerifications.filter(v => v.status === 'approved').length;
@@ -909,10 +931,9 @@
             document.getElementById('countPending').textContent = pending;
             document.getElementById('countApproved').textContent = approved;
             document.getElementById('countRejected').textContent = rejected;
-            document.getElementById('pendingBadge').textContent = pending;
+            document.getElementById('pendingSellersBadge').textContent = pending;
         }
 
-        // Setup filter buttons
         function setupFilters() {
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -924,14 +945,9 @@
             });
         }
 
-        // Render table
         function renderTable() {
             const tbody = document.getElementById('sellersTableBody');
-            let filtered = allVerifications;
-            
-            if (currentFilter !== 'all') {
-                filtered = allVerifications.filter(v => v.status === currentFilter);
-            }
+            let filtered = currentFilter === 'all' ? allVerifications : allVerifications.filter(v => v.status === currentFilter);
             
             if (filtered.length === 0) {
                 tbody.innerHTML = `
@@ -969,11 +985,7 @@
                             </div>
                         </td>
                         <td>${seller.businessType || 'Not specified'}</td>
-                        <td>
-                            <div class="doc-badges">
-                                ${docs.join('') || '<span style="color: var(--medium-grey); font-size: 0.8rem;">No docs</span>'}
-                            </div>
-                        </td>
+                        <td><div class="doc-badges">${docs.join('') || '<span style="color: var(--slate-500); font-size: 0.8rem;">No docs</span>'}</div></td>
                         <td>
                             <span class="status-badge ${seller.status || 'pending'}">
                                 <i class="fas fa-${seller.status === 'approved' ? 'check' : seller.status === 'rejected' ? 'times' : 'clock'}"></i>
@@ -998,100 +1010,51 @@
             }).join('');
         }
 
-        // View seller details
         function viewSellerDetails(id) {
             currentSellerId = id;
             const seller = allVerifications.find(v => v.id === id);
             if (!seller) return;
             
             document.getElementById('modalBusinessName').textContent = seller.businessName || 'Seller Details';
-            
             const date = seller.submittedAt ? new Date(seller.submittedAt.toDate()).toLocaleString() : 'N/A';
             
             document.getElementById('modalBody').innerHTML = `
                 <div class="detail-section">
                     <h3><i class="fas fa-building"></i> Business Information</h3>
                     <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Business Name</label>
-                            <span>${seller.businessName || 'Not provided'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Business Type</label>
-                            <span>${seller.businessType || 'Not specified'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Owner Name</label>
-                            <span>${seller.ownerName || 'Not provided'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Phone</label>
-                            <span>${seller.phone || 'Not provided'}</span>
-                        </div>
-                        <div class="detail-item full">
-                            <label>Business Address</label>
-                            <span>${seller.address || 'Not provided'}</span>
-                        </div>
+                        <div class="detail-item"><label>Business Name</label><span>${seller.businessName || 'Not provided'}</span></div>
+                        <div class="detail-item"><label>Business Type</label><span>${seller.businessType || 'Not specified'}</span></div>
+                        <div class="detail-item"><label>Owner Name</label><span>${seller.ownerName || 'Not provided'}</span></div>
+                        <div class="detail-item"><label>Phone</label><span>${seller.phone || 'Not provided'}</span></div>
+                        <div class="detail-item full"><label>Business Address</label><span>${seller.address || 'Not provided'}</span></div>
                     </div>
                 </div>
-                
                 <div class="detail-section">
                     <h3><i class="fas fa-file-alt"></i> Legal Documents</h3>
                     <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>GST Number</label>
-                            <span>${seller.gstNumber || 'Not provided'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>PAN Number</label>
-                            <span>${seller.panNumber || 'Not provided'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>MSME/Udyam Number</label>
-                            <span>${seller.msmeNumber || 'Not applicable'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Business Category</label>
-                            <span>${seller.category || 'Not specified'}</span>
-                        </div>
+                        <div class="detail-item"><label>GST Number</label><span>${seller.gstNumber || 'Not provided'}</span></div>
+                        <div class="detail-item"><label>PAN Number</label><span>${seller.panNumber || 'Not provided'}</span></div>
+                        <div class="detail-item"><label>MSME/Udyam Number</label><span>${seller.msmeNumber || 'Not applicable'}</span></div>
+                        <div class="detail-item"><label>Business Category</label><span>${seller.category || 'Not specified'}</span></div>
                     </div>
                 </div>
-                
                 <div class="detail-section">
                     <h3><i class="fas fa-university"></i> Bank Details</h3>
                     <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Account Holder</label>
-                            <span>${seller.bankAccountName || 'Not provided'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Account Number</label>
-                            <span>${seller.bankAccount ? '••••' + seller.bankAccount.slice(-4) : 'Not provided'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>IFSC Code</label>
-                            <span>${seller.ifscCode || 'Not provided'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Bank Name</label>
-                            <span>${seller.bankName || 'Not provided'}</span>
-                        </div>
+                        <div class="detail-item"><label>Account Holder</label><span>${seller.bankAccountName || 'Not provided'}</span></div>
+                        <div class="detail-item"><label>Account Number</label><span>${seller.bankAccount ? '••••' + seller.bankAccount.slice(-4) : 'Not provided'}</span></div>
+                        <div class="detail-item"><label>IFSC Code</label><span>${seller.ifscCode || 'Not provided'}</span></div>
+                        <div class="detail-item"><label>Bank Name</label><span>${seller.bankName || 'Not provided'}</span></div>
                     </div>
                 </div>
-                
-                ${seller.documents && seller.documents.length > 0 ? `
+                ${seller.documents?.length ? `
                     <div class="detail-section">
                         <h3><i class="fas fa-paperclip"></i> Uploaded Documents</h3>
                         <div class="document-preview">
-                            ${seller.documents.map((doc, i) => `
-                                <a href="${doc}" target="_blank" class="doc-link">
-                                    <i class="fas fa-file-pdf"></i> Document ${i + 1}
-                                </a>
-                            `).join('')}
+                            ${seller.documents.map((doc, i) => `<a href="${doc}" target="_blank" class="doc-link"><i class="fas fa-file-pdf"></i> Document ${i + 1}</a>`).join('')}
                         </div>
                     </div>
                 ` : ''}
-                
                 <div class="detail-section">
                     <h3><i class="fas fa-info-circle"></i> Status & Timeline</h3>
                     <div class="detail-grid">
@@ -1101,51 +1064,30 @@
                                 ${(seller.status || 'pending').charAt(0).toUpperCase() + (seller.status || 'pending').slice(1)}
                             </span>
                         </div>
-                        <div class="detail-item">
-                            <label>Submitted On</label>
-                            <span>${date}</span>
-                        </div>
-                        ${seller.rejectionReason ? `
-                            <div class="detail-item full">
-                                <label>Rejection Reason</label>
-                                <span style="color: var(--admin-primary);">${seller.rejectionReason}</span>
-                            </div>
-                        ` : ''}
+                        <div class="detail-item"><label>Submitted On</label><span>${date}</span></div>
+                        ${seller.rejectionReason ? `<div class="detail-item full"><label>Rejection Reason</label><span style="color: var(--admin-primary);">${seller.rejectionReason}</span></div>` : ''}
                     </div>
                 </div>
-                
                 <div class="rejection-form" id="rejectionForm" style="display: none;">
-                    <h3 style="color: var(--admin-primary); margin-bottom: 12px;">
-                        <i class="fas fa-times-circle"></i> Rejection Reason
-                    </h3>
-                    <textarea id="rejectionReason" placeholder="Please provide a reason for rejection. This will be visible to the seller."></textarea>
+                    <h3 style="color: var(--admin-primary); margin-bottom: 12px;"><i class="fas fa-times-circle"></i> Rejection Reason</h3>
+                    <textarea id="rejectionReason" placeholder="Please provide a reason for rejection."></textarea>
                 </div>
             `;
             
-            // Show/hide action buttons based on status
             const btnApprove = document.getElementById('btnApprove');
             const btnReject = document.getElementById('btnReject');
-            
-            if (seller.status === 'pending') {
-                btnApprove.style.display = 'flex';
-                btnReject.style.display = 'flex';
-            } else {
-                btnApprove.style.display = 'none';
-                btnReject.style.display = 'none';
-            }
+            btnApprove.style.display = seller.status === 'pending' ? 'flex' : 'none';
+            btnReject.style.display = seller.status === 'pending' ? 'flex' : 'none';
             
             document.getElementById('detailModal').classList.add('show');
         }
 
-        // Close modal
         function closeModal() {
             document.getElementById('detailModal').classList.remove('show');
             currentSellerId = null;
-            // Reset URL
             window.history.replaceState({}, '', '/admin-sellers.html');
         }
 
-        // Show rejection form
         function showRejectionForm() {
             const form = document.getElementById('rejectionForm');
             if (form.style.display === 'none') {
@@ -1157,43 +1099,31 @@
             }
         }
 
-        // Approve seller
         async function approveSeller() {
             if (!currentSellerId) return;
-            
             try {
                 await db.collection('sellerVerification').doc(currentSellerId).update({
                     status: 'approved',
                     approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     approvedBy: auth.currentUser.email
                 });
-                
-                // Also update user's seller status
-                await db.collection('users').doc(currentSellerId).update({
-                    sellerVerified: true,
-                    sellerApprovedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }).catch(() => {});
-                
+                await db.collection('sellers').doc(currentSellerId).update({ verified: true }).catch(() => {});
                 showToast('Seller approved successfully!', 'success');
                 closeModal();
                 await loadVerifications();
-                
             } catch (error) {
                 console.error('Error approving seller:', error);
                 showToast('Failed to approve seller', 'error');
             }
         }
 
-        // Reject seller
         async function rejectSeller() {
             if (!currentSellerId) return;
-            
             const reason = document.getElementById('rejectionReason').value.trim();
             if (!reason) {
                 showToast('Please provide a rejection reason', 'error');
                 return;
             }
-            
             try {
                 await db.collection('sellerVerification').doc(currentSellerId).update({
                     status: 'rejected',
@@ -1201,59 +1131,46 @@
                     rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     rejectedBy: auth.currentUser.email
                 });
-                
                 showToast('Seller verification rejected', 'success');
                 closeModal();
                 await loadVerifications();
-                
             } catch (error) {
                 console.error('Error rejecting seller:', error);
                 showToast('Failed to reject seller', 'error');
             }
         }
 
-        // Quick approve from table
         async function quickApprove(id) {
             if (!confirm('Are you sure you want to approve this seller?')) return;
-            
             try {
                 await db.collection('sellerVerification').doc(id).update({
                     status: 'approved',
                     approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     approvedBy: auth.currentUser.email
                 });
-                
-                await db.collection('users').doc(id).update({
-                    sellerVerified: true,
-                    sellerApprovedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }).catch(() => {});
-                
+                await db.collection('sellers').doc(id).update({ verified: true }).catch(() => {});
                 showToast('Seller approved!', 'success');
                 await loadVerifications();
-                
             } catch (error) {
                 console.error('Error:', error);
                 showToast('Failed to approve', 'error');
             }
         }
 
-        // Show toast
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            const toastText = document.getElementById('toastText');
-            
+            document.getElementById('toastText').textContent = message;
             toast.className = `toast ${type}`;
-            toastText.textContent = message;
             toast.querySelector('i').className = `fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}`;
-            
             toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // Logout
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
         async function logout() {
             try {
                 await auth.signOut();
@@ -1263,18 +1180,26 @@
             }
         }
 
-        // Close modal on outside click
-        document.getElementById('detailModal').addEventListener('click', (e) => {
-            if (e.target.id === 'detailModal') {
-                closeModal();
+        function checkResponsive() {
+            const menuToggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 1024) {
+                menuToggle.style.display = 'flex';
+            } else {
+                menuToggle.style.display = 'none';
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebarOverlay').classList.remove('show');
             }
+        }
+
+        window.addEventListener('resize', checkResponsive);
+        checkResponsive();
+
+        document.getElementById('detailModal').addEventListener('click', (e) => {
+            if (e.target.id === 'detailModal') closeModal();
         });
 
-        // Close modal on Escape key
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
+            if (e.key === 'Escape') closeModal();
         });
     </script>
 </body>

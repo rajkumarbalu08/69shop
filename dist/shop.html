@@ -16,6 +16,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="products-data.js"></script>
+    
+    <!-- EmailJS SDK for order confirmations and invoices -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="js/email-service.js"></script>
     <script>
         console.log('Products data loaded check:', Array.isArray(window.productsData), window.productsData?.length || 0);
     </script>
@@ -3536,18 +3540,117 @@
                 this.showMessage('Confirming your order...', 'info');
                 this.setButtonLoading(true);
 
-                setTimeout(() => {
+                // Build order data for email
+                const orderData = this.buildOrderData(orderId, formData, paymentMethod.value);
+                const customerData = this.buildCustomerData(formData);
+
+                // Process order and send emails
+                this.processOrderWithEmail(orderId, orderData, customerData);
+            }
+
+            // Build order data object from cart and form
+            buildOrderData(orderId, formData, paymentMethod) {
+                const cart = this.productManager.cart;
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const shipping = subtotal >= 999 ? 0 : 99;
+                const tax = Math.round(subtotal * 0.18); // 18% GST
+                const total = subtotal + shipping;
+
+                // Calculate estimated delivery (3-5 business days)
+                const deliveryStart = new Date();
+                deliveryStart.setDate(deliveryStart.getDate() + 3);
+                const deliveryEnd = new Date();
+                deliveryEnd.setDate(deliveryEnd.getDate() + 5);
+                const formatDate = (d) => d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+
+                return {
+                    id: orderId,
+                    items: cart.map(item => ({
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                        image: item.image
+                    })),
+                    subtotal,
+                    shipping,
+                    tax,
+                    total,
+                    paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : paymentMethod,
+                    estimatedDelivery: `${formatDate(deliveryStart)} - ${formatDate(deliveryEnd)}`,
+                    shippingAddress: {
+                        line1: formData.get('addressLine1'),
+                        line2: formData.get('addressLine2') || '',
+                        city: formData.get('city'),
+                        state: formData.get('state'),
+                        pincode: formData.get('postalCode'),
+                        country: 'India'
+                    },
+                    customerName: formData.get('fullName')
+                };
+            }
+
+            // Build customer data from form
+            buildCustomerData(formData) {
+                const user = authManager?.user;
+                return {
+                    name: formData.get('fullName'),
+                    email: user?.email || '',
+                    phone: formData.get('phone')
+                };
+            }
+
+            // Process order with email notifications
+            async processOrderWithEmail(orderId, orderData, customerData) {
+                try {
+                    // Save order to Firestore if available
+                    if (window.firebaseReady && db && authManager?.user) {
+                        await db.collection('orders').doc(orderId).set({
+                            ...orderData,
+                            userId: authManager.user.uid,
+                            customerEmail: customerData.email,
+                            customerPhone: customerData.phone,
+                            status: 'confirmed',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+
+                    // Send email notifications if customer has email
+                    if (customerData.email && window.EmailService) {
+                        // Initialize EmailJS if not already done
+                        EmailService.init();
+                        
+                        // Send order confirmation and invoice
+                        const emailResult = await handleOrderCompletion(orderData, customerData);
+                        console.log('📧 Email notifications sent:', emailResult);
+                    }
+
+                    // Clear cart and show success
                     this.productManager.cart = [];
                     this.productManager.saveCartToStorage();
                     this.productManager.updateCartDisplay();
                     this.setButtonLoading(false);
-                    this.showMessage(`Order ${orderId} confirmed! A confirmation email is on the way.`, 'success');
-                    uiManager?.showNotification('Order placed successfully! Check your email for details.');
+                    
+                    const emailNote = customerData.email ? ' A confirmation email is on the way.' : '';
+                    this.showMessage(`Order ${orderId} confirmed!${emailNote}`, 'success');
+                    uiManager?.showNotification('Order placed successfully!' + (customerData.email ? ' Check your email for details.' : ''));
 
                     setTimeout(() => {
                         this.close();
                     }, 1500);
-                }, 1200);
+
+                } catch (error) {
+                    console.error('Order processing error:', error);
+                    // Still complete the order even if email fails
+                    this.productManager.cart = [];
+                    this.productManager.saveCartToStorage();
+                    this.productManager.updateCartDisplay();
+                    this.setButtonLoading(false);
+                    this.showMessage(`Order ${orderId} confirmed! (Email notification may be delayed)`, 'success');
+                    
+                    setTimeout(() => {
+                        this.close();
+                    }, 1500);
+                }
             }
 
             showMessage(message, type = 'info') {

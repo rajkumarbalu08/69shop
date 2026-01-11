@@ -1007,9 +1007,13 @@
                 const productsSnapshot = await db.collection('products').get();
                 document.getElementById('totalProducts').textContent = productsSnapshot.size;
                 
-                const pendingSellersSnapshot = await db.collection('sellerVerifications')
+                const pendingSellersSnapshot = await db.collection('sellerVerification')
                     .where('status', '==', 'pending').get();
                 document.getElementById('pendingSellersBadge').textContent = pendingSellersSnapshot.size;
+                
+                // Count verified sellers from sellers collection
+                const verifiedSellersSnapshot = await db.collection('sellers').get();
+                const verifiedCount = verifiedSellersSnapshot.size;
                 
                 const pendingProductsSnapshot = await db.collection('products')
                     .where('approvalStatus', '==', 'pending').get();
@@ -1037,7 +1041,7 @@
 
         async function loadPendingVerifications() {
             try {
-                const snapshot = await db.collection('sellerVerifications')
+                const snapshot = await db.collection('sellerVerification')
                     .where('status', '==', 'pending')
                     .orderBy('submittedAt', 'desc')
                     .limit(5)
