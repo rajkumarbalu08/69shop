@@ -161,38 +161,39 @@
             </div>
             
             <ul class="profile-menu">
-                <li>
+                <!-- Buyer-only menu items (hidden for sellers) -->
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=dashboard" id="profileDashboard" data-profile-link>
                         <i class="fas fa-chart-line"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
-                <li>
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=orders" id="profileOrders" data-profile-link>
                         <i class="fas fa-shopping-bag"></i>
                         <span>My Orders</span>
                     </a>
                 </li>
-                <li>
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=wishlist" id="profileWishlist" data-profile-link>
                         <i class="fas fa-heart"></i>
                         <span>Wishlist</span>
                     </a>
                 </li>
-                <li>
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=cart" id="profileCart" data-profile-link>
                         <i class="fas fa-shopping-cart"></i>
                         <span>My Cart</span>
                     </a>
                 </li>
-                <li>
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=messages" id="profileMessages" data-profile-link>
                         <i class="fas fa-envelope"></i>
                         <span>Messages</span>
                         <span style="margin-left: auto; background: var(--blue-primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">3</span>
                     </a>
                 </li>
-                <li>
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=notifications" id="profileNotifications" data-profile-link>
                         <i class="fas fa-bell"></i>
                         <span>Notifications</span>
@@ -200,42 +201,42 @@
                     </a>
                 </li>
                 
-                <hr class="menu-divider">
+                <hr class="menu-divider buyer-menu-item">
                 
-                <li>
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=addresses" id="profileAddresses" data-profile-link>
                         <i class="fas fa-map-marker-alt"></i>
                         <span>My Addresses</span>
                     </a>
                 </li>
-                <li>
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=payments" id="profilePayment" data-profile-link>
                         <i class="fas fa-credit-card"></i>
                         <span>Payment Methods</span>
                     </a>
                 </li>
-                <li>
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=subscriptions" id="profileSubscriptions" data-profile-link>
                         <i class="fas fa-star"></i>
                         <span>My Subscriptions</span>
                     </a>
                 </li>
-                <li>
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=reviews" id="profileReviews" data-profile-link>
                         <i class="fas fa-comment"></i>
                         <span>My Reviews</span>
                     </a>
                 </li>
                 
-                <hr class="menu-divider">
+                <hr class="menu-divider buyer-menu-item">
                 
-                <li>
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=settings" id="profileSettings" data-profile-link>
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
                 </li>
-                <li>
+                <li class="buyer-menu-item">
                     <a href="/profile.html?section=help" id="profileHelp" data-profile-link>
                         <i class="fas fa-question-circle"></i>
                         <span>Help & Support</span>
@@ -244,13 +245,14 @@
                 <li>
                     <a href="/shop.html" id="profileHome">
                         <i class="fas fa-home"></i>
-                        <span>Home Page</span>
+                        <span>Shop</span>
                     </a>
                 </li>
+                <!-- Seller Dashboard Link - Only visible for sellers -->
                 <li id="sellerDashboardLink" style="display: none;">
                     <a href="/seller-dashboard.html" id="profileSellerDashboard" style="background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%); color: white; border-radius: 8px;">
                         <i class="fas fa-store"></i>
-                        <span>Seller Dashboard</span>
+                        <span>Go to Seller Dashboard</span>
                         <i class="fas fa-external-link-alt" style="margin-left: auto; font-size: 0.8rem;"></i>
                     </a>
                 </li>
@@ -262,11 +264,24 @@
                 </li>
             </ul>
         </div>
-        <div class="profile-footer">
+        <div class="profile-footer" id="profileFooterLoggedIn">
             <button class="btn-logout" id="logoutBtn">
                 <i class="fas fa-sign-out-alt"></i>
                 Logout
             </button>
+        </div>
+        <!-- Guest Footer - shown when not logged in -->
+        <div class="profile-footer guest-footer" id="profileFooterGuest" style="display: none;">
+            <div style="text-align: center; padding: 10px 0;">
+                <p style="color: var(--medium-grey); font-size: 0.9rem; margin-bottom: 12px;">Sign in to access all features</p>
+                <a href="/shop-login.html" class="btn-login-guest" style="display: block; background: var(--blue-primary); color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 500; margin-bottom: 8px;">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login / Sign Up
+                </a>
+                <p style="color: var(--medium-grey); font-size: 0.75rem; margin-top: 8px;">
+                    <i class="fas fa-shield-alt"></i> Secure checkout • Track orders • Wishlist
+                </p>
+            </div>
         </div>
     </div>
 
@@ -768,7 +783,7 @@
                     <h3 class="footer-heading">For Sellers</h3>
                     <ul class="footer-links">
                         <li><a href="/#sell"><i class="fas fa-rocket"></i> Start Selling</a></li>
-                        <li><a href="/profile.html?section=dashboard"><i class="fas fa-chart-line"></i> Seller Dashboard</a></li>
+                        <li><a href="/seller-dashboard.html"><i class="fas fa-chart-line"></i> Seller Dashboard</a></li>
                         <li><a href="/profile.html?section=help"><i class="fas fa-graduation-cap"></i> Seller Education</a></li>
                         <li><a href="/services.html#distributors"><i class="fas fa-handshake"></i> Partner Program</a></li>
                     </ul>
@@ -1699,10 +1714,12 @@
                 console.log('window.productsData is array:', Array.isArray(window.productsData));
                 console.log('window.productsData length:', window.productsData?.length || 0);
                 
-                // Prefer shared static catalog when present to keep initial load fast
+                // Start with static catalog for fast initial load
+                const fallbackImage = 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=400&q=80';
+                let staticProducts = [];
+                
                 if (Array.isArray(window.productsData) && window.productsData.length) {
-                    const fallbackImage = 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=400&q=80';
-                    this.products = window.productsData.map((p, idx) => ({
+                    staticProducts = window.productsData.map((p, idx) => ({
                         id: p.id || `p-${idx + 1}`,
                         name: p.name || 'Featured product',
                         description: p.description || 'Curated pick from our catalog.',
@@ -1717,43 +1734,44 @@
                         deliveryTime: p.deliveryTime || '2day',
                         createdAt: p.createdAt || new Date(Date.now() - idx * 86400000).toISOString()
                     }));
-                    console.log('SUCCESS: Loaded', this.products.length, 'products from productsData');
-                    return;
+                    console.log('Loaded', staticProducts.length, 'products from static catalog');
                 }
                 
-                console.log('productsData not found, trying Firestore or sample data');
-
-                if (!this.db) {
-                    console.warn('Firestore unavailable; using sample products.');
-                    this.products = this.getSampleProducts();
-                    return;
-                }
-                try {
-                    const productsSnapshot = await this.db.collection('products')
-                        .where('status', '==', 'active')
-                        .get();
-                    
-                    this.products = productsSnapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data(),
-                        price: parseFloat(doc.data().price) || 0,
-                        rating: parseFloat(doc.data().rating) || 4.0,
-                        sellerType: doc.data().sellerType || 'regular',
-                        isVerified: doc.data().isVerified || false,
-                        deliveryTime: doc.data().deliveryTime || 'standard',
-                        createdAt: doc.data().createdAt || new Date().toISOString()
-                    }));
-                    
-                    // If no products in Firestore, use sample data
-                    if (this.products.length === 0) {
-                        this.products = this.getSampleProducts();
+                // Also fetch products from Firestore (seller-uploaded products)
+                let firestoreProducts = [];
+                if (this.db) {
+                    try {
+                        const productsSnapshot = await this.db.collection('products')
+                            .where('status', '==', 'active')
+                            .get();
+                        
+                        firestoreProducts = productsSnapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data(),
+                            price: parseFloat(doc.data().price) || 0,
+                            rating: parseFloat(doc.data().rating) || 4.0,
+                            sellerType: doc.data().sellerType || 'regular',
+                            isVerified: doc.data().isVerified || false,
+                            deliveryTime: doc.data().deliveryTime || 'standard',
+                            createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+                            image: doc.data().image || doc.data().images?.[0] || fallbackImage,
+                            seller: doc.data().sellerName || doc.data().seller || 'Seller'
+                        }));
+                        console.log('Loaded', firestoreProducts.length, 'products from Firestore');
+                    } catch (error) {
+                        console.error("Error loading Firestore products:", error);
                     }
-                    
-                    console.log(`Loaded ${this.products.length} products`);
-                } catch (error) {
-                    console.error("Error loading products:", error);
+                }
+                
+                // Combine both: Firestore products first (newest), then static catalog
+                this.products = [...firestoreProducts, ...staticProducts];
+                
+                // If no products at all, use sample data
+                if (this.products.length === 0) {
                     this.products = this.getSampleProducts();
                 }
+                
+                console.log(`Total products loaded: ${this.products.length}`);
             }
 
             getSampleProducts() {
@@ -2172,6 +2190,23 @@
                 const product = this.products.find(p => p.id === productId);
                 if (!product) return;
                 
+                // Sellers cannot add to cart - they should be selling, not buying
+                const userData = authManager?.getUserData();
+                if (userData && userData.accountType === 'seller') {
+                    this.showNotification('🏪 Sellers cannot add products to cart. Use a buyer account to shop!', 'warning');
+                    return;
+                }
+                
+                // Gentle nudge for guests adding to cart
+                if (!authManager || !authManager.getUserData()) {
+                    // Still allow adding to cart, but show a nudge after first item
+                    if (this.cart.length === 0) {
+                        setTimeout(() => {
+                            this.showNotification('💡 Login to save your cart and get exclusive deals!', 'info');
+                        }, 1500);
+                    }
+                }
+                
                 // Check if product is already in cart
                 const existingItem = this.cart.find(item => item.id === productId);
                 
@@ -2220,6 +2255,14 @@
             }
 
             toggleWishlist(productId) {
+                // Allow guests to add to wishlist, but show a gentle nudge to login
+                if (!authManager || !authManager.getUserData()) {
+                    // Still allow the action but show a subtle notification
+                    if (!this.wishlist.has(productId)) {
+                        this.showNotification('💡 Login to sync your wishlist across devices!', 'info');
+                    }
+                }
+                
                 if (this.wishlist.has(productId)) {
                     this.wishlist.delete(productId);
                 } else {
@@ -2533,9 +2576,91 @@
                     } else {
                         console.log("No user authenticated, staying as guest.");
                         this.currentUserData = null;
+                        this.updateGuestDisplay();
                         this.notifyUserDataReady(null);
                         // Allow guests to browse - no redirect
                     }
+                });
+            }
+            
+            updateGuestDisplay() {
+                // Show guest-specific UI elements
+                const profileFooterLoggedIn = document.getElementById('profileFooterLoggedIn');
+                const profileFooterGuest = document.getElementById('profileFooterGuest');
+                const profileBadge = document.getElementById('profileBadge');
+                const profileMenu = document.querySelector('.profile-menu');
+                const sellerDashboardLink = document.getElementById('sellerDashboardLink');
+                const becomeSellerLink = document.getElementById('becomeSellerLink');
+                
+                // Hide logout, show login buttons
+                if (profileFooterLoggedIn) profileFooterLoggedIn.style.display = 'none';
+                if (profileFooterGuest) profileFooterGuest.style.display = 'block';
+                
+                // Update badge to show guest
+                if (profileBadge) {
+                    profileBadge.textContent = 'Guest';
+                    profileBadge.style.background = 'var(--light-grey)';
+                    profileBadge.style.color = 'var(--medium-grey)';
+                }
+                
+                // Hide seller-specific links
+                if (sellerDashboardLink) sellerDashboardLink.style.display = 'none';
+                if (becomeSellerLink) becomeSellerLink.style.display = 'block';
+                
+                // Mark profile menu items that require login
+                if (profileMenu) {
+                    const loginRequiredItems = profileMenu.querySelectorAll('[data-profile-link]');
+                    loginRequiredItems.forEach(item => {
+                        item.addEventListener('click', (e) => {
+                            if (!this.currentUserData) {
+                                e.preventDefault();
+                                this.showLoginPrompt('Please login to access your profile');
+                            }
+                        });
+                    });
+                }
+            }
+            
+            showLoginPrompt(message = 'Please login to continue') {
+                const modal = document.createElement('div');
+                modal.id = 'loginPromptModal';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0,0,0,0.6);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    animation: fadeIn 0.2s ease;
+                `;
+                modal.innerHTML = `
+                    <div style="background: white; padding: 32px; border-radius: 16px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #0066ff, #00a8ff); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user-lock" style="font-size: 28px; color: white;"></i>
+                        </div>
+                        <h3 style="font-family: 'Poppins', sans-serif; font-size: 1.3rem; margin-bottom: 10px; color: var(--primary-black);">Login Required</h3>
+                        <p style="color: var(--medium-grey); margin-bottom: 24px; font-size: 0.95rem;">${message}</p>
+                        <div style="display: flex; gap: 12px; justify-content: center;">
+                            <button onclick="document.getElementById('loginPromptModal').remove()" style="padding: 12px 24px; border: 1px solid var(--medium-grey); background: white; border-radius: 8px; cursor: pointer; font-weight: 500;">
+                                Continue Browsing
+                            </button>
+                            <a href="/shop-login.html" style="padding: 12px 24px; background: var(--blue-primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Login / Sign Up
+                            </a>
+                        </div>
+                        <p style="margin-top: 16px; font-size: 0.8rem; color: var(--medium-grey);">
+                            <i class="fas fa-gift" style="color: #22C55E;"></i> New users get ₹500 welcome credit!
+                        </p>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.remove();
                 });
             }
 
@@ -2556,6 +2681,15 @@
                             photoURL: firebaseUser.photoURL || '',
                             ...sellerData
                         };
+                        // Cache seller status for persistence
+                        localStorage.setItem('69shop_user_type', JSON.stringify({
+                            uid: firebaseUser.uid,
+                            accountType: 'seller',
+                            email: firebaseUser.email,
+                            name: this.currentUserData.name,
+                            sellerType: this.currentUserData.sellerType,
+                            timestamp: Date.now()
+                        }));
                         console.log("Loaded seller data from Firestore:", this.currentUserData);
                         return;
                     }
@@ -2591,6 +2725,32 @@
                     this.currentUserData.photoURL = this.currentUserData.photoURL || firebaseUser.photoURL || '';
                 } catch (error) {
                     console.error("Error loading user data:", error);
+                    
+                    // Check localStorage cache for seller status (important when Firestore permissions fail)
+                    try {
+                        const cachedUser = localStorage.getItem('69shop_user_type');
+                        if (cachedUser) {
+                            const cached = JSON.parse(cachedUser);
+                            // Verify this cache is for the current user and not stale (max 24 hours)
+                            if (cached.uid === firebaseUser.uid && 
+                                cached.accountType === 'seller' && 
+                                (Date.now() - cached.timestamp) < 24 * 60 * 60 * 1000) {
+                                console.log("Using cached seller data from localStorage");
+                                this.currentUserData = {
+                                    uid: firebaseUser.uid,
+                                    name: cached.name || firebaseUser.displayName || firebaseUser.email.split('@')[0],
+                                    email: firebaseUser.email,
+                                    accountType: 'seller',
+                                    sellerType: cached.sellerType || 'product',
+                                    photoURL: firebaseUser.photoURL || ''
+                                };
+                                return;
+                            }
+                        }
+                    } catch (cacheError) {
+                        console.warn("Could not read cached user type:", cacheError);
+                    }
+                    
                     // Fallback to basic user info
                     this.currentUserData = {
                         uid: firebaseUser.uid,
@@ -2656,16 +2816,39 @@
                 if (this.currentUserData.accountType === 'seller') {
                     if (sellerDashboardLink) sellerDashboardLink.style.display = 'block';
                     if (becomeSellerLink) becomeSellerLink.style.display = 'none';
+                    // Hide buyer-only menu items for sellers
+                    document.querySelectorAll('.buyer-menu-item').forEach(item => {
+                        item.style.display = 'none';
+                    });
                 } else {
                     if (sellerDashboardLink) sellerDashboardLink.style.display = 'none';
                     if (becomeSellerLink) becomeSellerLink.style.display = 'block';
+                    // Show buyer menu items for buyers
+                    document.querySelectorAll('.buyer-menu-item').forEach(item => {
+                        item.style.display = '';
+                    });
+                }
+                
+                // Show logged-in footer, hide guest footer
+                const profileFooterLoggedIn = document.getElementById('profileFooterLoggedIn');
+                const profileFooterGuest = document.getElementById('profileFooterGuest');
+                if (profileFooterLoggedIn) profileFooterLoggedIn.style.display = 'block';
+                if (profileFooterGuest) profileFooterGuest.style.display = 'none';
+                
+                // Reset badge styling for logged-in users
+                if (profileBadge) {
+                    profileBadge.style.background = '';
+                    profileBadge.style.color = '';
                 }
             }
 
             async logout() {
                 try {
+                    // Clear cached user type
+                    localStorage.removeItem('69shop_user_type');
                     await this.auth.signOut();
-                    window.location.href = '/shop-login.html';
+                    // Stay on shop as guest instead of redirecting to login
+                    window.location.reload();
                 } catch (error) {
                     console.error("Logout error:", error);
                     alert('Error logging out. Please try again.');
@@ -2903,6 +3086,13 @@
                     this.showNotification('Your cart is empty!', 'error');
                     return;
                 }
+                
+                // Check if user is logged in - guests cannot checkout
+                if (!authManager || !authManager.getUserData()) {
+                    this.closeCartSidebar();
+                    authManager.showLoginPrompt('Please login to complete your purchase. Your cart will be saved!');
+                    return;
+                }
 
                 this.closeCartSidebar();
 
@@ -2914,12 +3104,23 @@
             }
 
             showNotification(message, type = 'success') {
+                const bgColors = {
+                    'success': 'var(--blue-primary)',
+                    'error': '#FF6B6B',
+                    'info': '#7C3AED'
+                };
+                const icons = {
+                    'success': 'fa-check-circle',
+                    'error': 'fa-exclamation-circle',
+                    'info': 'fa-info-circle'
+                };
+                
                 const notification = document.createElement('div');
                 notification.style.cssText = `
                     position: fixed;
                     top: 100px;
                     right: 20px;
-                    background: ${type === 'error' ? '#FF6B6B' : 'var(--blue-primary)'};
+                    background: ${bgColors[type] || bgColors.success};
                     color: white;
                     padding: 12px 20px;
                     border-radius: var(--radius-md);
@@ -2931,9 +3132,10 @@
                     align-items: center;
                     gap: 10px;
                     font-size: 0.9rem;
+                    max-width: 350px;
                 `;
                 notification.innerHTML = `
-                    <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+                    <i class="fas ${icons[type] || icons.success}"></i>
                     ${message}
                 `;
                 document.body.appendChild(notification);

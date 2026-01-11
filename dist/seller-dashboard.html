@@ -918,6 +918,20 @@
     
     <!-- Main Content -->
     <main class="seller-main">
+        <!-- Verification Alert Banner -->
+        <div class="verification-alert" id="verificationAlert" style="display: none; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 16px 24px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+                <div>
+                    <strong>Complete Your Verification</strong>
+                    <p style="font-size: 0.85rem; opacity: 0.9; margin-top: 2px;">Submit GST, MSME, and bank details to unlock all seller benefits</p>
+                </div>
+            </div>
+            <a href="/seller-verification.html" style="background: white; color: #D97706; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500; white-space: nowrap;">
+                <i class="fas fa-shield-alt"></i> Verify Now
+            </a>
+        </div>
+        
         <!-- Seller Type Banner -->
         <div class="seller-type-banner" id="sellerTypeBanner">
             <div class="seller-type-info">
@@ -1189,6 +1203,7 @@
         async function handleLogout(e) {
             e.preventDefault();
             if (auth) {
+                localStorage.removeItem('69shop_user_type');
                 await auth.signOut();
                 window.location.href = '/seller-login.html';
             }
@@ -1398,6 +1413,15 @@
                 
                 currentUser = user;
                 
+                // Cache seller status in localStorage for shop.html
+                localStorage.setItem('69shop_user_type', JSON.stringify({
+                    uid: user.uid,
+                    accountType: 'seller',
+                    email: user.email,
+                    name: user.displayName || user.email?.split('@')[0] || 'Seller',
+                    timestamp: Date.now()
+                }));
+                
                 // Update user info
                 document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || 'Seller';
                 document.getElementById('userEmail').textContent = user.email;
@@ -1409,6 +1433,45 @@
                 // Initialize charts after data loads
                 initSalesChart();
             });
+        }
+        
+        async function checkVerificationStatus(userId) {
+            try {
+                const doc = await db.collection('sellerVerification').doc(userId).get();
+                const alert = document.getElementById('verificationAlert');
+                
+                if (!doc.exists) {
+                    // Not verified - show alert
+                    alert.style.display = 'flex';
+                } else {
+                    const data = doc.data();
+                    if (data.status === 'approved') {
+                        // Verified - hide alert
+                        alert.style.display = 'none';
+                    } else if (data.status === 'pending') {
+                        // Pending - show different message
+                        alert.style.background = 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)';
+                        alert.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="fas fa-clock" style="font-size: 1.5rem;"></i>
+                                <div>
+                                    <strong>Verification In Progress</strong>
+                                    <p style="font-size: 0.85rem; opacity: 0.9; margin-top: 2px;">Our team is reviewing your documents. This usually takes 1-2 business days.</p>
+                                </div>
+                            </div>
+                            <a href="/seller-verification.html" style="background: white; color: #1D4ED8; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500; white-space: nowrap;">
+                                <i class="fas fa-eye"></i> View Status
+                            </a>
+                        `;
+                        alert.style.display = 'flex';
+                    } else {
+                        // Show verification needed
+                        alert.style.display = 'flex';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking verification:', error);
+            }
         }
         
         function showToast(msg) {
@@ -1474,6 +1537,9 @@
                 statusEl.classList.remove('pending');
                 statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Active';
             }
+            
+            // Check verification status and show alert if not verified
+            checkVerificationStatus(currentUser.uid);
             
             // Update page header actions for service providers
             if (isService) {

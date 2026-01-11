@@ -866,6 +866,7 @@
         async function handleLogout(e) {
             e.preventDefault();
             if (auth) {
+                localStorage.removeItem('69shop_user_type');
                 await auth.signOut();
                 window.location.href = '/seller-login.html';
             }
@@ -908,6 +909,16 @@
                 }
                 
                 currentUser = user;
+                
+                // Cache seller status in localStorage for shop.html
+                localStorage.setItem('69shop_user_type', JSON.stringify({
+                    uid: user.uid,
+                    accountType: 'seller',
+                    email: user.email,
+                    name: document.getElementById('userName').textContent || user.displayName || user.email?.split('@')[0] || 'Seller',
+                    timestamp: Date.now()
+                }));
+                
                 document.getElementById('userName').textContent = document.getElementById('userName').textContent || user.displayName || user.email?.split('@')[0] || 'Seller';
                 document.getElementById('userEmail').textContent = user.email;
                 document.getElementById('userAvatar').textContent = document.getElementById('userAvatar').textContent || (user.displayName || user.email || 'S')[0].toUpperCase();
@@ -1070,7 +1081,13 @@
         
         // Upload images to Firebase Storage
         async function uploadImages() {
-            if (!storage || !currentUser || uploadedImages.length === 0) return [];
+            if (!currentUser || uploadedImages.length === 0) return [];
+            
+            // If storage is not available, return existing URLs only
+            if (!storage) {
+                console.warn('Storage not initialized, returning existing URLs only');
+                return uploadedImages.filter(img => img.url).map(img => img.url);
+            }
             
             const progressBar = document.getElementById('uploadProgress');
             const progressBarInner = document.getElementById('uploadProgressBar');
@@ -1095,6 +1112,8 @@
                     uploadedImages[i].url = url;
                 } catch (error) {
                     console.error('Upload error:', error);
+                    showToast('Image upload failed: ' + (error.code || error.message), 'error');
+                    // Continue with other images
                 }
                 
                 progressBarInner.style.width = `${((i + 1) / uploadedImages.length) * 100}%`;
@@ -1172,60 +1191,68 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             
-            // Upload images first
-            const imageUrls = await uploadImages();
-            
-            const productData = {
-                name: document.getElementById('productName').value,
-                category: document.getElementById('productCategory').value,
-                brand: document.getElementById('productBrand').value,
-                price: parseInt(document.getElementById('productPrice').value),
-                mrp: parseInt(document.getElementById('productMRP').value) || null,
-                stock: parseInt(document.getElementById('productStock').value),
-                status: document.getElementById('productStatus').value,
-                tags: document.getElementById('productTags').value.split(',').map(t => t.trim()).filter(t => t),
-                description: document.getElementById('productDescription').value,
-                images: imageUrls,
-                image: imageUrls[0] || null,
-                sellerId: currentUser?.uid,
-                updatedAt: firebase.firestore?.FieldValue?.serverTimestamp() || new Date()
-            };
-            
-            if (db && currentUser) {
-                try {
-                    if (editingProductId) {
-                        await db.collection('products').doc(editingProductId).update(productData);
-                    } else {
-                        productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                        productData.views = 0;
-                        productData.orders = 0;
-                        await db.collection('products').add(productData);
+            try {
+                // Upload images first
+                const imageUrls = await uploadImages();
+                
+                const productData = {
+                    name: document.getElementById('productName').value,
+                    category: document.getElementById('productCategory').value,
+                    brand: document.getElementById('productBrand').value,
+                    price: parseInt(document.getElementById('productPrice').value),
+                    mrp: parseInt(document.getElementById('productMRP').value) || null,
+                    stock: parseInt(document.getElementById('productStock').value),
+                    status: document.getElementById('productStatus').value,
+                    tags: document.getElementById('productTags').value.split(',').map(t => t.trim()).filter(t => t),
+                    description: document.getElementById('productDescription').value,
+                    images: imageUrls,
+                    image: imageUrls[0] || null,
+                    sellerId: currentUser?.uid,
+                    updatedAt: firebase.firestore?.FieldValue?.serverTimestamp() || new Date()
+                };
+                
+                let savedToFirestore = false;
+                if (db && currentUser) {
+                    try {
+                        if (editingProductId) {
+                            await db.collection('products').doc(editingProductId).update(productData);
+                        } else {
+                            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                            productData.views = 0;
+                            productData.orders = 0;
+                            await db.collection('products').add(productData);
+                        }
+                        savedToFirestore = true;
+                    } catch (error) {
+                        console.error('Error saving to Firestore:', error);
+                        showToast('Error saving to database: ' + (error.code || error.message), 'error');
                     }
-                } catch (error) {
-                    console.error('Error saving:', error);
                 }
-            }
-            
-            // Update local state
-            if (editingProductId) {
-                const index = products.findIndex(p => p.id === editingProductId);
-                if (index !== -1) {
-                    products[index] = { ...products[index], ...productData };
+                
+                // Update local state
+                if (editingProductId) {
+                    const index = products.findIndex(p => p.id === editingProductId);
+                    if (index !== -1) {
+                        products[index] = { ...products[index], ...productData };
+                    }
+                    showToast(savedToFirestore ? 'Product updated successfully' : 'Product updated locally');
+                } else {
+                    productData.id = 'p' + Date.now();
+                    productData.views = 0;
+                    productData.orders = 0;
+                    products.unshift(productData);
+                    showToast(savedToFirestore ? 'Product added successfully' : 'Product saved locally (sync pending)');
                 }
-                showToast('Product updated successfully');
-            } else {
-                productData.id = 'p' + Date.now();
-                productData.views = 0;
-                productData.orders = 0;
-                products.unshift(productData);
-                showToast('Product added successfully');
+                
+                closeModal();
+                renderProducts();
+            } catch (error) {
+                console.error('Form submission error:', error);
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Save Product';
             }
-            
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-save"></i> Save Product';
-            
-            closeModal();
-            renderProducts();
         });
         
         // Search and filters
@@ -1233,13 +1260,15 @@
         document.getElementById('categoryFilter').addEventListener('change', renderProducts);
         document.getElementById('statusFilter').addEventListener('change', renderProducts);
         
-        function showToast(msg) {
+        function showToast(msg, type = 'success') {
+            const bgColor = type === 'error' ? '#EF4444' : 'var(--seller-primary)';
+            const icon = type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
             const el = document.createElement('div');
-            el.style.cssText = 'position:fixed;top:80px;right:20px;background:var(--seller-primary);color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;transform:translateX(120%);transition:transform 0.25s ease;';
-            el.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+            el.style.cssText = `position:fixed;top:80px;right:20px;background:${bgColor};color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;transform:translateX(120%);transition:transform 0.25s ease;max-width:350px;`;
+            el.innerHTML = `<i class="fas ${icon}"></i> ${msg}`;
             document.body.appendChild(el);
             requestAnimationFrame(() => el.style.transform = 'translateX(0)');
-            setTimeout(() => { el.style.transform = 'translateX(120%)'; setTimeout(() => el.remove(), 250); }, 2500);
+            setTimeout(() => { el.style.transform = 'translateX(120%)'; setTimeout(() => el.remove(), 250); }, 3500);
         }
         
         // Check for add action in URL

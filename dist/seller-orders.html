@@ -1061,6 +1061,7 @@
         async function handleLogout(e) {
             e.preventDefault();
             if (auth) {
+                localStorage.removeItem('69shop_user_type');
                 await auth.signOut();
                 window.location.href = '/seller-login.html';
             }
@@ -1103,6 +1104,16 @@
                 }
                 
                 currentUser = user;
+                
+                // Cache seller status in localStorage for shop.html
+                localStorage.setItem('69shop_user_type', JSON.stringify({
+                    uid: user.uid,
+                    accountType: 'seller',
+                    email: user.email,
+                    name: document.getElementById('userName').textContent || user.displayName || user.email?.split('@')[0] || 'Seller',
+                    timestamp: Date.now()
+                }));
+                
                 document.getElementById('userName').textContent = document.getElementById('userName').textContent || user.displayName || user.email?.split('@')[0] || 'Seller';
                 document.getElementById('userEmail').textContent = user.email;
                 document.getElementById('userAvatar').textContent = document.getElementById('userAvatar').textContent || (user.displayName || user.email || 'S')[0].toUpperCase();
