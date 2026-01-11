@@ -9,6 +9,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="./firebase-config.js"></script>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -44,8 +45,8 @@
                 <!-- Desktop Navigation -->
                 <nav class="main-nav" id="mainNav">
                     <ul class="nav-links">
-                        <li><a href="#" class="active" onclick="handleHomeClick(event)"><i class="fas fa-home"></i> Home</a></li>
-                        <li><a href="#shop"><i class="fas fa-store"></i> Shop</a></li>
+                        <li><a href="/" class="active" onclick="handleHomeClick(event)"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="/shop.html" onclick="handleShopClick(event)"><i class="fas fa-store"></i> Shop</a></li>
                         <li><a href="#sell"><i class="fas fa-briefcase"></i> Sell</a></li>
                         <li><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
                         <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
@@ -73,7 +74,7 @@
                         <p>Discover quality products from trusted sellers or start your own business journey with 69Shop.in - where dreams meet opportunities.</p>
                         <div class="hero-buttons" id="heroAuthButtons">
                             <!-- Buttons will be updated by JavaScript based on auth state -->
-                            <a href="#" class="btn-primary" onclick="handleShopClick(event)">
+                            <a href="/shop.html" class="btn-primary" onclick="handleShopClick(event)">
                                 <i class="fas fa-shopping-cart"></i>
                                 Shop Now
                             </a>
@@ -285,7 +286,7 @@
                         </div>
                         
                         <div class="text-center mt-2">
-                            <a href="#" class="btn-primary" onclick="handleShopClick(event)">
+                            <a href="/shop.html" class="btn-primary" onclick="handleShopClick(event)">
                                 <i class="fas fa-arrow-right"></i>
                                 View All Products
                             </a>
@@ -482,7 +483,7 @@
                     <p>Whether you want to shop quality products or start your selling journey, 69Shop.in is the perfect platform for you.</p>
                     <div class="cta-buttons" id="ctaAuthButtons">
                         <!-- Buttons will be updated by JavaScript based on auth state -->
-                        <a href="#" class="btn-dark" onclick="handleShopClick(event)">
+                        <a href="/shop.html" class="btn-dark" onclick="handleShopClick(event)">
                             <i class="fas fa-shopping-cart"></i>
                             Explore Products
                         </a>
@@ -545,11 +546,11 @@
                         India's premium marketplace connecting buyers with quality products and helping sellers grow their businesses. Join our community today!
                     </p>
                     <div class="social-links">
-                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.instagram.com/69shopin" target="_blank" rel="noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.facebook.com/69shopin" target="_blank" rel="noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://twitter.com/69shopin" target="_blank" rel="noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.linkedin.com/company/69shopin" target="_blank" rel="noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.youtube.com/@69shopin" target="_blank" rel="noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
                 
@@ -592,23 +593,29 @@
 
     <!-- JavaScript -->
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCJGhxrc-0LKxOEhvGnmcZlr0ignTC6SQI",
-            authDomain: "shop69-1.firebaseapp.com",
-            projectId: "shop69-1",
-            storageBucket: "shop69-1.firebasestorage.app",
-            messagingSenderId: "493886821318",
-            appId: "1:493886821318:web:e5c011deeab1f3700dd8c7",
-            measurementId: "G-7Q8JSJV0QJ"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        // Global Variables
+        // Firebase Configuration (graceful fallback when missing)
+        let auth = null;
+        let firebaseReady = false;
         let currentUser = null;
+
+        function initializeFirebase() {
+            try {
+                const firebaseConfig = window.firebaseConfig;
+                if (!firebaseConfig || !firebaseConfig.apiKey) {
+                    console.warn('Firebase configuration missing on landing page. Rendering logged-out UI.');
+                    return;
+                }
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                auth = firebase.auth();
+                firebaseReady = true;
+            } catch (error) {
+                console.warn('Unable to initialize Firebase. Rendering logged-out UI.', error);
+            }
+        }
+
+        initializeFirebase();
 
         // Mobile Menu Toggle
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
@@ -617,13 +624,17 @@
 
         // Check Authentication State
         function checkAuthState() {
+            if (!firebaseReady || !auth) {
+                currentUser = null;
+                updateUIForAuthState(null, true);
+                updateAllShopButtons(null);
+                return;
+            }
+
             auth.onAuthStateChanged((user) => {
                 currentUser = user;
                 updateUIForAuthState(user);
-                
-                // Update all shop buttons dynamically
                 updateAllShopButtons(user);
-                
                 console.log('Auth state changed:', user ? 'Logged in' : 'Logged out');
             });
         }
@@ -648,7 +659,7 @@
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
                     </button>
-                    <a href="#" class="btn-primary" onclick="goToShop()">
+                    <a href="/shop.html" class="btn-primary" onclick="goToShop()">
                         <i class="fas fa-store"></i>
                         Continue Shopping
                     </a>
@@ -662,7 +673,7 @@
                         <i class="fas fa-user"></i>
                         Login / Sign Up
                     </button>
-                    <a href="#" class="btn-primary" onclick="goToShopLogin()">
+                    <a href="/shop-login.html" class="btn-primary" onclick="goToShopLogin()">
                         <i class="fas fa-shopping-cart"></i>
                         Start Shopping
                     </a>
@@ -677,6 +688,13 @@
             const shopButtons = document.querySelectorAll('[onclick*="handleShopClick"], [onclick*="goToShop"]');
             
             shopButtons.forEach(button => {
+                const targetHref = user ? '/shop.html' : '/shop-login.html';
+                if (button.tagName === 'A') {
+                    button.setAttribute('href', targetHref);
+                } else {
+                    button.setAttribute('data-target-href', targetHref);
+                }
+
                 if (user) {
                     // User is logged in - update text to "Continue Shopping"
                     if (button.textContent.includes('Shop Now') || 
@@ -697,7 +715,7 @@
             if (heroAuthButtons) {
                 if (user) {
                     heroAuthButtons.innerHTML = `
-                        <a href="#" class="btn-primary" onclick="goToShop()">
+                        <a href="/shop.html" class="btn-primary" onclick="goToShop()">
                             <i class="fas fa-store"></i>
                             Continue Shopping
                         </a>
@@ -708,7 +726,7 @@
                     `;
                 } else {
                     heroAuthButtons.innerHTML = `
-                        <a href="#" class="btn-primary" onclick="goToShopLogin()">
+                        <a href="/shop-login.html" class="btn-primary" onclick="goToShopLogin()">
                             <i class="fas fa-shopping-cart"></i>
                             Shop Now
                         </a>
@@ -725,7 +743,7 @@
             if (ctaAuthButtons) {
                 if (user) {
                     ctaAuthButtons.innerHTML = `
-                        <a href="#" class="btn-dark" onclick="goToShop()">
+                        <a href="/shop.html" class="btn-dark" onclick="goToShop()">
                             <i class="fas fa-store"></i>
                             Continue Shopping
                         </a>
@@ -736,7 +754,7 @@
                     `;
                 } else {
                     ctaAuthButtons.innerHTML = `
-                        <a href="#" class="btn-dark" onclick="goToShopLogin()">
+                        <a href="/shop-login.html" class="btn-dark" onclick="goToShopLogin()">
                             <i class="fas fa-shopping-cart"></i>
                             Explore Products
                         </a>
@@ -786,19 +804,24 @@
 
         // Go to Shop Login page
         function goToShopLogin() {
+            if (currentUser) {
+                console.log('Already authenticated, routing to shop');
+                window.location.href = '/shop.html';
+                return;
+            }
             console.log('Going to login page');
             window.location.href = '/shop-login.html';
         }
 
         // Logout User
         function logoutUser() {
+            if (!firebaseReady || !auth) {
+                showNotification('Login service is unavailable. Please refresh and try again.', 'error');
+                return;
+            }
             if (confirm('Are you sure you want to logout?')) {
                 auth.signOut().then(() => {
                     console.log('User logged out successfully');
-                    
-                    // Show success message
-                    showNotification('Logged out successfully!', 'success');
-                    
                     // Update UI immediately
                     currentUser = null;
                     updateUIForAuthState(null);
@@ -900,11 +923,34 @@
                 observer.observe(el);
             });
 
-            // Ad banner pause/resume functionality
+            // Ad banner marquee setup
             const adBanner = document.querySelector('.ad-banner');
             const adTrack = document.querySelector('.ad-banner-track');
 
             if (adBanner && adTrack) {
+                const initAdBanner = () => {
+                    if (adTrack.dataset.marqueeReady === 'true') return;
+                    const bannerItems = Array.from(adTrack.children);
+                    if (!bannerItems.length) return;
+
+                    const fragment = document.createDocumentFragment();
+                    bannerItems.forEach(item => {
+                        fragment.appendChild(item.cloneNode(true));
+                    });
+                    adTrack.appendChild(fragment);
+
+                    const totalWidth = bannerItems.reduce((sum, item) => {
+                        return sum + item.getBoundingClientRect().width;
+                    }, 0);
+                    const duration = Math.min(50, Math.max(18, totalWidth / 22));
+                    adTrack.style.animation = `scrollBanner ${duration.toFixed(2)}s linear infinite`;
+                    adTrack.style.animationPlayState = 'running';
+                    adTrack.dataset.marqueeReady = 'true';
+                };
+
+                initAdBanner();
+                window.addEventListener('load', initAdBanner);
+
                 adBanner.addEventListener('mouseenter', () => {
                     adTrack.style.animationPlayState = 'paused';
                 });

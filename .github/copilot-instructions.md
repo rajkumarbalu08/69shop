@@ -4,10 +4,10 @@
 This is a static HTML-based e-commerce marketplace using Firebase for backend services. The site consists of multiple standalone HTML pages with client-side JavaScript integration.
 
 **Key Components:**
-- `Home.html`: Landing page with marketplace overview and navigation
-- `Login.html`: User authentication interface (login/signup)
-- `shop.html`: Main shopping interface with product listings
-- `shop 1.html`: Alternative shop page variant (similar to shop.html but with different title/metadata)
+- `dist/index.html`: Landing page with marketplace overview and navigation
+- `dist/shop-login.html`: User authentication interface (login/signup)
+- `dist/shop.html`: Main shopping interface with product listings
+- `dist/services.html`: Service booking directory showcasing curated providers
 
 **Data Flow:**
 - User authentication handled via Firebase Auth
@@ -15,23 +15,26 @@ This is a static HTML-based e-commerce marketplace using Firebase for backend se
 - All pages are static HTML with inline CSS/JS - no server-side rendering
 
 ## Firebase Integration
-Firebase is initialized in `shop.html` with the following config:
+Each Firebase-enabled page now reads credentials from a local `firebase-config.js` file that is **not** committed to source control. To configure Firebase locally:
+
+1. Copy `dist/firebase-config.sample.js` to `dist/firebase-config.js`.
+2. Replace every placeholder value with your Firebase project's credentials.
+3. Keep the real file private (already ignored via `.gitignore`).
+
+Example usage inside the HTML pages:
 ```javascript
-const firebaseConfig = {
-    apiKey: "AIzaSyCJGhxrc-0LKxOEhvGnmcZlr0ignTC6SQI",
-    authDomain: "shop69-1.firebaseapp.com",
-    projectId: "shop69-1",
-    storageBucket: "shop69-1.firebasestorage.app",
-    messagingSenderId: "493886821318",
-    appId: "1:493886821318:web:e5c011deeab1f3700dd8c7",
-    measurementId: "G-7Q8JSJV0QJ"
-};
-firebase.initializeApp(firebaseConfig);
+const firebaseConfig = window.firebaseConfig;
+if (!firebaseConfig || !firebaseConfig.apiKey) {
+    throw new Error('Missing Firebase configuration. Create firebase-config.js first.');
+}
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const auth = firebase.auth();
 const db = firebase.firestore();
 ```
 
-**Usage Pattern:** Access `auth` for authentication operations and `db` for Firestore database queries.
+**Usage Pattern:** Access `auth` for authentication operations and `db` for Firestore database queries only after the shared config has been loaded.
 
 ## Styling Conventions
 All pages use a consistent design system defined via CSS custom properties:
@@ -56,14 +59,14 @@ All pages use a consistent design system defined via CSS custom properties:
 
 ## Development Workflow
 - **No build process required** - edit HTML files directly
-- **Testing:** Open files in browser (e.g., `file://c:/Users/Rajkumar/Downloads/69shop/Home.html`)
+- **Testing:** Open files in a browser (e.g., `file://c:/Users/Rajkumar/Downloads/69shop/dist/index.html`)
 - **Adding features:** Modify existing HTML structure or add new pages following the established patterns
 - **Firebase changes:** Update config in `shop.html` if needed, but keep consistent across pages
 
 ## Key Files to Reference
-- [Home.html](Home.html): Exemplifies full page structure with header, hero, features, footer
-- [shop.html](shop.html): Shows Firebase integration and shopping UI patterns
-- [Login.html](Login.html): Demonstrates form styling and authentication UI
+- `dist/index.html`: Exemplifies full page structure with header, hero, features, footer
+- `dist/shop.html`: Shows Firebase integration and shopping UI patterns
+- `dist/shop-login.html`: Demonstrates form styling and authentication UI
 
 ## Adding New Features
 When extending the site:

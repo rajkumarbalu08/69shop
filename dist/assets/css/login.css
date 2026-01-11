@@ -10,6 +10,7 @@ html, body {
     height: 100%;
     overflow-x: hidden;
     scroll-behavior: smooth;
+    scroll-padding-top: var(--header-height);
 }
 
 :root {
@@ -54,6 +55,7 @@ html, body {
     --transition-fast: all 0.2s ease;
     --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    --header-height: 96px;
 }
 
 body {
@@ -126,11 +128,12 @@ body {
 /* ===== AUTH CONTAINER ===== */
 .auth-container {
     display: flex;
-    min-height: 100vh;
-    align-items: center;
+    min-height: calc(100vh - var(--header-height));
+    align-items: flex-start;
     justify-content: center;
-    padding: 140px 20px 60px;
+    padding: calc(var(--header-height) + 40px) 20px 60px;
     width: 100%;
+    scroll-margin-top: calc(var(--header-height) + 16px);
 }
 
 .auth-wrapper {
@@ -490,8 +493,12 @@ body {
 }
 
 @media (max-width: 768px) {
+    :root {
+        --header-height: 80px;
+    }
+
     .auth-container {
-        padding: 125px 15px 40px;
+        padding: calc(var(--header-height) + 25px) 15px 40px;
     }
     
     .auth-wrapper {
@@ -504,8 +511,12 @@ body {
 }
 
 @media (max-width: 576px) {
+    :root {
+        --header-height: 72px;
+    }
+
     .auth-container {
-        padding: 110px 12px 24px;
+        padding: calc(var(--header-height) + 12px) 12px 24px;
     }
     
     .auth-wrapper {

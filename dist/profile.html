@@ -14,6 +14,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="./firebase-config.js"></script>
 </head>
 <body>
     <header class="top-bar">
@@ -50,6 +52,18 @@
                 <div class="user-avatar" id="profileAvatar">U</div>
                 <h2 id="profileName">Loading...</h2>
                 <p id="profileEmail">Updating profile...</p>
+                <div class="avatar-actions">
+                    <label class="avatar-upload-trigger" for="avatarUpload">
+                        <i class="fas fa-camera"></i>
+                        Update photo
+                    </label>
+                    <input type="file" id="avatarUpload" accept="image/*" hidden>
+                    <button type="button" class="avatar-reset-btn" id="avatarRemoveBtn">
+                        <i class="fas fa-undo"></i>
+                        Remove photo
+                    </button>
+                    <p class="avatar-upload-status" id="avatarUploadStatus"></p>
+                </div>
             </div>
 
             <nav class="profile-nav" id="profileNav">
@@ -80,22 +94,102 @@
         </section>
     </main>
 
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyCJGhxrc-0LKxOEhvGnmcZlr0ignTC6SQI",
-        authDomain: "shop69-1.firebaseapp.com",
-        projectId: "shop69-1",
-        storageBucket: "shop69-1.firebasestorage.app",
-        messagingSenderId: "493886821318",
-        appId: "1:493886821318:web:e5c011deeab1f3700dd8c7",
-        measurementId: "G-7Q8JSJV0QJ"
-    };
+    <!-- Avatar Editor Modal -->
+    <div class="avatar-editor-overlay" id="avatarEditorOverlay" aria-hidden="true">
+        <div class="avatar-editor-modal" id="avatarEditorModal" role="dialog" aria-modal="true" aria-labelledby="avatarEditorTitle">
+            <div class="avatar-editor-header">
+                <div>
+                    <p class="avatar-editor-label">Customize Avatar</p>
+                    <h3 id="avatarEditorTitle">Crop, zoom, and set a background before uploading</h3>
+                </div>
+                <button type="button" class="avatar-editor-close" id="avatarEditorClose" aria-label="Close avatar editor">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="avatar-editor-body">
+                <div class="avatar-preview-wrapper">
+                    <canvas id="avatarEditorCanvas" width="360" height="360"></canvas>
+                    <p class="avatar-preview-hint"><i class="fas fa-arrows-alt"></i> Drag image to reposition</p>
+                </div>
+                <div class="avatar-editor-controls">
+                    <div class="control-group">
+                        <label for="avatarZoomControl">Zoom</label>
+                        <input type="range" id="avatarZoomControl" min="0.8" max="2.2" step="0.02" value="1.1">
+                    </div>
+                    <div class="control-group">
+                        <label for="avatarOffsetX">Horizontal offset</label>
+                        <input type="range" id="avatarOffsetX" min="-180" max="180" step="2" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label for="avatarOffsetY">Vertical offset</label>
+                        <input type="range" id="avatarOffsetY" min="-180" max="180" step="2" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label>Background highlight</label>
+                        <div class="avatar-bg-options">
+                            <button type="button" class="avatar-bg-option active" data-avatar-bg="#f4f6ff" style="background:#f4f6ff"></button>
+                            <button type="button" class="avatar-bg-option" data-avatar-bg="#ffffff" style="background:#ffffff"></button>
+                            <button type="button" class="avatar-bg-option" data-avatar-bg="#101828" style="background:#101828"></button>
+                            <button type="button" class="avatar-bg-option" data-avatar-bg="#ffe6f2" style="background:#ffe6f2"></button>
+                        </div>
+                    </div>
+                    <button type="button" class="avatar-reset-mini" id="avatarEditorReset">
+                        <i class="fas fa-redo"></i>
+                        Reset adjustments
+                    </button>
+                </div>
+            </div>
+            <div class="avatar-editor-actions">
+                <button type="button" class="btn btn-ghost" id="avatarEditorCancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="avatarEditorSave">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    Save & Upload
+                </button>
+            </div>
+        </div>
+    </div>
 
+<script>
+    const firebaseConfig = window.firebaseConfig;
+    if (!firebaseConfig || !firebaseConfig.apiKey) {
+        throw new Error('Missing Firebase configuration. Create dist/firebase-config.js from the sample before loading profile.html.');
+    }
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
     const auth = firebase.auth();
     const db = firebase.firestore();
+    const storage = firebase.storage();
+
+        const defaultInsights = {
+            ordersOpen: 3,
+            awaitingShipment: 2,
+            wishlistItems: 14,
+            wishlistPriceDrops: 5,
+            savedAddresses: 4,
+            primaryCity: 'Mumbai',
+            rewardsTier: 'Gold',
+            rewardsPoints: 1250,
+            returnsWindow: 2,
+            invoicesAvailable: 18,
+            cartItems: 3,
+            cartValue: 18450,
+            couponsEligible: 2,
+            savedCards: 3,
+            upiIds: 2,
+            activePlans: 2,
+            publishedReviews: 18,
+            serviceBookings: 12,
+            deliveriesOnTime: 98,
+            avgRating: 4.9,
+            messagesUnread: 3,
+            notificationsUnread: 5,
+            recentOrderId: '45231',
+            recentOrderStatus: 'packed and ready for dispatch',
+            deliveryEta: '2 days',
+            wishlistTrending: 'Smart Watch Pro',
+            conciergeContact: 'support@69shop.in'
+        };
 
     const sectionBadge = document.getElementById('sectionBadge');
     const sectionTitle = document.getElementById('sectionTitle');
@@ -103,28 +197,61 @@
     const statsGrid = document.getElementById('statsGrid');
     const sectionBody = document.getElementById('sectionBody');
     const navLinks = document.querySelectorAll('#profileNav a');
-    const state = {
-        currentSection: 'dashboard'
+    const avatarUploadInput = document.getElementById('avatarUpload');
+    const avatarUploadStatus = document.getElementById('avatarUploadStatus');
+    const avatarRemoveBtn = document.getElementById('avatarRemoveBtn');
+    const avatarEditorOverlay = document.getElementById('avatarEditorOverlay');
+    const avatarEditorModal = document.getElementById('avatarEditorModal');
+    const avatarEditorCanvas = document.getElementById('avatarEditorCanvas');
+    const avatarEditorClose = document.getElementById('avatarEditorClose');
+    const avatarEditorCancel = document.getElementById('avatarEditorCancel');
+    const avatarEditorSave = document.getElementById('avatarEditorSave');
+    const avatarEditorReset = document.getElementById('avatarEditorReset');
+    const avatarZoomControl = document.getElementById('avatarZoomControl');
+    const avatarOffsetXControl = document.getElementById('avatarOffsetX');
+    const avatarOffsetYControl = document.getElementById('avatarOffsetY');
+    const avatarBgOptions = document.querySelectorAll('.avatar-bg-option');
+    const AVATAR_MAX_SIZE = 3 * 1024 * 1024;
+    const AVATAR_CANVAS_SIZE = 360;
+    const avatarEditorCtx = avatarEditorCanvas ? avatarEditorCanvas.getContext('2d') : null;
+    const avatarEditorState = {
+        file: null,
+        image: null,
+        zoom: 1.1,
+        offsetX: 0,
+        offsetY: 0,
+        bgColor: '#f4f6ff',
+        isDragging: false,
+        pointerId: null,
+        dragStartX: 0,
+        dragStartY: 0,
+        dragOriginX: 0,
+        dragOriginY: 0
     };
+    const state = {
+        currentSection: 'dashboard',
+        insights: { ...defaultInsights }
+    };
+    let currentProfileData = {};
 
     const profileSections = {
         dashboard: {
             badge: 'Overview',
             title: 'Dashboard Overview',
             description: 'Track your open orders, wishlist activity, and account insights at a glance.',
-            stats: [
-                { label: 'Open Orders', value: '3', helper: '2 awaiting shipment' },
-                { label: 'Wishlist Items', value: '14', helper: '5 price drops' },
-                { label: 'Saved Addresses', value: '4', helper: 'Primary: Mumbai' },
-                { label: 'Rewards Tier', value: 'Gold', helper: '1,250 pts available' }
+            stats: (insights) => [
+                { label: 'Open Orders', value: String(insights.ordersOpen), helper: `${insights.awaitingShipment} awaiting shipment` },
+                { label: 'Wishlist Items', value: String(insights.wishlistItems), helper: `${insights.wishlistPriceDrops} price drops` },
+                { label: 'Saved Addresses', value: String(insights.savedAddresses), helper: `Primary: ${insights.primaryCity}` },
+                { label: 'Rewards Tier', value: insights.rewardsTier, helper: `${Number(insights.rewardsPoints || 0).toLocaleString('en-IN')} pts available` }
             ],
-            body: `
+            body: (insights) => `
                 <div class="content-card">
                     <h3>Recent Highlights</h3>
                     <ul class="list">
-                        <li><strong>Order #45231</strong> packed and ready for dispatch • Estimated delivery in 2 days.</li>
-                        <li><strong>New price drop</strong> on "Smart Watch Pro" from your wishlist.</li>
-                        <li><strong>Seller reply</strong> received for your service inquiry with Priya Sharma.</li>
+                        <li><strong>Order #${insights.recentOrderId}</strong> ${insights.recentOrderStatus} • Estimated delivery in ${insights.deliveryEta}.</li>
+                        <li><strong>New price drop</strong> on "${insights.wishlistTrending}" from your wishlist.</li>
+                        <li><strong>Seller reply</strong> logged via concierge desk.</li>
                     </ul>
                     <div class="quick-actions">
                         <a href="/shop.html">Continue shopping</a>
@@ -137,15 +264,15 @@
                     <div class="flex-row">
                         <div>
                             <p style="color: var(--medium-grey);">On-time deliveries</p>
-                            <h2>98%</h2>
+                            <h2>${insights.deliveriesOnTime}%</h2>
                         </div>
                         <div>
                             <p style="color: var(--medium-grey);">Average rating</p>
-                            <h2>4.9 ⭐</h2>
+                            <h2>${Number(insights.avgRating || 0).toFixed(1)} ⭐</h2>
                         </div>
                         <div>
                             <p style="color: var(--medium-grey);">Service bookings</p>
-                            <h2>12</h2>
+                            <h2>${insights.serviceBookings}</h2>
                         </div>
                     </div>
                 </div>
@@ -155,17 +282,17 @@
             badge: 'Orders',
             title: 'My Orders',
             description: 'Stay on top of every purchase with proactive status updates and helpful actions.',
-            stats: [
-                { label: 'Active Orders', value: '2', helper: '1 arriving today' },
-                { label: 'Returns Window', value: '2', helper: 'Eligible orders' },
-                { label: 'Invoices', value: '18', helper: 'Download anytime' }
+            stats: (insights) => [
+                { label: 'Active Orders', value: String(insights.ordersOpen), helper: 'Live deliveries' },
+                { label: 'Returns Window', value: String(insights.returnsWindow), helper: 'Eligible orders' },
+                { label: 'Invoices', value: String(insights.invoicesAvailable), helper: 'Download anytime' }
             ],
-            body: `
+            body: (insights) => `
                 <div class="content-card">
                     <h3>Latest Orders</h3>
                     <ul class="timeline">
                         <li>
-                            <strong>Order #45231</strong> • Premium Wireless Headphones
+                            <strong>Order #${insights.recentOrderId}</strong> • Premium Wireless Headphones
                             <div class="badge info">Out for delivery</div>
                         </li>
                         <li>
@@ -182,7 +309,7 @@
                     <h3>Need Assistance?</h3>
                     <p>Contact our concierge team for delivery changes, returns, or service re-bookings.</p>
                     <div class="quick-actions">
-                        <a href="mailto:support@69shop.in">Email Support</a>
+                        <a href="mailto:${insights.conciergeContact}">Email Support</a>
                         <a href="tel:+919876543210">Call +91 98765 43210</a>
                     </div>
                 </div>
@@ -192,15 +319,15 @@
             badge: 'Wishlist',
             title: 'Wishlist & Saved Ideas',
             description: 'Your curated list of favorites with real-time stock and price alerts.',
-            stats: [
-                { label: 'Saved Items', value: '14', helper: '5 in stock today' },
+            stats: (insights) => [
+                { label: 'Saved Items', value: String(insights.wishlistItems), helper: `${insights.wishlistPriceDrops} in stock today` },
                 { label: 'Bundles', value: '3', helper: 'Ready for checkout' }
             ],
-            body: `
+            body: (insights) => `
                 <div class="content-card">
                     <h3>Trending Today</h3>
                     <ul class="list">
-                        <li>Smart Watch Pro • <strong>₹12,499</strong> • 10% off for the next 6 hours.</li>
+                        <li>${insights.wishlistTrending} • <strong>₹12,499</strong> • 10% off for the next 6 hours.</li>
                         <li>Designer Leather Handbag • <strong>₹8,199</strong> • Free express shipping.</li>
                         <li>Home Spa Experience • <strong>₹1,999</strong> • Slots open this weekend.</li>
                     </ul>
@@ -215,11 +342,11 @@
             badge: 'Cart',
             title: 'My Cart Overview',
             description: 'Review items in your cart with real-time shipping estimates.',
-            stats: [
-                { label: 'Items in Cart', value: '3', helper: 'Worth ₹18,450' },
-                { label: 'Eligible Coupons', value: '2', helper: 'Auto-applied at checkout' }
+            stats: (insights) => [
+                { label: 'Items in Cart', value: String(insights.cartItems), helper: `Worth ₹${Number(insights.cartValue || 0).toLocaleString('en-IN')}` },
+                { label: 'Eligible Coupons', value: String(insights.couponsEligible), helper: 'Auto-applied at checkout' }
             ],
-            body: `
+            body: (insights) => `
                 <div class="content-card">
                     <h3>Cart Snapshot</h3>
                     <ul class="list">
@@ -245,8 +372,8 @@
             badge: 'Inbox',
             title: 'Messages & Conversations',
             description: 'Stay connected with sellers and service providers through a secure inbox.',
-            stats: [
-                { label: 'Unread', value: '3', helper: '2 seller replies' }
+            stats: (insights) => [
+                { label: 'Unread', value: String(insights.messagesUnread), helper: 'Seller replies pending' }
             ],
             body: `
                 <div class="content-card">
@@ -266,7 +393,9 @@
             badge: 'Alerts',
             title: 'Notifications Center',
             description: 'All delivery updates, promotions, and account alerts in one timeline.',
-            stats: [],
+            stats: (insights) => insights.notificationsUnread ? [
+                { label: 'Unread alerts', value: String(insights.notificationsUnread), helper: 'Action items' }
+            ] : [],
             body: `
                 <div class="content-card">
                     <h3>Today</h3>
@@ -282,16 +411,16 @@
             badge: 'Logistics',
             title: 'Saved Addresses',
             description: 'Manage delivery and pick-up locations for faster checkout.',
-            stats: [
-                { label: 'Active Addresses', value: '4', helper: 'Primary + 3 backups' }
+            stats: (insights) => [
+                { label: 'Active Addresses', value: String(insights.savedAddresses), helper: 'Primary + backups' }
             ],
-            body: `
+            body: (insights) => `
                 <div class="content-card">
                     <h3>Default Address</h3>
-                    <p><strong>Mumbai Residence</strong><br>14th Floor, Sunrise Heights, Mumbai 400076<br>+91 98765 43210</p>
+                    <p><strong>${insights.primaryCity} Residence</strong><br>14th Floor, Sunrise Heights, ${insights.primaryCity} 400076<br>+91 98765 43210</p>
                     <div class="quick-actions">
-                        <a href="#">Edit</a>
-                        <a href="#">Add new</a>
+                        <a href="?section=addresses#edit-default">Edit</a>
+                        <a href="?section=addresses#add-address">Add new</a>
                     </div>
                 </div>
                 <div class="content-card">
@@ -307,9 +436,9 @@
             badge: 'Payments',
             title: 'Payment Methods',
             description: 'Securely manage cards, UPI IDs, and saved billing profiles.',
-            stats: [
-                { label: 'Saved Cards', value: '3', helper: 'Visa, MasterCard, AmEx' },
-                { label: 'UPI IDs', value: '2', helper: 'Primary: 69shop@upi' }
+            stats: (insights) => [
+                { label: 'Saved Cards', value: String(insights.savedCards), helper: 'Visa, MasterCard, AmEx' },
+                { label: 'UPI IDs', value: String(insights.upiIds), helper: 'Primary: 69shop@upi' }
             ],
             body: `
                 <div class="content-card">
@@ -317,8 +446,8 @@
                     <p>Visa **** 2456 • Exp 07/28<br>Billing Address: Mumbai Residence</p>
                     <div class="badge success">Auto-Pay Enabled</div>
                     <div class="quick-actions">
-                        <a href="#">Add payment method</a>
-                        <a href="#">Manage billing</a>
+                        <a href="?section=payments#add-method">Add payment method</a>
+                        <a href="?section=payments#billing">Manage billing</a>
                     </div>
                 </div>
             `
@@ -327,8 +456,8 @@
             badge: 'Membership',
             title: 'Subscriptions & Plans',
             description: 'Track premium plans, service retainers, and renewal reminders.',
-            stats: [
-                { label: 'Active Plans', value: '2', helper: 'Marketplace Pro + Service Care' }
+            stats: (insights) => [
+                { label: 'Active Plans', value: String(insights.activePlans), helper: 'Marketplace Pro + Service Care' }
             ],
             body: `
                 <div class="content-card">
@@ -340,8 +469,8 @@
                     <h3>Service Care Pack</h3>
                     <p>Priority bookings for trusted professionals across Mumbai.</p>
                     <div class="quick-actions">
-                        <a href="#">Upgrade plan</a>
-                        <a href="#">Pause subscription</a>
+                        <a href="mailto:support@69shop.in?subject=Upgrade%20membership">Upgrade plan</a>
+                        <a href="mailto:support@69shop.in?subject=Pause%20subscription">Pause subscription</a>
                     </div>
                 </div>
             `
@@ -350,8 +479,8 @@
             badge: 'Feedback',
             title: 'My Reviews & Ratings',
             description: 'Share feedback with sellers and service partners to earn reward points.',
-            stats: [
-                { label: 'Published Reviews', value: '18', helper: '4 this month' }
+            stats: (insights) => [
+                { label: 'Published Reviews', value: String(insights.publishedReviews), helper: '4 this month' }
             ],
             body: `
                 <div class="content-card">
@@ -416,6 +545,335 @@
         }
     };
 
+    if (avatarUploadInput) {
+        avatarUploadInput.addEventListener('change', handleAvatarUploadSelection);
+    }
+    avatarRemoveBtn?.addEventListener('click', handleAvatarRemoval);
+    avatarEditorClose?.addEventListener('click', closeAvatarEditor);
+    avatarEditorCancel?.addEventListener('click', closeAvatarEditor);
+    avatarEditorSave?.addEventListener('click', commitAvatarEdits);
+    avatarEditorReset?.addEventListener('click', resetAvatarEditor);
+
+    avatarZoomControl?.addEventListener('input', (event) => {
+        avatarEditorState.zoom = parseFloat(event.target.value);
+        renderAvatarPreview();
+    });
+    avatarOffsetXControl?.addEventListener('input', (event) => {
+        avatarEditorState.offsetX = parseFloat(event.target.value);
+        renderAvatarPreview();
+    });
+    avatarOffsetYControl?.addEventListener('input', (event) => {
+        avatarEditorState.offsetY = parseFloat(event.target.value);
+        renderAvatarPreview();
+    });
+
+    avatarBgOptions.forEach((option) => {
+        option.addEventListener('click', () => {
+            avatarEditorState.bgColor = option.dataset.avatarBg;
+            avatarBgOptions.forEach((btn) => btn.classList.toggle('active', btn === option));
+            renderAvatarPreview();
+        });
+    });
+
+    if (avatarEditorCanvas && avatarEditorCtx) {
+        avatarEditorCanvas.width = AVATAR_CANVAS_SIZE;
+        avatarEditorCanvas.height = AVATAR_CANVAS_SIZE;
+        avatarEditorCanvas.addEventListener('pointerdown', handleAvatarDragStart);
+        avatarEditorCanvas.addEventListener('pointermove', handleAvatarDragMove);
+        avatarEditorCanvas.addEventListener('pointerup', handleAvatarDragEnd);
+        avatarEditorCanvas.addEventListener('pointerleave', handleAvatarDragEnd);
+    }
+
+    function setAvatarUploadStatus(message, type = '') {
+        if (!avatarUploadStatus) return;
+        avatarUploadStatus.textContent = message;
+        avatarUploadStatus.classList.remove('error', 'success', 'loading');
+        if (type) {
+            avatarUploadStatus.classList.add(type);
+        }
+    }
+
+    function handleAvatarUploadSelection(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            setAvatarUploadStatus('Please select an image file.', 'error');
+            avatarUploadInput.value = '';
+            return;
+        }
+
+        if (file.size > AVATAR_MAX_SIZE) {
+            setAvatarUploadStatus('Image must be smaller than 3MB.', 'error');
+            avatarUploadInput.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            const img = new Image();
+            img.onload = () => openAvatarEditor(img, file);
+            img.onerror = () => {
+                setAvatarUploadStatus('Unable to read that image file.', 'error');
+            };
+            img.src = reader.result;
+        };
+        reader.onerror = () => {
+            setAvatarUploadStatus('Unable to read that image file.', 'error');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function openAvatarEditor(image, file) {
+        avatarEditorState.image = image;
+        avatarEditorState.file = file;
+        avatarEditorState.zoom = parseFloat(avatarZoomControl?.value || '1.1');
+        avatarEditorState.offsetX = parseFloat(avatarOffsetXControl?.value || '0');
+        avatarEditorState.offsetY = parseFloat(avatarOffsetYControl?.value || '0');
+        avatarEditorState.bgColor = document.querySelector('.avatar-bg-option.active')?.dataset.avatarBg || '#f4f6ff';
+        if (avatarEditorOverlay) {
+            avatarEditorOverlay.classList.add('active');
+            avatarEditorOverlay.setAttribute('aria-hidden', 'false');
+        }
+        renderAvatarPreview();
+    }
+
+    function closeAvatarEditor() {
+        if (avatarEditorOverlay) {
+            avatarEditorOverlay.classList.remove('active');
+            avatarEditorOverlay.setAttribute('aria-hidden', 'true');
+        }
+        avatarEditorState.image = null;
+        avatarEditorState.file = null;
+        avatarEditorState.offsetX = 0;
+        avatarEditorState.offsetY = 0;
+        avatarEditorState.zoom = 1.1;
+        if (avatarUploadInput) {
+            avatarUploadInput.value = '';
+        }
+    }
+
+    function resetAvatarEditor() {
+        avatarEditorState.zoom = 1.1;
+        avatarEditorState.offsetX = 0;
+        avatarEditorState.offsetY = 0;
+        if (avatarZoomControl) avatarZoomControl.value = avatarEditorState.zoom;
+        if (avatarOffsetXControl) avatarOffsetXControl.value = avatarEditorState.offsetX;
+        if (avatarOffsetYControl) avatarOffsetYControl.value = avatarEditorState.offsetY;
+        renderAvatarPreview();
+    }
+
+    function renderAvatarPreview() {
+        if (!avatarEditorCtx || !avatarEditorState.image) return;
+        const size = AVATAR_CANVAS_SIZE;
+        avatarEditorCtx.clearRect(0, 0, size, size);
+        avatarEditorCtx.fillStyle = avatarEditorState.bgColor;
+        avatarEditorCtx.fillRect(0, 0, size, size);
+
+        const base = avatarEditorState.image;
+        const drawWidth = base.width * avatarEditorState.zoom;
+        const drawHeight = base.height * avatarEditorState.zoom;
+        const offsetX = avatarEditorState.offsetX + (size - drawWidth) / 2;
+        const offsetY = avatarEditorState.offsetY + (size - drawHeight) / 2;
+
+        avatarEditorCtx.save();
+        avatarEditorCtx.beginPath();
+        avatarEditorCtx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+        avatarEditorCtx.closePath();
+        avatarEditorCtx.clip();
+        avatarEditorCtx.drawImage(base, offsetX, offsetY, drawWidth, drawHeight);
+        avatarEditorCtx.restore();
+    }
+
+    function handleAvatarDragStart(event) {
+        if (!avatarEditorState.image) return;
+        avatarEditorState.isDragging = true;
+        avatarEditorState.pointerId = event.pointerId;
+        avatarEditorState.dragStartX = event.clientX;
+        avatarEditorState.dragStartY = event.clientY;
+        avatarEditorState.dragOriginX = avatarEditorState.offsetX;
+        avatarEditorState.dragOriginY = avatarEditorState.offsetY;
+        event.currentTarget.setPointerCapture?.(event.pointerId);
+    }
+
+    function handleAvatarDragMove(event) {
+        if (!avatarEditorState.isDragging || avatarEditorState.pointerId !== event.pointerId) return;
+        const deltaX = event.clientX - avatarEditorState.dragStartX;
+        const deltaY = event.clientY - avatarEditorState.dragStartY;
+        avatarEditorState.offsetX = avatarEditorState.dragOriginX + deltaX;
+        avatarEditorState.offsetY = avatarEditorState.dragOriginY + deltaY;
+        if (avatarOffsetXControl) avatarOffsetXControl.value = avatarEditorState.offsetX;
+        if (avatarOffsetYControl) avatarOffsetYControl.value = avatarEditorState.offsetY;
+        renderAvatarPreview();
+    }
+
+    function handleAvatarDragEnd(event) {
+        if (avatarEditorState.pointerId !== event.pointerId) return;
+        avatarEditorState.isDragging = false;
+        avatarEditorState.pointerId = null;
+        event.currentTarget.releasePointerCapture?.(event.pointerId);
+    }
+
+    function commitAvatarEdits() {
+        if (!avatarEditorState.image || !avatarEditorCtx) {
+            setAvatarUploadStatus('Select a photo to upload first.', 'error');
+            return;
+        }
+        setAvatarUploadStatus('Preparing photo...', 'loading');
+        avatarEditorCanvas.toBlob(async (blob) => {
+            if (!blob) {
+                setAvatarUploadStatus('Unable to process image preview.', 'error');
+                return;
+            }
+            closeAvatarEditor();
+            try {
+                await uploadAvatarBlob(blob);
+            } catch (error) {
+                console.error('Avatar upload failed:', error);
+            }
+        }, 'image/jpeg', 0.92);
+    }
+
+    async function uploadAvatarBlob(blob) {
+        const user = auth.currentUser;
+        if (!user) {
+            setAvatarUploadStatus('Please log in again to update your photo.', 'error');
+            return;
+        }
+
+        const fileName = `avatar-${Date.now()}.jpg`;
+        const storageRef = storage.ref().child(`profile-avatars/${user.uid}/${fileName}`);
+        const uploadTask = storageRef.put(blob, {
+            contentType: 'image/jpeg',
+            cacheControl: 'public,max-age=3600'
+        });
+
+        return new Promise((resolve, reject) => {
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                    setAvatarUploadStatus(`Uploading ${progress}%`, 'loading');
+                },
+                (error) => {
+                    setAvatarUploadStatus('Unable to upload photo right now.', 'error');
+                    reject(error);
+                },
+                async () => {
+                    const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                    await db.collection('users').doc(user.uid).set({
+                        photoURL: downloadURL
+                    }, { merge: true });
+                    await user.updateProfile({ photoURL: downloadURL });
+                    currentProfileData = {
+                        ...currentProfileData,
+                        name: currentProfileData.name || user.displayName || user.email.split('@')[0],
+                        email: currentProfileData.email || user.email,
+                        photoURL: downloadURL
+                    };
+                    updateUserCard(currentProfileData);
+                    setAvatarUploadStatus('Profile photo updated!', 'success');
+                    setTimeout(() => setAvatarUploadStatus('', ''), 4000);
+                    resolve(downloadURL);
+                }
+            );
+        });
+    }
+
+    async function handleAvatarRemoval() {
+        const user = auth.currentUser;
+        if (!user) {
+            setAvatarUploadStatus('Please log in to manage your photo.', 'error');
+            return;
+        }
+
+        setAvatarUploadStatus('Removing photo...', 'loading');
+        try {
+            await db.collection('users').doc(user.uid).set({
+                photoURL: firebase.firestore.FieldValue.delete()
+            }, { merge: true });
+            await user.updateProfile({ photoURL: null });
+            currentProfileData = {
+                ...currentProfileData,
+                photoURL: ''
+            };
+            updateUserCard(currentProfileData);
+            setAvatarUploadStatus('Photo removed.', 'success');
+            setTimeout(() => setAvatarUploadStatus('', ''), 4000);
+        } catch (error) {
+            console.error('Unable to remove avatar:', error);
+            setAvatarUploadStatus('Unable to remove photo right now.', 'error');
+        }
+    }
+
+    function coerceNumber(value, fallback) {
+        const num = Number(value);
+        return Number.isFinite(num) ? num : fallback;
+    }
+
+    function coerceText(value, fallback) {
+        return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+    }
+
+    function buildInsightsFromUserData(userData = {}) {
+        const insights = { ...defaultInsights };
+        const metrics = userData.metrics || {};
+        const orders = metrics.orders || {};
+        const wishlist = metrics.wishlist || {};
+        const addresses = metrics.addresses || {};
+        const rewards = metrics.rewards || {};
+        const cart = metrics.cart || {};
+        const services = metrics.services || {};
+        const payments = metrics.payments || {};
+        const subscriptions = metrics.subscriptions || {};
+        const reviews = metrics.reviews || {};
+        const notifications = metrics.notifications || {};
+        const messages = metrics.messages || {};
+        const feedback = metrics.feedback || {};
+        const support = metrics.support || {};
+
+        insights.ordersOpen = coerceNumber(orders.open ?? userData.ordersOpen, insights.ordersOpen);
+        insights.awaitingShipment = coerceNumber(orders.awaitingShipment ?? userData.awaitingShipment, insights.awaitingShipment);
+        insights.returnsWindow = coerceNumber(orders.returnsWindow ?? userData.returnsWindow, insights.returnsWindow);
+        insights.invoicesAvailable = coerceNumber(orders.invoices ?? userData.invoicesAvailable, insights.invoicesAvailable);
+        insights.deliveriesOnTime = coerceNumber(orders.onTime ?? userData.deliveriesOnTime, insights.deliveriesOnTime);
+        insights.recentOrderId = coerceText(orders.recentId ?? userData.recentOrderId, insights.recentOrderId);
+        insights.recentOrderStatus = coerceText(orders.recentStatus ?? userData.recentOrderStatus, insights.recentOrderStatus);
+        insights.deliveryEta = coerceText(orders.deliveryEta ?? userData.deliveryEta, insights.deliveryEta);
+
+        insights.wishlistItems = coerceNumber(wishlist.items ?? userData.wishlistItems, insights.wishlistItems);
+        insights.wishlistPriceDrops = coerceNumber(wishlist.priceDrops ?? userData.wishlistPriceDrops, insights.wishlistPriceDrops);
+        insights.wishlistTrending = coerceText(wishlist.trending ?? userData.wishlistTrending, insights.wishlistTrending);
+
+        insights.savedAddresses = coerceNumber(addresses.saved ?? userData.addressesCount, insights.savedAddresses);
+        insights.primaryCity = coerceText(addresses.primaryCity ?? userData.primaryCity, insights.primaryCity);
+
+        insights.rewardsTier = coerceText(rewards.tier ?? userData.rewardsTier, insights.rewardsTier);
+        insights.rewardsPoints = coerceNumber(rewards.points ?? userData.rewardsPoints, insights.rewardsPoints);
+
+        insights.cartItems = coerceNumber(cart.items ?? userData.cartItems, insights.cartItems);
+        insights.cartValue = coerceNumber(cart.value ?? userData.cartValue, insights.cartValue);
+        insights.couponsEligible = coerceNumber(cart.coupons ?? userData.couponsEligible, insights.couponsEligible);
+
+        insights.serviceBookings = coerceNumber(services.completed ?? userData.serviceBookings, insights.serviceBookings);
+        insights.avgRating = coerceNumber(feedback.rating ?? userData.avgRating, insights.avgRating);
+
+        insights.messagesUnread = coerceNumber(messages.unread ?? userData.messagesUnread, insights.messagesUnread);
+        insights.notificationsUnread = coerceNumber(notifications.unread ?? userData.notificationsUnread, insights.notificationsUnread);
+
+        insights.savedCards = coerceNumber(payments.cards ?? userData.savedCards, insights.savedCards);
+        insights.upiIds = coerceNumber(payments.upi ?? userData.upiIds, insights.upiIds);
+        insights.activePlans = coerceNumber(subscriptions.active ?? userData.activePlans, insights.activePlans);
+        insights.publishedReviews = coerceNumber(reviews.published ?? userData.publishedReviews, insights.publishedReviews);
+        insights.conciergeContact = coerceText(support.email ?? userData.conciergeContact, insights.conciergeContact);
+
+        return insights;
+    }
+
+    function applyInsights(userData) {
+        state.insights = buildInsightsFromUserData(userData);
+        renderSection(state.currentSection);
+    }
+
     function renderSection(sectionKey) {
         const config = profileSections[sectionKey] || profileSections.dashboard;
         state.currentSection = sectionKey;
@@ -423,9 +881,10 @@
         sectionTitle.textContent = config.title;
         sectionDescription.textContent = config.description;
 
-        if (config.stats && config.stats.length) {
+        const statsConfig = typeof config.stats === 'function' ? config.stats(state.insights) : config.stats;
+        if (statsConfig && statsConfig.length) {
             statsGrid.style.display = 'grid';
-            statsGrid.innerHTML = config.stats.map(stat => `
+            statsGrid.innerHTML = statsConfig.map(stat => `
                 <div class="stat-card">
                     <p>${stat.label}</p>
                     <h3>${stat.value}</h3>
@@ -437,7 +896,8 @@
             statsGrid.innerHTML = '';
         }
 
-        sectionBody.innerHTML = config.body;
+        const bodyContent = typeof config.body === 'function' ? config.body(state.insights) : config.body || '';
+        sectionBody.innerHTML = bodyContent;
         updateActiveLink(sectionKey);
     }
 
@@ -470,7 +930,8 @@
 
         updateUserCard({
             name: user.displayName || user.email.split('@')[0],
-            email: user.email
+            email: user.email,
+            photoURL: user.photoURL
         });
 
         try {
@@ -480,8 +941,10 @@
                 updateUserCard({
                     name: userData.name || user.displayName || user.email.split('@')[0],
                     email: userData.email || user.email,
-                    accountType: userData.accountType
+                    accountType: userData.accountType,
+                    photoURL: userData.photoURL || user.photoURL
                 });
+                applyInsights(userData);
             }
         } catch (error) {
             console.warn('Unable to fetch extended profile data:', error);
@@ -492,9 +955,31 @@
         const nameEl = document.getElementById('profileName');
         const emailEl = document.getElementById('profileEmail');
         const avatarEl = document.getElementById('profileAvatar');
-        nameEl.textContent = data.name || 'Valued Customer';
-        emailEl.textContent = data.email || 'support@69shop.in';
-        avatarEl.textContent = (data.name || 'U').charAt(0).toUpperCase();
+        const safeName = data?.name || 'Valued Customer';
+        const safeEmail = data?.email || 'support@69shop.in';
+        const photoURL = data?.photoURL || '';
+
+        currentProfileData = {
+            ...currentProfileData,
+            name: safeName,
+            email: safeEmail,
+            photoURL
+        };
+
+        if (nameEl) nameEl.textContent = safeName;
+        if (emailEl) emailEl.textContent = safeEmail;
+
+        if (avatarEl) {
+            if (photoURL) {
+                avatarEl.classList.add('has-photo');
+                avatarEl.style.backgroundImage = `url('${photoURL}')`;
+                avatarEl.textContent = '';
+            } else {
+                avatarEl.classList.remove('has-photo');
+                avatarEl.style.backgroundImage = '';
+                avatarEl.textContent = safeName.charAt(0).toUpperCase();
+            }
+        }
     }
 
     document.getElementById('profileLogoutBtn').addEventListener('click', async () => {

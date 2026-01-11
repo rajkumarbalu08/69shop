@@ -14,23 +14,33 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    <script src="products-data.js"></script>
+    <script>
+        console.log('Products data loaded check:', Array.isArray(window.productsData), window.productsData?.length || 0);
+    </script>
 
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCJGhxrc-0LKxOEhvGnmcZlr0ignTC6SQI",
-            authDomain: "shop69-1.firebaseapp.com",
-            projectId: "shop69-1",
-            storageBucket: "shop69-1.firebasestorage.app",
-            messagingSenderId: "493886821318",
-            appId: "1:493886821318:web:e5c011deeab1f3700dd8c7",
-            measurementId: "G-7Q8JSJV0QJ"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        // Gracefully handle missing firebase-config.js in hosted environments
+        let auth = null;
+        let db = null;
+        let firebaseReady = false;
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                console.warn('Firebase configuration missing. Falling back to sample data and logged-out experience.');
+            } else {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                auth = firebase.auth();
+                db = firebase.firestore();
+                firebaseReady = true;
+            }
+        } catch (error) {
+            console.warn('Firebase failed to initialize. Using fallback data only.', error);
+        }
+        window.firebaseReady = firebaseReady;
     </script>
 
     <link rel="stylesheet" href="assets/css/shop.css">
@@ -80,14 +90,40 @@
 
                     <!-- User Profile Button -->
                     <button type="button" class="user-profile-btn" id="userProfileBtn" onclick="openProfileSidebar(event)" aria-haspopup="dialog" aria-controls="profileSidebar" aria-expanded="false">
-                        <div class="user-avatar" id="userAvatar">U</div>
-                        <span class="user-name" id="userName">Loading...</span>
+                        <div class="user-avatar" id="userAvatar">G</div>
+                        <span class="user-name" id="userName">Guest</span>
                         <i class="fas fa-chevron-down user-chevron"></i>
                     </button>
                 </div>
             </div>
         </div>
     </header>
+
+    <!-- Welcome Offer Modal -->
+    <div class="welcome-offer-overlay" id="welcomeOfferOverlay"></div>
+    <section class="welcome-offer-modal" id="welcomeOfferModal" aria-hidden="true" role="dialog" aria-labelledby="welcomeOfferTitle">
+        <button class="welcome-offer-close" id="welcomeOfferClose" aria-label="Close welcome offer">
+            <i class="fas fa-times"></i>
+        </button>
+        <span class="welcome-offer-badge">Welcome perk</span>
+        <h3 id="welcomeOfferTitle">Claim your curated first-order treat</h3>
+        <p id="welcomeOfferDescription">We reserved a community-favorite product so your first cart already feels premium.</p>
+        <div class="welcome-offer-product">
+            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80" alt="Welcome offer product" id="welcomeOfferImage">
+            <div>
+                <p class="welcome-offer-product-name" id="welcomeOfferProductName">Premium Wireless Headphones</p>
+                <p class="welcome-offer-product-price" id="welcomeOfferProductPrice">₹4,299</p>
+                <p class="welcome-offer-product-meta" id="welcomeOfferProductMeta">Extra ₹500 launch credit applied automatically</p>
+            </div>
+        </div>
+        <div class="welcome-offer-actions">
+            <button type="button" class="welcome-offer-claim" id="welcomeOfferClaimBtn">
+                <i class="fas fa-cart-plus"></i>
+                Add to cart
+            </button>
+            <button type="button" class="welcome-offer-dismiss" id="welcomeOfferLaterBtn">Maybe later</button>
+        </div>
+    </section>
 
     <!-- Fixed Filter Bar -->
     <div class="filter-bar-container" id="filterBar">
@@ -118,9 +154,9 @@
         </div>
         <div class="profile-content">
             <div class="profile-info">
-                <div class="profile-avatar-large" id="profileAvatarLarge">U</div>
-                <h2 class="profile-name-large" id="profileNameLarge">Loading...</h2>
-                <p class="profile-email" id="profileEmail">loading@example.com</p>
+                <div class="profile-avatar-large" id="profileAvatarLarge">G</div>
+                <h2 class="profile-name-large" id="profileNameLarge">Guest</h2>
+                <p class="profile-email" id="profileEmail">Not signed in</p>
                 <span class="profile-badge" id="profileBadge">Buyer Account</span>
             </div>
             
@@ -211,7 +247,14 @@
                         <span>Home Page</span>
                     </a>
                 </li>
-                <li>
+                <li id="sellerDashboardLink" style="display: none;">
+                    <a href="/seller-dashboard.html" id="profileSellerDashboard" style="background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%); color: white; border-radius: 8px;">
+                        <i class="fas fa-store"></i>
+                        <span>Seller Dashboard</span>
+                        <i class="fas fa-external-link-alt" style="margin-left: auto; font-size: 0.8rem;"></i>
+                    </a>
+                </li>
+                <li id="becomeSellerLink">
                     <a href="/#sell" id="profileSell">
                         <i class="fas fa-briefcase"></i>
                         <span>Become a Seller</span>
@@ -339,30 +382,27 @@
                 <div class="checkout-card">
                     <h4>Payment Method</h4>
                     <div class="payment-options">
-                        <label class="payment-option">
-                            <input type="radio" name="paymentMethod" value="card" checked>
-                            <div>
-                                <strong>Credit / Debit Card</strong>
-                                <p>Visa, Mastercard, RuPay, Amex</p>
-                            </div>
-                            <i class="fas fa-credit-card"></i>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="paymentMethod" value="upi">
-                            <div>
-                                <strong>UPI / Netbanking</strong>
-                                <p>PhonePe, GPay, BHIM, bank apps</p>
-                            </div>
-                            <i class="fas fa-mobile-alt"></i>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="paymentMethod" value="cod">
+                        <label class="payment-option selected">
+                            <input type="radio" name="paymentMethod" value="cod" checked>
                             <div>
                                 <strong>Cash on Delivery</strong>
                                 <p>Pay when your package arrives</p>
                             </div>
                             <i class="fas fa-wallet"></i>
                         </label>
+                        <div class="payment-coming-soon">
+                            <div class="coming-soon-badge"><i class="fas fa-clock"></i> Coming Soon</div>
+                            <div class="coming-soon-options">
+                                <div class="coming-soon-item">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span>Credit / Debit Card</span>
+                                </div>
+                                <div class="coming-soon-item">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <span>UPI / Netbanking</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="checkout-message" id="checkoutMessage" role="status" aria-live="polite"></div>
@@ -386,6 +426,49 @@
             </div>
         </section>
 
+        <section class="promotion-section" id="shopByCategory" style="padding-top: 8px;">
+            <div class="container">
+                <h2 class="section-title">Shop by category</h2>
+                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 820px; margin: 0 auto;">
+                    Jump straight to curated collections. Each category loads quickly with just the essentials.
+                </p>
+                <div class="promotion-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+                    <a class="promotion-card" href="/mobiles.html" style="text-decoration: none; color: inherit;">
+                        <div class="promotion-badge">Mobiles</div>
+                        <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80" alt="Mobiles" class="promotion-image">
+                        <div class="promotion-content">
+                            <h3 class="promotion-title">Latest smartphones</h3>
+                            <p class="promotion-subtitle">5G-ready picks, budget to pro</p>
+                        </div>
+                    </a>
+                    <a class="promotion-card" href="/headphones.html" style="text-decoration: none; color: inherit;">
+                        <div class="promotion-badge">Headphones</div>
+                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80" alt="Headphones" class="promotion-image">
+                        <div class="promotion-content">
+                            <h3 class="promotion-title">Immersive audio</h3>
+                            <p class="promotion-subtitle">ANC, sport, and studio picks</p>
+                        </div>
+                    </a>
+                    <a class="promotion-card" href="/appliances.html" style="text-decoration: none; color: inherit;">
+                        <div class="promotion-badge">Appliances</div>
+                        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80" alt="Appliances" class="promotion-image">
+                        <div class="promotion-content">
+                            <h3 class="promotion-title">Home upgrades</h3>
+                            <p class="promotion-subtitle">Purifiers, washers, and more</p>
+                        </div>
+                    </a>
+                    <a class="promotion-card" href="/home-needs.html" style="text-decoration: none; color: inherit;">
+                        <div class="promotion-badge">Home Needs</div>
+                        <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=600&q=80" alt="Home needs" class="promotion-image">
+                        <div class="promotion-content">
+                            <h3 class="promotion-title">Daily comforts</h3>
+                            <p class="promotion-subtitle">Lighting, textiles, aromatics</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
         <!-- Shop Layout -->
         <div class="shop-container">
             <div class="filters-overlay" id="filtersOverlay"></div>
@@ -402,9 +485,10 @@
                     <label class="filter-label">Category</label>
                     <div class="filter-options" id="categoryFilters">
                         <button class="filter-option active" data-category="all">All Products</button>
-                        <button class="filter-option" data-category="electronics">Electronics</button>
-                        <button class="filter-option" data-category="fashion">Fashion</button>
-                        <button class="filter-option" data-category="home">Home & Kitchen</button>
+                        <button class="filter-option" data-category="mobiles">Mobiles</button>
+                        <button class="filter-option" data-category="headphones">Headphones</button>
+                        <button class="filter-option" data-category="appliances">Appliances</button>
+                        <button class="filter-option" data-category="home-needs">Home Needs</button>
                         <button class="filter-option" data-category="beauty">Beauty</button>
                         <button class="filter-option" data-category="books">Books</button>
                     </div>
@@ -658,11 +742,11 @@
                         India's premium marketplace connecting buyers with quality products and helping sellers grow their businesses. Join our community today!
                     </p>
                     <div class="social-links">
-                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.instagram.com/69shopin" target="_blank" rel="noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.facebook.com/69shopin" target="_blank" rel="noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://twitter.com/69shopin" target="_blank" rel="noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.linkedin.com/company/69shopin" target="_blank" rel="noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.youtube.com/@69shopin" target="_blank" rel="noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
                 
@@ -671,6 +755,10 @@
                     <ul class="footer-links">
                         <li><a href="/shop.html"><i class="fas fa-home"></i> Home</a></li>
                         <li><a href="/shop.html"><i class="fas fa-store"></i> Shop</a></li>
+                        <li><a href="/mobiles.html"><i class="fas fa-mobile-alt"></i> Mobiles</a></li>
+                        <li><a href="/headphones.html"><i class="fas fa-headphones"></i> Headphones</a></li>
+                        <li><a href="/appliances.html"><i class="fas fa-blender"></i> Appliances</a></li>
+                        <li><a href="/home-needs.html"><i class="fas fa-lightbulb"></i> Home Needs</a></li>
                             <li><a href="/#sell"><i class="fas fa-briefcase"></i> Sell on 69Shop</a></li>
                             <li><a href="/#about"><i class="fas fa-info-circle"></i> About Us</a></li>
                     </ul>
@@ -709,41 +797,77 @@
         // ENHANCED SEARCH FUNCTIONALITY
         // =============================================
         class SearchManager {
-            constructor() {
+            constructor(productManager) {
+                this.productManager = productManager;
                 this.searchInput = document.getElementById('searchInput');
                 this.searchResults = document.getElementById('searchResults');
                 this.searchTimeout = null;
                 this.allProducts = [];
                 this.allProviders = [];
+                this.popularQueries = ['mobile phone', 'headphones', 'laptop', 'fashion', 'home decor', 'electronics'];
+                this.latestTerm = '';
+                this.isSearchActive = false;
                 this.initializeSearch();
+
+                if (this.productManager && typeof this.productManager.onProductsUpdated === 'function') {
+                    this.productManager.onProductsUpdated((products) => {
+                        this.allProducts = [...products];
+                    });
+                }
             }
 
             async initializeSearch() {
-                // Get all products and providers
                 await this.loadAllData();
-                
-                // Add event listeners
-                this.searchInput.addEventListener('input', (e) => this.handleSearch(e));
-                this.searchInput.addEventListener('focus', () => this.showSearchResults());
+
+                this.searchInput.addEventListener('input', (event) => this.handleSearch(event));
+                this.searchInput.addEventListener('focus', () => {
+                    if (this.searchInput.value.trim()) {
+                        this.showSearchResults();
+                    }
+                });
                 this.searchInput.addEventListener('blur', () => {
-                    // Hide results after a short delay to allow clicking on results
-                    setTimeout(() => {
+                    setTimeout(() => this.hideSearchResults(), 200);
+                });
+                
+                // Keyboard navigation for search
+                this.selectedIndex = -1;
+                this.searchInput.addEventListener('keydown', (event) => {
+                    const items = this.searchResults.querySelectorAll('.search-result-item, .search-suggestion, .search-quick-chip');
+                    
+                    if (event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        this.selectedIndex = Math.min(this.selectedIndex + 1, items.length - 1);
+                        this.updateSelectedItem(items);
+                    } else if (event.key === 'ArrowUp') {
+                        event.preventDefault();
+                        this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
+                        this.updateSelectedItem(items);
+                    } else if (event.key === 'Enter') {
+                        event.preventDefault();
+                        if (this.selectedIndex >= 0 && items[this.selectedIndex]) {
+                            // Trigger click on selected item
+                            items[this.selectedIndex].click();
+                        } else if (this.searchInput.value.trim()) {
+                            this.executeFullSearch(this.searchInput.value.trim());
+                        }
+                    } else if (event.key === 'Escape') {
                         this.hideSearchResults();
-                    }, 200);
+                        this.selectedIndex = -1;
+                    }
                 });
 
-                // Close search results when clicking outside
-                document.addEventListener('click', (e) => {
-                    if (!this.searchInput.contains(e.target) && !this.searchResults.contains(e.target)) {
+                document.addEventListener('click', (event) => {
+                    if (!this.searchInput.contains(event.target) && !this.searchResults.contains(event.target)) {
                         this.hideSearchResults();
                     }
                 });
             }
 
             async loadAllData() {
-                // In a real app, you would fetch from API/database
-                // For now, we'll use the existing product data
-                this.allProducts = productManager?.products || [];
+                if (this.productManager?.readyPromise) {
+                    await this.productManager.readyPromise;
+                }
+                this.allProducts = this.productManager?.products ? [...this.productManager.products] : [];
                 this.allProviders = [
                     { name: 'Rajesh Mehta', category: 'Home Services', type: 'provider' },
                     { name: 'Priya Sharma', category: 'Beauty & Wellness', type: 'provider' },
@@ -752,150 +876,577 @@
                 ];
             }
 
-            handleSearch(e) {
-                const searchTerm = e.target.value.trim().toLowerCase();
-                
-                // Clear previous timeout
+            handleSearch(event) {
+                const rawTerm = event.target.value || '';
+                const normalizedTerm = rawTerm.trim().toLowerCase();
+                this.latestTerm = rawTerm;
+
                 if (this.searchTimeout) {
                     clearTimeout(this.searchTimeout);
                 }
 
-                // Hide results if search term is empty
-                if (searchTerm === '') {
+                if (!normalizedTerm) {
                     this.hideSearchResults();
+                    // Reset to grid view if search is cleared
+                    if (this.isSearchActive) {
+                        this.isSearchActive = false;
+                        this.productManager?.setViewMode('grid');
+                        this.productManager?.filterBySearch('');
+                    }
                     return;
                 }
 
-                // Debounce search to avoid too many searches
                 this.searchTimeout = setTimeout(() => {
-                    this.performSearch(searchTerm);
-                }, 300);
+                    this.performSearch(normalizedTerm, rawTerm.trim());
+                }, 250);
             }
 
-            performSearch(searchTerm) {
-                const results = [];
+            performSearch(normalizedTerm, originalTerm = normalizedTerm) {
+                if (!normalizedTerm) {
+                    this.hideSearchResults();
+                    return;
+                }
                 
-                // Search in products
+                // Parse filters from search term
+                const { baseQuery, filters } = this.parseSearchFilters(normalizedTerm);
+                
+                // If filters were found, apply them and show products matching those filters
+                if (Object.keys(filters).length > 0) {
+                    // Apply filters to product manager
+                    this.applyExtractedFilters(filters, baseQuery);
+                    
+                    // Get filtered products
+                    const matches = this.getFilteredProductMatches(baseQuery, filters);
+                    
+                    // Show only the matching products, no suggestions
+                    this.displaySearchResults(matches, originalTerm, []);
+                } else {
+                    // No filters found, show normal suggestions
+                    const matches = this.buildSearchMatches(normalizedTerm);
+                    const suggestions = this.generateSmartSuggestions(normalizedTerm);
+                    this.displaySearchResults(matches, originalTerm, suggestions);
+                }
+                
+                this.showSearchResults();
+            }
+            
+            // Parse search term and extract filters
+            parseSearchFilters(searchTerm) {
+                let baseQuery = searchTerm;
+                const filters = {};
+                
+                // Check for "under XXXX" price filter
+                const underMatch = searchTerm.match(/under\s+(\d+)/i);
+                if (underMatch) {
+                    const priceLimit = parseInt(underMatch[1]);
+                    filters.maxPrice = priceLimit;
+                    baseQuery = baseQuery.replace(/\s*under\s+\d+\s*/i, ' ').trim();
+                }
+                
+                // Check for "best" sorting filter
+                if (searchTerm.toLowerCase().includes('best')) {
+                    filters.sortBy = 'rating';
+                    baseQuery = baseQuery.replace(/\s*best\s*/i, ' ').trim();
+                }
+                
+                // Check for "fast delivery" or "1 day" filter
+                if (searchTerm.toLowerCase().includes('fast delivery') || searchTerm.toLowerCase().includes('1 day')) {
+                    filters.delivery = '1day';
+                    baseQuery = baseQuery.replace(/\s*(fast\s*delivery|1\s*day)\s*/i, ' ').trim();
+                }
+                
+                return { baseQuery, filters };
+            }
+            
+            // Apply extracted filters to productManager
+            applyExtractedFilters(filters, baseQuery) {
+                if (!this.productManager) return;
+                
+                // Create fresh filter state
+                this.productManager.currentFilters = {
+                    category: 'all',
+                    maxPrice: filters.maxPrice || 50000,
+                    sortBy: filters.sortBy || 'featured',
+                    seller: 'all',
+                    delivery: filters.delivery || 'any',
+                    searchTerm: baseQuery
+                };
+                
+                // Update price range UI if max price was set
+                if (filters.maxPrice) {
+                    const priceRange = document.getElementById('priceRange');
+                    const maxPriceValue = document.getElementById('maxPriceValue');
+                    if (priceRange) priceRange.value = filters.maxPrice;
+                    if (maxPriceValue) maxPriceValue.textContent = `₹${filters.maxPrice.toLocaleString()}`;
+                }
+            }
+            
+            // Get products that match the base query and filters (for dropdown preview)
+            getFilteredProductMatches(baseQuery, filters) {
+                const results = [];
+                const termWords = baseQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1);
+                
+                this.allProducts.forEach(product => {
+                    const productName = product.name.toLowerCase();
+                    const productDescription = product.description.toLowerCase();
+                    const productCategory = product.category.toLowerCase();
+                    const productBrand = (product.brand || '').toLowerCase();
+                    const productTags = (product.tags || []).map(t => t.toLowerCase());
+                    const productPrice = product.price || 0;
+                    let score = 0;
+                    
+                    // Check price filter first
+                    if (filters.maxPrice && productPrice > filters.maxPrice) {
+                        return; // Skip if exceeds price limit
+                    }
+                    
+                    // Check base query match
+                    if (termWords.length === 0) {
+                        score = 1; // Basic match - just price filter
+                    } else {
+                        // Check if product matches the query (name, description, category, brand, or tags)
+                        const matchesQuery = termWords.some(word => 
+                            productName.includes(word) || 
+                            productDescription.includes(word) ||
+                            productCategory.includes(word) ||
+                            productBrand.includes(word) ||
+                            productTags.some(tag => tag.includes(word))
+                        );
+                        
+                        if (!matchesQuery) return; // Skip if doesn't match
+                        
+                        // Score based on relevance
+                        if (productName.includes(baseQuery)) score += 15;
+                        if (productBrand.includes(baseQuery)) score += 12;
+                        termWords.forEach(word => {
+                            if (productName.includes(word)) score += 8;
+                            if (productBrand.includes(word)) score += 7;
+                            productTags.forEach(tag => {
+                                if (tag.includes(word)) score += 6;
+                            });
+                            if (productDescription.includes(word)) score += 4;
+                            if (productCategory.includes(word)) score += 3;
+                        });
+                    }
+                    
+                    if (score > 0) {
+                        results.push({ ...product, type: 'product', relevance: score });
+                    }
+                });
+                
+                // Sort and return top results
+                return results.sort((a, b) => b.relevance - a.relevance).slice(0, 8);
+            }
+            
+            // Execute full search and switch to list view
+            executeFullSearch(searchTerm) {
+                this.hideSearchResults();
+                this.isSearchActive = true;
+                
+                // Parse filters from search term
+                const { baseQuery, filters } = this.parseSearchFilters(searchTerm.toLowerCase());
+                
+                // Apply filters if any were found
+                if (Object.keys(filters).length > 0) {
+                    this.applyExtractedFilters(filters, baseQuery);
+                    if (this.productManager) {
+                        this.productManager.currentFilters.searchTerm = baseQuery;
+                        this.productManager.viewMode = 'list';
+                        this.productManager.renderProducts();
+                        this.productManager.updateFilterBar();
+                    }
+                } else {
+                    // No filters found, just search normally
+                    this.productManager?.setViewMode('list');
+                    this.productManager?.filterBySearch(searchTerm);
+                }
+                
+                // Scroll to products section
+                const productsGrid = document.getElementById('productsGrid');
+                if (productsGrid) {
+                    productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                
+                this.showNotification(`Showing results for "${searchTerm}"`);
+            }
+
+            buildSearchMatches(searchTerm) {
+                const results = [];
+                const termWords = searchTerm.split(/\s+/).filter(w => w.length > 1);
+                
                 this.allProducts.forEach(product => {
                     const productName = product.name.toLowerCase();
                     const productDescription = product.description.toLowerCase();
                     const productCategory = product.category.toLowerCase();
                     const productSeller = product.seller.toLowerCase();
-                    
-                    // Calculate relevance score
+                    const productBrand = (product.brand || '').toLowerCase();
+                    const productTags = (product.tags || []).map(t => t.toLowerCase());
                     let score = 0;
-                    if (productName.includes(searchTerm)) score += 10;
-                    if (productDescription.includes(searchTerm)) score += 5;
-                    if (productCategory.includes(searchTerm)) score += 3;
-                    if (productSeller.includes(searchTerm)) score += 2;
+                    
+                    // Exact match gets highest score
+                    if (productName.includes(searchTerm)) score += 15;
+                    // Brand match
+                    if (productBrand.includes(searchTerm)) score += 12;
+                    // Tag matching - high priority
+                    productTags.forEach(tag => {
+                        if (tag.includes(searchTerm) || searchTerm.includes(tag)) score += 10;
+                    });
+                    // Word matching
+                    termWords.forEach(word => {
+                        if (productName.includes(word)) score += 8;
+                        if (productBrand.includes(word)) score += 7;
+                        productTags.forEach(tag => {
+                            if (tag.includes(word)) score += 6;
+                        });
+                        if (productDescription.includes(word)) score += 4;
+                        if (productCategory.includes(word)) score += 3;
+                        if (productSeller.includes(word)) score += 2;
+                    });
                     
                     if (score > 0) {
-                        results.push({
-                            ...product,
-                            type: 'product',
-                            relevance: score
-                        });
+                        results.push({ ...product, type: 'product', relevance: score });
                     }
                 });
 
-                // Search in service providers
                 this.allProviders.forEach(provider => {
                     const providerName = provider.name.toLowerCase();
                     const providerCategory = provider.category.toLowerCase();
-                    
                     let score = 0;
                     if (providerName.includes(searchTerm)) score += 10;
                     if (providerCategory.includes(searchTerm)) score += 5;
-                    
                     if (score > 0) {
-                        results.push({
-                            ...provider,
-                            type: 'provider',
-                            relevance: score
+                        results.push({ ...provider, type: 'provider', relevance: score });
+                    }
+                });
+
+                return results.sort((a, b) => b.relevance - a.relevance).slice(0, 10);
+            }
+
+            generateSmartSuggestions(searchTerm) {
+                if (!searchTerm) return [];
+                const termDisplay = searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1);
+                const suggestions = [];
+                
+                // Find matching products to understand context
+                const matchingProducts = this.allProducts.filter(p => {
+                    const name = p.name.toLowerCase();
+                    const tags = (p.tags || []).map(t => t.toLowerCase());
+                    const category = p.category.toLowerCase();
+                    const brand = (p.brand || '').toLowerCase();
+                    return name.includes(searchTerm) || 
+                           category.includes(searchTerm) ||
+                           brand.includes(searchTerm) ||
+                           tags.some(t => t.includes(searchTerm) || searchTerm.includes(t));
+                });
+                
+                // Determine price ranges based on matching products
+                const prices = matchingProducts.map(p => p.price);
+                const minPrice = Math.min(...prices) || 500;
+                const maxProductPrice = Math.max(...prices) || 50000;
+                
+                // Smart price suggestions based on actual product range
+                const smartPriceRanges = [];
+                if (maxProductPrice > 1000) smartPriceRanges.push({ price: 1000, label: 'Budget' });
+                if (maxProductPrice > 5000) smartPriceRanges.push({ price: 5000, label: 'Mid-range' });
+                if (maxProductPrice > 10000) smartPriceRanges.push({ price: 10000, label: 'Premium' });
+                if (maxProductPrice > 25000) smartPriceRanges.push({ price: 25000, label: 'High-end' });
+                
+                // Base search suggestion
+                suggestions.push({
+                    icon: 'fa-search',
+                    label: termDisplay,
+                    sublabel: `${matchingProducts.length} products found`,
+                    query: searchTerm,
+                    type: 'search'
+                });
+                
+                // Smart price-based suggestions (only show relevant ones)
+                smartPriceRanges.slice(0, 3).forEach(range => {
+                    const count = matchingProducts.filter(p => p.price <= range.price).length;
+                    if (count > 0) {
+                        suggestions.push({
+                            icon: 'fa-rupee-sign',
+                            label: `${termDisplay} under ₹${range.price.toLocaleString()}`,
+                            sublabel: `${count} ${range.label.toLowerCase()} options`,
+                            query: `${searchTerm} under ${range.price}`,
+                            type: 'price',
+                            maxPrice: range.price
                         });
                     }
                 });
+                
+                // Extract unique brands from matching products
+                const brands = [...new Set(matchingProducts.map(p => p.brand).filter(Boolean))].slice(0, 2);
+                brands.forEach(brand => {
+                    const brandCount = matchingProducts.filter(p => p.brand === brand).length;
+                    suggestions.push({
+                        icon: 'fa-star',
+                        label: `${brand} ${termDisplay}`,
+                        sublabel: `${brandCount} products from ${brand}`,
+                        query: `${brand} ${searchTerm}`,
+                        type: 'brand'
+                    });
+                });
+                
+                // Extract unique tags from matching products for feature filters
+                const allTags = matchingProducts.flatMap(p => p.tags || []);
+                const tagCounts = {};
+                allTags.forEach(tag => {
+                    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                });
+                const popularTags = Object.entries(tagCounts)
+                    .filter(([tag]) => !tag.includes('under') && tag !== searchTerm && tag.length > 2)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 2);
+                
+                popularTags.forEach(([tag, count]) => {
+                    suggestions.push({
+                        icon: 'fa-tag',
+                        label: `${termDisplay} - ${tag}`,
+                        sublabel: `${count} products with this feature`,
+                        query: `${searchTerm} ${tag}`,
+                        type: 'feature'
+                    });
+                });
+                
+                // Top rated suggestion
+                const highRated = matchingProducts.filter(p => p.rating >= 4.5).length;
+                if (highRated > 0) {
+                    suggestions.push({
+                        icon: 'fa-fire',
+                        label: `Best rated ${termDisplay}`,
+                        sublabel: `${highRated} top-rated products`,
+                        query: `best ${searchTerm}`,
+                        type: 'trending'
+                    });
+                }
 
-                // Sort by relevance (highest first)
-                results.sort((a, b) => b.relevance - a.relevance);
-
-                // Display results
-                this.displaySearchResults(results, searchTerm);
-                this.showSearchResults();
+                return suggestions.slice(0, 8);
             }
 
-            displaySearchResults(results, searchTerm) {
-                if (results.length === 0) {
-                    this.searchResults.innerHTML = `
-                        <div class="search-no-results">
-                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
-                            <p>No results found for "${searchTerm}"</p>
-                            <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 8px;">Try different keywords or check spelling</p>
-                            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--light-grey);">
-                                <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 8px;">Popular searches:</p>
-                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                    <span class="filter-tag" style="cursor: pointer;" onclick="this.searchInput.value='headphones';this.handleSearch({target:{value:'headphones'}})">Headphones</span>
-                                    <span class="filter-tag" style="cursor: pointer;" onclick="this.searchInput.value='tshirt';this.handleSearch({target:{value:'tshirt'}})">T-Shirts</span>
-                                    <span class="filter-tag" style="cursor: pointer;" onclick="this.searchInput.value='home services';this.handleSearch({target:{value:'home services'}})">Home Services</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+            displaySearchResults(results, originalTerm, suggestions = []) {
+                if (!results.length && !suggestions.length) {
+                    this.renderEmptyState(originalTerm);
                     return;
                 }
 
-                // Limit results to 10 items
-                const limitedResults = results.slice(0, 10);
+                const markup = [];
                 
-                this.searchResults.innerHTML = limitedResults.map(item => `
-                    <div class="search-result-item" data-id="${item.id || item.name}" data-type="${item.type}">
-                        <div class="search-result-image">
-                            <img src="${item.image || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80'}" 
-                                 alt="${item.name}">
-                        </div>
-                        <div class="search-result-info">
-                            <div class="search-result-name">${item.name}</div>
-                            ${item.price ? `<div class="search-result-price">₹${item.price.toLocaleString()}</div>` : ''}
-                            <div class="search-result-category">
-                                ${item.type === 'product' ? 'Product' : 'Service Provider'} • ${item.category}
-                                ${item.relevance >= 10 ? '<span style="color: var(--blue-primary); margin-left: 8px;">🔥 Best Match</span>' : ''}
+                // Suggestions section (Amazon/Flipkart style)
+                if (suggestions.length) {
+                    markup.push(`
+                        <div class="search-suggestions-block">
+                            <div class="search-suggestion-list">
+                                ${suggestions.map(suggestion => `
+                                    <button type="button" class="search-suggestion" 
+                                            data-search-suggestion="${suggestion.query}"
+                                            data-suggestion-type="${suggestion.type}"
+                                            ${suggestion.maxPrice ? `data-max-price="${suggestion.maxPrice}"` : ''}
+                                            ${suggestion.category ? `data-category="${suggestion.category}"` : ''}>
+                                        <i class="fas ${suggestion.icon}"></i>
+                                        <div class="suggestion-text">
+                                            <span class="suggestion-label">${suggestion.label}</span>
+                                            <span class="suggestion-sublabel">${suggestion.sublabel}</span>
+                                        </div>
+                                        <i class="fas fa-arrow-right suggestion-arrow"></i>
+                                    </button>
+                                `).join('')}
                             </div>
                         </div>
-                        <i class="fas fa-chevron-right" style="color: var(--text-light);"></i>
-                    </div>
-                `).join('');
+                    `);
+                }
 
-                // Add click handlers to search results
-                this.searchResults.querySelectorAll('.search-result-item').forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        const id = e.currentTarget.dataset.id;
-                        const type = e.currentTarget.dataset.type;
-                        this.handleSearchResultClick(id, type);
+                // Product results preview
+                if (results.length) {
+                    markup.push(`
+                        <div class="search-results-header">
+                            <span>Products</span>
+                            <button type="button" class="view-all-btn" data-search-term="${originalTerm}">
+                                View all ${results.length}+ results <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    `);
+                    markup.push('<div class="search-results-list">');
+                    markup.push(results.slice(0, 5).map(item => `
+                        <div class="search-result-item" data-id="${item.id || item.name}" data-type="${item.type}" data-query="${item.name}">
+                            <div class="search-result-image">
+                                <img src="${item.image || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80'}" alt="${item.name}">
+                            </div>
+                            <div class="search-result-info">
+                                <div class="search-result-name">${item.name}</div>
+                                ${item.price ? `<div class="search-result-price">₹${item.price.toLocaleString()}</div>` : ''}
+                                <div class="search-result-category">
+                                    ${item.type === 'product' ? `<i class="fas fa-tag"></i> ${item.category}` : `<i class="fas fa-user"></i> Service Provider`}
+                                    ${item.rating ? `<span class="search-result-rating"><i class="fas fa-star"></i> ${item.rating.toFixed(1)}</span>` : ''}
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: var(--text-light);"></i>
+                        </div>
+                    `).join(''));
+                    markup.push('</div>');
+                }
+
+                this.searchResults.innerHTML = markup.join('');
+                this.attachSearchResultHandlers();
+            }
+
+            renderEmptyState(searchTerm) {
+                this.searchResults.innerHTML = `
+                    <div class="search-no-results">
+                        <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                        <p>No results found for "${searchTerm}"</p>
+                        <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 8px;">Try different keywords or explore popular searches</p>
+                        <div class="search-quick-chips">
+                            ${this.popularQueries.map(query => `
+                                <button type="button" class="search-quick-chip" data-search-suggestion="${query}">
+                                    <i class="fas fa-fire"></i>
+                                    <span>${query}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                this.attachSearchResultHandlers();
+            }
+
+            attachSearchResultHandlers() {
+                // Product click handlers - use mousedown to prevent blur from hiding dropdown
+                this.searchResults.querySelectorAll('.search-result-item').forEach((item) => {
+                    item.style.cursor = 'pointer';
+                    item.addEventListener('mousedown', (event) => {
+                        event.preventDefault(); // Keep dropdown visible
+                        event.stopPropagation();
+                        const { id, type, query } = item.dataset;
+                        this.handleSearchResultClick({ id, type, query });
+                    });
+                });
+
+                // Suggestion click handlers with enhanced functionality - use mousedown to prevent blur
+                this.searchResults.querySelectorAll('[data-search-suggestion]').forEach((button) => {
+                    button.style.cursor = 'pointer';
+                    button.addEventListener('mousedown', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const query = button.dataset.searchSuggestion;
+                        const type = button.dataset.suggestionType;
+                        const maxPrice = button.dataset.maxPrice;
+                        const category = button.dataset.category;
+                        
+                        this.handleSuggestionClick({ query, type, maxPrice, category });
+                    });
+                });
+                
+                // View all results button - use mousedown to prevent blur
+                this.searchResults.querySelectorAll('.view-all-btn').forEach((btn) => {
+                    btn.addEventListener('mousedown', (event) => {
+                        event.preventDefault();
+                        const searchTerm = btn.dataset.searchTerm;
+                        this.executeFullSearch(searchTerm);
                     });
                 });
             }
-
-            handleSearchResultClick(id, type) {
-                if (type === 'product') {
-                    // Find and highlight the product in the grid
-                    const productCard = document.querySelector(`.product-card[data-id="${id}"]`);
-                    if (productCard) {
-                        this.highlightProductInGrid(productCard);
-                    } else {
-                        // Filter products to show only matching ones
-                        productManager?.filterBySearch(id);
+            
+            handleSuggestionClick({ query, type, maxPrice, category }) {
+                this.hideSearchResults();
+                this.isSearchActive = true;
+                
+                // Extract base search term (remove filter words)
+                const baseQuery = query.split(' ').filter(w => 
+                    !['under', 'best', 'fast', 'delivery', 'with'].includes(w.toLowerCase()) &&
+                    !/^\d+$/.test(w) // Remove standalone numbers like "1000", "5000"
+                ).join(' ').trim();
+                
+                // Reset filters without rendering (we'll render at the end)
+                if (this.productManager) {
+                    // Manually reset the filters object
+                    this.productManager.currentFilters = {
+                        category: 'all',
+                        maxPrice: 50000,
+                        sortBy: 'featured',
+                        seller: 'all',
+                        delivery: 'any',
+                        searchTerm: baseQuery
+                    };
+                    
+                    // Apply specific filters based on suggestion type
+                    if (type === 'price' && maxPrice) {
+                        const priceValue = parseInt(maxPrice);
+                        this.productManager.currentFilters.maxPrice = priceValue;
+                        // Update UI slider
+                        const priceRange = document.getElementById('priceRange');
+                        const maxPriceValue = document.getElementById('maxPriceValue');
+                        if (priceRange) priceRange.value = priceValue;
+                        if (maxPriceValue) maxPriceValue.textContent = `₹${priceValue.toLocaleString()}`;
+                        console.log('Price filter set to:', priceValue);
                     }
+                    if (type === 'category' && category) {
+                        this.productManager.currentFilters.category = category;
+                    }
+                    if (type === 'delivery') {
+                        this.productManager.currentFilters.delivery = '1day';
+                    }
+                    if (type === 'trending') {
+                        this.productManager.currentFilters.sortBy = 'rating';
+                    }
+                    
+                    // Set view mode and render once
+                    this.productManager.viewMode = 'list';
+                    this.productManager.renderProducts();
+                    this.productManager.updateFilterBar();
+                }
+                
+                this.searchInput.value = query;
+                console.log('Search applied - term:', baseQuery, 'type:', type, 'maxPrice:', maxPrice, 'currentFilters:', this.productManager?.currentFilters);
+                
+                // Scroll to products
+                const productsGrid = document.getElementById('productsGrid');
+                if (productsGrid) {
+                    productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                
+                this.showNotification(`Showing results for "${query}"`);
+            }
+
+            handleSearchResultClick({ id, type, query }) {
+                if (type === 'product') {
+                    this.isSearchActive = true;
+                    this.productManager?.setViewMode('list');
+                    this.navigateToProduct(id, query);
                 } else if (type === 'provider') {
-                    // Scroll to service providers section
                     const providersSection = document.querySelector('.service-providers-section');
                     if (providersSection) {
                         providersSection.scrollIntoView({ behavior: 'smooth' });
+                        this.showNotification(`Connecting you with ${query}`);
                     }
                 }
-                
-                // Clear search and hide results
                 this.searchInput.value = '';
                 this.hideSearchResults();
+            }
+
+            navigateToProduct(productId, fallbackQuery = '') {
+                const productCard = document.querySelector(`.product-card[data-id="${productId}"], .product-list-item[data-id="${productId}"]`);
+                if (productCard) {
+                    this.highlightProductInGrid(productCard);
+                    return;
+                }
+
+                const matchingProduct = this.allProducts.find(product => product.id === productId);
+                const term = matchingProduct?.name || fallbackQuery || '';
+                if (term) {
+                    this.productManager?.filterBySearch(term);
+                    setTimeout(() => {
+                        const refreshedCard = document.querySelector(`.product-card[data-id="${productId}"], .product-list-item[data-id="${productId}"]`);
+                        if (refreshedCard) {
+                            this.highlightProductInGrid(refreshedCard);
+                        }
+                    }, 350);
+                }
+            }
+
+            applySuggestion(query) {
+                this.searchInput.value = query;
+                this.searchInput.focus();
+                this.performSearch(query.toLowerCase(), query);
             }
 
             highlightProductInGrid(productCard) {
@@ -908,11 +1459,26 @@
                     productCard.style.animation = '';
                 }, 2000);
                 
-                this.showNotification(`Found: ${productCard.querySelector('.product-name').textContent}`);
+                const nameEl = productCard.querySelector('.product-name, .product-list-name');
+                if (nameEl) {
+                    this.showNotification(`Found: ${nameEl.textContent}`);
+                }
+            }
+
+            updateSelectedItem(items) {
+                // Remove highlight from all items
+                items.forEach(item => item.classList.remove('keyboard-selected'));
+                
+                // Add highlight to selected item
+                if (this.selectedIndex >= 0 && items[this.selectedIndex]) {
+                    items[this.selectedIndex].classList.add('keyboard-selected');
+                    items[this.selectedIndex].scrollIntoView({ block: 'nearest' });
+                }
             }
 
             showSearchResults() {
                 this.searchResults.classList.add('active');
+                this.selectedIndex = -1; // Reset selection when showing results
             }
 
             hideSearchResults() {
@@ -962,7 +1528,7 @@
         // =============================================
         class EnhancedProductManager {
             constructor() {
-                this.db = firebase.firestore();
+                this.db = (window.firebaseReady && firebase.firestore) ? firebase.firestore() : null;
                 this.products = [];
                 this.filteredProducts = [];
                 this.currentFilters = {
@@ -973,19 +1539,53 @@
                     delivery: 'any',
                     searchTerm: ''
                 };
+                this.viewMode = 'grid'; // 'grid' or 'list'
                 this.wishlist = new Set();
                 this.cart = [];
                 this.filterBar = null;
-                this.initialize();
+                this.productUpdateCallbacks = [];
+                this.readyPromise = this.initialize();
             }
 
             async initialize() {
-                await this.loadProducts();
-                this.loadCartFromStorage();
-                this.loadWishlistFromStorage();
-                this.renderProducts();
-                this.setupEventListeners();
-                this.initializeFilterBar();
+                console.log('EnhancedProductManager initialize started');
+                try {
+                    await this.loadProducts();
+                    console.log('Products loaded:', this.products.length);
+                    this.loadCartFromStorage();
+                    this.loadWishlistFromStorage();
+                    this.renderProducts();
+                    console.log('Products rendered');
+                    this.setupEventListeners();
+                    this.initializeFilterBar();
+                    this.notifyProductsUpdated();
+                } catch (error) {
+                    console.error('Error in initialize:', error);
+                    // Still try to render products even if there was an error
+                    const loadingState = document.getElementById('loadingState');
+                    if (loadingState) loadingState.style.display = 'none';
+                }
+            }
+
+            notifyProductsUpdated() {
+                const snapshot = this.products.slice();
+                this.productUpdateCallbacks.forEach((callback) => {
+                    try {
+                        callback(snapshot);
+                    } catch (error) {
+                        console.warn('Product update callback failed', error);
+                    }
+                });
+            }
+
+            onProductsUpdated(callback) {
+                if (typeof callback !== 'function') {
+                    return;
+                }
+                this.productUpdateCallbacks.push(callback);
+                if (this.products.length) {
+                    callback(this.products.slice());
+                }
             }
 
             initializeFilterBar() {
@@ -1021,70 +1621,14 @@
             }
 
             updateFilterBar() {
+                // Simplified: Don't show filter tags in bar, just show results directly
+                // The filter bar is now hidden - users can use sidebar filters
                 const activeFilters = document.getElementById('activeFilters');
-                if (!activeFilters) return;
-                
-                const filters = [];
-                
-                // Add category filter
-                if (this.currentFilters.category !== 'all') {
-                    filters.push({
-                        type: 'category',
-                        label: `Category: ${this.currentFilters.category}`,
-                        value: this.currentFilters.category
-                    });
+                if (activeFilters) {
+                    activeFilters.innerHTML = '';
                 }
-                
-                // Add price filter
-                if (this.currentFilters.maxPrice < 50000) {
-                    filters.push({
-                        type: 'price',
-                        label: `Max Price: ₹${this.currentFilters.maxPrice.toLocaleString()}`,
-                        value: this.currentFilters.maxPrice
-                    });
-                }
-                
-                // Add seller filter
-                if (this.currentFilters.seller !== 'all') {
-                    filters.push({
-                        type: 'seller',
-                        label: `Seller: ${this.currentFilters.seller}`,
-                        value: this.currentFilters.seller
-                    });
-                }
-                
-                // Add delivery filter
-                if (this.currentFilters.delivery !== 'any') {
-                    filters.push({
-                        type: 'delivery',
-                        label: `Delivery: ${this.currentFilters.delivery}`,
-                        value: this.currentFilters.delivery
-                    });
-                }
-                
-                // Add search term filter
-                if (this.currentFilters.searchTerm) {
-                    filters.push({
-                        type: 'search',
-                        label: `Search: "${this.currentFilters.searchTerm}"`,
-                        value: this.currentFilters.searchTerm
-                    });
-                }
-                
-                // Render filter tags
-                activeFilters.innerHTML = filters.map(filter => `
-                    <div class="filter-tag" data-type="${filter.type}" data-value="${filter.value}">
-                        <span>${filter.label}</span>
-                        <button class="filter-tag-remove" onclick="productManager.removeFilter('${filter.type}')">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `).join('');
-                
-                // Update filter bar visibility
-                if (filters.length > 0) {
-                    this.filterBar?.classList.add('active');
-                }
+                // Keep filter bar hidden - we show results directly without displaying filters
+                this.filterBar?.classList.remove('active');
             }
 
             removeFilter(filterType) {
@@ -1150,6 +1694,40 @@
             }
 
             async loadProducts() {
+                console.log('loadProducts called');
+                console.log('window.productsData exists:', !!window.productsData);
+                console.log('window.productsData is array:', Array.isArray(window.productsData));
+                console.log('window.productsData length:', window.productsData?.length || 0);
+                
+                // Prefer shared static catalog when present to keep initial load fast
+                if (Array.isArray(window.productsData) && window.productsData.length) {
+                    const fallbackImage = 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=400&q=80';
+                    this.products = window.productsData.map((p, idx) => ({
+                        id: p.id || `p-${idx + 1}`,
+                        name: p.name || 'Featured product',
+                        description: p.description || 'Curated pick from our catalog.',
+                        price: Number(p.price) || 0,
+                        category: p.category || 'general',
+                        image: p.image || fallbackImage,
+                        seller: p.seller || '69Shop Seller',
+                        rating: Number(p.rating) || 4.4,
+                        stock: p.stock || 50,
+                        sellerType: p.sellerType || 'verified',
+                        isVerified: p.isVerified !== undefined ? p.isVerified : true,
+                        deliveryTime: p.deliveryTime || '2day',
+                        createdAt: p.createdAt || new Date(Date.now() - idx * 86400000).toISOString()
+                    }));
+                    console.log('SUCCESS: Loaded', this.products.length, 'products from productsData');
+                    return;
+                }
+                
+                console.log('productsData not found, trying Firestore or sample data');
+
+                if (!this.db) {
+                    console.warn('Firestore unavailable; using sample products.');
+                    this.products = this.getSampleProducts();
+                    return;
+                }
                 try {
                     const productsSnapshot = await this.db.collection('products')
                         .where('status', '==', 'active')
@@ -1343,15 +1921,28 @@
                     );
                 }
                 
-                // Apply search filter
+                // Apply search filter - now includes tags and brand
                 if (this.currentFilters.searchTerm) {
                     const searchTerm = this.currentFilters.searchTerm.toLowerCase();
-                    this.filteredProducts = this.filteredProducts.filter(product =>
-                        product.name.toLowerCase().includes(searchTerm) ||
-                        product.description.toLowerCase().includes(searchTerm) ||
-                        product.seller.toLowerCase().includes(searchTerm) ||
-                        product.category.toLowerCase().includes(searchTerm)
-                    );
+                    const searchWords = searchTerm.split(/\s+/).filter(w => w.length > 1);
+                    this.filteredProducts = this.filteredProducts.filter(product => {
+                        const name = (product.name || '').toLowerCase();
+                        const description = (product.description || '').toLowerCase();
+                        const seller = (product.seller || '').toLowerCase();
+                        const category = (product.category || '').toLowerCase();
+                        const brand = (product.brand || '').toLowerCase();
+                        const tags = (product.tags || []).map(t => t.toLowerCase());
+                        
+                        // Check if any search word matches
+                        return searchWords.some(word => 
+                            name.includes(word) || 
+                            description.includes(word) || 
+                            seller.includes(word) || 
+                            category.includes(word) ||
+                            brand.includes(word) ||
+                            tags.some(tag => tag.includes(word))
+                        ) || name.includes(searchTerm) || brand.includes(searchTerm);
+                    });
                 }
                 
                 // Apply sorting
@@ -1391,6 +1982,50 @@
                 this.renderProducts();
                 this.updateFilterBar();
             }
+            
+            // Helper methods for search filters
+            setViewMode(mode) {
+                this.viewMode = mode;
+                this.renderProducts();
+            }
+            
+            setMaxPrice(price) {
+                this.currentFilters.maxPrice = price;
+                const priceRange = document.getElementById('priceRange');
+                const maxPriceValue = document.getElementById('maxPriceValue');
+                if (priceRange) priceRange.value = price;
+                if (maxPriceValue) maxPriceValue.textContent = `₹${price.toLocaleString()}`;
+            }
+            
+            setCategory(category) {
+                this.currentFilters.category = category;
+                document.querySelectorAll('#categoryFilters .filter-option').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.category === category) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+            
+            setDeliveryFilter(delivery) {
+                this.currentFilters.delivery = delivery;
+                document.querySelectorAll('#deliveryFilters .filter-option').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.delivery === delivery) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+            
+            setSortBy(sortBy) {
+                this.currentFilters.sortBy = sortBy;
+                document.querySelectorAll('#sortOptions .filter-option').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.sort === sortBy) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
 
             renderProducts() {
                 const productsGrid = document.getElementById('productsGrid');
@@ -1409,53 +2044,20 @@
                     productsGrid.style.display = 'none';
                     if (emptyState) emptyState.style.display = 'block';
                 } else {
-                    productsGrid.style.display = 'grid';
                     if (emptyState) emptyState.style.display = 'none';
                     
-                    // Render products
-                    productsGrid.innerHTML = filteredProducts.map(product => {
-                        const isNew = new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-                        const isPremium = product.sellerType === 'premium';
-                        const isVerified = product.isVerified;
-                        
-                        let badges = [];
-                        if (isNew) badges.push('NEW');
-                        if (isPremium) badges.push('PREMIUM');
-                        if (isVerified) badges.push('VERIFIED');
-                        if (product.deliveryTime === '1day') badges.push('1-DAY DELIVERY');
-                        
-                        return `
-                        <div class="product-card" data-id="${product.id}">
-                            ${badges.map(badge => `<div class="product-badge">${badge}</div>`).join('')}
-                            <div class="product-image">
-                                <img src="${product.image}" alt="${product.name}" loading="lazy">
-                            </div>
-                            <div class="product-content">
-                                <h3 class="product-name">${product.name}</h3>
-                                <p class="product-description">${product.description}</p>
-                                <div class="product-price">₹${product.price.toLocaleString()}</div>
-                                <div class="product-seller">
-                                    <i class="fas fa-store"></i>
-                                    <span>${product.seller}</span>
-                                    <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
-                                        <i class="fas fa-star" style="color: #FFD700;"></i>
-                                        <span>${product.rating.toFixed(1)}</span>
-                                    </div>
-                                </div>
-                                <div class="product-actions">
-                                    <button class="btn-add-to-cart" onclick="productManager.addToCart('${product.id}')">
-                                        <i class="fas fa-shopping-cart"></i>
-                                        Add to Cart
-                                    </button>
-                                    <button class="btn-wishlist ${this.wishlist.has(product.id) ? 'active' : ''}" 
-                                            onclick="productManager.toggleWishlist('${product.id}')"
-                                            aria-label="${this.wishlist.has(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}">
-                                        <i class="fas fa-heart"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `}).join('');
+                    // Render based on view mode
+                    if (this.viewMode === 'list') {
+                        productsGrid.style.display = 'flex';
+                        productsGrid.style.flexDirection = 'column';
+                        productsGrid.style.gap = '16px';
+                        productsGrid.innerHTML = filteredProducts.map(product => this.renderListItem(product)).join('');
+                    } else {
+                        productsGrid.style.display = 'grid';
+                        productsGrid.style.flexDirection = '';
+                        productsGrid.style.gap = '25px';
+                        productsGrid.innerHTML = filteredProducts.map(product => this.renderGridItem(product)).join('');
+                    }
                 }
                 
                 // Update product count
@@ -1465,6 +2067,103 @@
                 
                 // Update filter bar
                 this.updateFilterBar();
+            }
+            
+            renderGridItem(product) {
+                const isNew = new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                const isPremium = product.sellerType === 'premium';
+                const isVerified = product.isVerified;
+                
+                let badges = [];
+                if (isNew) badges.push('NEW');
+                if (isPremium) badges.push('PREMIUM');
+                if (isVerified) badges.push('VERIFIED');
+                if (product.deliveryTime === '1day') badges.push('1-DAY DELIVERY');
+                
+                return `
+                <div class="product-card" data-id="${product.id}">
+                    ${badges.map(badge => `<div class="product-badge">${badge}</div>`).join('')}
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}" loading="lazy">
+                    </div>
+                    <div class="product-content">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-price">₹${product.price.toLocaleString()}</div>
+                        <div class="product-seller">
+                            <i class="fas fa-store"></i>
+                            <span>${product.seller}</span>
+                            <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-star" style="color: #FFD700;"></i>
+                                <span>${product.rating.toFixed(1)}</span>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn-add-to-cart" onclick="productManager.addToCart('${product.id}')">
+                                <i class="fas fa-shopping-cart"></i>
+                                Add to Cart
+                            </button>
+                            <button class="btn-wishlist ${this.wishlist.has(product.id) ? 'active' : ''}" 
+                                    onclick="productManager.toggleWishlist('${product.id}')"
+                                    aria-label="${this.wishlist.has(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+            
+            renderListItem(product) {
+                const isNew = new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                const isPremium = product.sellerType === 'premium';
+                const isVerified = product.isVerified;
+                
+                let badges = [];
+                if (isNew) badges.push('NEW');
+                if (isPremium) badges.push('PREMIUM');
+                if (isVerified) badges.push('VERIFIED');
+                if (product.deliveryTime === '1day') badges.push('1-DAY DELIVERY');
+                
+                return `
+                <div class="product-list-item" data-id="${product.id}">
+                    <div class="product-list-image">
+                        <img src="${product.image}" alt="${product.name}" loading="lazy">
+                        ${badges.length ? `<div class="product-list-badges">${badges.map(badge => `<span class="product-list-badge">${badge}</span>`).join('')}</div>` : ''}
+                    </div>
+                    <div class="product-list-content">
+                        <h3 class="product-list-name">${product.name}</h3>
+                        <p class="product-list-description">${product.description}</p>
+                        <div class="product-list-meta">
+                            <div class="product-list-seller">
+                                <i class="fas fa-store"></i>
+                                <span>${product.seller}</span>
+                            </div>
+                            <div class="product-list-rating">
+                                <i class="fas fa-star" style="color: #FFD700;"></i>
+                                <span>${product.rating.toFixed(1)}</span>
+                            </div>
+                            <div class="product-list-category">
+                                <i class="fas fa-tag"></i>
+                                <span>${product.category}</span>
+                            </div>
+                        </div>
+                        ${product.deliveryTime === '1day' ? '<p class="product-list-delivery"><i class="fas fa-truck"></i> Get it by tomorrow</p>' : ''}
+                    </div>
+                    <div class="product-list-actions">
+                        <div class="product-list-price">₹${product.price.toLocaleString()}</div>
+                        <button class="btn-add-to-cart" onclick="productManager.addToCart('${product.id}')">
+                            <i class="fas fa-shopping-cart"></i>
+                            Add to Cart
+                        </button>
+                        <button class="btn-wishlist ${this.wishlist.has(product.id) ? 'active' : ''}" 
+                                onclick="productManager.toggleWishlist('${product.id}')"
+                                aria-label="${this.wishlist.has(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
             }
 
             // ... (rest of the methods remain the same as original ProductManager)
@@ -1813,9 +2512,10 @@
         // AUTH MANAGER (same as before)
         // =============================================
         class AuthManager {
-            constructor() {
+            constructor(options = {}) {
                 this.auth = firebase.auth();
                 this.db = firebase.firestore();
+                this.options = options;
                 this.unsubscribe = null;
                 this.currentUserData = null;
                 
@@ -1829,28 +2529,56 @@
                         console.log("User authenticated:", user.email);
                         await this.loadUserData(user);
                         this.updateUserDisplay();
+                        this.notifyUserDataReady(user);
                     } else {
-                        console.log("No user authenticated, redirecting to login...");
-                        window.location.href = '/shop-login.html';
+                        console.log("No user authenticated, staying as guest.");
+                        this.currentUserData = null;
+                        this.notifyUserDataReady(null);
+                        // Allow guests to browse - no redirect
                     }
                 });
             }
 
             async loadUserData(firebaseUser) {
                 try {
-                    // Try to get user data from Firestore
+                    // First check if user is a seller
+                    const sellerDoc = await this.db.collection('sellers').doc(firebaseUser.uid).get();
+                    
+                    if (sellerDoc.exists) {
+                        // User is a seller
+                        const sellerData = sellerDoc.data();
+                        this.currentUserData = {
+                            uid: firebaseUser.uid,
+                            name: sellerData.businessName || firebaseUser.displayName || firebaseUser.email.split('@')[0],
+                            email: firebaseUser.email,
+                            accountType: 'seller',
+                            sellerType: sellerData.sellerType || 'product',
+                            photoURL: firebaseUser.photoURL || '',
+                            ...sellerData
+                        };
+                        console.log("Loaded seller data from Firestore:", this.currentUserData);
+                        return;
+                    }
+                    
+                    // Try to get user data from users collection
                     const userDoc = await this.db.collection('users').doc(firebaseUser.uid).get();
                     
                     if (userDoc.exists) {
-                        this.currentUserData = userDoc.data();
+                        this.currentUserData = {
+                            uid: firebaseUser.uid,
+                            ...userDoc.data()
+                        };
                         console.log("Loaded user data from Firestore:", this.currentUserData);
                     } else {
                         // If no Firestore document, create one
                         this.currentUserData = {
+                            uid: firebaseUser.uid,
                             name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
                             email: firebaseUser.email,
                             accountType: 'buyer',
-                            createdAt: new Date().toISOString()
+                            createdAt: new Date().toISOString(),
+                            photoURL: firebaseUser.photoURL || '',
+                            hasSeenWelcomeOffer: false
                         };
                         
                         // Create user document in Firestore
@@ -1860,14 +2588,40 @@
                             lastLogin: new Date().toISOString()
                         });
                     }
+                    this.currentUserData.photoURL = this.currentUserData.photoURL || firebaseUser.photoURL || '';
                 } catch (error) {
                     console.error("Error loading user data:", error);
                     // Fallback to basic user info
                     this.currentUserData = {
+                        uid: firebaseUser.uid,
                         name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
                         email: firebaseUser.email,
-                        accountType: 'buyer'
+                        accountType: 'buyer',
+                        photoURL: firebaseUser.photoURL || ''
                     };
+                }
+            }
+
+            notifyUserDataReady(user) {
+                if (typeof this.options.onUserDataReady === 'function') {
+                    try {
+                        this.options.onUserDataReady(user, this.currentUserData);
+                    } catch (error) {
+                        console.warn('Auth callback failed:', error);
+                    }
+                }
+            }
+
+            applyAvatarStyling(element, fallbackLetter, photoURL) {
+                if (!element) return;
+                if (photoURL) {
+                    element.classList.add('has-photo');
+                    element.style.backgroundImage = `url('${photoURL}')`;
+                    element.textContent = '';
+                } else {
+                    element.classList.remove('has-photo');
+                    element.style.backgroundImage = '';
+                    element.textContent = fallbackLetter;
                 }
             }
 
@@ -1881,19 +2635,31 @@
                 const profileAvatarLarge = document.getElementById('profileAvatarLarge');
                 const profileBadge = document.getElementById('profileBadge');
                 const welcomeTitle = document.getElementById('welcomeTitle');
+                const sellerDashboardLink = document.getElementById('sellerDashboardLink');
+                const becomeSellerLink = document.getElementById('becomeSellerLink');
                 
                 // Extract first letter for avatar
                 const firstLetter = this.currentUserData.name.charAt(0).toUpperCase();
+                const photoURL = this.currentUserData.photoURL || this.auth.currentUser?.photoURL || '';
                 
                 // Update all user display elements
                 if (userName) userName.textContent = this.currentUserData.name;
-                if (userAvatar) userAvatar.textContent = firstLetter;
+                this.applyAvatarStyling(userAvatar, firstLetter, photoURL);
                 if (profileNameLarge) profileNameLarge.textContent = this.currentUserData.name;
                 if (profileEmail) profileEmail.textContent = this.currentUserData.email;
-                if (profileAvatarLarge) profileAvatarLarge.textContent = firstLetter;
+                this.applyAvatarStyling(profileAvatarLarge, firstLetter, photoURL);
                 if (profileBadge) profileBadge.textContent = 
                     this.currentUserData.accountType === 'seller' ? 'Seller Account' : 'Buyer Account';
                 if (welcomeTitle) welcomeTitle.textContent = `Welcome, ${this.currentUserData.name}!`;
+                
+                // Show/hide seller dashboard link based on account type
+                if (this.currentUserData.accountType === 'seller') {
+                    if (sellerDashboardLink) sellerDashboardLink.style.display = 'block';
+                    if (becomeSellerLink) becomeSellerLink.style.display = 'none';
+                } else {
+                    if (sellerDashboardLink) sellerDashboardLink.style.display = 'none';
+                    if (becomeSellerLink) becomeSellerLink.style.display = 'block';
+                }
             }
 
             async logout() {
@@ -2182,6 +2948,174 @@
                         document.body.removeChild(notification);
                     }, 300);
                 }, 3000);
+            }
+        }
+
+        // =============================================
+        // FIRST LOGIN OFFER
+        // =============================================
+        class FirstLoginOffer {
+            constructor({ productManager, db }) {
+                this.productManager = productManager;
+                this.db = db;
+                this.modal = document.getElementById('welcomeOfferModal');
+                this.overlay = document.getElementById('welcomeOfferOverlay');
+                this.closeBtn = document.getElementById('welcomeOfferClose');
+                this.claimBtn = document.getElementById('welcomeOfferClaimBtn');
+                this.laterBtn = document.getElementById('welcomeOfferLaterBtn');
+                this.productNameEl = document.getElementById('welcomeOfferProductName');
+                this.productPriceEl = document.getElementById('welcomeOfferProductPrice');
+                this.productMetaEl = document.getElementById('welcomeOfferProductMeta');
+                this.productImageEl = document.getElementById('welcomeOfferImage');
+                this.titleEl = document.getElementById('welcomeOfferTitle');
+                this.descriptionEl = document.getElementById('welcomeOfferDescription');
+                this.currentProduct = null;
+                this.currentUserId = null;
+                this.offerMarked = false;
+                this.previousBodyOverflow = '';
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                if (this.closeBtn) {
+                    this.closeBtn.addEventListener('click', () => this.dismissOffer());
+                }
+                if (this.laterBtn) {
+                    this.laterBtn.addEventListener('click', () => this.dismissOffer());
+                }
+                if (this.overlay) {
+                    this.overlay.addEventListener('click', () => this.dismissOffer());
+                }
+                if (this.claimBtn) {
+                    this.claimBtn.addEventListener('click', () => this.claimOffer());
+                }
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && this.modal?.classList.contains('active')) {
+                        this.dismissOffer();
+                    }
+                });
+            }
+
+            async considerForUser(user, userData) {
+                if (!user || !this.modal) return;
+                const localKey = `welcome_offer_seen_${user.uid}`;
+                let hasLocalFlag = false;
+                try {
+                    hasLocalFlag = localStorage.getItem(localKey) === 'true';
+                } catch (storageError) {
+                    console.warn('Local storage unavailable for welcome offer', storageError);
+                }
+                if (hasLocalFlag) return;
+                if (userData?.hasSeenWelcomeOffer) {
+                    try {
+                        localStorage.setItem(localKey, 'true');
+                    } catch (_) {
+                        /* ignore storage errors */
+                    }
+                    return;
+                }
+                this.currentUserId = user.uid;
+                this.offerMarked = false;
+                try {
+                    await this.prepareProduct();
+                    this.open();
+                } catch (error) {
+                    console.warn('Unable to prepare welcome offer', error);
+                }
+            }
+
+            async prepareProduct() {
+                if (!this.productManager) return;
+                if (this.productManager.readyPromise) {
+                    try {
+                        await this.productManager.readyPromise;
+                    } catch (error) {
+                        console.warn('Product data not ready for offer', error);
+                    }
+                }
+                const products = this.productManager.products || [];
+                if (!products.length) return;
+                const sorted = [...products].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+                this.currentProduct = sorted[0] || products[0];
+                this.setProductContent(this.currentProduct);
+            }
+
+            setProductContent(product) {
+                if (!product) return;
+                if (this.productNameEl) this.productNameEl.textContent = product.name;
+                if (this.productPriceEl) {
+                    const priceValue = Number(product.price);
+                    if (Number.isFinite(priceValue)) {
+                        this.productPriceEl.textContent = `₹${priceValue.toLocaleString()}`;
+                    }
+                }
+                if (this.productMetaEl) {
+                    const meta = product.category ? `${product.category} • curated for you` : 'Limited launch bonus';
+                    this.productMetaEl.textContent = meta;
+                }
+                if (this.productImageEl && product.image) {
+                    this.productImageEl.src = product.image;
+                    this.productImageEl.alt = product.name;
+                }
+                if (this.titleEl) {
+                    this.titleEl.textContent = `Exclusive welcome pick: ${product.name}`;
+                }
+                if (this.descriptionEl) {
+                    this.descriptionEl.textContent = 'Add it to your cart now and your launch credit auto-applies at checkout.';
+                }
+            }
+
+            open() {
+                if (!this.modal || this.modal.classList.contains('active')) return;
+                this.previousBodyOverflow = document.body.style.overflow;
+                this.modal.classList.add('active');
+                this.modal.setAttribute('aria-hidden', 'false');
+                if (this.overlay) {
+                    this.overlay.classList.add('active');
+                }
+                document.body.style.overflow = 'hidden';
+            }
+
+            close() {
+                if (!this.modal) return;
+                this.modal.classList.remove('active');
+                this.modal.setAttribute('aria-hidden', 'true');
+                if (this.overlay) {
+                    this.overlay.classList.remove('active');
+                }
+                document.body.style.overflow = this.previousBodyOverflow || '';
+            }
+
+            async claimOffer() {
+                if (this.currentProduct && this.productManager) {
+                    this.productManager.addToCart(this.currentProduct.id);
+                }
+                await this.markOfferSeen();
+                this.close();
+            }
+
+            async dismissOffer() {
+                await this.markOfferSeen();
+                this.close();
+            }
+
+            async markOfferSeen() {
+                if (!this.currentUserId || this.offerMarked) return;
+                const localKey = `welcome_offer_seen_${this.currentUserId}`;
+                this.offerMarked = true;
+                try {
+                    localStorage.setItem(localKey, 'true');
+                } catch (_) {
+                    /* ignore storage errors */
+                }
+                if (!this.db) return;
+                try {
+                    await this.db.collection('users').doc(this.currentUserId).set({
+                        hasSeenWelcomeOffer: true
+                    }, { merge: true });
+                } catch (error) {
+                    console.warn('Unable to persist welcome offer flag', error);
+                }
             }
         }
 
@@ -2491,21 +3425,71 @@
         // =============================================
         // INITIALIZE APPLICATION
         // =============================================
-        let authManager, productManager, uiManager, searchManager, checkoutManager;
+        let authManager, productManager, uiManager, searchManager, checkoutManager, firstLoginOffer;
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Initialize managers
-            authManager = new AuthManager();
             productManager = new EnhancedProductManager();
+            if (window.firebaseReady) {
+                firstLoginOffer = new FirstLoginOffer({ productManager, db });
+                authManager = new AuthManager({
+                    onUserDataReady: (firebaseUser, userData) => {
+                        firstLoginOffer?.considerForUser(firebaseUser, userData);
+                    }
+                });
+            } else {
+                console.warn('Auth features disabled because Firebase is not configured.');
+            }
             uiManager = new UIManager();
             checkoutManager = new CheckoutManager(productManager);
-            searchManager = new SearchManager();
 
             window.productManager = productManager;
             window.checkoutManager = checkoutManager;
+            window.firstLoginOffer = firstLoginOffer;
+
+            if (productManager.readyPromise) {
+                try {
+                    await productManager.readyPromise;
+                } catch (error) {
+                    console.warn('Product manager failed to finish loading products on time', error);
+                }
+            }
+
+            searchManager = new SearchManager(productManager);
 
             // Update cart display on load
             productManager.updateCartDisplay();
+
+            // Dev status banner (only shows in localhost or when Firebase not ready)
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                const devBanner = document.createElement('div');
+                devBanner.id = 'devStatusBanner';
+                devBanner.style.cssText = `
+                    position: fixed;
+                    bottom: 10px;
+                    left: 10px;
+                    background: ${window.firebaseReady ? '#4CAF50' : '#FF9800'};
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    z-index: 9999;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                    font-family: monospace;
+                `;
+                devBanner.innerHTML = `
+                    <strong>DEV</strong> | Firebase: ${window.firebaseReady ? '✓ Ready' : '✗ Not configured'} 
+                    | Auth: ${authManager ? '✓' : '✗'} 
+                    | Products: ${productManager?.products?.length || 0}
+                `;
+                document.body.appendChild(devBanner);
+
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    devBanner.style.opacity = '0.3';
+                    devBanner.style.transition = 'opacity 0.3s';
+                }, 5000);
+            }
             
             // Add CSS for animations
             const style = document.createElement('style');
@@ -2514,6 +3498,18 @@
                     0% { box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.7); }
                     70% { box-shadow: 0 0 0 10px rgba(0, 102, 255, 0); }
                     100% { box-shadow: 0 0 0 0 rgba(0, 102, 255, 0); }
+                }
+                
+                .keyboard-selected {
+                    background: var(--blue-light) !important;
+                    outline: 2px solid var(--blue-primary);
+                    outline-offset: -2px;
+                }
+                
+                .search-result-item:hover,
+                .search-suggestion:hover,
+                .search-quick-chip:hover {
+                    background: var(--light-grey);
                 }
                 
                 .text-center {
@@ -2585,11 +3581,14 @@
 
         window.handleShopLogoClick = function(event) {
             if (!event) return;
-            const user = auth.currentUser;
+            // On shop page, logo click stays on shop (for logged-in users)
+            // or goes to home (for guests)
+            const user = auth?.currentUser;
             if (user) {
                 event.preventDefault();
                 window.location.href = '/shop.html';
             }
+            // If not logged in, let default behavior go to /
         };
 
         window.openProfileSidebar = function(event) {

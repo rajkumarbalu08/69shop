@@ -1119,8 +1119,14 @@ h3 {
 .ad-banner-track {
     display: flex;
     width: max-content;
-    animation: scrollBanner 40s linear infinite;
-    padding-left: 100%;
+    gap: 32px;
+    animation: scrollBanner 30s linear infinite;
+    will-change: transform;
+}
+
+/* Pause animation on hover */
+.ad-banner:hover .ad-banner-track {
+    animation-play-state: paused;
 }
 
 .ad-item {
@@ -1154,11 +1160,6 @@ h3 {
     100% {
         transform: translateX(-50%);
     }
-}
-
-/* Pause animation on hover */
-.ad-banner:hover .ad-banner-track {
-    animation-play-state: paused;
 }
 
 /* ===== BACKGROUND SHAPES FOR HOW IT WORKS SECTION ===== */

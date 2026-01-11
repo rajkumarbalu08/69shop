@@ -15,6 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
 
 </head>
 <body>
@@ -198,7 +199,7 @@
                     <div class="terms-checkbox">
                         <input type="checkbox" id="terms" required>
                         <label for="terms">
-                            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I confirm that I am at least 18 years old.
+                            I agree to the <a href="/docs/terms.html" target="_blank" rel="noreferrer">Terms of Service</a> and <a href="/docs/privacy.html" target="_blank" rel="noreferrer">Privacy Policy</a>. I confirm that I am at least 18 years old.
                         </label>
                     </div>
 
@@ -218,21 +219,17 @@
     <!-- JavaScript -->
     <script>
         // =============================================
-        // FIREBASE CONFIGURATION (YOUR CONFIG)
+        // FIREBASE CONFIGURATION (LOADED EXTERNALLY)
         // =============================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyCJGhxrc-0LKxOEhvGnmcZlr0ignTC6SQI",
-            authDomain: "shop69-1.firebaseapp.com",
-            projectId: "shop69-1",
-            storageBucket: "shop69-1.firebasestorage.app",
-            messagingSenderId: "493886821318",
-            appId: "1:493886821318:web:e5c011deeab1f3700dd8c7",
-            measurementId: "G-7Q8JSJV0QJ"
-        };
+        const firebaseConfig = window.firebaseConfig;
 
-        // Initialize Firebase
         try {
-            firebase.initializeApp(firebaseConfig);
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Missing Firebase configuration. Copy firebase-config.sample.js to firebase-config.js and supply your project credentials.');
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
             console.log("Firebase initialized successfully!");
             updateConnectionStatus("Connected ✓");
         } catch (error) {
@@ -503,7 +500,8 @@
                     email: user.email,
                     name: userData.name || email.split('@')[0],
                     phone: userData.phone || '',
-                    accountType: userData.accountType || 'buyer'
+                    accountType: userData.accountType || 'buyer',
+                    photoURL: userData.photoURL || user.photoURL || ''
                 }));
                 
                 return { 
@@ -547,7 +545,9 @@
                     accountType: userData.accountType,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    isAdmin: false
+                    isAdmin: false,
+                    photoURL: '',
+                    hasSeenWelcomeOffer: false
                 });
                 
                 // 4. Store user session with NAME
@@ -556,7 +556,8 @@
                     email: user.email,
                     name: userData.name,
                     phone: userData.phone,
-                    accountType: userData.accountType
+                    accountType: userData.accountType,
+                    photoURL: ''
                 }));
                 
                 return { 
@@ -622,19 +623,21 @@
                 const result = await firebaseLogin(email, password);
                 
                 if (result.success) {
-                    // showSuccess(`Welcome back ${result.user.name}! Redirecting...`);
-                    
-                    // Wait a moment then redirect to shop
-                    setTimeout(() => {
+                    // Check account type and redirect accordingly
+                    const userData = JSON.parse(localStorage.getItem('69shop_current_user') || '{}');
+                    if (userData.accountType === 'seller') {
+                        window.location.href = '/seller-dashboard.html';
+                    } else {
                         window.location.href = '/shop.html';
-                    }, 0);
+                    }
+                    return; // Prevent hideLoading from running
                 } else {
                     showError(result.error);
+                    hideLoading(loginBtn, originalText, iconClass);
                 }
             } catch (error) {
                 console.error('Unexpected login error:', error);
                 showError('An unexpected error occurred. Please try again.');
-            } finally {
                 hideLoading(loginBtn, originalText, iconClass);
             }
         });
@@ -698,16 +701,34 @@
                 if (result.success) {
                     showSuccess(`Welcome ${name}! Account created successfully. Redirecting...`);
                     
+                    // Redirect based on account type
                     setTimeout(() => {
-                        window.location.href = '/shop.html';
-                    }, 1500);
+                        if (accountType === 'seller') {
+                            // Also create seller profile
+                            db.collection('sellers').doc(result.user.uid).set({
+                                businessName: name,
+                                email: email,
+                                phone: phone,
+                                sellerType: 'product',
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                status: 'active'
+                            }).then(() => {
+                                window.location.href = '/seller-dashboard.html';
+                            }).catch(() => {
+                                window.location.href = '/seller-dashboard.html';
+                            });
+                        } else {
+                            window.location.href = '/shop.html';
+                        }
+                    }, 1000);
+                    return; // Prevent hideLoading from running
                 } else {
                     showError(result.error);
+                    hideLoading(signupBtn, originalText, iconClass);
                 }
             } catch (error) {
                 console.error('Unexpected signup error:', error);
                 showError('An unexpected error occurred. Please try again.');
-            } finally {
                 hideLoading(signupBtn, originalText, iconClass);
             }
         });
@@ -782,14 +803,25 @@
                                 email: user.email,
                                 name: userData.name || user.displayName || user.email.split('@')[0],
                                 phone: userData.phone || '',
-                                accountType: userData.accountType || 'buyer'
+                                accountType: userData.accountType || 'buyer',
+                                photoURL: userData.photoURL || user.photoURL || ''
                             }));
+                            
+                            // Redirect based on account type
+                            setTimeout(() => {
+                                if (userData.accountType === 'seller') {
+                                    window.location.href = '/seller-dashboard.html';
+                                } else {
+                                    window.location.href = '/shop.html';
+                                }
+                            }, 1000);
+                            return;
                         }
                     } catch (error) {
                         console.warn('Error getting user data:', error);
                     }
                     
-                    // Redirect to shop page
+                    // Redirect to shop page (default buyer)
                     setTimeout(() => {
                         window.location.href = '/shop.html';
                     }, 1000);

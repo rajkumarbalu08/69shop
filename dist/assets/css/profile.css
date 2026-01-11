@@ -155,6 +155,9 @@ img {
     margin: 0 auto 16px;
     border-radius: 20px;
     background: linear-gradient(135deg, var(--blue-primary), var(--accent-purple));
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     color: var(--white);
     display: flex;
     align-items: center;
@@ -171,6 +174,240 @@ img {
 .user-card p {
     font-size: 0.95rem;
     color: var(--medium-grey);
+}
+
+.user-avatar.has-photo {
+    color: transparent;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.avatar-actions {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.avatar-upload-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px dashed rgba(0, 102, 255, 0.4);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--blue-primary);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.avatar-upload-trigger:hover {
+    background: rgba(0, 102, 255, 0.08);
+}
+
+.avatar-upload-status {
+    min-height: 18px;
+    font-size: 0.8rem;
+    color: var(--medium-grey);
+    text-align: center;
+}
+
+.avatar-upload-status.error {
+    color: #c0392b;
+}
+
+.avatar-upload-status.success {
+    color: #0f9d58;
+}
+
+.avatar-upload-status.loading {
+    color: var(--blue-primary);
+}
+
+.avatar-reset-btn,
+.avatar-reset-mini {
+    width: 100%;
+    border: 1px dashed rgba(0, 0, 0, 0.2);
+    background: transparent;
+    color: var(--medium-grey);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: var(--transition-fast);
+}
+
+.avatar-reset-btn:hover,
+.avatar-reset-mini:hover {
+    color: var(--blue-primary);
+    border-color: var(--blue-primary);
+}
+
+.avatar-reset-mini {
+    width: auto;
+    border-style: solid;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+}
+
+.avatar-editor-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 6, 23, 0.65);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease;
+}
+
+.avatar-editor-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.avatar-editor-modal {
+    width: min(960px, 100%);
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.avatar-editor-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.avatar-editor-label {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--medium-grey);
+    margin-bottom: 4px;
+}
+
+.avatar-editor-close {
+    border: none;
+    background: transparent;
+    font-size: 1.2rem;
+    color: var(--medium-grey);
+    cursor: pointer;
+}
+
+.avatar-editor-body {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 32px;
+}
+
+.avatar-preview-wrapper {
+    background: var(--light-grey);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+#avatarEditorCanvas {
+    width: 100%;
+    height: auto;
+    max-width: 320px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    border: 8px solid #fff;
+    box-shadow: var(--shadow-md);
+    cursor: grab;
+    touch-action: none;
+}
+
+#avatarEditorCanvas:active {
+    cursor: grabbing;
+}
+
+.avatar-preview-hint {
+    font-size: 0.8rem;
+    color: var(--medium-grey);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.avatar-editor-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--dark-grey);
+}
+
+.control-group input[type="range"] {
+    width: 100%;
+    accent-color: var(--blue-primary);
+}
+
+.avatar-bg-options {
+    display: flex;
+    gap: 10px;
+}
+
+.avatar-bg-option {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.avatar-bg-option.active {
+    border-color: var(--blue-primary);
+    box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.15);
+}
+
+.avatar-editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+@media (max-width: 960px) {
+    .avatar-editor-body {
+        grid-template-columns: 1fr;
+    }
+
+    .avatar-editor-modal {
+        padding: 20px;
+    }
 }
 
 .profile-nav {
