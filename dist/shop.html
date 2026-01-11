@@ -79,7 +79,7 @@
                     </button>
 
                     <!-- User Profile Button -->
-                    <button class="user-profile-btn" id="userProfileBtn">
+                    <button type="button" class="user-profile-btn" id="userProfileBtn" onclick="openProfileSidebar(event)" aria-haspopup="dialog" aria-controls="profileSidebar" aria-expanded="false">
                         <div class="user-avatar" id="userAvatar">U</div>
                         <span class="user-name" id="userName">Loading...</span>
                         <i class="fas fa-chevron-down user-chevron"></i>
@@ -132,7 +132,7 @@
                     </a>
                 </li>
                 <li>
-                            <i class="fas fa-comment"></i>
+                    <a href="/profile.html?section=orders" id="profileOrders" data-profile-link>
                         <i class="fas fa-shopping-bag"></i>
                         <span>My Orders</span>
                     </a>
@@ -250,6 +250,129 @@
             </button>
         </div>
     </div>
+
+    <!-- Checkout Experience Drawer -->
+    <div class="checkout-overlay" id="checkoutOverlay"></div>
+    <section class="checkout-panel" id="checkoutPanel" aria-hidden="true">
+        <div class="checkout-header">
+            <div>
+                <p class="checkout-pretitle">Secure checkout</p>
+                <h3>Review &amp; confirm</h3>
+            </div>
+            <button class="close-checkout" id="closeCheckout" aria-label="Close checkout panel">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="checkout-content">
+            <div class="checkout-column summary-column">
+                <div class="checkout-card">
+                    <div class="card-title">
+                        <h4>Order Summary</h4>
+                        <span id="checkoutItemsCount">0 items</span>
+                    </div>
+                    <div class="checkout-items" id="checkoutItemsList"></div>
+                    <div class="checkout-totals">
+                        <div class="checkout-total-row">
+                            <span>Subtotal</span>
+                            <span id="checkoutSubtotal">₹0</span>
+                        </div>
+                        <div class="checkout-total-row">
+                            <span>Shipping</span>
+                            <span id="checkoutShipping">Free</span>
+                        </div>
+                        <div class="checkout-total-row grand">
+                            <span>Payable Today</span>
+                            <span id="checkoutGrandTotal">₹0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="checkout-card">
+                    <div class="card-title">
+                        <h4>Delivery Window</h4>
+                    </div>
+                    <p class="delivery-estimate">Arrives between <span id="checkoutDeliveryDate"></span></p>
+                    <p class="delivery-note">Live tracking details will be shared once your order ships.</p>
+                </div>
+            </div>
+            <div class="checkout-column form-column">
+                <div class="checkout-card">
+                    <h4>Shipping Details</h4>
+                    <form id="checkoutForm" autocomplete="on">
+                        <div class="form-row two-col">
+                            <div class="form-group">
+                                <label for="checkoutFullName">Full Name</label>
+                                <input type="text" id="checkoutFullName" name="fullName" placeholder="Enter recipient name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="checkoutPhone">Phone Number</label>
+                                <input type="tel" id="checkoutPhone" name="phone" placeholder="+91 98765 43210" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkoutAddress1">Address Line 1</label>
+                            <input type="text" id="checkoutAddress1" name="addressLine1" placeholder="House number, street" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkoutAddress2">Address Line 2 (optional)</label>
+                            <input type="text" id="checkoutAddress2" name="addressLine2" placeholder="Apartment, landmark">
+                        </div>
+                        <div class="form-row two-col">
+                            <div class="form-group">
+                                <label for="checkoutCity">City</label>
+                                <input type="text" id="checkoutCity" name="city" placeholder="Mumbai" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="checkoutState">State</label>
+                                <input type="text" id="checkoutState" name="state" placeholder="Maharashtra" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkoutPostal">Pincode</label>
+                            <input type="text" id="checkoutPostal" name="postalCode" placeholder="400076" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkoutNotes">Delivery Instructions</label>
+                            <textarea id="checkoutNotes" name="instructions" rows="3" placeholder="Add gate/concierge instructions..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="checkout-card">
+                    <h4>Payment Method</h4>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="card" checked>
+                            <div>
+                                <strong>Credit / Debit Card</strong>
+                                <p>Visa, Mastercard, RuPay, Amex</p>
+                            </div>
+                            <i class="fas fa-credit-card"></i>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="upi">
+                            <div>
+                                <strong>UPI / Netbanking</strong>
+                                <p>PhonePe, GPay, BHIM, bank apps</p>
+                            </div>
+                            <i class="fas fa-mobile-alt"></i>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="cod">
+                            <div>
+                                <strong>Cash on Delivery</strong>
+                                <p>Pay when your package arrives</p>
+                            </div>
+                            <i class="fas fa-wallet"></i>
+                        </label>
+                    </div>
+                </div>
+                <div class="checkout-message" id="checkoutMessage" role="status" aria-live="polite"></div>
+                <button class="place-order-btn" id="placeOrderBtn" type="button">
+                    <i class="fas fa-lock"></i>
+                    Place Secure Order
+                </button>
+            </div>
+        </div>
+    </section>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -427,161 +550,99 @@
         </div>
 
         <!-- Service Providers Section -->
-        <section class="service-providers-section">
+        <section class="service-providers-section" id="bookServices">
             <div class="container">
-                <h2 class="section-title">Top Service Providers</h2>
-                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
-                    Book trusted professionals for various services. All providers are verified and rated by customers.
-                </p>
-                
-                <div class="providers-grid">
-                    <!-- Provider 1 -->
-                    <div class="provider-card">
-                        <div class="provider-avatar">
-                            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Rajesh Mehta">
+                <div class="service-booking-intro">
+                    <div>
+                        <p class="service-label">Concierge booking</p>
+                        <h2>Book premium services without leaving the shop experience.</h2>
+                        <p class="service-intro-copy">Pair your cart with couture-ready pleating, jewellery ateliers, gifting studios, bakers, distributors, and photographers that already work with 69Shop buyers. Every request is verified, insured, and tracked.</p>
+                        <div class="service-intro-highlights">
+                            <span><i class="fas fa-star"></i> Verified studios</span>
+                            <span><i class="fas fa-bolt"></i> 48h proposals</span>
+                            <span><i class="fas fa-shield-alt"></i> Escrow-ready</span>
                         </div>
-                        <h3 class="provider-name">Rajesh Mehta</h3>
-                        <div class="provider-category">Home Services Expert</div>
-                        <div class="provider-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                            <span>4.8 (500+ reviews)</span>
+                        <div class="service-intro-actions">
+                            <a href="services.html#directory" class="btn-primary" aria-label="Browse full services" data-keep-text>
+                                <i class="fas fa-layer-group"></i>
+                                Browse services
+                            </a>
+                            <button class="btn-secondary" type="button" onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})">
+                                <i class="fas fa-phone"></i>
+                                Talk to concierge
+                            </button>
                         </div>
-                        <div class="provider-location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Mumbai, Maharashtra</span>
-                        </div>
-                        <div class="provider-experience">
-                            10+ Years Experience
-                        </div>
-                        <ul class="provider-services">
-                            <li><i class="fas fa-check"></i> Plumbing & Electrical Work</li>
-                            <li><i class="fas fa-check"></i> Home Painting & Repair</li>
-                            <li><i class="fas fa-check"></i> Furniture Assembly</li>
-                            <li><i class="fas fa-check"></i> AC & Appliance Repair</li>
-                        </ul>
-                        <div class="provider-price">
-                            Starting from ₹499/service
-                        </div>
-                        <button class="btn-book-service" onclick="bookService('Rajesh Mehta')">
-                            <i class="fas fa-calendar-check"></i>
-                            Book Service
-                        </button>
                     </div>
-                    
-                    <!-- Provider 2 -->
-                    <div class="provider-card">
-                        <div class="provider-avatar">
-                            <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Priya Sharma">
+                    <div class="service-intro-visual">
+                        <div class="service-intro-image primary">
+                            <img src="https://images.unsplash.com/photo-1518544889280-37f4ca38e4dd?auto=format&fit=crop&w=900&q=80" alt="Service collaboration moodboard">
                         </div>
-                        <h3 class="provider-name">Priya Sharma</h3>
-                        <div class="provider-category">Beauty & Wellness</div>
-                        <div class="provider-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <span>5.0 (300+ reviews)</span>
+                        <div class="service-intro-image secondary">
+                            <img src="https://images.unsplash.com/photo-1516822003754-cca485356ecb?auto=format&fit=crop&w=600&q=80" alt="Artisan at work">
                         </div>
-                        <div class="provider-location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Delhi, NCR</span>
+                        <div class="service-intro-chip">
+                            <strong>800+</strong>
+                            <span>briefs fulfilled</span>
                         </div>
-                        <div class="provider-experience">
-                            8+ Years Experience
-                        </div>
-                        <ul class="provider-services">
-                            <li><i class="fas fa-check"></i> Professional Makeup</li>
-                            <li><i class="fas fa-check"></i> Hair Styling & Treatment</li>
-                            <li><i class="fas fa-check"></i> Skincare & Facial</li>
-                            <li><i class="fas fa-check"></i> Bridal Makeup Packages</li>
-                        </ul>
-                        <div class="provider-price">
-                            Starting from ₹1,499/service
-                        </div>
-                        <button class="btn-book-service" onclick="bookService('Priya Sharma')">
-                            <i class="fas fa-calendar-check"></i>
-                            Book Service
-                        </button>
                     </div>
-                    
-                    <!-- Provider 3 -->
-                    <div class="provider-card">
-                        <div class="provider-avatar">
-                            <img src="https://images.unsplash.com/photo-1551836026-d5c2c49b63c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Anjali Verma">
-                        </div>
-                        <h3 class="provider-name">Anjali Verma</h3>
-                        <div class="provider-category">Tutoring & Education</div>
-                        <div class="provider-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <span>5.0 (200+ reviews)</span>
-                        </div>
-                        <div class="provider-location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Bangalore, Karnataka</span>
-                        </div>
-                        <div class="provider-experience">
-                            12+ Years Experience
-                        </div>
-                        <ul class="provider-services">
-                            <li><i class="fas fa-check"></i> Math & Science Tutoring</li>
-                            <li><i class="fas fa-check"></i> Competitive Exam Prep</li>
-                            <li><i class="fas fa-check"></i> Language Classes</li>
-                            <li><i class="fas fa-check"></i> Online & Home Tutoring</li>
+                </div>
+
+                <div class="book-service-grid">
+                    <article class="book-service-card card-jewellery">
+                        <span class="book-service-chip"><i class="fas fa-gem"></i> Handmade Jewellery</span>
+                        <h3>Custom ateliers for bridal & festive collections</h3>
+                        <p>CAD renders, hallmarking, white-glove logistics, and mood boards handled by our craft network.</p>
+                        <ul>
+                            <li><i class="fas fa-check"></i> 12 partner studios</li>
+                            <li><i class="fas fa-check"></i> 3-6 week delivery windows</li>
                         </ul>
-                        <div class="provider-price">
-                            Starting from ₹799/hour
-                        </div>
-                        <button class="btn-book-service" onclick="bookService('Anjali Verma')">
-                            <i class="fas fa-calendar-check"></i>
-                            Book Service
-                        </button>
-                    </div>
-                    
-                    <!-- Provider 4 -->
-                    <div class="provider-card">
-                        <div class="provider-avatar">
-                            <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Suresh Kumar">
-                        </div>
-                        <h3 class="provider-name">Suresh Kumar</h3>
-                        <div class="provider-category">Electronics Repair</div>
-                        <div class="provider-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                            <span>4.2 (150+ reviews)</span>
-                        </div>
-                        <div class="provider-location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Chennai, Tamil Nadu</span>
-                        </div>
-                        <div class="provider-experience">
-                            15+ Years Experience
-                        </div>
-                        <ul class="provider-services">
-                            <li><i class="fas fa-check"></i> Mobile & Laptop Repair</li>
-                            <li><i class="fas fa-check"></i> TV & Home Appliance Repair</li>
-                            <li><i class="fas fa-check"></i> Data Recovery Services</li>
-                            <li><i class="fas fa-check"></i> 24/7 Emergency Service</li>
+                        <a href="services.html#handmade-jewellery" class="btn-book-service" data-keep-text>
+                            <i class="fas fa-arrow-right"></i>
+                            Plan jewellery brief
+                        </a>
+                    </article>
+
+                    <article class="book-service-card card-pleating">
+                        <span class="book-service-chip"><i class="fas fa-fan"></i> Saree Pre-Pleating</span>
+                        <h3>Location-smart pleating teams across TN</h3>
+                        <p>Express pickups in Tirupur, Chennai, and Madurai with stitched waistbands and barcode tracking.</p>
+                        <ul>
+                            <li><i class="fas fa-check"></i> 48h express slots</li>
+                            <li><i class="fas fa-check"></i> Onsite draping crews</li>
                         </ul>
-                        <div class="provider-price">
-                            Starting from ₹299/service
-                        </div>
-                        <button class="btn-book-service" onclick="bookService('Suresh Kumar')">
-                            <i class="fas fa-calendar-check"></i>
-                            Book Service
-                        </button>
-                    </div>
+                        <a href="services.html#saree-prepleating" class="btn-book-service" data-keep-text>
+                            <i class="fas fa-arrow-right"></i>
+                            Reserve pleating crew
+                        </a>
+                    </article>
+
+                    <article class="book-service-card card-bakery">
+                        <span class="book-service-chip"><i class="fas fa-cookie-bite"></i> Bakery & Cookies</span>
+                        <h3>FSSAI-certified kitchens for gifting & tastings</h3>
+                        <p>Subscription cookie tins, festive dessert tables, and insulated shipping for pan-India drops.</p>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Cold-chain ready</li>
+                            <li><i class="fas fa-check"></i> Dietary customization</li>
+                        </ul>
+                        <a href="services.html#bakery" class="btn-book-service" data-keep-text>
+                            <i class="fas fa-arrow-right"></i>
+                            Plan tasting
+                        </a>
+                    </article>
+
+                    <article class="book-service-card card-photo">
+                        <span class="book-service-chip"><i class="fas fa-camera"></i> Photographers</span>
+                        <h3>Lifestyle, product, and wedding storytellers</h3>
+                        <p>Shot lists, styling, edited assets in 72 hours, and add-on reel packages ready for social.</p>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Photo + video crews</li>
+                            <li><i class="fas fa-check"></i> 4.9★ average rating</li>
+                        </ul>
+                        <a href="services.html#photographers" class="btn-book-service" data-keep-text>
+                            <i class="fas fa-arrow-right"></i>
+                            Schedule shoot
+                        </a>
+                    </article>
                 </div>
             </div>
         </section>
@@ -1566,6 +1627,10 @@
                         `).join('');
                     }
                 }
+
+                if (window.checkoutManager && typeof window.checkoutManager.syncWithCart === 'function') {
+                    window.checkoutManager.syncWithCart();
+                }
             }
 
             clearFilters() {
@@ -1882,7 +1947,12 @@
                 const profileSidebar = document.getElementById('profileSidebar');
 
                 if (profileBtn) {
-                    profileBtn.addEventListener('click', () => this.toggleProfileSidebar());
+                    profileBtn.addEventListener('click', (event) => {
+                        if (event) {
+                            event.preventDefault();
+                        }
+                        this.openProfileSidebar();
+                    });
                 }
                 
                 if (closeProfile) {
@@ -1961,14 +2031,24 @@
                 this.setupProfileMenuItems();
             }
 
-            toggleProfileSidebar() {
+            openProfileSidebar() {
                 const profileSidebar = document.getElementById('profileSidebar');
                 const profileOverlay = document.getElementById('profileOverlay');
                 
                 if (profileSidebar && profileOverlay) {
-                    profileSidebar.classList.toggle('active');
-                    profileOverlay.classList.toggle('active');
-                    document.body.style.overflow = profileSidebar.classList.contains('active') ? 'hidden' : '';
+                    profileSidebar.classList.add('active');
+                    profileOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    this.updateProfileTriggerState(true);
+                }
+            }
+
+            toggleProfileSidebar() {
+                const profileSidebar = document.getElementById('profileSidebar');
+                if (profileSidebar?.classList.contains('active')) {
+                    this.closeProfileSidebar();
+                } else {
+                    this.openProfileSidebar();
                 }
             }
 
@@ -1980,6 +2060,14 @@
                     profileSidebar.classList.remove('active');
                     profileOverlay.classList.remove('active');
                     document.body.style.overflow = '';
+                    this.updateProfileTriggerState(false);
+                }
+            }
+
+            updateProfileTriggerState(isOpen) {
+                const trigger = document.getElementById('userProfileBtn');
+                if (trigger) {
+                    trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
                 }
             }
 
@@ -2045,16 +2133,18 @@
             }
 
             handleCheckout() {
-                if (productManager.cart.length === 0) {
+                if (!productManager || productManager.cart.length === 0) {
                     this.showNotification('Your cart is empty!', 'error');
                     return;
                 }
 
-                this.showNotification('Proceeding to checkout... Redirecting to payment page.');
-                // In a real application, you would redirect to a checkout page
-                // setTimeout(() => {
-                //     window.location.href = '/checkout.html';
-                // }, 1500);
+                this.closeCartSidebar();
+
+                if (window.checkoutManager) {
+                    window.checkoutManager.open();
+                } else {
+                    this.showNotification('Checkout is still loading. Please try again.', 'error');
+                }
             }
 
             showNotification(message, type = 'success') {
@@ -2096,16 +2186,323 @@
         }
 
         // =============================================
+        // CHECKOUT MANAGER
+        // =============================================
+        class CheckoutManager {
+            constructor(productManager) {
+                this.productManager = productManager;
+                this.checkoutOverlay = document.getElementById('checkoutOverlay');
+                this.checkoutPanel = document.getElementById('checkoutPanel');
+                this.closeCheckoutBtn = document.getElementById('closeCheckout');
+                this.checkoutItemsList = document.getElementById('checkoutItemsList');
+                this.checkoutItemsCount = document.getElementById('checkoutItemsCount');
+                this.checkoutSubtotal = document.getElementById('checkoutSubtotal');
+                this.checkoutShipping = document.getElementById('checkoutShipping');
+                this.checkoutGrandTotal = document.getElementById('checkoutGrandTotal');
+                this.deliveryDateEl = document.getElementById('checkoutDeliveryDate');
+                this.checkoutForm = document.getElementById('checkoutForm');
+                this.checkoutMessage = document.getElementById('checkoutMessage');
+                this.placeOrderBtn = document.getElementById('placeOrderBtn');
+                this.storageKey = '69shop_checkout_profile';
+                this.shippingThreshold = 2000;
+                this.defaultShippingFee = 79;
+                this.formSaveTimeout = null;
+                this.defaultButtonLabel = this.placeOrderBtn ? this.placeOrderBtn.innerHTML : '';
+                this.initializeEvents();
+            }
+
+            initializeEvents() {
+                if (this.closeCheckoutBtn) {
+                    this.closeCheckoutBtn.addEventListener('click', () => this.close());
+                }
+                if (this.checkoutOverlay) {
+                    this.checkoutOverlay.addEventListener('click', () => this.close());
+                }
+                if (this.placeOrderBtn) {
+                    this.placeOrderBtn.addEventListener('click', () => this.placeOrder());
+                }
+                if (this.checkoutForm) {
+                    this.checkoutForm.addEventListener('input', () => this.handleFormInput());
+                }
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && this.isOpen()) {
+                        this.close();
+                    }
+                });
+            }
+
+            open() {
+                if (!this.productManager || this.productManager.cart.length === 0) {
+                    uiManager?.showNotification('Your cart is empty!', 'error');
+                    return;
+                }
+                this.renderSummary();
+                this.loadFormData();
+                this.prefillFromProfile();
+                this.clearMessage();
+                this.togglePanel(true);
+            }
+
+            close() {
+                this.togglePanel(false);
+            }
+
+            togglePanel(shouldOpen) {
+                if (this.checkoutPanel) {
+                    this.checkoutPanel.classList.toggle('active', shouldOpen);
+                    this.checkoutPanel.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+                }
+                if (this.checkoutOverlay) {
+                    this.checkoutOverlay.classList.toggle('active', shouldOpen);
+                }
+                document.body.style.overflow = shouldOpen ? 'hidden' : '';
+            }
+
+            renderSummary() {
+                if (!this.checkoutItemsList) return;
+                const cart = this.productManager?.cart || [];
+
+                if (cart.length === 0) {
+                    this.checkoutItemsList.innerHTML = `
+                        <div class="checkout-empty">
+                            <i class="fas fa-shopping-basket"></i>
+                            <p>Your cart is empty. Add products to continue.</p>
+                        </div>
+                    `;
+                    this.setButtonDisabled(true);
+                    return;
+                }
+
+                const fallbackImage = 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=200&q=60';
+
+                this.checkoutItemsList.innerHTML = cart.map(item => `
+                    <div class="checkout-item">
+                        <div class="checkout-item-image">
+                            <img src="${item.image || fallbackImage}" alt="${item.name}">
+                        </div>
+                        <div class="checkout-item-info">
+                            <p class="checkout-item-name">${item.name}</p>
+                            <p class="checkout-item-meta">Qty: ${item.quantity}</p>
+                        </div>
+                        <div class="checkout-item-price">${this.formatCurrency(item.price * item.quantity)}</div>
+                    </div>
+                `).join('');
+
+                const totals = this.calculateTotals();
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+                if (this.checkoutItemsCount) {
+                    this.checkoutItemsCount.textContent = `${totalItems} ${totalItems === 1 ? 'item' : 'items'}`;
+                }
+                if (this.checkoutSubtotal) {
+                    this.checkoutSubtotal.textContent = this.formatCurrency(totals.subtotal);
+                }
+                if (this.checkoutShipping) {
+                    this.checkoutShipping.textContent = totals.shipping === 0 ? 'Free' : this.formatCurrency(totals.shipping);
+                }
+                if (this.checkoutGrandTotal) {
+                    this.checkoutGrandTotal.textContent = this.formatCurrency(totals.total);
+                }
+
+                this.updateDeliveryEstimate();
+                this.setButtonDisabled(false);
+            }
+
+            calculateTotals() {
+                const subtotal = (this.productManager?.cart || []).reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const shipping = subtotal === 0 || subtotal >= this.shippingThreshold ? 0 : this.defaultShippingFee;
+                return {
+                    subtotal,
+                    shipping,
+                    total: subtotal + shipping
+                };
+            }
+
+            formatCurrency(value) {
+                return `₹${(value || 0).toLocaleString()}`;
+            }
+
+            updateDeliveryEstimate() {
+                if (!this.deliveryDateEl) return;
+                const start = new Date();
+                const end = new Date();
+                start.setDate(start.getDate() + 2);
+                end.setDate(end.getDate() + 5);
+                this.deliveryDateEl.textContent = `${this.formatDate(start)} - ${this.formatDate(end)}`;
+            }
+
+            formatDate(date) {
+                return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+            }
+
+            handleFormInput() {
+                if (this.checkoutMessage?.classList.contains('error')) {
+                    this.clearMessage();
+                }
+                if (this.formSaveTimeout) {
+                    clearTimeout(this.formSaveTimeout);
+                }
+                this.formSaveTimeout = setTimeout(() => this.saveFormData(), 400);
+            }
+
+            setButtonDisabled(isDisabled) {
+                if (!this.placeOrderBtn) return;
+                this.placeOrderBtn.disabled = isDisabled;
+                this.placeOrderBtn.classList.toggle('disabled', isDisabled);
+            }
+
+            setButtonLoading(isLoading) {
+                if (!this.placeOrderBtn) return;
+                if (isLoading) {
+                    this.placeOrderBtn.disabled = true;
+                    this.placeOrderBtn.classList.add('loading');
+                    this.placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                } else {
+                    this.placeOrderBtn.disabled = false;
+                    this.placeOrderBtn.classList.remove('loading');
+                    this.placeOrderBtn.innerHTML = this.defaultButtonLabel || '<i class="fas fa-lock"></i> Place Secure Order';
+                }
+            }
+
+            placeOrder() {
+                if (!this.checkoutForm) return;
+                const formData = new FormData(this.checkoutForm);
+                const requiredFields = ['fullName', 'phone', 'addressLine1', 'city', 'state', 'postalCode'];
+                const missingField = requiredFields.find((field) => !formData.get(field) || !formData.get(field).trim());
+
+                if (missingField) {
+                    this.showMessage('Please complete all required shipping details.', 'error');
+                    const field = this.checkoutForm.querySelector(`[name="${missingField}"]`);
+                    field?.focus();
+                    return;
+                }
+
+                const paymentMethod = this.checkoutForm.querySelector('input[name="paymentMethod"]:checked');
+                if (!paymentMethod) {
+                    this.showMessage('Select a payment method to continue.', 'error');
+                    return;
+                }
+
+                if (!this.productManager || this.productManager.cart.length === 0) {
+                    this.showMessage('Your cart is empty. Add products to continue.', 'error');
+                    return;
+                }
+
+                this.saveFormData();
+                const orderId = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
+                this.showMessage('Confirming your order...', 'info');
+                this.setButtonLoading(true);
+
+                setTimeout(() => {
+                    this.productManager.cart = [];
+                    this.productManager.saveCartToStorage();
+                    this.productManager.updateCartDisplay();
+                    this.setButtonLoading(false);
+                    this.showMessage(`Order ${orderId} confirmed! A confirmation email is on the way.`, 'success');
+                    uiManager?.showNotification('Order placed successfully! Check your email for details.');
+
+                    setTimeout(() => {
+                        this.close();
+                    }, 1500);
+                }, 1200);
+            }
+
+            showMessage(message, type = 'info') {
+                if (!this.checkoutMessage) return;
+                this.checkoutMessage.textContent = message;
+                this.checkoutMessage.className = `checkout-message ${type}`;
+            }
+
+            clearMessage() {
+                if (!this.checkoutMessage) return;
+                this.checkoutMessage.textContent = '';
+                this.checkoutMessage.className = 'checkout-message';
+            }
+
+            loadFormData() {
+                if (!this.checkoutForm) return;
+                try {
+                    const stored = localStorage.getItem(this.storageKey);
+                    if (!stored) return;
+                    const values = JSON.parse(stored);
+                    Object.entries(values).forEach(([name, value]) => {
+                        const field = this.checkoutForm.querySelector(`[name="${name}"]`);
+                        if (field) {
+                            field.value = value;
+                        }
+                    });
+                } catch (error) {
+                    console.warn('Unable to load checkout preferences', error);
+                }
+            }
+
+            saveFormData() {
+                if (!this.checkoutForm) return;
+                const fields = ['fullName', 'phone', 'addressLine1', 'addressLine2', 'city', 'state', 'postalCode', 'instructions'];
+                const payload = {};
+
+                fields.forEach((name) => {
+                    const field = this.checkoutForm.querySelector(`[name="${name}"]`);
+                    if (field) {
+                        payload[name] = field.value;
+                    }
+                });
+
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(payload));
+                } catch (error) {
+                    console.warn('Unable to save checkout preferences', error);
+                }
+            }
+
+            prefillFromProfile() {
+                if (!authManager || !this.checkoutForm) return;
+                const userData = authManager.getUserData?.();
+                if (!userData) return;
+
+                const nameField = this.checkoutForm.querySelector('[name="fullName"]');
+                if (nameField && !nameField.value) {
+                    nameField.value = userData.name || '';
+                }
+
+                const phoneField = this.checkoutForm.querySelector('[name="phone"]');
+                const possiblePhone = userData.phone || userData.phoneNumber;
+                if (phoneField && !phoneField.value && possiblePhone) {
+                    phoneField.value = possiblePhone;
+                }
+            }
+
+            isOpen() {
+                return this.checkoutPanel?.classList.contains('active');
+            }
+
+            syncWithCart() {
+                if (!this.isOpen()) return;
+                if (!this.productManager || this.productManager.cart.length === 0) {
+                    this.renderSummary();
+                    this.showMessage('Your cart is empty. Continue shopping to place an order.', 'error');
+                    this.setButtonDisabled(true);
+                } else {
+                    this.renderSummary();
+                }
+            }
+        }
+
+        // =============================================
         // INITIALIZE APPLICATION
         // =============================================
-        let authManager, productManager, uiManager, searchManager;
+        let authManager, productManager, uiManager, searchManager, checkoutManager;
 
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize managers
             authManager = new AuthManager();
             productManager = new EnhancedProductManager();
             uiManager = new UIManager();
+            checkoutManager = new CheckoutManager(productManager);
             searchManager = new SearchManager();
+
+            window.productManager = productManager;
+            window.checkoutManager = checkoutManager;
 
             // Update cart display on load
             productManager.updateCartDisplay();
@@ -2195,12 +2592,36 @@
             }
         };
 
+        window.openProfileSidebar = function(event) {
+            if (event) {
+                event.preventDefault();
+            }
+            if (uiManager && typeof uiManager.openProfileSidebar === 'function') {
+                uiManager.openProfileSidebar();
+                return;
+            }
+            const sidebar = document.getElementById('profileSidebar');
+            const overlay = document.getElementById('profileOverlay');
+            if (sidebar && overlay) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                const trigger = document.getElementById('userProfileBtn');
+                if (trigger) {
+                    trigger.setAttribute('aria-expanded', 'true');
+                }
+            } else {
+                window.location.href = '/profile.html?section=dashboard';
+            }
+        };
+
         function bookService(providerName) {
             alert(`Booking service with ${providerName}...\n\nThis will open the booking form in a future update.`);
         }
 
         // Make productManager globally accessible for inline onclick handlers
         window.productManager = productManager;
+        window.checkoutManager = checkoutManager;
         window.bookService = bookService;
         window.showPromotion = showPromotion;
 
