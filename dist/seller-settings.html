@@ -1073,12 +1073,13 @@
             }
             
             try {
-                const storageRef = storage.ref(`seller-logos/${currentSeller.uid}`);
+                const safeName = file.name?.replace(/[^a-zA-Z0-9.-]/g, '_') || 'logo.png';
+                const storageRef = storage.ref(`seller-logos/${currentSeller.uid}/${Date.now()}-${safeName}`);
                 await storageRef.put(file);
                 const logoUrl = await storageRef.getDownloadURL();
                 
                 await db.collection('sellers').doc(currentSeller.uid).update({ logoUrl });
-                
+                currentSeller = { ...currentSeller, logoUrl };
                 document.getElementById('businessLogo').innerHTML = `<img src="${logoUrl}" alt="Logo">`;
                 showToast('Logo uploaded successfully!');
             } catch (error) {

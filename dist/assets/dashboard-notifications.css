@@ -1,0 +1,197 @@
+:root {}
+
+.notification-wrapper {
+    position: relative;
+}
+
+.notification-wrapper .header-btn {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--slate-200, #e2e8f0);
+    background: var(--white, #ffffff);
+    color: var(--slate-600, #475569);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notification-wrapper .header-btn:hover,
+.notification-wrapper .header-btn:focus-visible {
+    background: var(--slate-50, #f8fafc);
+    color: var(--seller-primary, #7c3aed);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.notification-wrapper .header-btn i {
+    pointer-events: none;
+    font-size: 1rem;
+}
+
+.notification-wrapper .header-btn .notification-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--danger, #ef4444);
+    border: 2px solid var(--white, #ffffff);
+    display: none;
+}
+
+.notification-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 320px;
+    background: var(--white, #ffffff);
+    border: 1px solid var(--slate-200, #e2e8f0);
+    border-radius: 16px;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.15);
+    display: none;
+    flex-direction: column;
+    z-index: 1200;
+    max-height: 420px;
+}
+
+.notification-panel.show {
+    display: flex;
+}
+
+.notification-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--slate-100, #f1f5f9);
+}
+
+.notification-panel-header h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    color: var(--slate-900, #0f172a);
+    margin-bottom: 4px;
+}
+
+.notification-panel-header p {
+    font-size: 0.8rem;
+    color: var(--slate-500, #64748b);
+}
+
+.notification-panel-header button {
+    border: none;
+    background: var(--slate-100, #f1f5f9);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--slate-600, #475569);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.notification-panel-header button:hover {
+    background: var(--slate-200, #e2e8f0);
+}
+
+.notification-list {
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--slate-100, #f1f5f9);
+    transition: background 0.2s ease;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item.unread {
+    background: var(--slate-50, #f8fafc);
+}
+
+.notification-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.notification-icon.info {
+    background: var(--info-light, #dbeafe);
+    color: var(--info, #3b82f6);
+}
+
+.notification-icon.order {
+    background: var(--seller-primary-light, #ede9fe);
+    color: var(--seller-primary, #7c3aed);
+}
+
+.notification-icon.warning {
+    background: var(--warning-light, #fef3c7);
+    color: var(--warning, #f59e0b);
+}
+
+.notification-icon.success {
+    background: var(--success-light, #d1fae5);
+    color: var(--success, #10b981);
+}
+
+.notification-icon.danger {
+    background: var(--danger-light, #fee2e2);
+    color: var(--danger, #ef4444);
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--slate-900, #0f172a);
+    margin-bottom: 4px;
+}
+
+.notification-message {
+    font-size: 0.85rem;
+    color: var(--slate-500, #64748b);
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: var(--slate-400, #94a3b8);
+}
+
+.notification-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--slate-500, #64748b);
+}
+
+.notification-empty i {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .notification-panel {
+        width: calc(100vw - 32px);
+        right: -16px;
+    }
+}

@@ -12,6 +12,8 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "encrypt:mail": "node scripts/encrypt-mail-config.js",
+    "audit:admins": "node scripts/admin-audit.js",
+    "audit:admins:fix": "node scripts/admin-audit.js --fix",
     "test": "echo \"No tests yet\""
   },
   "dependencies": {

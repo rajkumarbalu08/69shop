@@ -14,8 +14,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="/js/notifications.js"></script>
+    <script src="/js/admin-shell.js"></script>
     
     <style>
         :root {
@@ -383,6 +385,43 @@
             font-size: 0.75rem;
         }
         
+        .bulk-actions {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--slate-200);
+            background: var(--slate-50);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .bulk-actions.show { display: flex; }
+
+        .bulk-actions .bulk-count {
+            font-weight: 600;
+            color: var(--slate-700);
+        }
+
+        .bulk-actions .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .bulk-actions button {
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .bulk-approve { background: var(--success-light); color: var(--success); }
+        .bulk-reject { background: var(--admin-primary-light); color: var(--admin-primary-dark); }
+
         .filter-btn.active .count { background: rgba(255,255,255,0.3); }
         
         /* Table Card */
@@ -404,6 +443,18 @@
             padding: 16px 20px;
             text-align: left;
         }
+
+        .sellers-table th.select-col,
+        .sellers-table td.select-col {
+            width: 48px;
+            text-align: center;
+        }
+
+        .sellers-table input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
         
         .sellers-table th {
             background: var(--slate-50);
@@ -417,6 +468,7 @@
         
         .sellers-table tr { border-bottom: 1px solid var(--slate-100); }
         .sellers-table tbody tr:hover { background: var(--slate-50); }
+        .sellers-table tbody tr.selected { background: rgba(59,130,246,0.08); }
         
         .seller-info { display: flex; align-items: center; gap: 12px; }
         
@@ -722,7 +774,6 @@
                     <a href="/admin-sellers.html" class="nav-link active">
                         <i class="fas fa-store"></i>
                         <span>Sellers</span>
-                        <span class="nav-badge" id="pendingSellersBadge">0</span>
                     </a>
                     <a href="/admin-users.html" class="nav-link">
                         <i class="fas fa-users"></i>
@@ -843,11 +894,28 @@
                         <i class="fas fa-times-circle"></i> Rejected <span class="count" id="countRejected">0</span>
                     </button>
                 </div>
+
+                <div class="bulk-actions" id="sellerBulkActions">
+                    <span class="bulk-count" id="bulkSelectedCount">0 selected</span>
+                    <div class="actions">
+                        <button class="bulk-approve" id="bulkApproveBtn" disabled>
+                            <i class="fas fa-check"></i>
+                            <span>Approve Selected</span>
+                        </button>
+                        <button class="bulk-reject" id="bulkRejectBtn" disabled>
+                            <i class="fas fa-times"></i>
+                            <span>Reject Selected</span>
+                        </button>
+                    </div>
+                </div>
                 
                 <div class="card">
                     <table class="sellers-table">
                         <thead>
                             <tr>
+                                <th class="select-col">
+                                    <input type="checkbox" id="selectAllSellers">
+                                </th>
                                 <th>Seller</th>
                                 <th>Business Type</th>
                                 <th>Documents</th>
@@ -858,7 +926,7 @@
                         </thead>
                         <tbody id="sellersTableBody">
                             <tr>
-                                <td colspan="6">
+                                <td colspan="7">
                                     <div class="empty-state">
                                         <i class="fas fa-store"></i>
                                         <h3>Loading sellers...</h3>
@@ -912,22 +980,53 @@
         }
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const storage = firebase.storage();
+        let adminShell = null;
         
         let allVerifications = [];
         let currentFilter = 'all';
         let currentSellerId = null;
         let searchQuery = '';
         let notificationFeed = null;
+        let selectedSellerIds = new Set();
+        let visibleSellerIds = [];
+        let visibleSelectableSellerIds = [];
+        let bulkActionInFlight = false;
+
+        function normalizeEmail(email) {
+            return (email || '').trim().toLowerCase();
+        }
+
+        function rawEmail(email) {
+            return (email || '').trim();
+        }
+
+        async function fetchAdminDocument(email) {
+            const normalized = normalizeEmail(email);
+            const raw = rawEmail(email);
+            if (!raw) return null;
+            const adminsRef = db.collection('admins');
+            let doc = await adminsRef.doc(normalized).get();
+            if (doc.exists) return doc;
+            if (raw !== normalized) {
+                doc = await adminsRef.doc(raw).get();
+                if (doc.exists) return doc;
+            }
+            const query = await adminsRef.where('email', '==', raw).limit(1).get();
+            return query.empty ? null : query.docs[0];
+        }
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const isAdmin = await checkAdminStatus(user.email);
                 if (isAdmin) {
+                    adminShell = AdminShell?.init({ db });
                     initNotifications(user);
                     initializePage(user);
                     await loadVerifications();
                     setupFilters();
                     setupSearch();
+                    setupBulkActions();
                     checkUrlParams();
                     hideLoading();
                 } else {
@@ -940,9 +1039,11 @@
 
         async function checkAdminStatus(email) {
             try {
-                if (email === LEAD_ADMIN_EMAIL) return true;
-                const adminDoc = await db.collection('admins').doc(email).get();
-                return adminDoc.exists;
+                const normalizedEmail = normalizeEmail(email);
+                if (!normalizedEmail) return false;
+                if (normalizedEmail === LEAD_ADMIN_EMAIL) return true;
+                const adminDoc = await fetchAdminDocument(email);
+                return !!adminDoc;
             } catch (error) {
                 console.error('Error checking admin status:', error);
                 return false;
@@ -953,7 +1054,7 @@
             const firstName = user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Admin';
             document.getElementById('adminName').textContent = user.displayName || user.email;
             document.getElementById('adminAvatar').textContent = firstName.charAt(0).toUpperCase();
-            document.getElementById('adminRole').textContent = user.email === LEAD_ADMIN_EMAIL ? 'Lead Admin' : 'Admin';
+            document.getElementById('adminRole').textContent = normalizeEmail(user.email) === LEAD_ADMIN_EMAIL ? 'Lead Admin' : 'Admin';
         }
 
         function initNotifications(user) {
@@ -1007,7 +1108,7 @@
             if (tbody) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6">
+                        <td colspan="7">
                             <div class="empty-state">
                                 <i class="fas fa-sync"></i>
                                 <h3>Refreshing seller list...</h3>
@@ -1028,7 +1129,7 @@
             document.getElementById('countPending').textContent = pending;
             document.getElementById('countApproved').textContent = approved;
             document.getElementById('countRejected').textContent = rejected;
-            document.getElementById('pendingSellersBadge').textContent = pending;
+            adminShell?.refresh();
         }
 
         function setupFilters() {
@@ -1051,6 +1152,173 @@
             });
         }
 
+        function setupBulkActions() {
+            const selectAll = document.getElementById('selectAllSellers');
+            if (selectAll) {
+                selectAll.addEventListener('change', (event) => {
+                    handleSelectAllSellers(event.target.checked);
+                });
+            }
+            const approveBtn = document.getElementById('bulkApproveBtn');
+            if (approveBtn) {
+                approveBtn.addEventListener('click', bulkApproveSelectedSellers);
+            }
+            const rejectBtn = document.getElementById('bulkRejectBtn');
+            if (rejectBtn) {
+                rejectBtn.addEventListener('click', bulkRejectSelectedSellers);
+            }
+        }
+
+        function handleSelectAllSellers(isChecked) {
+            if (!visibleSelectableSellerIds.length) return;
+            visibleSelectableSellerIds.forEach(id => {
+                const row = document.querySelector(`[data-seller-row="${id}"]`);
+                const checkbox = row ? row.querySelector('.seller-select') : null;
+                if (!checkbox || checkbox.disabled) return;
+                checkbox.checked = isChecked;
+                if (isChecked) {
+                    selectedSellerIds.add(id);
+                } else {
+                    selectedSellerIds.delete(id);
+                }
+                if (row) {
+                    row.classList.toggle('selected', isChecked);
+                }
+            });
+            updateSelectAllCheckbox();
+            updateSellerBulkActions();
+        }
+
+        function toggleSellerSelection(sellerId, isChecked) {
+            if (isChecked) {
+                selectedSellerIds.add(sellerId);
+            } else {
+                selectedSellerIds.delete(sellerId);
+            }
+            const row = document.querySelector(`[data-seller-row="${sellerId}"]`);
+            if (row) {
+                row.classList.toggle('selected', isChecked);
+            }
+            updateSelectAllCheckbox();
+            updateSellerBulkActions();
+        }
+
+        function updateSelectAllCheckbox() {
+            const selectAll = document.getElementById('selectAllSellers');
+            if (!selectAll) return;
+            if (!visibleSelectableSellerIds.length) {
+                selectAll.checked = false;
+                selectAll.indeterminate = false;
+                selectAll.disabled = true;
+                return;
+            }
+            selectAll.disabled = false;
+            const selectedCount = visibleSelectableSellerIds.filter(id => selectedSellerIds.has(id)).length;
+            selectAll.checked = selectedCount > 0 && selectedCount === visibleSelectableSellerIds.length;
+            selectAll.indeterminate = selectedCount > 0 && selectedCount < visibleSelectableSellerIds.length;
+        }
+
+        function updateSellerBulkActions() {
+            const bulkBar = document.getElementById('sellerBulkActions');
+            const countEl = document.getElementById('bulkSelectedCount');
+            const approveBtn = document.getElementById('bulkApproveBtn');
+            const rejectBtn = document.getElementById('bulkRejectBtn');
+            if (!bulkBar || !countEl || !approveBtn || !rejectBtn) return;
+            const totalSelected = selectedSellerIds.size;
+            const pendingSelected = getSelectedPendingSellers();
+            countEl.textContent = `${totalSelected} selected`;
+            bulkBar.classList.toggle('show', totalSelected > 0);
+            approveBtn.disabled = pendingSelected.length === 0 || bulkActionInFlight;
+            rejectBtn.disabled = pendingSelected.length === 0 || bulkActionInFlight;
+            const approveLabel = approveBtn.querySelector('span');
+            if (approveLabel) {
+                approveLabel.textContent = pendingSelected.length > 1 ? `Approve ${pendingSelected.length} Pending` : 'Approve Selected';
+            }
+            const rejectLabel = rejectBtn.querySelector('span');
+            if (rejectLabel) {
+                rejectLabel.textContent = pendingSelected.length > 1 ? `Reject ${pendingSelected.length} Pending` : 'Reject Selected';
+            }
+        }
+
+        function getSelectedPendingSellers() {
+            return Array.from(selectedSellerIds)
+                .map(id => allVerifications.find(v => v.id === id))
+                .filter(seller => seller && seller.status === 'pending');
+        }
+
+        async function bulkApproveSelectedSellers() {
+            const pendingSellers = getSelectedPendingSellers();
+            if (!pendingSellers.length || bulkActionInFlight) return;
+            if (pendingSellers.length > 500) {
+                showToast('Select up to 500 sellers at once', 'error');
+                return;
+            }
+            if (!confirm(`Approve ${pendingSellers.length} pending seller${pendingSellers.length > 1 ? 's' : ''}?`)) return;
+            try {
+                bulkActionInFlight = true;
+                updateSellerBulkActions();
+                const batch = db.batch();
+                pendingSellers.forEach(seller => {
+                    const verificationRef = db.collection('sellerVerification').doc(seller.id);
+                    batch.update(verificationRef, {
+                        status: 'approved',
+                        approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        approvedBy: auth.currentUser.email
+                    });
+                    const sellerRef = db.collection('sellers').doc(seller.id);
+                    batch.set(sellerRef, { verified: true }, { merge: true });
+                });
+                await batch.commit();
+                selectedSellerIds.clear();
+                showToast(`${pendingSellers.length} seller${pendingSellers.length > 1 ? 's' : ''} approved`, 'success');
+                await loadVerifications();
+            } catch (error) {
+                console.error('Bulk approve failed:', error);
+                showToast('Failed to approve selected sellers', 'error');
+            } finally {
+                bulkActionInFlight = false;
+                updateSellerBulkActions();
+            }
+        }
+
+        async function bulkRejectSelectedSellers() {
+            const pendingSellers = getSelectedPendingSellers();
+            if (!pendingSellers.length || bulkActionInFlight) return;
+            if (pendingSellers.length > 500) {
+                showToast('Select up to 500 sellers at once', 'error');
+                return;
+            }
+            const reason = (prompt('Enter rejection reason for the selected sellers:') || '').trim();
+            if (!reason) {
+                showToast('Rejection reason is required', 'error');
+                return;
+            }
+            try {
+                bulkActionInFlight = true;
+                updateSellerBulkActions();
+                const batch = db.batch();
+                pendingSellers.forEach(seller => {
+                    const verificationRef = db.collection('sellerVerification').doc(seller.id);
+                    batch.update(verificationRef, {
+                        status: 'rejected',
+                        rejectionReason: reason,
+                        rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        rejectedBy: auth.currentUser.email
+                    });
+                });
+                await batch.commit();
+                selectedSellerIds.clear();
+                showToast(`${pendingSellers.length} seller${pendingSellers.length > 1 ? 's' : ''} rejected`, 'success');
+                await loadVerifications();
+            } catch (error) {
+                console.error('Bulk reject failed:', error);
+                showToast('Failed to reject selected sellers', 'error');
+            } finally {
+                bulkActionInFlight = false;
+                updateSellerBulkActions();
+            }
+        }
+
         function renderTable() {
             const tbody = document.getElementById('sellersTableBody');
             let filtered = currentFilter === 'all' ? allVerifications : allVerifications.filter(v => v.status === currentFilter);
@@ -1064,11 +1332,14 @@
                     return target.includes(searchQuery);
                 });
             }
+            visibleSellerIds = filtered.map(v => v.id);
+            visibleSelectableSellerIds = filtered.filter(v => v.status === 'pending').map(v => v.id);
+            selectedSellerIds = new Set(Array.from(selectedSellerIds).filter(id => visibleSelectableSellerIds.includes(id)));
             
             if (filtered.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6">
+                        <td colspan="7">
                             <div class="empty-state">
                                 <i class="fas fa-store"></i>
                                 <h3>No ${currentFilter === 'all' ? '' : currentFilter} verifications</h3>
@@ -1077,6 +1348,8 @@
                         </td>
                     </tr>
                 `;
+                updateSelectAllCheckbox();
+                updateSellerBulkActions();
                 return;
             }
             
@@ -1088,9 +1361,14 @@
                 if (seller.panNumber) docs.push('<span class="doc-badge pan">PAN</span>');
                 if (seller.msmeNumber) docs.push('<span class="doc-badge msme">MSME</span>');
                 if (seller.bankAccount) docs.push('<span class="doc-badge bank">Bank</span>');
+                const isSelected = selectedSellerIds.has(seller.id);
+                const isPending = seller.status === 'pending';
                 
                 return `
-                    <tr>
+                    <tr data-seller-row="${seller.id}" class="${isSelected ? 'selected' : ''}">
+                        <td class="select-col">
+                            <input type="checkbox" class="seller-select" ${isSelected ? 'checked' : ''} ${isPending ? '' : 'disabled'} onchange="toggleSellerSelection('${seller.id}', this.checked)">
+                        </td>
                         <td>
                             <div class="seller-info">
                                 <div class="seller-avatar">${initial}</div>
@@ -1114,7 +1392,7 @@
                                 <button class="btn-sm view" onclick="viewSellerDetails('${seller.id}')">
                                     <i class="fas fa-eye"></i> View
                                 </button>
-                                ${seller.status === 'pending' ? `
+                                ${isPending ? `
                                     <button class="btn-sm approve" onclick="quickApprove('${seller.id}')">
                                         <i class="fas fa-check"></i>
                                     </button>
@@ -1124,15 +1402,23 @@
                     </tr>
                 `;
             }).join('');
+            updateSelectAllCheckbox();
+            updateSellerBulkActions();
         }
 
-        function viewSellerDetails(id) {
+        async function viewSellerDetails(id) {
             currentSellerId = id;
             const seller = allVerifications.find(v => v.id === id);
             if (!seller) return;
             
             document.getElementById('modalBusinessName').textContent = seller.businessName || 'Seller Details';
             const date = seller.submittedAt ? new Date(seller.submittedAt.toDate()).toLocaleString() : 'N/A';
+            let resolvedDocs = [];
+            try {
+                resolvedDocs = await (AdminShell?.resolveDocumentLinks(seller.documents || [], storage) || []);
+            } catch (error) {
+                console.warn('Document resolution failed', error);
+            }
             
             document.getElementById('modalBody').innerHTML = `
                 <div class="detail-section">
@@ -1163,11 +1449,11 @@
                         <div class="detail-item"><label>Bank Name</label><span>${seller.bankName || 'Not provided'}</span></div>
                     </div>
                 </div>
-                ${seller.documents?.length ? `
+                ${resolvedDocs.length ? `
                     <div class="detail-section">
                         <h3><i class="fas fa-paperclip"></i> Uploaded Documents</h3>
                         <div class="document-preview">
-                            ${seller.documents.map((doc, i) => `<a href="${doc}" target="_blank" class="doc-link"><i class="fas fa-file-pdf"></i> Document ${i + 1}</a>`).join('')}
+                            ${resolvedDocs.map((doc, i) => `<a href="${doc}" target="_blank" class="doc-link"><i class="fas fa-file-pdf"></i> Document ${i + 1}</a>`).join('')}
                         </div>
                     </div>
                 ` : ''}

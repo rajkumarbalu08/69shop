@@ -378,6 +378,29 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        function normalizeEmail(email) {
+            return (email || '').trim().toLowerCase();
+        }
+
+        function rawEmail(email) {
+            return (email || '').trim();
+        }
+
+        async function fetchAdminDocument(email) {
+            const normalized = normalizeEmail(email);
+            const raw = rawEmail(email);
+            if (!raw) return null;
+            const adminsRef = db.collection('admins');
+            let doc = await adminsRef.doc(normalized).get();
+            if (doc.exists) return doc;
+            if (raw !== normalized) {
+                doc = await adminsRef.doc(raw).get();
+                if (doc.exists) return doc;
+            }
+            const query = await adminsRef.where('email', '==', raw).limit(1).get();
+            return query.empty ? null : query.docs[0];
+        }
+
         // Check if already logged in as admin
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -391,8 +414,10 @@
         // Check admin status in Firestore
         async function checkAdminStatus(email) {
             try {
-                const adminDoc = await db.collection('admins').doc(email).get();
-                return adminDoc.exists;
+                const normalizedEmail = normalizeEmail(email);
+                if (!normalizedEmail) return false;
+                const adminDoc = await fetchAdminDocument(email);
+                return !!adminDoc;
             } catch (error) {
                 console.error('Error checking admin status:', error);
                 return false;

@@ -5,10 +5,101 @@ const nodemailer = require('nodemailer');
 const { resolveMailConfig } = require('./utils/secretVault');
 
 admin.initializeApp();
+const FieldValue = admin.firestore.FieldValue;
 
 const REGION = 'asia-south1';
 const MAIL_SECRETS_PATH = path.join(__dirname, 'secrets', 'mail.config.enc.json');
 let cachedTransporter = null;
+
+function normalizeEmail(value) {
+    return (value || '').toString().trim().toLowerCase();
+}
+
+function collectAdminAliases(data = {}, adminId) {
+    const aliases = new Set();
+    [data.originalEmail, data.email, adminId]
+        .filter(Boolean)
+        .forEach((alias) => aliases.add(alias));
+    (Array.isArray(data.aliases) ? data.aliases : [])
+        .filter(Boolean)
+        .forEach((alias) => aliases.add(alias));
+    return Array.from(aliases);
+}
+
+async function normalizeAdminSnapshot(snapshot, context) {
+    const adminId = context.params.adminId;
+    const data = snapshot.data() || {};
+    const normalizedId = normalizeEmail(data.email || adminId);
+
+    if (!normalizedId) {
+        functions.logger.warn('Skipping admin normalization due to missing email', { adminId });
+        return null;
+    }
+
+    const aliases = collectAdminAliases(data, adminId);
+    const normalizedFields = {
+        email: normalizedId,
+        originalEmail: data.originalEmail || data.email || adminId,
+        aliases,
+        normalizedAt: FieldValue.serverTimestamp(),
+        normalizedBy: 'ensureAdminDocNormalized'
+    };
+
+    if (adminId === normalizedId) {
+        const updates = {};
+        if (data.email !== normalizedId) {
+            updates.email = normalizedId;
+        }
+        if (!data.originalEmail) {
+            updates.originalEmail = normalizedFields.originalEmail;
+        }
+        const aliasMismatch = !Array.isArray(data.aliases) || data.aliases.length !== aliases.length || data.aliases.some((alias, index) => alias !== aliases[index]);
+        if (aliasMismatch && aliases.length) {
+            updates.aliases = aliases;
+        }
+        if (!data.normalizedAt) {
+            updates.normalizedAt = FieldValue.serverTimestamp();
+        }
+        if (!data.normalizedBy) {
+            updates.normalizedBy = 'ensureAdminDocNormalized';
+        }
+        if (Object.keys(updates).length === 0) {
+            return null;
+        }
+        return snapshot.ref.set(updates, { merge: true });
+    }
+
+    const targetRef = snapshot.ref.parent.doc(normalizedId);
+    const existing = await targetRef.get();
+    const mergedData = {
+        ...data,
+        ...normalizedFields,
+        role: data.role || 'admin',
+        isActive: data.isActive ?? true
+    };
+
+    if (!mergedData.addedAt) {
+        mergedData.addedAt = FieldValue.serverTimestamp();
+    }
+    if (!mergedData.addedBy) {
+        mergedData.addedBy = data.addedBy || null;
+    }
+
+    if (existing.exists) {
+        const existingData = existing.data() || {};
+        mergedData.role = data.role || existingData.role || mergedData.role;
+        mergedData.addedAt = existingData.addedAt || mergedData.addedAt;
+        mergedData.addedBy = existingData.addedBy || mergedData.addedBy;
+        mergedData.isActive = data.isActive ?? existingData.isActive ?? true;
+        const mergedAliases = new Set([...(existingData.aliases || []), ...aliases]);
+        mergedData.aliases = Array.from(mergedAliases);
+    }
+
+    await targetRef.set(mergedData, { merge: true });
+    await snapshot.ref.delete();
+    functions.logger.info('Normalized admin document', { from: adminId, to: normalizedId });
+    return null;
+}
 
 function assertMailConfig(mailConfig) {
     const required = ['host', 'user', 'pass', 'to'];
@@ -147,5 +238,23 @@ exports.sendServiceEmail = functions
         } catch (error) {
             functions.logger.error('Unable to send concierge email', error);
             throw new functions.https.HttpsError('internal', 'Unable to send email right now.');
+        }
+    });
+
+exports.ensureAdminDocNormalized = functions
+    .region(REGION)
+    .firestore.document('admins/{adminId}')
+    .onWrite(async (change, context) => {
+        if (!change.after.exists) {
+            return null;
+        }
+        try {
+            return await normalizeAdminSnapshot(change.after, context);
+        } catch (error) {
+            functions.logger.error('Failed to normalize admin document', {
+                adminId: context.params.adminId,
+                error: error.message
+            });
+            return null;
         }
     });

@@ -15,8 +15,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="/js/notifications.js"></script>
+    <script src="/js/admin-shell.js"></script>
     
     <style>
         :root {
@@ -67,13 +69,13 @@
         .loading-overlay {
             position: fixed;
             inset: 0;
-            background: var(--white);
+            background: rgba(15, 23, 42, 0.4);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
-            flex-direction: column;
-            gap: 20px;
+            gap: 12px;
+            z-index: 2000;
         }
         
         .loading-spinner {
@@ -82,7 +84,7 @@
             border: 3px solid var(--slate-200);
             border-top-color: var(--admin-primary);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 1s linear infinite;
         }
         
         .loading-text { color: var(--slate-500); font-size: 0.9rem; }
@@ -690,7 +692,6 @@
                     <a href="/admin-sellers.html" class="nav-link">
                         <i class="fas fa-store"></i>
                         <span>Sellers</span>
-                        <span class="nav-badge" id="pendingSellersBadge">0</span>
                     </a>
                     <a href="/admin-users.html" class="nav-link">
                         <i class="fas fa-users"></i>
@@ -699,7 +700,6 @@
                     <a href="/admin-products.html" class="nav-link">
                         <i class="fas fa-box-open"></i>
                         <span>Products</span>
-                        <span class="nav-badge" id="pendingProductsBadge">0</span>
                     </a>
                 </div>
                 
@@ -849,9 +849,9 @@
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-chart-area"></i> Revenue Overview</h3>
-                            <div class="card-actions">
-                                <button class="btn-card secondary">Weekly</button>
-                                <button class="btn-card primary">Monthly</button>
+                            <div class="card-actions" id="revenueRangeFilters">
+                                <button class="btn-card secondary" data-range="weekly">Weekly</button>
+                                <button class="btn-card primary" data-range="monthly">Monthly</button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -868,25 +868,11 @@
                         </div>
                         <div class="card-body">
                             <ul class="activity-list" id="activityList">
-                                <li class="activity-item">
-                                    <div class="activity-icon seller"><i class="fas fa-store"></i></div>
+                                <li class="activity-item" id="activityLoading">
+                                    <div class="activity-icon"><i class="fas fa-circle-notch fa-spin"></i></div>
                                     <div class="activity-content">
-                                        <div class="activity-text">New seller <strong>registered</strong></div>
-                                        <div class="activity-time">2 minutes ago</div>
-                                    </div>
-                                </li>
-                                <li class="activity-item">
-                                    <div class="activity-icon order"><i class="fas fa-shopping-bag"></i></div>
-                                    <div class="activity-content">
-                                        <div class="activity-text">Order <strong>completed</strong></div>
-                                        <div class="activity-time">15 minutes ago</div>
-                                    </div>
-                                </li>
-                                <li class="activity-item">
-                                    <div class="activity-icon user"><i class="fas fa-user-plus"></i></div>
-                                    <div class="activity-content">
-                                        <div class="activity-text"><strong>New users</strong> registered today</div>
-                                        <div class="activity-time">3 hours ago</div>
+                                        <div class="activity-text">Loading recent updates...</div>
+                                        <div class="activity-time">Please wait</div>
                                     </div>
                                 </li>
                             </ul>
@@ -975,14 +961,42 @@
         }
         const auth = firebase.auth();
         const db = firebase.firestore();
+        let adminShell = null;
         
         let revenueChart = null;
         let notificationFeed = null;
+        let ordersCache = [];
+        let revenueRange = 'monthly';
+        const REVENUE_RANGE_DAYS = { weekly: 7, monthly: 30 };
+
+        function normalizeEmail(email) {
+            return (email || '').trim().toLowerCase();
+        }
+
+        function rawEmail(email) {
+            return (email || '').trim();
+        }
+
+        async function fetchAdminDocument(email) {
+            const normalized = normalizeEmail(email);
+            const raw = rawEmail(email);
+            if (!raw) return null;
+            const adminsRef = db.collection('admins');
+            let doc = await adminsRef.doc(normalized).get();
+            if (doc.exists) return doc;
+            if (raw !== normalized) {
+                doc = await adminsRef.doc(raw).get();
+                if (doc.exists) return doc;
+            }
+            const query = await adminsRef.where('email', '==', raw).limit(1).get();
+            return query.empty ? null : query.docs[0];
+        }
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const isAdmin = await checkAdminStatus(user.email);
                 if (isAdmin) {
+                    adminShell = AdminShell?.init({ db });
                     initNotifications(user);
                     await initializeDashboard(user);
                     hideLoading();
@@ -996,8 +1010,10 @@
 
         async function checkAdminStatus(email) {
             try {
-                const adminDoc = await db.collection('admins').doc(email).get();
-                return adminDoc.exists;
+                const normalizedEmail = normalizeEmail(email);
+                if (normalizedEmail === LEAD_ADMIN_EMAIL) return true;
+                const adminDoc = await fetchAdminDocument(email);
+                return !!adminDoc;
             } catch (error) {
                 console.error('Error checking admin status:', error);
                 return false;
@@ -1010,7 +1026,7 @@
             document.getElementById('adminName').textContent = user.displayName || user.email;
             document.getElementById('adminAvatar').textContent = firstName.charAt(0).toUpperCase();
             
-            const isLeadAdmin = user.email === LEAD_ADMIN_EMAIL;
+            const isLeadAdmin = normalizeEmail(user.email) === LEAD_ADMIN_EMAIL;
             document.getElementById('adminRole').textContent = isLeadAdmin ? 'Lead Admin' : 'Admin';
             
             const now = new Date();
@@ -1019,44 +1035,40 @@
             
             await loadDashboardStats();
             initializeChart();
-            await loadPendingVerifications();
+            setupRevenueFilters();
+            updateRevenueChart(revenueRange);
+            await Promise.all([
+                loadPendingVerifications(),
+                loadRecentActivity()
+            ]);
         }
 
         async function loadDashboardStats() {
             try {
-                const usersSnapshot = await db.collection('users').get();
+                const [
+                    usersSnapshot,
+                    productsSnapshot,
+                    pendingSellersSnapshot,
+                    pendingProductsSnapshot,
+                    ordersSnapshot
+                ] = await Promise.all([
+                    db.collection('users').get(),
+                    db.collection('products').get(),
+                    db.collection('sellerVerification').where('status', '==', 'pending').get(),
+                    db.collection('products').where('approvalStatus', '==', 'pending').get(),
+                    db.collection('orders').get()
+                ]);
+
                 document.getElementById('totalUsers').textContent = usersSnapshot.size;
-                
-                const productsSnapshot = await db.collection('products').get();
                 document.getElementById('totalProducts').textContent = productsSnapshot.size;
-                
-                const pendingSellersSnapshot = await db.collection('sellerVerification')
-                    .where('status', '==', 'pending').get();
-                document.getElementById('pendingSellersBadge').textContent = pendingSellersSnapshot.size;
-                
-                // Count verified sellers from sellers collection
-                const verifiedSellersSnapshot = await db.collection('sellers').get();
-                const verifiedCount = verifiedSellersSnapshot.size;
-                
-                const pendingProductsSnapshot = await db.collection('products')
-                    .where('approvalStatus', '==', 'pending').get();
-                document.getElementById('pendingProductsBadge').textContent = pendingProductsSnapshot.size;
-                
-                let totalRevenue = 0;
-                let totalOrders = 0;
-                
-                try {
-                    const ordersSnapshot = await db.collection('orders').get();
-                    totalOrders = ordersSnapshot.size;
-                    ordersSnapshot.forEach(doc => {
-                        const order = doc.data();
-                        totalRevenue += parseFloat(order.total || order.amount || 0);
-                    });
-                } catch (e) {}
-                
+                ordersCache = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const totalRevenue = ordersCache.reduce((sum, order) => sum + Number(order.total || order.amount || 0), 0);
+                const totalOrders = ordersCache.length;
+
                 document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
                 document.getElementById('totalOrders').textContent = totalOrders;
-                
+
+                adminShell?.refresh?.();
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
@@ -1108,16 +1120,119 @@
             }
         }
 
+        async function loadRecentActivity() {
+            const list = document.getElementById('activityList');
+            if (!list) return;
+            list.innerHTML = `
+                <li class="activity-item">
+                    <div class="activity-icon"><i class="fas fa-circle-notch fa-spin"></i></div>
+                    <div class="activity-content">
+                        <div class="activity-text">Loading recent updates...</div>
+                        <div class="activity-time">Please wait</div>
+                    </div>
+                </li>
+            `;
+            try {
+                const [sellerSnapshot, userSnapshot] = await Promise.all([
+                    db.collection('sellerVerification').orderBy('submittedAt', 'desc').limit(5).get().catch(() => null),
+                    db.collection('users').orderBy('createdAt', 'desc').limit(5).get().catch(() => null)
+                ]);
+
+                const activities = [];
+
+                ordersCache
+                    .filter(order => getTimestamp(order.createdAt))
+                    .sort((a, b) => getTimestamp(b.createdAt) - getTimestamp(a.createdAt))
+                    .slice(0, 5)
+                    .forEach(order => {
+                        const ts = getTimestamp(order.createdAt);
+                        activities.push({
+                            type: 'order',
+                            text: `${order.customer?.name || order.customerName || order.shipping?.name || 'Customer'} placed an order`,
+                            time: ts
+                        });
+                    });
+
+                if (sellerSnapshot) {
+                    sellerSnapshot.docs.forEach(doc => {
+                        const data = doc.data();
+                        const ts = getTimestamp(data.submittedAt);
+                        if (!ts) return;
+                        activities.push({
+                            type: 'seller',
+                            text: `${data.businessName || data.sellerName || 'Seller'} submitted verification`,
+                            time: ts
+                        });
+                    });
+                }
+
+                if (userSnapshot) {
+                    userSnapshot.docs.forEach(doc => {
+                        const data = doc.data();
+                        const ts = getTimestamp(data.createdAt);
+                        if (!ts) return;
+                        activities.push({
+                            type: 'user',
+                            text: `${data.displayName || data.email || 'User'} joined the platform`,
+                            time: ts
+                        });
+                    });
+                }
+
+                activities.sort((a, b) => b.time - a.time);
+                renderRecentActivity(list, activities.slice(0, 6));
+            } catch (error) {
+                console.error('Error loading activity feed:', error);
+                list.innerHTML = `
+                    <li class="activity-item">
+                        <div class="activity-icon"><i class="fas fa-exclamation-circle"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-text">Failed to load activity</div>
+                            <div class="activity-time">${error.message}</div>
+                        </div>
+                    </li>
+                `;
+            }
+        }
+
+        function renderRecentActivity(list, items) {
+            if (!items.length) {
+                list.innerHTML = `
+                    <li class="activity-item">
+                        <div class="activity-icon"><i class="fas fa-bell-slash"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-text">No recent updates</div>
+                            <div class="activity-time">You're all caught up</div>
+                        </div>
+                    </li>
+                `;
+                return;
+            }
+
+            list.innerHTML = items.map(item => {
+                const typeClass = item.type || 'user';
+                const iconMap = { order: 'shopping-bag', seller: 'store', user: 'user-plus' };
+                return `
+                    <li class="activity-item">
+                        <div class="activity-icon ${typeClass}"><i class="fas fa-${iconMap[typeClass] || 'info-circle'}"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-text">${item.text}</div>
+                            <div class="activity-time">${formatRelativeTime(item.time)}</div>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+        }
+
         function initializeChart() {
             const ctx = document.getElementById('revenueChart').getContext('2d');
-            
             revenueChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: [],
                     datasets: [{
                         label: 'Revenue',
-                        data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 40000, 38000, 45000, 50000],
+                        data: [],
                         fill: true,
                         backgroundColor: (context) => {
                             const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
@@ -1148,7 +1263,7 @@
                             displayColors: false,
                             callbacks: {
                                 label: function(context) {
-                                    return '₹' + context.parsed.y.toLocaleString('en-IN');
+                                    return '₹' + Number(context.parsed.y || 0).toLocaleString('en-IN');
                                 }
                             }
                         }
@@ -1166,6 +1281,85 @@
                     interaction: { intersect: false, mode: 'index' }
                 }
             });
+        }
+
+        function setupRevenueFilters() {
+            const buttons = document.querySelectorAll('#revenueRangeFilters button[data-range]');
+            if (!buttons.length) return;
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const range = button.dataset.range;
+                    if (!range || range === revenueRange) return;
+                    revenueRange = range;
+                    updateRevenueFilterButtons(range);
+                    updateRevenueChart(range);
+                });
+            });
+            updateRevenueFilterButtons(revenueRange);
+        }
+
+        function updateRevenueFilterButtons(activeRange) {
+            document.querySelectorAll('#revenueRangeFilters button[data-range]').forEach(button => {
+                const isActive = button.dataset.range === activeRange;
+                button.classList.toggle('primary', isActive);
+                button.classList.toggle('secondary', !isActive);
+            });
+        }
+
+        function buildDateRange(days) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const range = [];
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                range.push({
+                    key: date.toISOString().split('T')[0],
+                    label: date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+                });
+            }
+            return range;
+        }
+
+        function updateRevenueChart(rangeKey = 'monthly') {
+            if (!revenueChart) return;
+            const days = REVENUE_RANGE_DAYS[rangeKey] || 30;
+            const dateRange = buildDateRange(days);
+            const buckets = {};
+            dateRange.forEach(day => { buckets[day.key] = 0; });
+            ordersCache.forEach(order => {
+                const ts = getTimestamp(order.createdAt);
+                if (!ts) return;
+                const date = new Date(ts);
+                date.setHours(0, 0, 0, 0);
+                const key = date.toISOString().split('T')[0];
+                if (key in buckets) {
+                    buckets[key] += Number(order.total || order.amount || 0);
+                }
+            });
+            revenueChart.data.labels = dateRange.map(day => day.label);
+            revenueChart.data.datasets[0].data = dateRange.map(day => buckets[day.key]);
+            revenueChart.update();
+        }
+
+        function getTimestamp(value) {
+            if (!value) return 0;
+            if (typeof value === 'number') return value;
+            if (value instanceof Date) return value.getTime();
+            if (value.seconds) return value.seconds * 1000;
+            if (typeof value.toDate === 'function') return value.toDate().getTime();
+            const parsed = Date.parse(value);
+            return Number.isNaN(parsed) ? 0 : parsed;
+        }
+
+        function formatRelativeTime(timestamp) {
+            if (!timestamp) return 'Just now';
+            const diff = Date.now() - timestamp;
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+            if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+            return new Date(timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
         }
 
         function initNotifications(user) {

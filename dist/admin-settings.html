@@ -14,8 +14,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="/js/notifications.js"></script>
+    <script src="/js/admin-shell.js"></script>
     
     <style>
         :root {
@@ -169,6 +171,36 @@
         .admin-role-badge { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
         .admin-role-badge.lead { background: var(--warning-light); color: #B45309; }
         .admin-role-badge.admin { background: var(--info-light); color: #1D4ED8; }
+
+        .admin-role-control {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 10px;
+            max-width: 240px;
+        }
+
+        .admin-role-control label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--slate-500);
+        }
+
+        .admin-role-select {
+            padding: 10px 12px;
+            border: 1px solid var(--slate-300);
+            border-radius: var(--radius-md);
+            background: var(--white);
+            font-size: 0.85rem;
+            color: var(--slate-700);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .admin-role-select:focus {
+            border-color: var(--admin-primary);
+            box-shadow: 0 0 0 3px var(--admin-primary-light);
+        }
         
         .admin-actions { display: flex; gap: 8px; }
         
@@ -179,12 +211,32 @@
         
         /* Add Admin Form */
         .add-admin-form { display: flex; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--slate-200); }
-        .add-admin-form input { flex: 1; padding: 12px 16px; border: 1px solid var(--slate-200); border-radius: var(--radius-md); font-size: 0.9rem; outline: none; transition: var(--transition); }
-        .add-admin-form input:focus { border-color: var(--admin-primary); box-shadow: 0 0 0 3px var(--admin-primary-light); }
+        .add-admin-form input,
+        .add-admin-form select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+            background: var(--white);
+            color: var(--slate-700);
+        }
+
+        .add-admin-form input:focus,
+        .add-admin-form select:focus {
+            border-color: var(--admin-primary);
+            box-shadow: 0 0 0 3px var(--admin-primary-light);
+        }
         
         .btn-primary { padding: 12px 24px; background: var(--admin-gradient); color: var(--white); border: none; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: var(--transition); }
         .btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
         .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-secondary { padding: 12px 24px; background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-300); border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
+        .btn-secondary:hover { background: var(--slate-200); }
+        .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
         
         /* Notification Settings */
         .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--slate-100); }
@@ -210,6 +262,20 @@
         .toast.show { transform: translateY(0); opacity: 1; }
         .toast.success { background: var(--success); }
         .toast.error { background: var(--admin-primary); }
+        .toast.info { background: var(--slate-700); }
+
+        .activity-feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+        .activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--slate-200); background: var(--white); }
+        .activity-item .activity-icon { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--light-grey); color: var(--admin-primary); font-size: 0.9rem; }
+        .activity-item .activity-content { flex: 1; }
+        .activity-item .activity-title { font-weight: 600; color: var(--primary-black); margin-bottom: 4px; }
+        .activity-item .activity-meta { font-size: 0.85rem; color: var(--medium-grey); }
+        .activity-item .activity-details { margin-top: 6px; font-size: 0.85rem; color: var(--secondary-black); display: flex; flex-wrap: wrap; gap: 8px; }
+        .activity-empty { text-align: center; color: var(--medium-grey); font-size: 0.9rem; padding: 16px; border: 1px dashed var(--slate-300); border-radius: var(--radius-md); background: var(--light-grey); }
+
+        .settings-actions { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 0 0; border-top: 1px solid var(--slate-200); margin-top: 24px; }
+        .settings-actions .btn-primary { min-width: 150px; justify-content: center; }
+        .settings-actions .btn-secondary { min-width: 120px; justify-content: center; }
         
         @media (max-width: 1024px) {
             .admin-sidebar { transform: translateX(-100%); }
@@ -382,7 +448,7 @@
                                 <p>Get notified when a seller submits verification documents</p>
                             </div>
                             <label class="toggle-switch">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" id="notificationSellerVerification" data-setting-key="notifications.sellerVerification">
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
@@ -392,7 +458,7 @@
                                 <p>Notify when products need approval or review</p>
                             </div>
                             <label class="toggle-switch">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" id="notificationProductModeration" data-setting-key="notifications.productModeration">
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
@@ -402,7 +468,7 @@
                                 <p>Alert for disputed or problematic orders</p>
                             </div>
                             <label class="toggle-switch">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" id="notificationOrderIssues" data-setting-key="notifications.orderIssues">
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
@@ -412,7 +478,7 @@
                                 <p>Receive weekly platform performance summary</p>
                             </div>
                             <label class="toggle-switch">
-                                <input type="checkbox">
+                                <input type="checkbox" id="notificationWeeklyReports" data-setting-key="notifications.weeklyReports">
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
@@ -434,7 +500,7 @@
                                 <p>Temporarily disable the store for visitors</p>
                             </div>
                             <label class="toggle-switch">
-                                <input type="checkbox">
+                                <input type="checkbox" id="platformMaintenance" data-setting-key="platform.maintenanceMode">
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
@@ -444,7 +510,7 @@
                                 <p>Allow new sellers to register on the platform</p>
                             </div>
                             <label class="toggle-switch">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" id="platformSellerRegistration" data-setting-key="platform.newSellerRegistration">
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
@@ -454,11 +520,33 @@
                                 <p>Auto-approve products from verified sellers</p>
                             </div>
                             <label class="toggle-switch">
-                                <input type="checkbox">
+                                <input type="checkbox" id="platformAutoApproval" data-setting-key="platform.autoProductApproval">
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
                     </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title"><i class="fas fa-clipboard-list"></i> Admin Activity</h2>
+                            <p class="section-subtitle">Track who changed sensitive settings</p>
+                        </div>
+                    </div>
+                    <div class="section-body">
+                        <ul class="activity-feed" id="adminActivityFeed">
+                            <li class="activity-empty">Loading recent activity...</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="settings-actions" id="settingsActions">
+                    <button class="btn-secondary" id="cancelSettingsBtn" disabled>Cancel</button>
+                    <button class="btn-primary" id="saveSettingsBtn" disabled>
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
                 </div>
             </div>
         </main>
@@ -478,17 +566,183 @@
         }
         const auth = firebase.auth();
         const db = firebase.firestore();
-        
+        let adminShell = null;
         let currentUser = null;
         let isLeadAdmin = false;
         let notificationFeed = null;
+        let activityUnsubscribe = null;
+        const SETTINGS_DOC_ID = 'global';
+        const DEFAULT_SETTINGS = {
+            notifications: {
+                sellerVerification: true,
+                productModeration: true,
+                orderIssues: true,
+                weeklyReports: false
+            },
+            platform: {
+                maintenanceMode: false,
+                newSellerRegistration: true,
+                autoProductApproval: false
+            }
+        };
+        const ADMIN_ROLE_OPTIONS = [
+            { value: 'general', label: 'General Admin' },
+            { value: 'operations', label: 'Operations' },
+            { value: 'catalog', label: 'Catalog & Listings' },
+            { value: 'seller-support', label: 'Seller Support' },
+            { value: 'finance', label: 'Finance & Payouts' },
+            { value: 'marketing', label: 'Marketing & Campaigns' }
+        ];
+        const DEFAULT_ADMIN_ROLE = 'general';
+        const ADMIN_ROLE_LABELS = ADMIN_ROLE_OPTIONS.reduce((map, role) => {
+            map[role.value] = role.label;
+            return map;
+        }, {});
+        let storedSettings = cloneSettings(DEFAULT_SETTINGS);
+        let draftSettings = cloneSettings(DEFAULT_SETTINGS);
+        let settingsInputs = {};
+        let canEditPlatformSettings = false;
+
+        function normalizeEmail(email) {
+            return (email || '').trim().toLowerCase();
+        }
+
+        function rawEmail(email) {
+            return (email || '').trim();
+        }
+
+        async function fetchAdminDocument(email) {
+            const normalized = normalizeEmail(email);
+            const raw = rawEmail(email);
+            if (!raw) return null;
+            const adminsRef = db.collection('admins');
+            let doc = await adminsRef.doc(normalized).get();
+            if (doc.exists) return doc;
+            if (raw !== normalized) {
+                doc = await adminsRef.doc(raw).get();
+                if (doc.exists) return doc;
+            }
+            const query = await adminsRef.where('email', '==', raw).limit(1).get();
+            return query.empty ? null : query.docs[0];
+        }
+
+        function isPlainObject(value) {
+            return Object.prototype.toString.call(value) === '[object Object]';
+        }
+
+        function diffSettings(before = {}, after = {}, prefix = '') {
+            const changes = [];
+            const keys = new Set([...(Object.keys(before || {})), ...(Object.keys(after || {}))]);
+            keys.forEach((key) => {
+                const path = prefix ? `${prefix}.${key}` : key;
+                const prevValue = before ? before[key] : undefined;
+                const nextValue = after ? after[key] : undefined;
+                if (isPlainObject(prevValue) || isPlainObject(nextValue)) {
+                    changes.push(...diffSettings(prevValue || {}, nextValue || {}, path));
+                } else if (prevValue !== nextValue) {
+                    changes.push({ key: path, from: prevValue ?? false, to: nextValue ?? false });
+                }
+            });
+            return changes;
+        }
+
+        async function logAdminActivity(action, context = {}) {
+            if (!db || !currentUser) return;
+            try {
+                await db.collection('adminActivity').add({
+                    action,
+                    context,
+                    performedBy: currentUser.email,
+                    performerId: currentUser.uid,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.warn('Failed to log admin activity', error);
+            }
+        }
+
+        function subscribeToAdminActivity() {
+            const feedEl = document.getElementById('adminActivityFeed');
+            if (!feedEl || !db) return;
+            feedEl.innerHTML = '<li class="activity-empty">Loading recent activity...</li>';
+            if (typeof activityUnsubscribe === 'function') {
+                activityUnsubscribe();
+            }
+            activityUnsubscribe = db.collection('adminActivity')
+                .orderBy('timestamp', 'desc')
+                .limit(20)
+                .onSnapshot((snapshot) => {
+                    if (snapshot.empty) {
+                        feedEl.innerHTML = '<li class="activity-empty">No admin activity yet.</li>';
+                        return;
+                    }
+                    const entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderAdminActivity(entries);
+                }, (error) => {
+                    console.error('Activity feed error:', error);
+                    feedEl.innerHTML = `<li class="activity-empty">${error.message}</li>`;
+                });
+        }
+
+        function renderAdminActivity(entries = []) {
+            const feedEl = document.getElementById('adminActivityFeed');
+            if (!feedEl) return;
+            feedEl.innerHTML = entries.map(entry => {
+                const meta = formatActivityMeta(entry.action);
+                const details = formatActivityDetails(entry.action, entry.context || {});
+                return `
+                    <li class="activity-item">
+                        <div class="activity-icon"><i class="fas fa-${meta.icon}"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-title">${meta.label}</div>
+                            <div class="activity-meta">${entry.performedBy || 'Unknown'} • ${formatActivityTime(entry.timestamp)}</div>
+                            ${details ? `<div class="activity-details">${details}</div>` : ''}
+                        </div>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        function formatActivityMeta(action) {
+            const map = {
+                'admin-added': { label: 'Admin added', icon: 'user-plus' },
+                'admin-removed': { label: 'Admin removed', icon: 'user-minus' },
+                'admin-role-updated': { label: 'Admin role updated', icon: 'user-shield' },
+                'platform-settings-updated': { label: 'Platform settings updated', icon: 'sliders-h' }
+            };
+            return map[action] || { label: 'Admin update', icon: 'clipboard-list' };
+        }
+
+        function formatActivityDetails(action, context = {}) {
+            if (action === 'platform-settings-updated' && Array.isArray(context.changes) && context.changes.length) {
+                return context.changes.slice(0, 4).map(change => `<span>${change.key}: ${change.from ? 'On' : 'Off'} → ${change.to ? 'On' : 'Off'}</span>`).join('');
+            }
+            if ((action === 'admin-added' || action === 'admin-removed' || action === 'admin-role-updated') && context.email) {
+                const role = context.role || context.newRole;
+                const roleLabel = role ? (ADMIN_ROLE_LABELS[role] || role) : '';
+                const roleText = roleLabel ? ` • ${roleLabel}` : '';
+                return `<span>${context.email}${roleText}</span>`;
+            }
+            return '';
+        }
+
+        function formatActivityTime(timestamp) {
+            if (!timestamp) return 'Just now';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const diff = Date.now() - date.getTime();
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+            return date.toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+        }
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const isAdmin = await checkAdminStatus(user.email);
                 if (isAdmin) {
                     currentUser = user;
-                    isLeadAdmin = user.email === LEAD_ADMIN_EMAIL;
+                    isLeadAdmin = normalizeEmail(user.email) === LEAD_ADMIN_EMAIL;
+                    adminShell = AdminShell?.init({ db });
                     initNotifications(user);
                     await initializePage(user);
                     hideLoading();
@@ -502,8 +756,11 @@
 
         async function checkAdminStatus(email) {
             try {
-                const adminDoc = await db.collection('admins').doc(email).get();
-                return adminDoc.exists;
+                const normalized = normalizeEmail(email);
+                if (!normalized) return false;
+                if (normalized === LEAD_ADMIN_EMAIL) return true;
+                const adminDoc = await fetchAdminDocument(email);
+                return !!adminDoc;
             } catch (error) {
                 console.error('Error checking admin status:', error);
                 return false;
@@ -516,7 +773,11 @@
             document.getElementById('adminAvatar').textContent = firstName.charAt(0).toUpperCase();
             document.getElementById('adminRole').textContent = isLeadAdmin ? 'Lead Admin' : 'Admin';
             
+            canEditPlatformSettings = isLeadAdmin;
+            bindSettingsInputs();
             await loadAdminManagement();
+            await loadPlatformSettings();
+            subscribeToAdminActivity();
         }
 
         function initNotifications(user) {
@@ -536,6 +797,40 @@
                 refreshSelector: '#notificationRefresh',
                 subtitleSelector: '#notificationSubtitle'
             });
+        }
+
+        function resolveAdminRole(role) {
+            return ADMIN_ROLE_LABELS[role] ? role : DEFAULT_ADMIN_ROLE;
+        }
+
+        function getRoleLabel(role, isLead) {
+            if (isLead) return 'Lead Admin';
+            const resolved = resolveAdminRole(role);
+            return ADMIN_ROLE_LABELS[resolved] || ADMIN_ROLE_LABELS[DEFAULT_ADMIN_ROLE];
+        }
+
+        function getRoleSelectOptions(selectedRole = DEFAULT_ADMIN_ROLE) {
+            const resolved = resolveAdminRole(selectedRole);
+            return ADMIN_ROLE_OPTIONS.map(option => `
+                <option value="${option.value}" ${option.value === resolved ? 'selected' : ''}>${option.label}</option>
+            `).join('');
+        }
+
+        function createRoleSelectId(email) {
+            return `role-${email.replace(/[^a-z0-9]/gi, '-')}`;
+        }
+
+        function renderRoleSelect(email, selectedRole) {
+            if (!isLeadAdmin || email === LEAD_ADMIN_EMAIL) return '';
+            const selectId = createRoleSelectId(email);
+            return `
+                <div class="admin-role-control">
+                    <label for="${selectId}">Assign Role</label>
+                    <select id="${selectId}" class="admin-role-select" data-role-select="${email}">
+                        ${getRoleSelectOptions(selectedRole)}
+                    </select>
+                </div>
+            `;
         }
 
         async function loadAdminManagement() {
@@ -567,6 +862,9 @@
                             const isLead = admin.email === LEAD_ADMIN_EMAIL;
                             const initial = admin.email.charAt(0).toUpperCase();
                             const addedDate = admin.addedAt?.toDate?.() || new Date();
+                            const roleValue = resolveAdminRole(admin.role);
+                            const roleLabel = getRoleLabel(roleValue, isLead);
+                            const roleSelectControl = renderRoleSelect(admin.email, roleValue);
                             
                             return `
                                 <div class="admin-item">
@@ -574,9 +872,10 @@
                                     <div class="admin-info">
                                         <div class="admin-email">${admin.email}</div>
                                         <div class="admin-meta">
-                                            <span class="admin-role-badge ${isLead ? 'lead' : 'admin'}">${isLead ? 'Lead Admin' : 'Admin'}</span>
+                                            <span class="admin-role-badge ${isLead ? 'lead' : 'admin'}">${roleLabel}</span>
                                             <span>Added ${addedDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                                         </div>
+                                        ${roleSelectControl}
                                     </div>
                                     <div class="admin-actions">
                                         <button class="btn-icon delete" onclick="removeAdmin('${admin.email}')" ${isLead ? 'disabled title="Cannot remove Lead Admin"' : 'title="Remove Admin"'}>
@@ -590,12 +889,17 @@
                     
                     <form class="add-admin-form" onsubmit="addAdmin(event)">
                         <input type="email" id="newAdminEmail" placeholder="Enter email address to add as admin" required>
+                        <select id="newAdminRole" aria-label="Select role for new admin">
+                            ${getRoleSelectOptions(DEFAULT_ADMIN_ROLE)}
+                        </select>
                         <button type="submit" class="btn-primary">
                             <i class="fas fa-plus"></i>
                             Add Admin
                         </button>
                     </form>
                 `;
+
+                bindRoleSelects();
                 
             } catch (error) {
                 console.error('Error loading admins:', error);
@@ -611,6 +915,170 @@
             }
         }
 
+        function bindRoleSelects() {
+            if (!isLeadAdmin) return;
+            document.querySelectorAll('[data-role-select]').forEach(select => {
+                select.dataset.previousRole = select.value;
+                select.addEventListener('change', (event) => {
+                    const email = event.target.dataset.roleSelect;
+                    const newRole = event.target.value;
+                    updateAdminRole(email, newRole, event.target);
+                });
+            });
+        }
+
+        async function updateAdminRole(email, newRole, controlEl) {
+            if (!isLeadAdmin) {
+                showToast('Only Lead Admin can update roles', 'error');
+                if (controlEl && controlEl.dataset.previousRole) {
+                    controlEl.value = controlEl.dataset.previousRole;
+                }
+                return;
+            }
+            if (!email || !newRole) return;
+            const previousRole = controlEl?.dataset.previousRole || DEFAULT_ADMIN_ROLE;
+            controlEl?.setAttribute('disabled', 'disabled');
+            try {
+                await db.collection('admins').doc(email).update({ role: newRole });
+                await logAdminActivity('admin-role-updated', { email, previousRole, newRole });
+                showToast(`Updated role for ${email}`, 'success');
+                await loadAdminManagement();
+            } catch (error) {
+                console.error('Error updating admin role:', error);
+                showToast('Failed to update role: ' + error.message, 'error');
+                if (controlEl) {
+                    controlEl.value = previousRole;
+                }
+            } finally {
+                controlEl?.removeAttribute('disabled');
+            }
+        }
+
+        function bindSettingsInputs() {
+            settingsInputs = {};
+            document.querySelectorAll('[data-setting-key]').forEach(input => {
+                const key = input.dataset.settingKey;
+                settingsInputs[key] = input;
+                input.disabled = !canEditPlatformSettings;
+            });
+            const saveBtn = document.getElementById('saveSettingsBtn');
+            const cancelBtn = document.getElementById('cancelSettingsBtn');
+            if (!canEditPlatformSettings) {
+                saveBtn?.setAttribute('title', 'Only the Lead Admin can update settings');
+                cancelBtn?.setAttribute('title', 'Only the Lead Admin can update settings');
+            }
+        }
+
+        async function loadPlatformSettings() {
+            try {
+                const doc = await db.collection('platformSettings').doc(SETTINGS_DOC_ID).get();
+                const data = doc.exists ? doc.data() : {};
+                storedSettings = mergeSettingsData(data);
+                draftSettings = cloneSettings(storedSettings);
+                applySettingsToForm(draftSettings);
+                attachSettingsListeners();
+                updateSettingsActionsState();
+            } catch (error) {
+                console.error('Error loading platform settings:', error);
+                showToast('Failed to load settings: ' + error.message, 'error');
+            }
+        }
+
+        function mergeSettingsData(data = {}) {
+            return {
+                notifications: {
+                    ...DEFAULT_SETTINGS.notifications,
+                    ...(data.notifications || {})
+                },
+                platform: {
+                    ...DEFAULT_SETTINGS.platform,
+                    ...(data.platform || {})
+                }
+            };
+        }
+
+        function applySettingsToForm(settings) {
+            Object.entries(settingsInputs).forEach(([key, input]) => {
+                const value = !!getSettingValue(settings, key);
+                input.checked = value;
+            });
+        }
+
+        function attachSettingsListeners() {
+            if (attachSettingsListeners.bound) return;
+            Object.entries(settingsInputs).forEach(([key, input]) => {
+                input.addEventListener('change', () => {
+                    if (!canEditPlatformSettings) {
+                        input.checked = !!getSettingValue(storedSettings, key);
+                        return;
+                    }
+                    setSettingValue(draftSettings, key, input.checked);
+                    updateSettingsActionsState();
+                });
+            });
+            document.getElementById('saveSettingsBtn')?.addEventListener('click', savePlatformSettings);
+            document.getElementById('cancelSettingsBtn')?.addEventListener('click', resetPlatformSettings);
+            attachSettingsListeners.bound = true;
+        }
+
+        function setSettingValue(target, path, value) {
+            const segments = path.split('.');
+            let cursor = target;
+            for (let i = 0; i < segments.length - 1; i++) {
+                const segment = segments[i];
+                cursor[segment] = cursor[segment] || {};
+                cursor = cursor[segment];
+            }
+            cursor[segments[segments.length - 1]] = value;
+        }
+
+        function getSettingValue(source, path) {
+            return path.split('.').reduce((acc, segment) => (acc && acc[segment] !== undefined ? acc[segment] : undefined), source);
+        }
+
+        function settingsAreDirty() {
+            return JSON.stringify(storedSettings) !== JSON.stringify(draftSettings);
+        }
+
+        function updateSettingsActionsState() {
+            const saveBtn = document.getElementById('saveSettingsBtn');
+            const cancelBtn = document.getElementById('cancelSettingsBtn');
+            const dirty = settingsAreDirty();
+            const canEdit = canEditPlatformSettings && dirty;
+            if (saveBtn) saveBtn.disabled = !canEdit;
+            if (cancelBtn) cancelBtn.disabled = !canEdit;
+        }
+
+        async function savePlatformSettings(event) {
+            if (event) event.preventDefault();
+            if (!canEditPlatformSettings || !settingsAreDirty()) return;
+            const saveBtn = document.getElementById('saveSettingsBtn');
+            const beforeSnapshot = cloneSettings(storedSettings);
+            saveBtn.disabled = true;
+            try {
+                await db.collection('platformSettings').doc(SETTINGS_DOC_ID).set(draftSettings, { merge: true });
+                storedSettings = cloneSettings(draftSettings);
+                const changes = diffSettings(beforeSnapshot, storedSettings);
+                if (changes.length) {
+                    await logAdminActivity('platform-settings-updated', { changes });
+                }
+                showToast('Settings saved successfully', 'success');
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showToast('Failed to save settings: ' + error.message, 'error');
+            } finally {
+                updateSettingsActionsState();
+            }
+        }
+
+        function resetPlatformSettings(event) {
+            if (event) event.preventDefault();
+            draftSettings = cloneSettings(storedSettings);
+            applySettingsToForm(draftSettings);
+            updateSettingsActionsState();
+            showToast('Changes discarded', 'info');
+        }
+
         async function addAdmin(event) {
             event.preventDefault();
             
@@ -621,6 +1089,8 @@
             
             const emailInput = document.getElementById('newAdminEmail');
             const email = emailInput.value.trim().toLowerCase();
+            const roleSelect = document.getElementById('newAdminRole');
+            const selectedRole = resolveAdminRole(roleSelect?.value);
             
             if (!email) {
                 showToast('Please enter an email address', 'error');
@@ -644,14 +1114,18 @@
                 // Add to admins collection
                 await db.collection('admins').doc(email).set({
                     email: email,
-                    role: 'admin',
+                    role: selectedRole,
                     addedBy: currentUser.email,
                     addedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     isActive: true
                 });
                 
+                await logAdminActivity('admin-added', { email, role: selectedRole });
                 showToast(`${email} added as admin successfully!`, 'success');
                 emailInput.value = '';
+                if (roleSelect) {
+                    roleSelect.value = DEFAULT_ADMIN_ROLE;
+                }
                 
                 // Reload admin list
                 await loadAdminManagement();
@@ -679,12 +1153,17 @@
             
             try {
                 await db.collection('admins').doc(email).delete();
+                await logAdminActivity('admin-removed', { email });
                 showToast(`${email} removed from admins`, 'success');
                 await loadAdminManagement();
             } catch (error) {
                 console.error('Error removing admin:', error);
                 showToast('Failed to remove admin: ' + error.message, 'error');
             }
+        }
+
+        function cloneSettings(source) {
+            return JSON.parse(JSON.stringify(source || {}));
         }
 
         function showToast(message, type = 'info') {
@@ -725,6 +1204,12 @@
                 document.getElementById('sidebarOverlay').classList.remove('show');
             }
         }
+
+        window.addEventListener('beforeunload', () => {
+            if (typeof activityUnsubscribe === 'function') {
+                activityUnsubscribe();
+            }
+        });
 
         window.addEventListener('resize', checkResponsive);
         checkResponsive();

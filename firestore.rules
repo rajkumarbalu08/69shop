@@ -10,15 +10,41 @@ service cloud.firestore {
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
+
+    function authEmail() {
+      return isAuthenticated() && request.auth.token.email != null
+        ? request.auth.token.email
+        : '';
+    }
+
+    function normalizedEmail() {
+      let email = authEmail();
+      return email == '' ? '' : email.lower();
+    }
+
+    function adminRecordExists() {
+      return isAuthenticated() && (
+        (normalizedEmail() != '' && exists(/databases/$(database)/documents/admins/$(normalizedEmail()))) ||
+        (authEmail() != '' && authEmail() != normalizedEmail() && exists(/databases/$(database)/documents/admins/$(authEmail())))
+      );
+    }
+
+    function isLeadAdmin() {
+      return normalizedEmail() == 'rajkumarbalu81@gmail.com';
+    }
     
     // Helper function to check if user is an admin
     function isAdmin() {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+      return isLeadAdmin() || adminRecordExists();
     }
 
     function sellerOwnsData(data) {
       return isAuthenticated() && data.sellerId == request.auth.uid;
+    }
+
+    function sellerOwnsRequestData() {
+      return isAuthenticated() && request.resource != null &&
+        request.resource.data.sellerId == request.auth.uid;
     }
 
     function notificationAudienceAllowed(audience) {
@@ -32,8 +58,14 @@ service cloud.firestore {
     
     // Admins collection - only admins can read, no writes from client
     match /admins/{email} {
-      allow read: if isAuthenticated() && request.auth.token.email == email;
-      allow write: if false; // Admins must be added manually via Firebase Console
+      allow read: if isAdmin();
+      allow create, update, delete: if isLeadAdmin();
+    }
+
+    match /adminActivity/{activityId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if isLeadAdmin();
     }
     
     // Users collection - users can read/write their own documents, admins can read all
@@ -47,18 +79,17 @@ service cloud.firestore {
     // Sellers collection - sellers can read/write their own documents
     match /sellers/{sellerId} {
       // Any authenticated user can check if they are a seller
-      allow read: if isOwner(sellerId);
-      allow write: if isOwner(sellerId);
+      allow read: if isOwner(sellerId) || isAdmin();
+      allow write: if isOwner(sellerId) || isAdmin();
       allow create: if isAuthenticated() && request.auth.uid == sellerId;
     }
     
     // Products collection - anyone can read, sellers can write their own
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAuthenticated() && 
-        (resource == null || resource.data.sellerId == request.auth.uid);
-      allow create: if isAuthenticated();
-      allow delete: if isAdmin(); // Admins can remove products
+      allow create: if sellerOwnsRequestData();
+      allow update: if (sellerOwnsData(resource.data) && sellerOwnsRequestData()) || isAdmin();
+      allow delete: if sellerOwnsData(resource.data) || isAdmin();
     }
     
     // Orders collection - admins can read all orders
@@ -88,6 +119,11 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       allow read: if isAuthenticated() && notificationAudienceAllowed(resource.data.audience);
       allow write: if isAdmin();
+    }
+
+    match /platformSettings/{docId} {
+      allow read: if isAdmin() || isLeadAdmin();
+      allow write: if isLeadAdmin();
     }
 
     // Transactions collection - sellers and admins only
