@@ -8,12 +8,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/dashboard-notifications.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/seller-metrics.js"></script>
+    <script src="/js/seller-shell.js"></script>
     
     <style>
         :root {
@@ -194,6 +198,12 @@
             color: var(--white);
             box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
         }
+
+        .nav-link.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
         
         .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
         
@@ -205,6 +215,7 @@
             font-weight: 700;
             padding: 3px 8px;
             border-radius: 10px;
+            display: none;
         }
         
         .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
@@ -720,7 +731,7 @@
                     <div class="brand-logo">69</div>
                     <div class="brand-text">
                         <span class="brand-name">69Shop.in</span>
-                        <span class="brand-badge">SELLER CENTER</span>
+                        <span class="brand-badge">Seller Hub</span>
                     </div>
                 </a>
             </div>
@@ -739,12 +750,16 @@
                     <a href="/seller-orders.html" class="nav-link">
                         <i class="fas fa-shopping-bag"></i>
                         <span>Orders</span>
-                        <span class="nav-badge" id="pendingOrdersBadge">0</span>
+                        <span class="nav-badge" data-orders-badge></span>
+                    </a>
+                    <a href="/seller-services.html" class="nav-link">
+                        <i class="fas fa-concierge-bell"></i>
+                        <span>Services</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-section">
-                    <div class="nav-section-title">Business</div>
+                    <div class="nav-section-title">Insights</div>
                     <a href="/seller-analytics.html" class="nav-link">
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics</span>
@@ -753,15 +768,11 @@
                         <i class="fas fa-wallet"></i>
                         <span>Payments</span>
                     </a>
-                    <a href="/seller-services.html" class="nav-link">
-                        <i class="fas fa-concierge-bell"></i>
-                        <span>Services</span>
-                    </a>
                 </div>
-                
+
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
-                    <a href="/seller-verification.html" class="nav-link" id="verificationLink">
+                    <a href="/seller-verification.html" class="nav-link" data-verification-link>
                         <i class="fas fa-shield-alt"></i>
                         <span>Verification</span>
                     </a>
@@ -769,7 +780,7 @@
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
-                    <a href="/shop.html" class="nav-link">
+                    <a href="/shop.html" class="nav-link" target="_blank">
                         <i class="fas fa-store"></i>
                         <span>View Shop</span>
                     </a>
@@ -778,10 +789,10 @@
             
             <div class="sidebar-footer">
                 <div class="seller-profile">
-                    <div class="profile-avatar" id="sellerAvatar">S</div>
+                    <div class="profile-avatar" id="sellerAvatar" data-seller-avatar>S</div>
                     <div class="profile-info">
-                        <div class="profile-name" id="sellerName">Seller</div>
-                        <div class="profile-status" id="sellerStatus">
+                        <div class="profile-name" id="sellerName" data-seller-name>Seller</div>
+                        <div class="profile-status" id="sellerStatus" data-seller-status>
                             <i class="fas fa-clock"></i>
                             <span>Pending Verification</span>
                         </div>
@@ -806,10 +817,29 @@
                 </div>
                 
                 <div class="header-right">
-                    <button class="header-btn">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-dot"></span>
-                    </button>
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationTrigger" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
+                        </button>
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-panel-header">
+                                <div>
+                                    <h3>Notifications</h3>
+                                    <p id="notificationSubtitle">Latest updates</p>
+                                </div>
+                                <button id="notificationRefresh" title="Refresh notifications">
+                                    <i class="fas fa-rotate-right"></i>
+                                </button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <a href="/seller-products.html?action=add" class="btn-add-product">
                         <i class="fas fa-plus"></i>
                         <span>Add Product</span>
@@ -908,35 +938,15 @@
                         </div>
                         <div class="card-body">
                             <ul class="orders-list" id="recentOrders">
-                                <li class="order-item">
+                                <li class="order-item placeholder">
                                     <div class="order-info">
-                                        <div class="order-icon"><i class="fas fa-box"></i></div>
+                                        <div class="order-icon"><i class="fas fa-circle-notch fa-spin"></i></div>
                                         <div class="order-details">
-                                            <h4>Order #2026001</h4>
-                                            <p>2 items • Just now</p>
+                                            <h4>Syncing orders...</h4>
+                                            <p>Your latest sales will appear here shortly.</p>
                                         </div>
                                     </div>
-                                    <div class="order-amount">₹1,499</div>
-                                </li>
-                                <li class="order-item">
-                                    <div class="order-info">
-                                        <div class="order-icon"><i class="fas fa-box"></i></div>
-                                        <div class="order-details">
-                                            <h4>Order #2026002</h4>
-                                            <p>1 item • 2 hours ago</p>
-                                        </div>
-                                    </div>
-                                    <div class="order-amount">₹899</div>
-                                </li>
-                                <li class="order-item">
-                                    <div class="order-info">
-                                        <div class="order-icon"><i class="fas fa-box"></i></div>
-                                        <div class="order-details">
-                                            <h4>Order #2026003</h4>
-                                            <p>3 items • Yesterday</p>
-                                        </div>
-                                    </div>
-                                    <div class="order-amount">₹2,599</div>
+                                    <div class="order-amount">--</div>
                                 </li>
                             </ul>
                         </div>
@@ -1022,135 +1032,272 @@
         const db = firebase.firestore();
         
         let salesChart = null;
+        let currentUser = null;
+        let notificationFeed = null;
+        let metricsCache = null;
 
         auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                // Check if user is a seller
-                const sellerDoc = await db.collection('sellers').doc(user.uid).get();
-                if (sellerDoc.exists || localStorage.getItem('69shop_user_type') === 'seller') {
-                    await initializeDashboard(user);
-                    hideLoading();
-                } else {
-                    window.location.href = '/seller-login.html';
-                }
+            if (!user) {
+                window.location.href = '/seller-login.html';
+                return;
+            }
+
+            const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+            if (sellerDoc.exists || localStorage.getItem('69shop_user_type') === 'seller') {
+                currentUser = user;
+                initNotifications();
+                await initializeDashboard(user, sellerDoc.data() || {});
             } else {
                 window.location.href = '/seller-login.html';
             }
         });
 
-        async function initializeDashboard(user) {
-            // Set seller info
-            const firstName = user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Seller';
-            document.getElementById('welcomeName').textContent = firstName;
-            document.getElementById('sellerName').textContent = user.displayName || user.email;
-            document.getElementById('sellerAvatar').textContent = firstName.charAt(0).toUpperCase();
-            
-            // Check verification status
-            await checkVerificationStatus(user.uid);
-            
-            // Load stats
-            await loadDashboardStats(user.uid);
-            
-            // Initialize chart
-            initializeChart();
-        }
+        async function initializeDashboard(user, sellerData = {}) {
+            const displayName = sellerData.businessName || user.displayName || user.email || 'Seller';
+            const welcomeName = displayName.split(' ')[0] || 'Seller';
+            document.getElementById('welcomeName').textContent = welcomeName;
 
-        async function checkVerificationStatus(sellerId) {
-            try {
-                const verificationDoc = await db.collection('sellerVerification').doc(sellerId).get();
-                const sellerDoc = await db.collection('sellers').doc(sellerId).get();
-                
-                const statusEl = document.getElementById('sellerStatus');
-                const banner = document.getElementById('verificationBanner');
-                
-                if (verificationDoc.exists) {
-                    const status = verificationDoc.data().status;
-                    
-                    if (status === 'approved' || sellerDoc.data()?.verified) {
-                        statusEl.className = 'profile-status verified';
-                        statusEl.innerHTML = '<i class="fas fa-check-circle"></i><span>Verified Seller</span>';
-                        banner.classList.add('hidden');
-                    } else if (status === 'pending') {
-                        statusEl.className = 'profile-status pending';
-                        statusEl.innerHTML = '<i class="fas fa-clock"></i><span>Verification Pending</span>';
-                        banner.querySelector('.verification-text h3').textContent = 'Verification Under Review';
-                        banner.querySelector('.verification-text p').textContent = 'Your documents are being reviewed. This usually takes 24-48 hours.';
-                        banner.querySelector('.btn-verify').textContent = 'Check Status';
-                    } else if (status === 'rejected') {
-                        statusEl.className = 'profile-status';
-                        statusEl.style.color = 'var(--danger)';
-                        statusEl.innerHTML = '<i class="fas fa-times-circle"></i><span>Verification Rejected</span>';
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking verification:', error);
-            }
-        }
-
-        async function loadDashboardStats(sellerId) {
-            try {
-                // Get products count
-                const productsSnapshot = await db.collection('products')
-                    .where('sellerId', '==', sellerId)
-                    .get();
-                document.getElementById('totalProducts').textContent = productsSnapshot.size;
-                
-                // Calculate total orders and revenue
-                let totalOrders = 0;
-                let totalRevenue = 0;
-                
+            let shellState = null;
+            if (window.SellerShell) {
                 try {
-                    const ordersSnapshot = await db.collection('orders')
-                        .where('sellerId', '==', sellerId)
-                        .get();
-                    
-                    totalOrders = ordersSnapshot.size;
-                    ordersSnapshot.forEach(doc => {
-                        const order = doc.data();
-                        totalRevenue += parseFloat(order.total || order.amount || 0);
-                    });
-                } catch (e) {
-                    console.log('Orders may not exist yet');
+                    shellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+                } catch (error) {
+                    console.warn('SellerShell sync failed:', error);
                 }
-                
-                document.getElementById('totalOrders').textContent = totalOrders;
-                document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
-                document.getElementById('totalViews').textContent = Math.floor(Math.random() * 500) + 100; // Placeholder
-                
-                // Check for low stock
-                const lowStock = [];
-                productsSnapshot.forEach(doc => {
-                    const product = doc.data();
-                    if (product.stock && product.stock <= 10) {
-                        lowStock.push({ name: product.name, stock: product.stock });
-                    }
-                });
-                
-                if (lowStock.length > 0) {
-                    const lowStockItems = document.getElementById('lowStockItems');
-                    lowStockItems.innerHTML = lowStock.slice(0, 5).map(item => `
-                        <div class="alert-item">
-                            <span class="alert-product">${item.name}</span>
-                            <span class="alert-stock">${item.stock} left</span>
-                        </div>
-                    `).join('');
-                }
-                
-            } catch (error) {
-                console.error('Error loading stats:', error);
+            }
+
+            if (shellState?.status) {
+                updateVerificationBanner(shellState.status);
+            }
+
+            try {
+                await Promise.all([
+                    refreshDashboardMetrics(user.uid),
+                    loadRecentOrders(user.uid)
+                ]);
+            } finally {
+                hideLoading();
             }
         }
 
-        function initializeChart() {
+        function initNotifications() {
+            if (typeof NotificationFeed === 'undefined' || !db || !currentUser) return;
+            if (notificationFeed && typeof notificationFeed.refresh === 'function') {
+                notificationFeed.refresh();
+                return;
+            }
+            notificationFeed = NotificationFeed.init({
+                audience: 'seller',
+                db,
+                userId: currentUser.uid,
+                triggerSelector: '#notificationTrigger',
+                panelSelector: '#notificationPanel',
+                listSelector: '#notificationList',
+                badgeSelector: '#notificationDot',
+                refreshSelector: '#notificationRefresh',
+                subtitleSelector: '#notificationSubtitle'
+            });
+        }
+
+        function updateVerificationBanner(statusPayload = {}) {
+            const banner = document.getElementById('verificationBanner');
+            if (!banner) return;
+            const titleEl = banner.querySelector('.verification-text h3');
+            const bodyEl = banner.querySelector('.verification-text p');
+            const cta = banner.querySelector('.btn-verify');
+            const code = statusPayload.code || statusPayload.status;
+            const isVerified = statusPayload.isVerified === true;
+            const needsReverify = statusPayload.needsReverify === true;
+            if (isVerified && !needsReverify) {
+                banner.classList.add('hidden');
+                return;
+            }
+            banner.classList.remove('hidden');
+            if (needsReverify) {
+                titleEl.textContent = 'Reverification Required';
+                bodyEl.textContent = 'Please resubmit your documents so we can keep your store compliant.';
+                if (cta) cta.textContent = 'Start Reverification';
+                return;
+            }
+            if (code === 'pending') {
+                titleEl.textContent = 'Verification Under Review';
+                bodyEl.textContent = 'Your documents are being reviewed. This usually takes 24-48 hours.';
+                if (cta) cta.textContent = 'Check Status';
+                return;
+            }
+            if (code === 'rejected') {
+                titleEl.textContent = 'Verification Rejected';
+                bodyEl.textContent = 'Update your details and resubmit to get approved.';
+                if (cta) cta.textContent = 'Fix & Resubmit';
+                return;
+            }
+            titleEl.textContent = 'Complete Your Verification';
+            bodyEl.textContent = 'Get verified to unlock all seller features and increase buyer trust!';
+            if (cta) cta.textContent = 'Verify Now';
+        }
+
+
+        async function refreshDashboardMetrics(sellerId) {
+            try {
+                metricsCache = await SellerMetrics.fetch(db, sellerId);
+                updateDashboardFromMetrics(metricsCache);
+            } catch (error) {
+                console.error('Error loading dashboard metrics:', error);
+            }
+        }
+
+        async function loadRecentOrders(sellerId) {
+            const list = document.getElementById('recentOrders');
+            if (!list || !db) return;
+            showRecentOrdersFallback('loading');
+            try {
+                let query = db.collection('orders')
+                    .where('sellerId', '==', sellerId)
+                    .orderBy('createdAt', 'desc')
+                    .limit(10);
+                let snapshot;
+                try {
+                    snapshot = await query.get();
+                } catch (error) {
+                    if (error.code === 'failed-precondition') {
+                        snapshot = await db.collection('orders')
+                            .where('sellerId', '==', sellerId)
+                            .limit(10)
+                            .get();
+                    } else {
+                        throw error;
+                    }
+                }
+
+                const seen = new Set();
+                const orders = [];
+                snapshot.docs.forEach((doc) => {
+                    if (seen.has(doc.id)) return;
+                    seen.add(doc.id);
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+                renderRecentOrders(orders);
+            } catch (error) {
+                console.error('Error loading recent orders:', error);
+                showRecentOrdersFallback('error', 'Unable to load recent orders right now.');
+            }
+        }
+
+        function renderRecentOrders(orders = []) {
+            const list = document.getElementById('recentOrders');
+            if (!list) return;
+            if (!orders.length) {
+                showRecentOrdersFallback('empty');
+                return;
+            }
+
+            const sorted = orders
+                .slice()
+                .sort((a, b) => {
+                    const aDate = getOrderDate(a)?.getTime() || 0;
+                    const bDate = getOrderDate(b)?.getTime() || 0;
+                    return bDate - aDate;
+                })
+                .slice(0, 5);
+
+            list.innerHTML = sorted.map((order) => {
+                const createdAt = getOrderDate(order);
+                const count = order.items?.length || order.quantity || 1;
+                const amount = formatCurrency(order.total || order.amount || 0);
+                const suffix = order.id ? order.id.slice(-6) : '—';
+                const timeLabel = formatRelativeTime(createdAt);
+                const itemLabel = `${count} ${count === 1 ? 'item' : 'items'}`;
+                return `
+                    <li class="order-item" data-order-id="${order.id}">
+                        <div class="order-info">
+                            <div class="order-icon"><i class="fas fa-box"></i></div>
+                            <div class="order-details">
+                                <h4>Order #${suffix}</h4>
+                                <p>${itemLabel} • ${timeLabel}</p>
+                            </div>
+                        </div>
+                        <div class="order-amount">${amount}</div>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        function showRecentOrdersFallback(state, message) {
+            const list = document.getElementById('recentOrders');
+            if (!list) return;
+            let icon = 'fas fa-circle-notch fa-spin';
+            let title = 'Syncing orders...';
+            let body = 'Your latest sales will appear here shortly.';
+            if (state === 'empty') {
+                icon = 'fas fa-box-open';
+                title = 'No orders yet';
+                body = 'New sales will show up instantly.';
+            } else if (state === 'error') {
+                icon = 'fas fa-triangle-exclamation';
+                title = 'Unable to load orders';
+                body = message || 'Try refreshing in a moment.';
+            }
+            list.innerHTML = `
+                <li class="order-item placeholder">
+                    <div class="order-info">
+                        <div class="order-icon"><i class="${icon}"></i></div>
+                        <div class="order-details">
+                            <h4>${title}</h4>
+                            <p>${body}</p>
+                        </div>
+                    </div>
+                    <div class="order-amount">--</div>
+                </li>
+            `;
+        }
+
+        function updateDashboardFromMetrics(metrics) {
+            if (!metrics) return;
+            const { products, orders } = metrics;
+            document.getElementById('totalProducts').textContent = products.total;
+            document.getElementById('totalOrders').textContent = orders.total || 0;
+            document.getElementById('totalRevenue').textContent = formatCurrency(orders.revenueNet || 0);
+            document.getElementById('totalViews').textContent = products.totalViews.toLocaleString('en-IN');
+            renderLowStock(products.lowStockItems || []);
+            renderSalesChart(orders.revenueSeries?.last7Days);
+        }
+
+        function renderLowStock(items) {
+            const lowStockContainer = document.getElementById('lowStockItems');
+            if (!lowStockContainer) return;
+            if (!items.length) {
+                lowStockContainer.innerHTML = `
+                    <div class="alert-item">
+                        <span class="alert-product">Inventory is healthy</span>
+                        <span class="alert-stock">No low stock</span>
+                    </div>
+                `;
+                return;
+            }
+            lowStockContainer.innerHTML = items.slice(0, 5).map((item) => `
+                <div class="alert-item">
+                    <span class="alert-product">${item.name}</span>
+                    <span class="alert-stock">${item.stock} left</span>
+                </div>
+            `).join('');
+        }
+
+        function renderSalesChart(series) {
+            if (!series || !Array.isArray(series.values)) return;
             const ctx = document.getElementById('salesChart').getContext('2d');
-            
+            if (salesChart) {
+                salesChart.data.labels = series.labels;
+                salesChart.data.datasets[0].data = series.values;
+                salesChart.update();
+                return;
+            }
             salesChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    labels: series.labels,
                     datasets: [{
                         label: 'Sales',
-                        data: [1200, 1900, 1500, 2500, 2200, 3000, 2800],
+                        data: series.values,
                         fill: true,
                         backgroundColor: (context) => {
                             const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
@@ -1180,9 +1327,7 @@
                             padding: 12,
                             displayColors: false,
                             callbacks: {
-                                label: function(context) {
-                                    return '₹' + context.parsed.y.toLocaleString('en-IN');
-                                }
+                                label: (context) => `₹${context.parsed.y.toLocaleString('en-IN')}`
                             }
                         }
                     },
@@ -1192,13 +1337,52 @@
                             grid: { color: '#F1F5F9' },
                             ticks: {
                                 color: '#64748B',
-                                callback: function(value) { return '₹' + (value / 1000) + 'K'; }
+                                callback: (value) => `₹${(value / 1000).toFixed(1)}K`
                             }
                         }
                     },
                     interaction: { intersect: false, mode: 'index' }
                 }
             });
+        }
+
+        function getOrderDate(order = {}) {
+            if (!order) return null;
+            if (order.createdAt?.toDate) {
+                return order.createdAt.toDate();
+            }
+            if (order.createdAt) {
+                const parsed = new Date(order.createdAt);
+                return Number.isNaN(parsed.getTime()) ? null : parsed;
+            }
+            return null;
+        }
+
+        function formatRelativeTime(date) {
+            if (!date) return 'Just now';
+            const diff = Date.now() - date.getTime();
+            if (!Number.isFinite(diff) || diff < 0) {
+                return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+            }
+            const minutes = Math.floor(diff / 60000);
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes} min${minutes === 1 ? '' : 's'} ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+            const days = Math.floor(hours / 24);
+            if (days === 1) return 'Yesterday';
+            if (days < 7) return `${days} days ago`;
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        }
+
+        function formatCurrency(value) {
+            const amount = safeNumber(value);
+            return `₹${amount.toLocaleString('en-IN')}`;
+        }
+
+        function safeNumber(value) {
+            const num = Number(value);
+            return Number.isFinite(num) ? num : 0;
         }
 
         function hideLoading() {

@@ -16,6 +16,19 @@ service cloud.firestore {
       return isAuthenticated() && 
         exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
     }
+
+    function sellerOwnsData(data) {
+      return isAuthenticated() && data.sellerId == request.auth.uid;
+    }
+
+    function notificationAudienceAllowed(audience) {
+      return audience == 'all' ||
+        audience == 'seller' ||
+        audience == 'buyer' ||
+        audience == ('user:' + request.auth.uid) ||
+        audience == ('seller:' + request.auth.uid) ||
+        (audience == 'admin' && isAdmin());
+    }
     
     // Admins collection - only admins can read, no writes from client
     match /admins/{email} {
@@ -69,6 +82,25 @@ service cloud.firestore {
       allow read: if isOwner(sellerId) || isAdmin();
       allow create, update: if isOwner(sellerId);
       allow update: if isAdmin(); // Admins can approve/reject
+    }
+
+    // Notifications collection - targeted notifications for users/sellers/admins
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && notificationAudienceAllowed(resource.data.audience);
+      allow write: if isAdmin();
+    }
+
+    // Transactions collection - sellers and admins only
+    match /transactions/{transactionId} {
+      allow read: if isAdmin() || sellerOwnsData(resource.data);
+      allow write: if false; // Managed via backend processes
+    }
+
+    // Withdrawals collection - sellers can create/read their own, admins manage
+    match /withdrawals/{withdrawalId} {
+      allow read: if isAdmin() || sellerOwnsData(resource.data);
+      allow create: if sellerOwnsData(request.resource.data);
+      allow update: if isAdmin() || sellerOwnsData(resource.data);
     }
     
     // General read access for public data

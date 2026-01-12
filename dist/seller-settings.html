@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Seller Center - 69Shop.in</title>
+    <title>Settings - Seller Hub | 69Shop.in</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/dashboard-notifications.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="./firebase-config.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/seller-shell.js"></script>
     
     <style>
         :root {
@@ -185,6 +188,7 @@
             font-weight: 500;
             transition: var(--transition);
             margin-bottom: 4px;
+            position: relative;
         }
         
         .nav-link:hover { background: var(--slate-800); color: var(--white); }
@@ -196,6 +200,20 @@
         }
         
         .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
+
+        .nav-badge {
+            margin-left: auto;
+            min-width: 20px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: var(--seller-primary);
+            color: var(--white);
+            font-size: 0.65rem;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
         
         .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
         
@@ -604,7 +622,7 @@
                     <div class="brand-logo">69</div>
                     <div class="brand-text">
                         <span class="brand-name">69Shop.in</span>
-                        <span class="brand-badge">SELLER CENTER</span>
+                        <span class="brand-badge">Seller Hub</span>
                     </div>
                 </a>
             </div>
@@ -623,11 +641,16 @@
                     <a href="/seller-orders.html" class="nav-link">
                         <i class="fas fa-shopping-bag"></i>
                         <span>Orders</span>
+                        <span class="nav-badge" data-orders-badge></span>
+                    </a>
+                    <a href="/seller-services.html" class="nav-link">
+                        <i class="fas fa-concierge-bell"></i>
+                        <span>Services</span>
                     </a>
                 </div>
-                
+
                 <div class="nav-section">
-                    <div class="nav-section-title">Business</div>
+                    <div class="nav-section-title">Insights</div>
                     <a href="/seller-analytics.html" class="nav-link">
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics</span>
@@ -636,15 +659,11 @@
                         <i class="fas fa-wallet"></i>
                         <span>Payments</span>
                     </a>
-                    <a href="/seller-services.html" class="nav-link">
-                        <i class="fas fa-concierge-bell"></i>
-                        <span>Services</span>
-                    </a>
                 </div>
-                
+
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
-                    <a href="/seller-verification.html" class="nav-link">
+                    <a href="/seller-verification.html" class="nav-link" data-verification-link>
                         <i class="fas fa-shield-alt"></i>
                         <span>Verification</span>
                     </a>
@@ -652,7 +671,7 @@
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
-                    <a href="/shop.html" class="nav-link">
+                    <a href="/shop.html" class="nav-link" target="_blank">
                         <i class="fas fa-store"></i>
                         <span>View Shop</span>
                     </a>
@@ -661,10 +680,10 @@
             
             <div class="sidebar-footer">
                 <div class="seller-profile">
-                    <div class="profile-avatar" id="sellerAvatar">S</div>
+                    <div class="profile-avatar" id="sellerAvatar" data-seller-avatar>S</div>
                     <div class="profile-info">
-                        <div class="profile-name" id="sellerName">Seller</div>
-                        <div class="profile-status pending" id="sellerStatus">
+                        <div class="profile-name" id="sellerName" data-seller-name>Seller</div>
+                        <div class="profile-status pending" id="sellerStatus" data-seller-status>
                             <i class="fas fa-clock"></i>
                             <span>Pending</span>
                         </div>
@@ -684,6 +703,31 @@
                 <div class="header-left">
                     <h1 class="page-title">Settings</h1>
                 </div>
+                <div class="header-right">
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationTrigger" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
+                        </button>
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-panel-header">
+                                <div>
+                                    <h3>Notifications</h3>
+                                    <p id="notificationSubtitle">Latest updates</p>
+                                </div>
+                                <button id="notificationRefresh" title="Refresh notifications">
+                                    <i class="fas fa-rotate-right"></i>
+                                </button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </header>
             
             <div class="seller-content">
@@ -697,7 +741,7 @@
                     </div>
                     <div class="section-body">
                         <div class="profile-photo-section">
-                            <div class="profile-photo" id="businessLogo">S</div>
+                            <div class="profile-photo" id="businessLogo" data-seller-logo>S</div>
                             <div class="photo-upload">
                                 <h4>Business Logo</h4>
                                 <p>Upload a square image, at least 200x200px</p>
@@ -895,6 +939,9 @@
         const storage = firebase.storage();
         
         let currentSeller = null;
+        let notificationFeed = null;
+        let authUser = null;
+        let sellerShellState = null;
         
         // Auth state listener
         auth.onAuthStateChanged(async (user) => {
@@ -902,7 +949,11 @@
                 try {
                     const sellerDoc = await db.collection('sellers').doc(user.uid).get();
                     if (sellerDoc.exists) {
-                        currentSeller = { uid: user.uid, email: user.email, ...sellerDoc.data() };
+                        authUser = user;
+                        const sellerData = sellerDoc.data();
+                        currentSeller = { uid: user.uid, email: user.email, ...sellerData };
+                        await syncSellerShell(user, sellerData);
+                        initNotifications();
                         updateSellerInfo(currentSeller);
                         populateForm(currentSeller);
                     } else {
@@ -917,14 +968,51 @@
             document.getElementById('loadingOverlay').style.display = 'none';
         });
         
+        function initNotifications() {
+            if (typeof NotificationFeed === 'undefined' || !db || !authUser) return;
+            if (notificationFeed && typeof notificationFeed.refresh === 'function') {
+                notificationFeed.refresh();
+                return;
+            }
+            notificationFeed = NotificationFeed.init({
+                audience: 'seller',
+                db,
+                userId: authUser.uid,
+                triggerSelector: '#notificationTrigger',
+                panelSelector: '#notificationPanel',
+                listSelector: '#notificationList',
+                badgeSelector: '#notificationDot',
+                refreshSelector: '#notificationRefresh',
+                subtitleSelector: '#notificationSubtitle'
+            });
+        }
+
+        async function syncSellerShell(user, sellerData = {}) {
+            if (!window.SellerShell) return null;
+            try {
+                sellerShellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+                return sellerShellState;
+            } catch (error) {
+                console.warn('SellerShell sync failed:', error);
+                return null;
+            }
+        }
+        
         function updateSellerInfo(seller) {
-            document.getElementById('sellerName').textContent = seller.businessName || seller.name || 'Seller';
-            document.getElementById('sellerAvatar').textContent = (seller.businessName || seller.name || 'S').charAt(0).toUpperCase();
-            
-            if (seller.logoUrl) {
-                document.getElementById('businessLogo').innerHTML = `<img src="${seller.logoUrl}" alt="Logo">`;
-            } else {
-                document.getElementById('businessLogo').textContent = (seller.businessName || 'S').charAt(0).toUpperCase();
+            const displayName = seller.businessName || seller.name || 'Seller';
+            const avatarInitial = displayName.charAt(0).toUpperCase();
+            const nameEl = document.getElementById('sellerName');
+            if (nameEl) nameEl.textContent = displayName;
+            const avatarEl = document.getElementById('sellerAvatar');
+            if (avatarEl) avatarEl.textContent = avatarInitial;
+
+            const logoEl = document.getElementById('businessLogo');
+            if (logoEl) {
+                if (seller.logoUrl) {
+                    logoEl.innerHTML = `<img src="${seller.logoUrl}" alt="Logo">`;
+                } else {
+                    logoEl.textContent = avatarInitial;
+                }
             }
         }
         

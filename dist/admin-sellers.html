@@ -9,11 +9,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/dashboard-notifications.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
+    <script src="/js/notifications.js"></script>
     
     <style>
         :root {
@@ -301,6 +303,29 @@
         .breadcrumb a:hover { color: var(--admin-primary); }
         
         .header-right { display: flex; align-items: center; gap: 16px; }
+        .header-search { position: relative; }
+        .header-search input {
+            width: 260px;
+            padding: 10px 16px 10px 42px;
+            border: 1px solid var(--slate-200);
+            border-radius: 24px;
+            background: var(--slate-50);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        .header-search input:focus {
+            outline: none;
+            border-color: var(--admin-primary);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        .header-search i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-400);
+        }
         
         .header-btn {
             width: 42px;
@@ -769,6 +794,38 @@
                         </div>
                     </div>
                 </div>
+                <div class="header-right">
+                    <div class="header-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="sellerSearchInput" placeholder="Search sellers or emails...">
+                    </div>
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationTrigger" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
+                        </button>
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-panel-header">
+                                <div>
+                                    <h3>Notifications</h3>
+                                    <p id="notificationSubtitle">Latest updates</p>
+                                </div>
+                                <button id="notificationRefresh" title="Refresh notifications">
+                                    <i class="fas fa-rotate-right"></i>
+                                </button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="header-btn" onclick="refreshVerifications()" title="Reload list">
+                        <i class="fas fa-rotate-right"></i>
+                    </button>
+                </div>
             </header>
             
             <div class="admin-content">
@@ -859,14 +916,18 @@
         let allVerifications = [];
         let currentFilter = 'all';
         let currentSellerId = null;
+        let searchQuery = '';
+        let notificationFeed = null;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const isAdmin = await checkAdminStatus(user.email);
                 if (isAdmin) {
+                    initNotifications(user);
                     initializePage(user);
                     await loadVerifications();
                     setupFilters();
+                    setupSearch();
                     checkUrlParams();
                     hideLoading();
                 } else {
@@ -893,6 +954,25 @@
             document.getElementById('adminName').textContent = user.displayName || user.email;
             document.getElementById('adminAvatar').textContent = firstName.charAt(0).toUpperCase();
             document.getElementById('adminRole').textContent = user.email === LEAD_ADMIN_EMAIL ? 'Lead Admin' : 'Admin';
+        }
+
+        function initNotifications(user) {
+            if (typeof NotificationFeed === 'undefined' || !db || !user) return;
+            if (notificationFeed && typeof notificationFeed.refresh === 'function') {
+                notificationFeed.refresh();
+                return;
+            }
+            notificationFeed = NotificationFeed.init({
+                audience: 'admin',
+                db,
+                userId: user.uid,
+                triggerSelector: '#notificationTrigger',
+                panelSelector: '#notificationPanel',
+                listSelector: '#notificationList',
+                badgeSelector: '#notificationDot',
+                refreshSelector: '#notificationRefresh',
+                subtitleSelector: '#notificationSubtitle'
+            });
         }
 
         function hideLoading() {
@@ -922,6 +1002,23 @@
             }
         }
 
+        async function refreshVerifications() {
+            const tbody = document.getElementById('sellersTableBody');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <i class="fas fa-sync"></i>
+                                <h3>Refreshing seller list...</h3>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+            await loadVerifications();
+        }
+
         function updateCounts() {
             const pending = allVerifications.filter(v => v.status === 'pending').length;
             const approved = allVerifications.filter(v => v.status === 'approved').length;
@@ -945,9 +1042,28 @@
             });
         }
 
+        function setupSearch() {
+            const input = document.getElementById('sellerSearchInput');
+            if (!input) return;
+            input.addEventListener('input', (event) => {
+                searchQuery = event.target.value.trim().toLowerCase();
+                renderTable();
+            });
+        }
+
         function renderTable() {
             const tbody = document.getElementById('sellersTableBody');
             let filtered = currentFilter === 'all' ? allVerifications : allVerifications.filter(v => v.status === currentFilter);
+            if (searchQuery) {
+                filtered = filtered.filter(seller => {
+                    const target = [
+                        seller.businessName || '',
+                        seller.ownerName || '',
+                        seller.email || ''
+                    ].join(' ').toLowerCase();
+                    return target.includes(searchQuery);
+                });
+            }
             
             if (filtered.length === 0) {
                 tbody.innerHTML = `

@@ -9,12 +9,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/dashboard-notifications.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
+    <script src="/js/notifications.js"></script>
     
     <style>
         :root {
@@ -767,10 +769,29 @@
                         <i class="fas fa-search"></i>
                         <input type="text" placeholder="Search anything...">
                     </div>
-                    <button class="header-btn">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-dot"></span>
-                    </button>
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationTrigger" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
+                        </button>
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-panel-header">
+                                <div>
+                                    <h3>Notifications</h3>
+                                    <p id="notificationSubtitle">Latest updates</p>
+                                </div>
+                                <button id="notificationRefresh" title="Refresh notifications">
+                                    <i class="fas fa-rotate-right"></i>
+                                </button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </header>
             
@@ -956,11 +977,13 @@
         const db = firebase.firestore();
         
         let revenueChart = null;
+        let notificationFeed = null;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const isAdmin = await checkAdminStatus(user.email);
                 if (isAdmin) {
+                    initNotifications(user);
                     await initializeDashboard(user);
                     hideLoading();
                 } else {
@@ -1142,6 +1165,25 @@
                     },
                     interaction: { intersect: false, mode: 'index' }
                 }
+            });
+        }
+
+        function initNotifications(user) {
+            if (typeof NotificationFeed === 'undefined' || !db || !user) return;
+            if (notificationFeed && typeof notificationFeed.refresh === 'function') {
+                notificationFeed.refresh();
+                return;
+            }
+            notificationFeed = NotificationFeed.init({
+                audience: 'admin',
+                db,
+                userId: user.uid,
+                triggerSelector: '#notificationTrigger',
+                panelSelector: '#notificationPanel',
+                listSelector: '#notificationList',
+                badgeSelector: '#notificationDot',
+                refreshSelector: '#notificationRefresh',
+                subtitleSelector: '#notificationSubtitle'
             });
         }
 

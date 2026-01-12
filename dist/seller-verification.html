@@ -15,6 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="./firebase-config.js"></script>
+    <script src="/js/seller-shell.js"></script>
     
     <style>
         :root {
@@ -64,6 +65,34 @@
             display: flex;
             align-items: center;
             gap: 16px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .profile-status.verified {
+            background: rgba(34, 197, 94, 0.2);
+            color: #D1FAE5;
+        }
+
+        .profile-status.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #FEF3C7;
         }
         
         .logo {
@@ -573,21 +602,27 @@
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
+    <div class="header">
         <div class="header-left">
             <a href="/" class="logo">
-                <img src="/Logo/69shopc.png" alt="69Shop.in Logo">
+                <img src="/assets/logo.svg" alt="69Shop Logo">
                 <div class="logo-text">
-                    <h1>69SHOP.IN</h1>
+                    <h1>69Shop.in</h1>
                     <span>Seller Verification</span>
                 </div>
             </a>
+            <div>
+                <strong>Need help?</strong>
+                <p style="font-size: 0.85rem; opacity: 0.9;">support@69shop.in | +91 98765 43210</p>
+            </div>
         </div>
         <div class="header-right">
-            <span id="userEmail" style="opacity: 0.9;"></span>
+            <div class="profile-status pending" data-seller-status>
+                <i class="fas fa-clock"></i>
+                <span>Verification Pending</span>
+            </div>
         </div>
-    </header>
-    
+    </div>
     <div class="container">
         <div class="verification-card">
             <!-- Status Banner (shown after submission) -->
@@ -964,16 +999,18 @@
         let currentStep = 1;
         const totalSteps = 4;
         const uploadedFiles = {};
+        let sellerShellState = null;
         
         // Auth check
         if (auth) {
-            auth.onAuthStateChanged(user => {
+            auth.onAuthStateChanged(async (user) => {
                 if (!user) {
                     window.location.href = '/seller-login.html?redirect=seller-verification';
                     return;
                 }
                 currentUser = user;
                 document.getElementById('userEmail').textContent = user.email;
+                await syncSellerShell(user);
                 loadExistingData();
             });
         }
@@ -1021,6 +1058,17 @@
                 }
             } catch (error) {
                 console.error('Error loading data:', error);
+            }
+        }
+
+        async function syncSellerShell(user, sellerData = {}) {
+            if (!window.SellerShell || !db) return null;
+            try {
+                sellerShellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+                return sellerShellState;
+            } catch (error) {
+                console.warn('SellerShell sync failed:', error);
+                return null;
             }
         }
         

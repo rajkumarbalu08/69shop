@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,21 +8,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/dashboard-notifications.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
-    
-    <style>
+    <script src="/js/seller-metrics.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/seller-shell.js"></script>
+        <style>
         :root {
             /* Seller Theme - Professional Purple */
             --seller-primary: #7C3AED;
             --seller-primary-dark: #6D28D9;
             --seller-primary-light: #EDE9FE;
             --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
-            
+
             /* Neutral Palette */
             --slate-900: #0F172A;
             --slate-800: #1E293B;
@@ -35,7 +37,7 @@
             --slate-100: #F1F5F9;
             --slate-50: #F8FAFC;
             --white: #FFFFFF;
-            
+
             /* Status Colors */
             --success: #10B981;
             --success-light: #D1FAE5;
@@ -45,35 +47,35 @@
             --info-light: #DBEAFE;
             --danger: #EF4444;
             --danger-light: #FEE2E2;
-            
+
             /* Layout */
             --sidebar-width: 280px;
             --header-height: 70px;
-            
+
             /* Shadows */
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-            
+
             /* Border Radius */
             --radius-sm: 6px;
             --radius-md: 10px;
             --radius-lg: 16px;
             --radius-xl: 24px;
-            
+
             /* Transitions */
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--slate-100);
             min-height: 100vh;
             color: var(--slate-800);
         }
-        
+
         .loading-overlay {
             position: fixed;
             inset: 0;
@@ -85,7 +87,7 @@
             flex-direction: column;
             gap: 20px;
         }
-        
+
         .loading-spinner {
             width: 48px;
             height: 48px;
@@ -94,13 +96,13 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-        
+
         .loading-text { color: var(--slate-500); font-size: 0.9rem; }
-        
+
         @keyframes spin { to { transform: rotate(360deg); } }
-        
+
         .seller-layout { display: flex; min-height: 100vh; }
-        
+
         /* Sidebar */
         .seller-sidebar {
             width: var(--sidebar-width);
@@ -114,19 +116,19 @@
             flex-direction: column;
             transition: var(--transition);
         }
-        
+
         .sidebar-header {
             padding: 24px;
             border-bottom: 1px solid var(--slate-700);
         }
-        
+
         .sidebar-brand {
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
         }
-        
+
         .brand-logo {
             width: 42px;
             height: 42px;
@@ -139,16 +141,16 @@
             color: var(--white);
             font-weight: 700;
         }
-        
+
         .brand-text { display: flex; flex-direction: column; }
-        
+
         .brand-name {
             color: var(--white);
             font-family: 'Poppins', sans-serif;
             font-size: 1.1rem;
             font-weight: 700;
         }
-        
+
         .brand-badge {
             font-size: 0.65rem;
             color: var(--seller-primary);
@@ -158,11 +160,11 @@
             font-weight: 600;
             width: fit-content;
         }
-        
+
         .sidebar-nav { flex: 1; padding: 20px 16px; overflow-y: auto; }
-        
+
         .nav-section { margin-bottom: 28px; }
-        
+
         .nav-section-title {
             font-size: 0.7rem;
             text-transform: uppercase;
@@ -172,7 +174,7 @@
             margin-bottom: 12px;
             font-weight: 600;
         }
-        
+
         .nav-link {
             display: flex;
             align-items: center;
@@ -185,20 +187,41 @@
             font-weight: 500;
             transition: var(--transition);
             margin-bottom: 4px;
+            position: relative;
         }
-        
+
         .nav-link:hover { background: var(--slate-800); color: var(--white); }
-        
+
         .nav-link.active {
             background: var(--seller-gradient);
             color: var(--white);
             box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
         }
-        
+
+        .nav-link.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
         .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
-        
+
+        .nav-badge {
+            margin-left: auto;
+            min-width: 20px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: var(--seller-primary);
+            color: var(--white);
+            font-size: 0.65rem;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
         .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
-        
+
         .seller-profile {
             display: flex;
             align-items: center;
@@ -208,7 +231,7 @@
             border-radius: var(--radius-md);
             margin-bottom: 12px;
         }
-        
+
         .profile-avatar {
             width: 40px;
             height: 40px;
@@ -220,9 +243,9 @@
             color: var(--white);
             font-weight: 600;
         }
-        
+
         .profile-info { flex: 1; min-width: 0; }
-        
+
         .profile-name {
             color: var(--white);
             font-weight: 600;
@@ -231,17 +254,17 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         .profile-status {
             font-size: 0.75rem;
             display: flex;
             align-items: center;
             gap: 4px;
         }
-        
+
         .profile-status.verified { color: var(--success); }
         .profile-status.pending { color: var(--warning); }
-        
+
         .btn-logout {
             width: 100%;
             display: flex;
@@ -258,16 +281,16 @@
             cursor: pointer;
             transition: var(--transition);
         }
-        
+
         .btn-logout:hover {
             background: var(--danger);
             border-color: var(--danger);
             color: var(--white);
         }
-        
+
         /* Main Content */
         .seller-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
-        
+
         .seller-header {
             height: var(--header-height);
             background: var(--white);
@@ -280,25 +303,78 @@
             top: 0;
             z-index: 100;
         }
-        
+
         .header-left { display: flex; align-items: center; gap: 20px; }
-        
+
         .page-title {
             font-family: 'Poppins', sans-serif;
             font-size: 1.5rem;
             font-weight: 600;
             color: var(--slate-900);
         }
-        
+
         .header-right { display: flex; align-items: center; gap: 16px; }
-        
+
+        .header-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: var(--slate-100);
+            color: var(--slate-600);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .header-btn:hover {
+            background: var(--slate-200);
+            color: var(--slate-900);
+        }
+
+        .header-btn .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 10px;
+            height: 10px;
+            background: var(--danger);
+            border: 2px solid var(--white);
+            border-radius: 50%;
+        }
+
+        .btn-add-product {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--seller-gradient);
+            color: var(--white);
+            border: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            box-shadow: 0 12px 25px rgba(124, 58, 237, 0.25);
+        }
+
+        .btn-add-product:hover {
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+            transform: translateY(-2px);
+        }
+
         .period-tabs {
             display: flex;
             background: var(--slate-100);
             border-radius: 25px;
             padding: 4px;
         }
-        
+
         .period-tab {
             padding: 8px 16px;
             border: none;
@@ -310,15 +386,15 @@
             border-radius: 20px;
             transition: var(--transition);
         }
-        
+
         .period-tab.active {
             background: var(--white);
             color: var(--seller-primary);
             box-shadow: var(--shadow-sm);
         }
-        
+
         .seller-content { padding: 32px; }
-        
+
         /* Stats Grid */
         .stats-grid {
             display: grid;
@@ -326,7 +402,7 @@
             gap: 24px;
             margin-bottom: 32px;
         }
-        
+
         .stat-card {
             background: var(--white);
             border-radius: var(--radius-lg);
@@ -335,16 +411,16 @@
             border: 1px solid var(--slate-100);
             transition: var(--transition);
         }
-        
+
         .stat-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
-        
+
         .stat-header {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
             margin-bottom: 16px;
         }
-        
+
         .stat-icon {
             width: 52px;
             height: 52px;
@@ -354,12 +430,12 @@
             justify-content: center;
             font-size: 1.3rem;
         }
-        
+
         .stat-icon.revenue { background: var(--success-light); color: var(--success); }
         .stat-icon.orders { background: var(--info-light); color: var(--info); }
         .stat-icon.products { background: var(--seller-primary-light); color: var(--seller-primary); }
         .stat-icon.views { background: var(--warning-light); color: var(--warning); }
-        
+
         .stat-trend {
             display: flex;
             align-items: center;
@@ -369,13 +445,13 @@
             padding: 4px 10px;
             border-radius: 20px;
         }
-        
+
         .stat-trend.up { background: var(--success-light); color: var(--success); }
         .stat-trend.down { background: var(--danger-light); color: var(--danger); }
-        
+
         .stat-value { font-size: 2rem; font-weight: 700; color: var(--slate-900); margin-bottom: 4px; }
         .stat-label { color: var(--slate-500); font-size: 0.9rem; }
-        
+
         /* Charts Grid */
         .charts-grid {
             display: grid;
@@ -383,14 +459,14 @@
             gap: 24px;
             margin-bottom: 32px;
         }
-        
+
         .card {
             background: var(--white);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--slate-100);
         }
-        
+
         .card-header {
             display: flex;
             align-items: center;
@@ -398,7 +474,7 @@
             padding: 20px 24px;
             border-bottom: 1px solid var(--slate-100);
         }
-        
+
         .card-title {
             font-family: 'Poppins', sans-serif;
             font-size: 1.1rem;
@@ -408,16 +484,16 @@
             align-items: center;
             gap: 10px;
         }
-        
+
         .card-title i { color: var(--seller-primary); }
-        
+
         .card-body { padding: 24px; }
-        
+
         .chart-container { position: relative; height: 300px; }
-        
+
         /* Top Products */
         .product-list { list-style: none; }
-        
+
         .product-item {
             display: flex;
             align-items: center;
@@ -425,9 +501,9 @@
             padding: 14px 0;
             border-bottom: 1px solid var(--slate-100);
         }
-        
+
         .product-item:last-child { border-bottom: none; }
-        
+
         .product-rank {
             width: 32px;
             height: 32px;
@@ -440,32 +516,32 @@
             justify-content: center;
             font-size: 0.85rem;
         }
-        
+
         .product-rank.gold { background: #FEF3C7; color: #D97706; }
         .product-rank.silver { background: var(--slate-200); color: var(--slate-600); }
         .product-rank.bronze { background: #FED7AA; color: #C2410C; }
-        
+
         .product-info { flex: 1; }
         .product-name { font-weight: 600; color: var(--slate-900); font-size: 0.9rem; margin-bottom: 2px; }
         .product-sales { font-size: 0.8rem; color: var(--slate-500); }
-        
+
         .product-revenue { font-weight: 700; color: var(--success); }
-        
+
         /* Performance Table */
         .table-container { overflow-x: auto; }
-        
+
         .data-table {
             width: 100%;
             border-collapse: collapse;
         }
-        
+
         .data-table th,
         .data-table td {
             padding: 14px 16px;
             text-align: left;
             border-bottom: 1px solid var(--slate-100);
         }
-        
+
         .data-table th {
             background: var(--slate-50);
             color: var(--slate-600);
@@ -474,17 +550,17 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
+
         .data-table td { font-size: 0.9rem; color: var(--slate-700); }
-        
+
         .data-table tr:hover { background: var(--slate-50); }
-        
+
         .metric-cell {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        
+
         .metric-bar {
             flex: 1;
             height: 8px;
@@ -492,20 +568,20 @@
             border-radius: 4px;
             overflow: hidden;
         }
-        
+
         .metric-fill {
             height: 100%;
             background: var(--seller-gradient);
             border-radius: 4px;
         }
-        
+
         /* Insights Section */
         .insights-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 24px;
         }
-        
+
         .insight-card {
             background: var(--white);
             border-radius: var(--radius-lg);
@@ -513,14 +589,14 @@
             box-shadow: var(--shadow-sm);
             border-left: 4px solid var(--seller-primary);
         }
-        
+
         .insight-header {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 12px;
         }
-        
+
         .insight-icon {
             width: 40px;
             height: 40px;
@@ -531,17 +607,17 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .insight-title { font-weight: 600; color: var(--slate-900); }
         .insight-value { font-size: 1.5rem; font-weight: 700; color: var(--slate-900); margin-bottom: 4px; }
         .insight-desc { font-size: 0.85rem; color: var(--slate-500); }
-        
+
         /* Empty State */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
         }
-        
+
         .empty-icon {
             width: 80px;
             height: 80px;
@@ -554,10 +630,10 @@
             font-size: 2rem;
             color: var(--slate-400);
         }
-        
+
         .empty-title { font-size: 1.25rem; font-weight: 600; color: var(--slate-900); margin-bottom: 8px; }
         .empty-desc { color: var(--slate-500); max-width: 300px; margin: 0 auto; }
-        
+
         /* Responsive */
         .sidebar-overlay {
             display: none;
@@ -566,102 +642,104 @@
             background: rgba(0,0,0,0.5);
             z-index: 999;
         }
-        
+
         .sidebar-overlay.show { display: block; }
-        
+
         @media (max-width: 1200px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .charts-grid { grid-template-columns: 1fr; }
             .insights-grid { grid-template-columns: 1fr; }
         }
-        
+
         @media (max-width: 1024px) {
             .seller-sidebar { transform: translateX(-100%); }
             .seller-sidebar.open { transform: translateX(0); }
             .seller-main { margin-left: 0; }
         }
-        
+
         @media (max-width: 768px) {
             .seller-content { padding: 20px; }
             .stats-grid { grid-template-columns: 1fr; }
             .period-tabs { display: none; }
+            .btn-add-product span { display: none; }
         }
-    </style>
-</head>
-<body>
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Loading Analytics...</div>
-    </div>
+        </style>
+    </head>
+    <body>
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading Analytics...</div>
+        </div>
 
-    <div class="seller-layout">
-        <aside class="seller-sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <a href="/seller-dashboard.html" class="sidebar-brand">
-                    <div class="brand-logo">69</div>
-                    <div class="brand-text">
-                        <span class="brand-name">69Shop.in</span>
-                        <span class="brand-badge">SELLER CENTER</span>
+        <div class="seller-layout">
+            <aside class="seller-sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <a href="/seller-dashboard.html" class="sidebar-brand">
+                        <div class="brand-logo">69</div>
+                        <div class="brand-text">
+                            <span class="brand-name">69Shop.in</span>
+                            <span class="brand-badge">SELLER CENTER</span>
+                        </div>
+                    </a>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <div class="nav-section">
+                        <div class="nav-section-title">Main Menu</div>
+                        <a href="/seller-dashboard.html" class="nav-link">
+                            <i class="fas fa-th-large"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="/seller-products.html" class="nav-link">
+                            <i class="fas fa-box-open"></i>
+                            <span>Products</span>
+                        </a>
+                        <a href="/seller-orders.html" class="nav-link">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>Orders</span>
+                            <span class="nav-badge" data-orders-badge></span>
+                        </a>
+                        <a href="/seller-services.html" class="nav-link">
+                            <i class="fas fa-concierge-bell"></i>
+                            <span>Services</span>
+                        </a>
                     </div>
-                </a>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <div class="nav-section">
-                    <div class="nav-section-title">Main Menu</div>
-                    <a href="/seller-dashboard.html" class="nav-link">
-                        <i class="fas fa-th-large"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="/seller-products.html" class="nav-link">
-                        <i class="fas fa-box-open"></i>
-                        <span>Products</span>
-                    </a>
-                    <a href="/seller-orders.html" class="nav-link">
-                        <i class="fas fa-shopping-bag"></i>
-                        <span>Orders</span>
-                    </a>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Business</div>
-                    <a href="/seller-analytics.html" class="nav-link active">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Analytics</span>
-                    </a>
-                    <a href="/seller-payments.html" class="nav-link">
-                        <i class="fas fa-wallet"></i>
-                        <span>Payments</span>
-                    </a>
-                    <a href="/seller-services.html" class="nav-link">
-                        <i class="fas fa-concierge-bell"></i>
-                        <span>Services</span>
-                    </a>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Account</div>
-                    <a href="/seller-verification.html" class="nav-link">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Verification</span>
-                    </a>
-                    <a href="/seller-settings.html" class="nav-link">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                    <a href="/shop.html" class="nav-link">
-                        <i class="fas fa-store"></i>
-                        <span>View Shop</span>
-                    </a>
-                </div>
-            </nav>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Business</div>
+                        <a href="/seller-analytics.html" class="nav-link active">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Analytics</span>
+                        </a>
+                        <a href="/seller-payments.html" class="nav-link">
+                            <i class="fas fa-wallet"></i>
+                            <span>Payments</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <div class="nav-section-title">Account</div>
+                        <a href="/seller-verification.html" class="nav-link" data-verification-link>
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Verification</span>
+                        </a>
+                        <a href="/seller-settings.html" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="/shop.html" class="nav-link" target="_blank" rel="noopener">
+                            <i class="fas fa-store"></i>
+                            <span>View Shop</span>
+                        </a>
+                    </div>
+                </nav>
             
             <div class="sidebar-footer">
                 <div class="seller-profile">
-                    <div class="profile-avatar" id="sellerAvatar">S</div>
+                    <div class="profile-avatar" id="sellerAvatar" data-seller-avatar>S</div>
                     <div class="profile-info">
-                        <div class="profile-name" id="sellerName">Seller</div>
-                        <div class="profile-status pending" id="sellerStatus">
+                        <div class="profile-name" id="sellerName" data-seller-name>Seller</div>
+                        <div class="profile-status pending" id="sellerStatus" data-seller-status>
                             <i class="fas fa-clock"></i>
                             <span>Pending</span>
                         </div>
@@ -679,6 +757,9 @@
         <main class="seller-main">
             <header class="seller-header">
                 <div class="header-left">
+                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" aria-label="Toggle menu" style="display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <h1 class="page-title">Analytics</h1>
                 </div>
                 <div class="header-right">
@@ -687,6 +768,33 @@
                         <button class="period-tab active" data-period="30">30 Days</button>
                         <button class="period-tab" data-period="90">90 Days</button>
                     </div>
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationTrigger" title="Notifications" aria-label="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
+                        </button>
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-panel-header">
+                                <div>
+                                    <h3>Notifications</h3>
+                                    <p id="notificationSubtitle">Latest updates</p>
+                                </div>
+                                <button id="notificationRefresh" title="Refresh notifications">
+                                    <i class="fas fa-rotate-right"></i>
+                                </button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/seller-products.html?action=add" class="btn-add-product">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Product</span>
+                    </a>
                 </div>
             </header>
             
@@ -858,7 +966,6 @@
     </div>
 
     <script>
-        // Firebase initialization
         const firebaseConfig = window.firebaseConfig;
         if (!firebaseConfig || !firebaseConfig.apiKey) {
             throw new Error('Missing Firebase configuration.');
@@ -866,151 +973,137 @@
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
+
         const auth = firebase.auth();
         const db = firebase.firestore();
-        
+
+        let authUser = null;
         let currentSeller = null;
+        let notificationFeed = null;
+        let metricsCache = null;
         let revenueChart = null;
-        
-        // Auth state listener
+
         auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const sellerDoc = await db.collection('sellers').doc(user.uid).get();
-                    if (sellerDoc.exists) {
-                        currentSeller = { uid: user.uid, ...sellerDoc.data() };
-                        updateSellerInfo(currentSeller);
-                        await loadAnalytics();
-                    } else {
-                        window.location.href = '/seller-login.html';
-                    }
-                } catch (error) {
-                    console.error('Error loading seller:', error);
-                }
-            } else {
+            if (!user) {
                 window.location.href = '/seller-login.html';
+                return;
             }
-            document.getElementById('loadingOverlay').style.display = 'none';
-        });
-        
-        function updateSellerInfo(seller) {
-            document.getElementById('sellerName').textContent = seller.businessName || seller.name || 'Seller';
-            document.getElementById('sellerAvatar').textContent = (seller.businessName || seller.name || 'S').charAt(0).toUpperCase();
-        }
-        
-        async function loadAnalytics() {
             try {
-                // Load products
-                const productsSnapshot = await db.collection('products')
-                    .where('sellerId', '==', currentSeller.uid)
-                    .get();
-                
-                // Load orders
-                const ordersSnapshot = await db.collection('orders')
-                    .where('sellerId', '==', currentSeller.uid)
-                    .get();
-                
-                let totalRevenue = 0;
-                let totalOrders = ordersSnapshot.size;
-                let totalViews = 0;
-                
-                // Calculate revenue
-                ordersSnapshot.forEach(doc => {
-                    const order = doc.data();
-                    totalRevenue += order.total || order.amount || 0;
-                });
-                
-                // Calculate views (simulated)
-                productsSnapshot.forEach(doc => {
-                    const product = doc.data();
-                    totalViews += product.views || Math.floor(Math.random() * 500) + 50;
-                });
-                
-                // Update stats
-                document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString()}`;
-                document.getElementById('totalOrders').textContent = totalOrders;
-                document.getElementById('avgOrderValue').textContent = totalOrders > 0 ? `₹${Math.round(totalRevenue / totalOrders).toLocaleString()}` : '₹0';
-                document.getElementById('totalViews').textContent = totalViews.toLocaleString();
-                
-                // Set trends (simulated)
-                document.getElementById('revenueTrend').textContent = '+12.5%';
-                document.getElementById('ordersTrend').textContent = '+8.3%';
-                document.getElementById('conversionRate').textContent = '3.2%';
-                document.getElementById('viewsTrend').textContent = '+15.7%';
-                
-                // Load top products
-                loadTopProducts(productsSnapshot, ordersSnapshot);
-                
-                // Load performance table
-                loadPerformanceTable(productsSnapshot);
-                
-                // Initialize chart
-                initializeRevenueChart(ordersSnapshot);
-                
-                // Set insights
-                document.getElementById('bestTime').textContent = '7 PM - 9 PM';
-                document.getElementById('returnRate').textContent = '2.3%';
-                document.getElementById('avgRating').textContent = '4.5 ⭐';
-                
+                const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                if (!sellerDoc.exists) {
+                    window.location.href = '/seller-login.html';
+                    return;
+                }
+                authUser = user;
+                const sellerData = sellerDoc.data() || {};
+                currentSeller = { uid: user.uid, ...sellerData };
+                await syncSellerShell(user, sellerData);
+                initNotifications();
+                await refreshAnalytics();
             } catch (error) {
-                console.error('Error loading analytics:', error);
+                console.error('Unable to load seller profile:', error);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        async function refreshAnalytics() {
+            if (!currentSeller) return;
+            try {
+                metricsCache = await SellerMetrics.fetch(db, currentSeller.uid);
+                applyAnalytics(metricsCache);
+            } catch (error) {
+                console.error('Error loading analytics metrics:', error);
             }
         }
-        
-        function loadTopProducts(productsSnapshot, ordersSnapshot) {
-            const productSales = {};
-            
-            // Count sales per product
-            ordersSnapshot.forEach(doc => {
-                const order = doc.data();
-                if (order.items) {
-                    order.items.forEach(item => {
-                        if (!productSales[item.productId]) {
-                            productSales[item.productId] = { sales: 0, revenue: 0, name: item.name || 'Unknown' };
-                        }
-                        productSales[item.productId].sales += item.quantity || 1;
-                        productSales[item.productId].revenue += item.price * (item.quantity || 1);
-                    });
-                }
+
+        function initNotifications() {
+            if (typeof NotificationFeed === 'undefined' || !db || !authUser) return;
+            if (notificationFeed && typeof notificationFeed.refresh === 'function') {
+                notificationFeed.refresh();
+                return;
+            }
+            notificationFeed = NotificationFeed.init({
+                audience: 'seller',
+                db,
+                userId: authUser.uid,
+                triggerSelector: '#notificationTrigger',
+                panelSelector: '#notificationPanel',
+                listSelector: '#notificationList',
+                badgeSelector: '#notificationDot',
+                refreshSelector: '#notificationRefresh',
+                subtitleSelector: '#notificationSubtitle'
             });
-            
-            // Sort and get top 5
-            const sorted = Object.entries(productSales)
-                .sort((a, b) => b[1].revenue - a[1].revenue)
-                .slice(0, 5);
-            
+        }
+
+        async function syncSellerShell(user, sellerData = {}) {
+            if (!window.SellerShell) return null;
+            try {
+                return await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+            } catch (error) {
+                console.warn('SellerShell sync failed:', error);
+                return null;
+            }
+        }
+
+        function applyAnalytics(metrics) {
+            if (!metrics) return;
+            const productSummary = metrics.products || {};
+            const orders = metrics.orders || {};
+
+            document.getElementById('totalRevenue').textContent = formatCurrency(orders.revenueNet || 0);
+            document.getElementById('totalOrders').textContent = orders.total || 0;
+            document.getElementById('avgOrderValue').textContent = formatCurrency(orders.averageOrderValue || 0);
+            document.getElementById('totalViews').textContent = (productSummary.totalViews || 0).toLocaleString('en-IN');
+            document.getElementById('conversionRate').textContent = `${(orders.conversionRate || 0).toFixed(1)}%`;
+
+            setTrendBadge('revenueTrend', orders.trends?.revenue);
+            setTrendBadge('ordersTrend', orders.trends?.orders);
+            setTrendBadge('viewsTrend', null);
+
+            renderTopProducts(orders.topProducts || []);
+            renderPerformanceTable(orders.performance || []);
+            renderRevenueChart(orders.revenueSeries?.last30Days);
+            renderInsights(orders);
+        }
+
+        function renderTopProducts(items) {
             const container = document.getElementById('topProducts');
-            
-            if (sorted.length === 0) {
+            if (!container) return;
+            if (!items.length) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon"><i class="fas fa-chart-bar"></i></div>
                         <h3 class="empty-title">No Sales Yet</h3>
-                        <p class="empty-desc">Top products will appear here once you make sales</p>
+                        <p class="empty-desc">Top products will appear here once orders start rolling in.</p>
                     </div>
                 `;
                 return;
             }
-            
-            container.innerHTML = sorted.map((item, index) => {
+            container.innerHTML = items.map((item, index) => {
                 const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
                 return `
                     <li class="product-item">
                         <span class="product-rank ${rankClass}">${index + 1}</span>
                         <div class="product-info">
-                            <div class="product-name">${item[1].name}</div>
-                            <div class="product-sales">${item[1].sales} sales</div>
+                            <div class="product-name">${item.name}</div>
+                            <div class="product-sales">${item.sales} sales</div>
                         </div>
-                        <span class="product-revenue">₹${item[1].revenue.toLocaleString()}</span>
+                        <span class="product-revenue">${formatCurrency(item.revenue)}</span>
                     </li>
                 `;
             }).join('');
         }
-        
-        function loadPerformanceTable(productsSnapshot) {
+
+        function renderPerformanceTable(rows) {
             const container = document.getElementById('performanceTable');
-            
-            if (productsSnapshot.empty) {
+            if (!container) return;
+            if (!rows.length) {
                 container.innerHTML = `
                     <tr>
                         <td colspan="5" style="text-align: center; color: var(--slate-500);">No products yet. Add products to see performance.</td>
@@ -1018,58 +1111,47 @@
                 `;
                 return;
             }
-            
-            const products = [];
-            productsSnapshot.forEach(doc => {
-                products.push({ id: doc.id, ...doc.data() });
-            });
-            
-            container.innerHTML = products.slice(0, 10).map(product => {
-                const views = product.views || Math.floor(Math.random() * 500) + 50;
-                const orders = product.orderCount || Math.floor(Math.random() * 20);
-                const revenue = orders * (product.price || 0);
-                const conversion = views > 0 ? ((orders / views) * 100).toFixed(1) : 0;
-                const conversionWidth = Math.min(conversion * 10, 100);
-                
+            container.innerHTML = rows.slice(0, 10).map((row) => {
+                const views = Number(row.views) || 0;
+                const orderCount = Number(row.orders) || 0;
+                const revenue = Number(row.revenue) || 0;
+                const conversion = Number(row.conversion ?? (views ? (orderCount / views) * 100 : 0));
+                const conversionWidth = Math.min(Math.max(conversion, 0), 100);
                 return `
                     <tr>
-                        <td><strong>${product.name || 'Unnamed Product'}</strong></td>
-                        <td>${views.toLocaleString()}</td>
-                        <td>${orders}</td>
-                        <td>₹${revenue.toLocaleString()}</td>
+                        <td><strong>${row.name}</strong></td>
+                        <td>${views.toLocaleString('en-IN')}</td>
+                        <td>${orderCount}</td>
+                        <td>${formatCurrency(revenue)}</td>
                         <td>
                             <div class="metric-cell">
                                 <div class="metric-bar">
                                     <div class="metric-fill" style="width: ${conversionWidth}%"></div>
                                 </div>
-                                <span>${conversion}%</span>
+                                <span>${conversion.toFixed(1)}%</span>
                             </div>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
-        
-        function initializeRevenueChart(ordersSnapshot) {
+
+        function renderRevenueChart(series) {
+            if (!series || !Array.isArray(series.values)) return;
             const ctx = document.getElementById('revenueChart').getContext('2d');
-            
-            // Generate last 30 days
-            const labels = [];
-            const data = [];
-            for (let i = 29; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(date.getDate() - i);
-                labels.push(date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }));
-                data.push(Math.floor(Math.random() * 5000) + 1000);
+            if (revenueChart) {
+                revenueChart.data.labels = series.labels;
+                revenueChart.data.datasets[0].data = series.values;
+                revenueChart.update();
+                return;
             }
-            
             revenueChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: series.labels,
                     datasets: [{
                         label: 'Revenue',
-                        data: data,
+                        data: series.values,
                         borderColor: '#7C3AED',
                         backgroundColor: 'rgba(124, 58, 237, 0.1)',
                         fill: true,
@@ -1087,7 +1169,7 @@
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                label: (context) => `₹${context.raw.toLocaleString()}`
+                                label: (context) => formatCurrency(context.raw)
                             }
                         }
                     },
@@ -1100,34 +1182,77 @@
                             beginAtZero: true,
                             grid: { color: '#E2E8F0' },
                             ticks: {
-                                callback: (value) => `₹${value.toLocaleString()}`
+                                callback: (value) => formatCurrency(value)
                             }
                         }
                     }
                 }
             });
         }
-        
-        // Period tabs
-        document.querySelectorAll('.period-tab').forEach(tab => {
+
+        function renderInsights(orders) {
+            document.getElementById('bestTime').textContent = orders.bestTime || 'N/A';
+            document.getElementById('returnRate').textContent = `${(orders.returnRate || 0).toFixed(1)}%`;
+            document.getElementById('avgRating').textContent = orders.avgRating ? `${orders.avgRating.toFixed(1)} ⭐` : '--';
+        }
+
+        function setTrendBadge(elementId, value) {
+            const label = document.getElementById(elementId);
+            if (!label) return;
+            const wrapper = label.closest('.stat-trend');
+            if (value === null || value === undefined) {
+                label.textContent = '--';
+                if (wrapper) {
+                    wrapper.classList.remove('up', 'down');
+                }
+                return;
+            }
+            const formatted = `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+            label.textContent = formatted;
+            if (wrapper) {
+                wrapper.classList.toggle('up', value >= 0);
+                wrapper.classList.toggle('down', value < 0);
+            }
+        }
+
+        function formatCurrency(value) {
+            const amount = Number(value) || 0;
+            return `₹${amount.toLocaleString('en-IN')}`;
+        }
+
+        document.querySelectorAll('.period-tab').forEach((tab) => {
             tab.addEventListener('click', () => {
-                document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.period-tab').forEach((t) => t.classList.remove('active'));
                 tab.classList.add('active');
-                // Reload data for the selected period
-                loadAnalytics();
+                refreshAnalytics();
             });
         });
-        
+
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('show');
         }
-        
+
         function logout() {
             auth.signOut().then(() => {
                 window.location.href = '/seller-login.html';
             });
         }
+
+        function checkResponsive() {
+            const menuToggle = document.getElementById('menuToggle');
+            if (!menuToggle) return;
+            if (window.innerWidth <= 1024) {
+                menuToggle.style.display = 'flex';
+            } else {
+                menuToggle.style.display = 'none';
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebarOverlay').classList.remove('show');
+            }
+        }
+
+        window.addEventListener('resize', checkResponsive);
+        checkResponsive();
     </script>
 </body>
 </html>

@@ -9,11 +9,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/dashboard-notifications.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
+    <script src="/js/notifications.js"></script>
     
     <style>
         :root {
@@ -205,6 +207,30 @@
         }
         
         .header-left { display: flex; align-items: center; gap: 20px; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .header-search { position: relative; }
+        .header-search input {
+            width: 260px;
+            padding: 10px 16px 10px 42px;
+            border: 1px solid var(--slate-200);
+            border-radius: 24px;
+            background: var(--slate-50);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        .header-search input:focus {
+            outline: none;
+            border-color: var(--admin-primary);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        .header-search i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-400);
+        }
         .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); }
         .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--slate-500); }
         .breadcrumb a { color: var(--admin-primary); text-decoration: none; }
@@ -499,7 +525,37 @@
                 </div>
                 
                 <div class="header-right">
-                    <button class="header-btn" onclick="exportOrders()">
+                    <div class="header-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="headerSearchInput" placeholder="Search orders...">
+                    </div>
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationTrigger" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
+                        </button>
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-panel-header">
+                                <div>
+                                    <h3>Notifications</h3>
+                                    <p id="notificationSubtitle">Latest updates</p>
+                                </div>
+                                <button id="notificationRefresh" title="Refresh notifications">
+                                    <i class="fas fa-rotate-right"></i>
+                                </button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="header-btn" onclick="refreshOrders()" title="Refresh orders">
+                        <i class="fas fa-rotate-right"></i>
+                    </button>
+                    <button class="header-btn" onclick="exportOrders()" title="Export CSV">
                         <i class="fas fa-download"></i>
                     </button>
                 </div>
@@ -600,11 +656,13 @@
         const db = firebase.firestore();
         
         let allOrders = [];
+        let notificationFeed = null;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const isAdmin = await checkAdminStatus(user.email);
                 if (isAdmin) {
+                    initNotifications(user);
                     await initializePage(user);
                     hideLoading();
                 } else {
@@ -617,6 +675,7 @@
 
         async function checkAdminStatus(email) {
             try {
+                if (email === LEAD_ADMIN_EMAIL) return true;
                 const adminDoc = await db.collection('admins').doc(email).get();
                 return adminDoc.exists;
             } catch (error) {
@@ -633,6 +692,25 @@
             
             await loadOrders();
             setupEventListeners();
+        }
+
+        function initNotifications(user) {
+            if (typeof NotificationFeed === 'undefined' || !db || !user) return;
+            if (notificationFeed && typeof notificationFeed.refresh === 'function') {
+                notificationFeed.refresh();
+                return;
+            }
+            notificationFeed = NotificationFeed.init({
+                audience: 'admin',
+                db,
+                userId: user.uid,
+                triggerSelector: '#notificationTrigger',
+                panelSelector: '#notificationPanel',
+                listSelector: '#notificationList',
+                badgeSelector: '#notificationDot',
+                refreshSelector: '#notificationRefresh',
+                subtitleSelector: '#notificationSubtitle'
+            });
         }
 
         async function loadOrders() {
@@ -739,8 +817,25 @@
         }
 
         function setupEventListeners() {
-            document.getElementById('searchInput').addEventListener('input', filterOrders);
+            const searchField = document.getElementById('searchInput');
+            if (searchField) {
+                searchField.addEventListener('input', handleSearchInput);
+            }
+            const headerSearch = document.getElementById('headerSearchInput');
+            if (headerSearch) {
+                headerSearch.addEventListener('input', handleSearchInput);
+            }
             document.getElementById('statusFilter').addEventListener('change', filterOrders);
+        }
+
+        function handleSearchInput(event) {
+            const value = event.target.value;
+            const isHeader = event.target.id === 'headerSearchInput';
+            const counterpart = document.getElementById(isHeader ? 'searchInput' : 'headerSearchInput');
+            if (counterpart && counterpart.value !== value) {
+                counterpart.value = value;
+            }
+            filterOrders();
         }
 
         function filterOrders() {
@@ -766,6 +861,23 @@
 
         function viewOrder(orderId) {
             alert(`Order details for ${orderId}\n\nFull order view modal coming soon!`);
+        }
+
+        async function refreshOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-sync"></i>
+                                <h3>Refreshing orders...</h3>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+            await loadOrders();
         }
 
         function exportOrders() {

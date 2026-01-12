@@ -87,6 +87,62 @@
                 { href: '/', label: 'Home' },
                 { href: '/shop.html', label: 'Shop' }
             ]
+        },
+        '/admin-dashboard.html': {
+            name: 'Admin Dashboard',
+            requiresAuth: true,
+            expectedLinks: [
+                { href: '/admin-sellers.html', label: 'Sellers' },
+                { href: '/admin-users.html', label: 'Users' },
+                { href: '/admin-products.html', label: 'Products' },
+                { href: '/admin-orders.html', label: 'Orders' }
+            ]
+        },
+        '/admin-sellers.html': {
+            name: 'Admin Sellers',
+            requiresAuth: true,
+            expectedLinks: [
+                { href: '/admin-dashboard.html', label: 'Dashboard' },
+                { href: '/admin-users.html', label: 'Users' }
+            ]
+        },
+        '/admin-users.html': {
+            name: 'Admin Users',
+            requiresAuth: true,
+            expectedLinks: [
+                { href: '/admin-dashboard.html', label: 'Dashboard' },
+                { href: '/admin-sellers.html', label: 'Sellers' }
+            ]
+        },
+        '/admin-products.html': {
+            name: 'Admin Products',
+            requiresAuth: true,
+            expectedLinks: [
+                { href: '/admin-dashboard.html', label: 'Dashboard' },
+                { href: '/admin-orders.html', label: 'Orders' }
+            ]
+        },
+        '/admin-orders.html': {
+            name: 'Admin Orders',
+            requiresAuth: true,
+            expectedLinks: [
+                { href: '/admin-dashboard.html', label: 'Dashboard' },
+                { href: '/admin-products.html', label: 'Products' }
+            ]
+        },
+        '/admin-analytics.html': {
+            name: 'Admin Analytics',
+            requiresAuth: true,
+            expectedLinks: [
+                { href: '/admin-dashboard.html', label: 'Dashboard' }
+            ]
+        },
+        '/admin-settings.html': {
+            name: 'Admin Settings',
+            requiresAuth: true,
+            expectedLinks: [
+                { href: '/admin-dashboard.html', label: 'Dashboard' }
+            ]
         }
     };
     
@@ -242,6 +298,38 @@
             results.passed++;
         }
     }
+
+    function testAdminNav() {
+        if (!window.location.pathname.includes('admin-')) {
+            return;
+        }
+        console.log(`\n%c🏢 Testing Admin Navigation`, 'font-weight: bold; color: #0EA5E9;');
+        const sidebar = document.querySelector('.admin-sidebar, .admin-nav');
+        if (sidebar) {
+            console.log('✅ Admin sidebar found');
+            results.passed++;
+        } else {
+            console.error('❌ Admin sidebar missing');
+            results.failed++;
+        }
+
+        const topbar = document.querySelector('.admin-topbar, .admin-header, header');
+        if (topbar) {
+            console.log('✅ Admin topbar/header detected');
+            results.passed++;
+        } else {
+            console.warn('⚠️ Admin topbar not detected');
+            results.warnings++;
+        }
+
+        const quickActions = document.querySelectorAll('.quick-action, .admin-quick-action');
+        if (quickActions.length) {
+            console.log(`Quick actions available: ${quickActions.length}`);
+        } else {
+            console.warn('⚠️ No admin quick actions found');
+            results.warnings++;
+        }
+    }
     
     // Run all tests
     console.log('\n%c🚀 Starting Tests...', 'font-size: 14px; font-weight: bold;');
@@ -250,6 +338,7 @@
     testNavigation();
     testAuthUI();
     testSellerNav();
+    testAdminNav();
     
     // Summary
     console.log('\n' + '='.repeat(60));

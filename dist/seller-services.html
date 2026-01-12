@@ -9,171 +9,288 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/dashboard-notifications.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="./firebase-config.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/seller-shell.js"></script>
     
     <style>
         :root {
+            --seller-primary: #7C3AED;
+            --seller-primary-dark: #6D28D9;
+            --seller-primary-light: #EDE9FE;
+            --seller-light: #F6F0FF;
+            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
             --primary-black: #1A1A1A;
             --secondary-black: #2D2D2D;
             --dark-grey: #404040;
             --medium-grey: #666666;
             --light-grey: #F8F8F8;
             --white: #FFFFFF;
-            --seller-primary: #7C3AED;
-            --seller-light: #EDE9FE;
-            --seller-dark: #5B21B6;
-            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
             --green: #22C55E;
             --green-light: #DCFCE7;
             --yellow: #F59E0B;
             --yellow-light: #FEF3C7;
             --red: #EF4444;
             --red-light: #FEE2E2;
-            --blue: #0066ff;
+            --blue: #0066FF;
             --blue-light: #E6F2FF;
-            --shadow-sm: 0 2px 8px rgba(26, 26, 26, 0.05);
-            --shadow-md: 0 4px 16px rgba(26, 26, 26, 0.08);
-            --shadow-lg: 0 8px 32px rgba(26, 26, 26, 0.12);
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --danger: #EF4444;
+            --danger-light: #FEE2E2;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
             --radius-sm: 6px;
             --radius-md: 12px;
             --radius-lg: 16px;
+            --radius-xl: 24px;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--light-grey);
+            background: var(--slate-100);
+            color: var(--slate-800);
             min-height: 100vh;
         }
-        
-        /* Top Navigation Bar */
-        .seller-topbar {
-            background: var(--seller-gradient);
-            padding: 0 24px;
-            height: 64px;
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            position: sticky;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 1100;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--slate-200);
+            border-top-color: var(--seller-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 0.9rem;
+            color: var(--slate-500);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Seller Shell */
+        .seller-layout { display: flex; min-height: 100vh; background: var(--slate-100); }
+        .seller-sidebar {
+            width: var(--sidebar-width);
+            background: var(--slate-900);
+            position: fixed;
             top: 0;
+            left: 0;
+            height: 100vh;
             z-index: 1000;
-            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
         }
-        
-        .seller-topbar-left {
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-800); }
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--seller-gradient);
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
-            gap: 20px;
-        }
-        
-        .seller-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
+            justify-content: center;
+            font-size: 1.25rem;
             color: var(--white);
+            font-weight: 700;
         }
-        
-        .seller-logo img { width: 36px; height: 36px; object-fit: contain; }
-        .seller-logo-text { font-family: 'Poppins', sans-serif; }
-        .seller-logo-text h1 { font-size: 1.1rem; font-weight: 700; line-height: 1; }
-        .seller-logo-text span { font-size: 0.7rem; opacity: 0.9; display: flex; align-items: center; gap: 4px; }
-        
-        .seller-badge-chip {
-            background: rgba(255,255,255,0.2);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: var(--white);
-            font-weight: 500;
+        .brand-text { display: flex; flex-direction: column; }
+        .brand-name { color: var(--white); font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 700; }
+        .brand-badge {
+            font-size: 0.65rem;
+            color: var(--seller-primary);
+            background: rgba(124,58,237,0.15);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: fit-content;
         }
-        
-        .seller-topbar-nav {
+        .sidebar-nav { flex: 1; padding: 20px 16px; overflow-y: auto; }
+        .nav-section { margin-bottom: 28px; }
+        .nav-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--slate-500);
+            padding: 0 12px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .nav-link {
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-        
-        .topbar-nav-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            color: rgba(255,255,255,0.8);
+            gap: 14px;
+            padding: 14px 16px;
+            color: var(--slate-400);
             text-decoration: none;
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-md);
             font-size: 0.9rem;
             font-weight: 500;
-            transition: all 0.2s;
+            transition: var(--transition);
+            margin-bottom: 4px;
+            position: relative;
         }
-        
-        .topbar-nav-link:hover { background: rgba(255,255,255,0.1); color: var(--white); }
-        .topbar-nav-link.active { background: rgba(255,255,255,0.2); color: var(--white); }
-        
-        .seller-topbar-right {
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        .nav-link.active { background: var(--seller-gradient); color: var(--white); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3); }
+        .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
+        .nav-badge {
+            margin-left: auto;
+            min-width: 20px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: var(--seller-primary);
+            color: var(--white);
+            font-size: 0.65rem;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-800); }
+        .seller-profile {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
+            padding: 12px;
+            background: var(--slate-800);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
         }
-        
-        .topbar-icon-btn {
+        .profile-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            border: none;
+            background: var(--seller-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--white);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-        
-        .topbar-icon-btn:hover { background: rgba(255,255,255,0.2); }
-        
-        .seller-user-menu {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 12px 6px 6px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 30px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .seller-user-menu:hover { background: rgba(255,255,255,0.25); }
-        
-        .seller-user-avatar {
-            width: 32px;
-            height: 32px;
-            background: var(--white);
-            color: var(--seller-primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-weight: 600;
-            font-size: 0.9rem;
         }
-        
-        .seller-user-info { color: var(--white); }
-        .seller-user-info strong { display: block; font-size: 0.85rem; font-weight: 600; }
-        .seller-user-info span { font-size: 0.7rem; opacity: 0.8; }
-        
-        /* Main Content */
-        .seller-main {
-            padding: 24px;
-            max-width: 1200px;
-            margin: 0 auto;
+        .profile-info { flex: 1; min-width: 0; }
+        .profile-name { color: var(--white); font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .profile-status {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
         }
+        .profile-status.verified { color: var(--success); }
+        .profile-status.pending { color: var(--warning); }
+        .profile-email { color: var(--slate-400); font-size: 0.75rem; }
+        .btn-logout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--slate-700);
+            color: var(--slate-400);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-logout:hover { background: var(--danger); border-color: var(--danger); color: var(--white); }
+        .seller-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
+        .seller-header {
+            height: var(--header-height);
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .header-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: var(--slate-100);
+            color: var(--slate-600);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: var(--transition);
+        }
+        .header-btn:hover { background: var(--slate-200); }
+        .header-btn .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 10px;
+            height: 10px;
+            background: var(--danger);
+            border: 2px solid var(--white);
+            border-radius: 50%;
+        }
+        .seller-content { padding: 32px; }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 900;
+        }
+        .sidebar-overlay.show { display: block; }
+
+        
         
         /* Page Header */
         .page-header {
@@ -195,6 +312,13 @@
         .page-header-left p {
             color: var(--medium-grey);
             font-size: 0.9rem;
+        }
+
+        .page-header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
         }
         
         .btn {
@@ -691,78 +815,173 @@
         .service-option-card {
             position: relative;
         }
+
+        @media (max-width: 1024px) {
+            .seller-sidebar { transform: translateX(-100%); }
+            .seller-sidebar.open { transform: translateX(0); }
+            .seller-main { margin-left: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .seller-content { padding: 20px; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .page-header-actions { width: 100%; justify-content: flex-start; }
+        }
     </style>
 </head>
 <body>
-    <!-- Top Navigation Bar -->
-    <nav class="seller-topbar">
-        <div class="seller-topbar-left">
-            <a href="/seller-dashboard.html" class="seller-logo">
-                <img src="/Logo/69shopc.png" alt="69Shop.in">
-                <div class="seller-logo-text">
-                    <h1>69SHOP.IN</h1>
-                    <span><i class="fas fa-store"></i> Seller Hub</span>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading services...</div>
+    </div>
+    <div class="seller-layout">
+        <aside class="seller-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/seller-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">Seller Hub</span>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/seller-dashboard.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/seller-products.html" class="nav-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="/seller-orders.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Orders</span>
+                        <span class="nav-badge" data-orders-badge></span>
+                    </a>
+                    <a href="/seller-services.html" class="nav-link active">
+                        <i class="fas fa-concierge-bell"></i>
+                        <span>Services</span>
+                    </a>
                 </div>
-            </a>
-            <span class="seller-badge-chip">Service Provider</span>
-        </div>
-        
-        <div class="seller-topbar-nav">
-            <a href="/seller-dashboard.html" class="topbar-nav-link">
-                <i class="fas fa-chart-line"></i> Dashboard
-            </a>
-            <a href="/seller-products.html" class="topbar-nav-link">
-                <i class="fas fa-box"></i> Products
-            </a>
-            <a href="/seller-orders.html" class="topbar-nav-link">
-                <i class="fas fa-shopping-bag"></i> Orders
-            </a>
-            <a href="/seller-services.html" class="topbar-nav-link active">
-                <i class="fas fa-concierge-bell"></i> Services
-            </a>
-        </div>
-        
-        <div class="seller-topbar-right">
-            <button class="topbar-icon-btn" title="Notifications">
-                <i class="fas fa-bell"></i>
-            </button>
-            <div class="dropdown-wrapper">
-                <div class="seller-user-menu" onclick="toggleUserDropdown()">
-                    <div class="seller-user-avatar" id="userAvatar">S</div>
-                    <div class="seller-user-info">
-                        <strong id="userName">Loading...</strong>
-                        <span id="userEmail">seller@69shop.in</span>
+                <div class="nav-section">
+                    <div class="nav-section-title">Insights</div>
+                    <a href="/seller-analytics.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="/seller-payments.html" class="nav-link">
+                        <i class="fas fa-wallet"></i>
+                        <span>Payments</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="/seller-verification.html" class="nav-link" data-verification-link>
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Verification</span>
+                    </a>
+                    <a href="/seller-settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="/shop.html" class="nav-link" target="_blank">
+                        <i class="fas fa-store"></i>
+                        <span>View Shop</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="seller-profile">
+                    <div class="profile-avatar" id="sidebarAvatar" data-seller-avatar>S</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="sidebarName" data-seller-name>Loading...</div>
+                        <div class="profile-status pending" data-seller-status>
+                            <i class="fas fa-clock"></i>
+                            <span>Verification Pending</span>
+                        </div>
+                        <div class="profile-email" id="sidebarEmail">seller@69shop.in</div>
                     </div>
                 </div>
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="#"><i class="fas fa-cog"></i> Settings</a>
-                    <a href="/shop.html"><i class="fas fa-external-link-alt"></i> View Shop</a>
-                    <hr>
-                    <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                <button class="btn-logout" onclick="handleLogout(event)">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        <main class="seller-main">
+            <header class="seller-header">
+                <div class="header-left">
+                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="page-title">Service Manager</h1>
+                        <p style="color: var(--slate-500); font-size: 0.9rem;">Configure your service offerings, pricing, and delivery options</p>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- Main Content -->
-    <main class="seller-main">
-        <div class="page-header">
-            <div class="page-header-left">
-                <h1>Manage Services</h1>
-                <p>Configure your service offerings, pricing, and delivery options</p>
-            </div>
-            <div style="display: flex; gap: 12px; align-items: center;">
-                <span id="saveStatus" style="font-size: 0.85rem; color: var(--medium-grey);"></span>
-                <button class="btn btn-outline" onclick="saveToFirestore()" id="saveBtn">
-                    <i class="fas fa-save"></i>
-                    Save All
-                </button>
-                <button class="btn btn-seller" onclick="openAddCategoryModal()">
-                    <i class="fas fa-plus"></i>
-                    Add Category
-                </button>
-            </div>
-        </div>
+                <div class="header-right">
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationTrigger" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
+                        </button>
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-panel-header">
+                                <div>
+                                    <h3>Notifications</h3>
+                                    <p id="notificationSubtitle">Latest updates</p>
+                                </div>
+                                <button id="notificationRefresh" title="Refresh notifications">
+                                    <i class="fas fa-rotate-right"></i>
+                                </button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-wrapper">
+                        <div class="seller-user-menu" onclick="toggleUserDropdown()">
+                            <div class="seller-user-avatar" id="userAvatar" data-seller-avatar>S</div>
+                            <div class="seller-user-info">
+                                <strong id="userName" data-seller-name>Loading...</strong>
+                                <span id="userEmail">seller@69shop.in</span>
+                            </div>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="/seller-settings.html"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="/shop.html"><i class="fas fa-external-link-alt"></i> View Shop</a>
+                            <hr>
+                            <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="seller-content">
+                <div class="page-header">
+                    <div class="page-header-left">
+                        <h1>Manage Services</h1>
+                        <p>Configure your service offerings, pricing, and delivery options</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <span id="saveStatus" style="font-size: 0.85rem; color: var(--medium-grey);"></span>
+                        <button class="btn btn-outline" onclick="saveToFirestore(true)" id="saveBtn">
+                            <i class="fas fa-save"></i>
+                            Save All
+                        </button>
+                        <button class="btn btn-seller" onclick="openAddCategoryModal()">
+                            <i class="fas fa-plus"></i>
+                            Add Category
+                        </button>
+                    </div>
+                </div>
         
         <!-- Prepleating Service Category -->
         <div class="service-category" id="prepleatingCategory">
@@ -975,7 +1194,9 @@
             <h3>Add Another Service Category</h3>
             <p>Expand your offerings by adding photography, bakery, distribution, or other services</p>
         </div>
-    </main>
+            </div>
+        </main>
+    </div>
     
     <!-- Add Option Modal -->
     <div class="modal-overlay" id="optionModal">
@@ -1079,390 +1300,416 @@
     </div>
     
     <script>
-        // Initialize Firebase
         let auth = null;
         let db = null;
         let currentUser = null;
-        let serviceData = {};
-        
-        try {
-            const firebaseConfig = window.firebaseConfig;
-            if (firebaseConfig && firebaseConfig.apiKey) {
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                }
-                auth = firebase.auth();
-                db = firebase.firestore();
-            }
-        } catch (error) {
-            console.warn('Firebase init failed:', error);
+        let serviceData = { categories: {} };
+        let notificationFeed = null;
+        let sellerShellState = null;
+
+        const firebaseConfig = window.firebaseConfig;
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            throw new Error('Missing Firebase configuration');
         }
-        
-        // Toggle user dropdown
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        auth = firebase.auth();
+        db = firebase.firestore();
+
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function updateProfileIdentity(name, avatarInitial, email) {
+            const headerName = document.getElementById('userName');
+            if (headerName) headerName.textContent = name;
+            const headerAvatar = document.getElementById('userAvatar');
+            if (headerAvatar) headerAvatar.textContent = avatarInitial;
+            const headerEmail = document.getElementById('userEmail');
+            if (headerEmail) headerEmail.textContent = email;
+            const sidebarEmail = document.getElementById('sidebarEmail');
+            if (sidebarEmail) sidebarEmail.textContent = email;
+        }
+
         function toggleUserDropdown() {
-            document.getElementById('userDropdown').classList.toggle('show');
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) dropdown.classList.toggle('show');
         }
-        
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.dropdown-wrapper')) {
-                document.getElementById('userDropdown').classList.remove('show');
+
+        document.addEventListener('click', (event) => {
+            const dropdown = document.getElementById('userDropdown');
+            if (!dropdown) return;
+            if (!event.target.closest('.dropdown-wrapper')) {
+                dropdown.classList.remove('show');
             }
         });
-        
-        async function handleLogout(e) {
-            e.preventDefault();
-            if (auth) {
-                localStorage.removeItem('69shop_user_type');
-                await auth.signOut();
-                window.location.href = '/seller-login.html';
-            }
+
+        async function handleLogout(event) {
+            if (event) event.preventDefault();
+            if (!auth) return;
+            localStorage.removeItem('69shop_user_type');
+            await auth.signOut();
+            window.location.href = '/seller-login.html';
         }
-        
-        // Auth check with role verification
-        if (auth) {
-            auth.onAuthStateChanged(async user => {
-                if (!user) {
-                    window.location.href = '/seller-login.html';
-                    return;
-                }
-                
-                // Verify this user is a seller
-                try {
-                    const sellerDoc = await db.collection('sellers').doc(user.uid).get();
-                    if (!sellerDoc.exists) {
-                        // Check if they have a user profile with seller type
-                        const userDoc = await db.collection('users').doc(user.uid).get();
-                        if (!userDoc.exists || userDoc.data().accountType !== 'seller') {
-                            showToast('Access denied. Seller account required.');
-                            await auth.signOut();
-                            window.location.href = '/seller-login.html';
-                            return;
-                        }
-                    }
-                } catch (error) {
-                    console.error('Role verification failed:', error);
-                }
-                
-                currentUser = user;
-                
-                // Cache seller status in localStorage for shop.html
-                localStorage.setItem('69shop_user_type', JSON.stringify({
-                    uid: user.uid,
-                    accountType: 'seller',
-                    email: user.email,
-                    name: user.displayName || user.email?.split('@')[0] || 'Seller',
-                    timestamp: Date.now()
-                }));
-                
-                // Get seller info
-                try {
-                    const sellerDoc = await db.collection('sellers').doc(user.uid).get();
-                    if (sellerDoc.exists) {
-                        const sellerData = sellerDoc.data();
-                        document.getElementById('userName').textContent = sellerData.businessName || user.displayName || user.email?.split('@')[0] || 'Seller';
-                        document.getElementById('userAvatar').textContent = (sellerData.businessName || user.displayName || user.email || 'S')[0].toUpperCase();
-                    } else {
-                        document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || 'Seller';
-                        document.getElementById('userAvatar').textContent = (user.displayName || user.email || 'S')[0].toUpperCase();
-                    }
-                } catch (e) {
-                    document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || 'Seller';
-                    document.getElementById('userAvatar').textContent = (user.displayName || user.email || 'S')[0].toUpperCase();
-                }
-                
-                document.getElementById('userEmail').textContent = user.email;
-                
-                await loadServiceData(user.uid);
+
+        function initNotifications() {
+            if (typeof NotificationFeed === 'undefined' || !db || !currentUser) return;
+            notificationFeed = NotificationFeed.init({
+                audience: 'seller',
+                db,
+                userId: currentUser.uid,
+                triggerSelector: '#notificationTrigger',
+                panelSelector: '#notificationPanel',
+                listSelector: '#notificationList',
+                badgeSelector: '#notificationDot',
+                refreshSelector: '#notificationRefresh',
+                subtitleSelector: '#notificationSubtitle'
             });
         }
-        
+
+        async function syncSellerShell(user, sellerData = {}) {
+            if (!window.SellerShell) return null;
+            try {
+                sellerShellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+                return sellerShellState;
+            } catch (error) {
+                console.warn('SellerShell sync failed:', error);
+                return null;
+            }
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = '/seller-login.html';
+                return;
+            }
+
+            try {
+                await ensureSellerAccess(user);
+            } catch (error) {
+                console.error(error);
+                return;
+            }
+
+            currentUser = user;
+            localStorage.setItem('69shop_user_type', JSON.stringify({
+                uid: user.uid,
+                accountType: 'seller',
+                email: user.email,
+                name: user.displayName || user.email?.split('@')[0] || 'Seller',
+                timestamp: Date.now()
+            }));
+
+            const sellerProfile = await loadSellerProfile(user.uid);
+            const shellState = await syncSellerShell(user, sellerProfile);
+            const fallbackName = sellerProfile.businessName || sellerProfile.storeName || user.displayName || user.email || 'Seller';
+            const displayName = shellState?.sellerName || fallbackName;
+            const avatarInitial = shellState?.avatarInitial || displayName.charAt(0).toUpperCase();
+            updateProfileIdentity(displayName, avatarInitial, user.email || 'seller@69shop.in');
+
+            initNotifications();
+            await loadServiceData(user.uid);
+            hideLoading();
+        });
+
+        async function ensureSellerAccess(user) {
+            try {
+                const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                if (sellerDoc.exists) return sellerDoc.data();
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (!userDoc.exists || userDoc.data().accountType !== 'seller') {
+                    showToast('Access denied. Seller account required.', 'error');
+                    await auth.signOut();
+                    window.location.href = '/seller-login.html';
+                    throw new Error('Seller access required');
+                }
+                return userDoc.data();
+            } catch (error) {
+                showToast('Unable to verify seller access', 'error');
+                throw error;
+            }
+        }
+
+        async function loadSellerProfile(uid) {
+            try {
+                const sellerDoc = await db.collection('sellers').doc(uid).get();
+                return sellerDoc.exists ? sellerDoc.data() : {};
+            } catch (error) {
+                console.error('Error loading seller profile:', error);
+                return {};
+            }
+        }
+
         async function loadServiceData(userId) {
             try {
                 const doc = await db.collection('sellerServices').doc(userId).get();
-                if (doc.exists) {
-                    serviceData = doc.data();
-                    renderServices();
-                }
+                serviceData = doc.exists ? { ...doc.data(), categories: doc.data().categories || {} } : { categories: {} };
+                renderServices();
+                updateSaveStatus('saved');
             } catch (error) {
                 console.error('Error loading services:', error);
+                showToast('Unable to load services', 'error');
             }
         }
-        
+
         function renderServices() {
-            // Render saved service data to UI from Firestore
-            if (!serviceData || !serviceData.categories) return;
-            
-            Object.keys(serviceData.categories || {}).forEach(categoryId => {
+            if (!serviceData.categories) return;
+            Object.keys(serviceData.categories).forEach((categoryId) => {
                 const category = serviceData.categories[categoryId];
-                const categoryEl = document.getElementById(categoryId + 'Category');
-                
-                if (categoryEl) {
-                    // Update category toggle state
-                    const toggle = categoryEl.querySelector('.service-category-toggle input');
-                    if (toggle) toggle.checked = category.enabled !== false;
-                    categoryEl.style.opacity = category.enabled !== false ? '1' : '0.6';
-                    
-                    // Update each option
-                    Object.keys(category.options || {}).forEach(optionId => {
-                        const option = category.options[optionId];
-                        const card = categoryEl.querySelector(`[data-option="${optionId}"]`);
-                        
-                        if (card) {
-                            const priceInput = card.querySelector('.price-input input');
-                            const optionToggle = card.querySelector('.toggle-switch input');
-                            
-                            if (priceInput && option.price) priceInput.value = option.price;
-                            if (optionToggle) optionToggle.checked = option.enabled !== false;
-                            
-                            card.classList.toggle('enabled', option.enabled !== false);
-                            card.classList.toggle('disabled', option.enabled === false);
-                        }
-                    });
-                }
+                const categoryEl = document.getElementById(`${categoryId}Category`);
+                if (!categoryEl) return;
+
+                const toggle = categoryEl.querySelector('.service-category-toggle input');
+                if (toggle) toggle.checked = category.enabled !== false;
+                categoryEl.style.opacity = category.enabled !== false ? '1' : '0.6';
+
+                Object.keys(category.options || {}).forEach((optionId) => {
+                    const option = category.options[optionId];
+                    const card = categoryEl.querySelector(`[data-option="${optionId}"]`);
+                    if (!card) return;
+
+                    const priceInput = card.querySelector('.price-input input');
+                    if (priceInput) priceInput.value = option.price || 0;
+
+                    const optionToggle = card.querySelector('.toggle-switch input');
+                    if (optionToggle) optionToggle.checked = option.enabled !== false;
+
+                    card.classList.toggle('enabled', option.enabled !== false);
+                    card.classList.toggle('disabled', option.enabled === false);
+                });
             });
         }
-        
-        // Toggle category
-        function toggleCategory(category, enabled) {
-            const categoryEl = document.getElementById(category + 'Category');
+
+        function toggleCategory(categoryId, enabled) {
+            const categoryEl = document.getElementById(`${categoryId}Category`);
             if (categoryEl) {
                 categoryEl.style.opacity = enabled ? '1' : '0.6';
             }
+            if (!serviceData.categories[categoryId]) {
+                serviceData.categories[categoryId] = { options: {} };
+            }
+            serviceData.categories[categoryId].enabled = enabled;
             saveToFirestore();
-            showToast(enabled ? `${category} services enabled` : `${category} services disabled`);
+            showToast(enabled ? 'Category enabled' : 'Category paused');
         }
-        
-        // Toggle option
-        function toggleOption(category, option, enabled) {
-            const card = document.querySelector(`[data-option="${option}"]`);
+
+        function toggleOption(categoryId, optionId, enabled) {
+            const card = document.querySelector(`[data-option="${optionId}"]`);
             if (card) {
                 card.classList.toggle('enabled', enabled);
                 card.classList.toggle('disabled', !enabled);
             }
+            if (!serviceData.categories[categoryId]) {
+                serviceData.categories[categoryId] = { options: {} };
+            }
+            if (!serviceData.categories[categoryId].options) {
+                serviceData.categories[categoryId].options = {};
+            }
+            if (!serviceData.categories[categoryId].options[optionId]) {
+                serviceData.categories[categoryId].options[optionId] = {};
+            }
+            serviceData.categories[categoryId].options[optionId].enabled = enabled;
             saveToFirestore();
         }
-        
-        // Update price
-        function updatePrice(category, option, price) {
-            if (!serviceData[category]) serviceData[category] = {};
-            if (!serviceData[category][option]) serviceData[category][option] = {};
-            serviceData[category][option].price = parseInt(price);
+
+        function updatePrice(categoryId, optionId, price) {
+            if (!serviceData.categories[categoryId]) {
+                serviceData.categories[categoryId] = { options: {} };
+            }
+            if (!serviceData.categories[categoryId].options) {
+                serviceData.categories[categoryId].options = {};
+            }
+            serviceData.categories[categoryId].options[optionId] = {
+                ...(serviceData.categories[categoryId].options[optionId] || {}),
+                price: parseInt(price, 10) || 0
+            };
             saveToFirestore();
         }
-        
-        // Update save status indicator
-        function updateSaveStatus(status) {
+
+        function updateSaveStatus(state) {
             const statusEl = document.getElementById('saveStatus');
-            const saveBtn = document.getElementById('saveAllBtn');
-            
-            if (status === 'saving') {
+            const saveBtn = document.getElementById('saveBtn');
+            if (!statusEl) return;
+
+            if (state === 'saving') {
                 statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
                 statusEl.className = 'save-status saving';
                 if (saveBtn) saveBtn.disabled = true;
-            } else if (status === 'saved') {
+            } else if (state === 'saved') {
                 statusEl.innerHTML = '<i class="fas fa-check"></i> All changes saved';
                 statusEl.className = 'save-status saved';
                 if (saveBtn) saveBtn.disabled = false;
-            } else if (status === 'error') {
+            } else if (state === 'error') {
                 statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error saving';
                 statusEl.className = 'save-status error';
                 if (saveBtn) saveBtn.disabled = false;
             }
         }
-        
-        // Manual save button handler
-        function saveAll() {
-            saveToFirestore(true);
+
+        function collectCategoriesFromDom() {
+            const categories = {};
+            document.querySelectorAll('.service-category').forEach((categoryEl) => {
+                const categoryId = categoryEl.id.replace('Category', '');
+                const categoryToggle = categoryEl.querySelector('.service-category-toggle input');
+                const categoryName = categoryEl.querySelector('.service-category-info h2')?.textContent;
+                const categoryDesc = categoryEl.querySelector('.service-category-info p')?.textContent;
+
+                categories[categoryId] = {
+                    name: categoryName,
+                    description: categoryDesc,
+                    enabled: categoryToggle?.checked ?? true,
+                    options: {}
+                };
+
+                categoryEl.querySelectorAll('.service-option-card[data-option]').forEach((card) => {
+                    const optionId = card.dataset.option;
+                    const optionToggle = card.querySelector('.toggle-switch input');
+                    const priceInput = card.querySelector('.price-input input');
+                    const optionName = card.querySelector('.service-option-name')?.textContent;
+                    const optionDesc = card.querySelector('.service-option-desc')?.textContent;
+
+                    categories[categoryId].options[optionId] = {
+                        name: optionName,
+                        description: optionDesc,
+                        price: parseInt(priceInput?.value, 10) || 0,
+                        enabled: optionToggle?.checked ?? true
+                    };
+                });
+            });
+            return categories;
         }
-        
-        // Save to Firestore - collect all service data from DOM
+
         async function saveToFirestore(showFeedback = false) {
             if (!currentUser || !db) return;
-            
             if (showFeedback) {
                 updateSaveStatus('saving');
             }
-            
             try {
-                // Build categories object from DOM
-                const categories = {};
-                
-                document.querySelectorAll('.service-category').forEach(categoryEl => {
-                    const categoryId = categoryEl.id.replace('Category', '');
-                    const categoryToggle = categoryEl.querySelector('.service-category-toggle input');
-                    const categoryName = categoryEl.querySelector('.service-category-info h2')?.textContent;
-                    const categoryDesc = categoryEl.querySelector('.service-category-info p')?.textContent;
-                    
-                    categories[categoryId] = {
-                        name: categoryName,
-                        description: categoryDesc,
-                        enabled: categoryToggle?.checked ?? true,
-                        options: {}
-                    };
-                    
-                    // Collect options
-                    categoryEl.querySelectorAll('.service-option-card[data-option]').forEach(card => {
-                        const optionId = card.dataset.option;
-                        const optionToggle = card.querySelector('.toggle-switch input');
-                        const priceInput = card.querySelector('.price-input input');
-                        const optionName = card.querySelector('.service-option-name')?.textContent;
-                        const optionDesc = card.querySelector('.service-option-desc')?.textContent;
-                        
-                        categories[categoryId].options[optionId] = {
-                            name: optionName,
-                            description: optionDesc,
-                            price: parseInt(priceInput?.value) || 0,
-                            enabled: optionToggle?.checked ?? true
-                        };
-                    });
-                });
-                
+                const categories = collectCategoriesFromDom();
                 await db.collection('sellerServices').doc(currentUser.uid).set({
                     categories,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     sellerId: currentUser.uid
                 }, { merge: true });
-                
-                // Update local state
+
                 serviceData.categories = categories;
-                
                 if (showFeedback) {
                     updateSaveStatus('saved');
                     showToast('All changes saved successfully!', 'success');
                 }
-                
             } catch (error) {
-                console.error('Error saving:', error);
+                console.error('Error saving services:', error);
                 if (showFeedback) {
                     updateSaveStatus('error');
                 }
-                showToast('Error saving changes');
+                showToast('Error saving changes', 'error');
+            }
         }
-        
-        // Delete service option
-        function deleteOption(category, optionId) {
+
+        function deleteOption(categoryId, optionId) {
             if (!confirm('Delete this service option?')) return;
-            
             const card = document.querySelector(`[data-option="${optionId}"]`);
             if (card) {
                 card.remove();
                 saveToFirestore();
-                showToast('Option deleted');
+                showToast('Option deleted', 'info');
             }
         }
-        
-        // Delete entire category
+
         function deleteCategory(categoryId) {
             if (!confirm('Delete this entire service category and all its options?')) return;
-            
-            const categoryEl = document.getElementById(categoryId + 'Category');
+            const categoryEl = document.getElementById(`${categoryId}Category`);
             if (categoryEl) {
                 categoryEl.remove();
                 saveToFirestore();
-                showToast('Category deleted');
+                showToast('Category deleted', 'info');
             }
         }
-        
-        // Modal functions
+
         function openAddOptionModal(category) {
             document.getElementById('optionCategory').value = category;
             document.getElementById('optionForm').reset();
             document.getElementById('optionModal').classList.add('active');
         }
-        
+
         function openAddCategoryModal() {
             document.getElementById('categoryForm').reset();
             document.getElementById('customCategoryGroup').style.display = 'none';
             document.getElementById('categoryModal').classList.add('active');
         }
-        
+
         function closeModal(id) {
             document.getElementById(id).classList.remove('active');
         }
-        
-        // Show/hide custom category name
-        document.getElementById('categoryType')?.addEventListener('change', function() {
-            document.getElementById('customCategoryGroup').style.display = 
-                this.value === 'other' ? 'block' : 'none';
+
+        document.getElementById('categoryType')?.addEventListener('change', function () {
+            document.getElementById('customCategoryGroup').style.display = this.value === 'other' ? 'block' : 'none';
         });
-        
-        // Save option
-        function saveOption(e) {
-            e.preventDefault();
-            
+
+        function saveOption(event) {
+            event.preventDefault();
             const category = document.getElementById('optionCategory').value;
-            const option = {
-                name: document.getElementById('optionName').value,
-                description: document.getElementById('optionDesc').value,
-                price: parseInt(document.getElementById('optionPrice').value),
-                turnaround: document.getElementById('optionTurnaround').value,
-                delivery: {
-                    pickup: document.getElementById('deliveryPickup').checked,
-                    venue: document.getElementById('deliveryVenue').checked,
-                    shipping: document.getElementById('deliveryShipping').checked
-                },
-                enabled: true
-            };
-            
-            // Add to grid
-            const grid = document.getElementById(category + 'Options');
-            if (grid) {
-                const addCard = grid.querySelector('.add-option-card');
-                const optionId = 'opt-' + Date.now();
-                
-                const html = `
-                    <div class="service-option-card enabled" data-option="${optionId}">
-                        <button type="button" class="service-option-delete" onclick="deleteOption('${category}', '${optionId}')" title="Delete option">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <div class="service-option-header">
-                            <div>
-                                <div class="service-option-name">${option.name}</div>
-                                <div class="service-option-desc">${option.description || 'Custom service option'}</div>
-                            </div>
-                            <label class="toggle-switch" style="transform: scale(0.8);">
-                                <input type="checkbox" checked onchange="toggleOption('${category}', '${optionId}', this.checked)">
-                                <span class="toggle-slider"></span>
-                            </label>
+            const optionName = document.getElementById('optionName').value;
+            const optionDesc = document.getElementById('optionDesc').value;
+            const optionPrice = parseInt(document.getElementById('optionPrice').value, 10) || 0;
+            const optionTurnaround = document.getElementById('optionTurnaround').value;
+
+            const grid = document.getElementById(`${category}Options`);
+            if (!grid) return;
+            const addCard = grid.querySelector('.add-option-card');
+            const optionId = `opt-${Date.now()}`;
+
+            const html = `
+                <div class="service-option-card enabled" data-option="${optionId}">
+                    <button type="button" class="service-option-delete" onclick="deleteOption('${category}', '${optionId}')" title="Delete option">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="service-option-header">
+                        <div>
+                            <div class="service-option-name">${optionName}</div>
+                            <div class="service-option-desc">${optionDesc || 'Custom service option'}</div>
                         </div>
-                        <div class="service-option-pricing">
-                            <label>Price:</label>
-                            <div class="price-input">
-                                <span>₹</span>
-                                <input type="number" value="${option.price}" min="0" onchange="updatePrice('${category}', '${optionId}', this.value)">
-                            </div>
-                        </div>
-                        ${option.turnaround ? `<div class="delivery-options"><span class="delivery-tag"><i class="fas fa-clock"></i> ${option.turnaround}</span></div>` : ''}
+                        <label class="toggle-switch" style="transform: scale(0.8);">
+                            <input type="checkbox" checked onchange="toggleOption('${category}', '${optionId}', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
-                `;
-                
-                addCard.insertAdjacentHTML('beforebegin', html);
-            }
-            
+                    <div class="service-option-pricing">
+                        <label>Price:</label>
+                        <div class="price-input">
+                            <span>₹</span>
+                            <input type="number" value="${optionPrice}" min="0" onchange="updatePrice('${category}', '${optionId}', this.value)">
+                        </div>
+                    </div>
+                    ${optionTurnaround ? `<div class="delivery-options"><span class="delivery-tag"><i class="fas fa-clock"></i> ${optionTurnaround}</span></div>` : ''}
+                </div>`;
+
+            addCard.insertAdjacentHTML('beforebegin', html);
             closeModal('optionModal');
-            showToast('Service option added successfully');
+            showToast('Service option added successfully', 'success');
             saveToFirestore();
         }
-        
-        // Save category
-        function saveCategory(e) {
-            e.preventDefault();
-            
+
+        function saveCategory(event) {
+            event.preventDefault();
             const type = document.getElementById('categoryType').value;
             const customName = document.getElementById('categoryName').value;
             const description = document.getElementById('categoryDesc').value;
-            
-            const categoryInfo = {
+
+            const presets = {
                 photography: { icon: 'camera-retro', name: 'Photography', desc: 'Photo shoots, editing, and visual content creation' },
                 bakery: { icon: 'cookie', name: 'Bakery & Cookies', desc: 'Fresh baked goods, custom cakes, and cookie boxes' },
                 gifts: { icon: 'gift', name: 'Handmade Gifts', desc: 'Custom hampers, personalized gifts, and packaging' },
                 distribution: { icon: 'boxes', name: 'Distribution', desc: 'Warehousing, logistics, and retailer outreach' },
                 other: { icon: 'concierge-bell', name: customName || 'Custom Service', desc: description || 'Custom service offerings' }
             };
-            
-            const info = categoryInfo[type];
-            const categoryId = type + '-' + Date.now();
-            
+
+            const info = presets[type];
+            if (!info) return;
+            const categoryId = `${type}-${Date.now()}`;
+
             const html = `
                 <div class="service-category" id="${categoryId}Category">
                     <div class="service-category-header">
@@ -1492,27 +1739,54 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
-            
-            // Insert before the empty state
+                </div>`;
+
             const emptyState = document.querySelector('.empty-state');
             emptyState.insertAdjacentHTML('beforebegin', html);
-            
             closeModal('categoryModal');
-            showToast('Service category added successfully');
+            showToast('Service category added successfully', 'success');
             saveToFirestore();
         }
-        
-        function showToast(msg) {
-            const el = document.createElement('div');
-            el.style.cssText = 'position:fixed;top:80px;right:20px;background:var(--seller-primary);color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;transform:translateX(120%);transition:transform 0.25s ease;';
-            el.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
-            document.body.appendChild(el);
-            requestAnimationFrame(() => el.style.transform = 'translateX(0)');
-            setTimeout(() => { el.style.transform = 'translateX(120%)'; setTimeout(() => el.remove(), 250); }, 2500);
+
+        function showToast(message, type = 'success') {
+            const colors = {
+                success: 'var(--success, #10B981)',
+                error: 'var(--danger, #EF4444)',
+                info: 'var(--seller-primary, #7C3AED)'
+            };
+            const container = document.createElement('div');
+            container.style.cssText = `position:fixed;top:80px;right:20px;background:${colors[type] || colors.info};color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;transform:translateX(120%);transition:transform 0.25s ease;display:flex;align-items:center;gap:8px;`;
+            container.innerHTML = `<i class="fas fa-bell"></i>${message}`;
+            document.body.appendChild(container);
+            requestAnimationFrame(() => { container.style.transform = 'translateX(0)'; });
+            setTimeout(() => {
+                container.style.transform = 'translateX(120%)';
+                setTimeout(() => container.remove(), 250);
+            }, 2500);
         }
-    }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!sidebar || !overlay) return;
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
+        function checkResponsive() {
+            const menuToggle = document.getElementById('menuToggle');
+            if (!menuToggle) return;
+            if (window.innerWidth <= 1024) {
+                menuToggle.style.display = 'flex';
+            } else {
+                menuToggle.style.display = 'none';
+                document.getElementById('sidebar')?.classList.remove('open');
+                document.getElementById('sidebarOverlay')?.classList.remove('show');
+            }
+        }
+
+        window.addEventListener('resize', checkResponsive);
+        checkResponsive();
     </script>
 </body>
 </html>
