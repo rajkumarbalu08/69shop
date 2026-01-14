@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Activity Log | 69Shop.in</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/dashboard-notifications.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/admin-shell.js"></script>
+
+    <style>
+        :root {
+            --admin-primary: #DC2626;
+            --admin-primary-dark: #B91C1C;
+            --admin-primary-light: #FEE2E2;
+            --admin-gradient: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --purple: #8B5CF6;
+            --purple-light: #EDE9FE;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-100);
+            min-height: 100vh;
+            color: var(--slate-800);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--slate-200);
+            border-top-color: var(--admin-primary);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        .loading-text { color: var(--slate-500); font-size: 0.9rem; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .admin-layout { display: flex; min-height: 100vh; }
+
+        .admin-sidebar {
+            width: var(--sidebar-width);
+            background: var(--slate-900);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-700); }
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .brand-logo {
+            width: 42px; height: 42px;
+            border-radius: 14px;
+            background: var(--admin-gradient);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: var(--white); font-size: 1.1rem;
+        }
+        .brand-text { display: flex; flex-direction: column; }
+        .brand-name { font-family: 'Poppins', sans-serif; color: var(--white); font-size: 1.1rem; }
+        .brand-badge {
+            font-size: 0.65rem;
+            color: var(--admin-primary);
+            background: var(--admin-primary-light);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .sidebar-nav { flex: 1; padding: 20px 16px; overflow-y: auto; }
+        .nav-section { margin-bottom: 28px; }
+        .nav-section-title {
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--slate-500);
+            margin-bottom: 12px;
+            padding: 0 12px;
+            font-weight: 600;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            text-decoration: none;
+            color: var(--slate-400);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 4px;
+        }
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        .nav-link.active {
+            background: var(--admin-gradient);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+        .nav-link i { width: 20px; text-align: center; }
+
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
+        .admin-profile {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px;
+            background: var(--slate-800);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--admin-gradient);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        .profile-name {
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .profile-role {
+            color: var(--slate-400);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-logout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--slate-700);
+            color: var(--slate-400);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-logout:hover {
+            background: var(--admin-primary);
+            border-color: var(--admin-primary);
+            color: var(--white);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        .sidebar-overlay.show { opacity: 1; visibility: visible; }
+
+        .admin-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
+        .admin-header {
+            height: var(--header-height);
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); }
+        .page-subtitle { font-size: 0.85rem; color: var(--slate-500); margin-top: 6px; }
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--slate-500);
+            margin-top: 4px;
+        }
+        .breadcrumb a { color: var(--admin-primary); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .header-btn {
+            width: 42px; height: 42px; border-radius: 50%;
+            border: none; background: var(--slate-100); color: var(--slate-600);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: var(--transition);
+        }
+        .header-btn:hover { background: var(--slate-200); color: var(--slate-900); }
+        #menuToggle { display: none; }
+
+        .admin-content { padding: 32px; }
+
+        .filters-panel {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 240px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--slate-200);
+            background: var(--slate-50);
+            font-size: 0.95rem;
+        }
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            color: var(--slate-400);
+        }
+        .filter-select {
+            min-width: 180px;
+            padding: 12px 14px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            background: var(--white);
+        }
+        .time-filter-group { display: flex; gap: 8px; }
+        .time-filter-btn {
+            border: 1px solid var(--slate-200);
+            background: var(--white);
+            color: var(--slate-600);
+            padding: 10px 16px;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .time-filter-btn.active {
+            background: var(--admin-primary);
+            border-color: var(--admin-primary);
+            color: var(--white);
+            box-shadow: 0 8px 18px rgba(220, 38, 38, 0.25);
+        }
+        .btn-refresh,
+        .btn-secondary {
+            padding: 11px 18px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-refresh {
+            border: none;
+            background: var(--slate-900);
+            color: var(--white);
+        }
+        .btn-refresh:hover { background: var(--slate-700); }
+        .btn-secondary {
+            border: 1px solid var(--slate-200);
+            background: var(--white);
+            color: var(--slate-700);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-100);
+        }
+        .stat-label { font-size: 0.85rem; color: var(--slate-500); }
+        .stat-value { font-size: 2rem; font-weight: 700; margin: 6px 0; color: var(--slate-900); }
+        .stat-subtext { font-size: 0.8rem; color: var(--slate-400); }
+
+        .activity-section {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-100);
+        }
+        .activity-section-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--slate-100);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .activity-section-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            color: var(--slate-900);
+        }
+        .activity-count { color: var(--slate-500); font-size: 0.9rem; }
+        .activity-list { padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+        .activity-card {
+            display: flex;
+            gap: 16px;
+            border: 1px solid var(--slate-100);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        .activity-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .activity-icon {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: var(--white);
+            flex-shrink: 0;
+        }
+        .activity-icon.default { background: var(--slate-400); }
+        .activity-icon.approve { background: var(--success); }
+        .activity-icon.reject { background: var(--warning); }
+        .activity-icon.delete { background: var(--admin-primary); }
+        .activity-icon.bulk { background: var(--info); }
+
+        .activity-content { flex: 1; min-width: 0; }
+        .activity-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+        .activity-action { font-size: 1rem; font-weight: 600; color: var(--slate-900); }
+        .activity-time { font-size: 0.85rem; color: var(--slate-500); }
+        .activity-meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--slate-50);
+            border-radius: 999px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            color: var(--slate-600);
+        }
+        .activity-context { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .context-chip {
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: var(--slate-50);
+            font-size: 0.8rem;
+            color: var(--slate-700);
+        }
+        .context-chip strong { font-weight: 600; margin-right: 4px; }
+        .context-chip.muted { color: var(--slate-500); font-style: italic; }
+        details.context-details {
+            margin-top: 10px;
+            background: var(--slate-50);
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+        details.context-details summary { cursor: pointer; font-weight: 600; }
+        details.context-details pre {
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: var(--slate-700);
+            max-height: 240px;
+            overflow: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--slate-500);
+        }
+        .empty-state i { font-size: 2rem; margin-bottom: 8px; }
+
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            right: 24px;
+            background: var(--slate-900);
+            color: var(--white);
+            padding: 14px 18px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 1024px) {
+            .admin-sidebar { transform: translateX(-100%); transition: var(--transition); }
+            .admin-sidebar.open { transform: translateX(0); }
+            .admin-main { margin-left: 0; }
+            #menuToggle { display: flex; }
+            .sidebar-overlay { opacity: 0; visibility: hidden; }
+            .sidebar-overlay.show { opacity: 1; visibility: visible; }
+        }
+
+        @media (max-width: 768px) {
+            .admin-content { padding: 20px; }
+            .filters-panel { flex-direction: column; align-items: stretch; }
+            .filter-select, .btn-refresh, .btn-secondary { width: 100%; justify-content: center; }
+            .time-filter-group { width: 100%; flex-wrap: wrap; justify-content: center; }
+            .activity-card { flex-direction: column; }
+            .activity-icon { width: 40px; height: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading admin activity...</div>
+    </div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">Admin Portal</span>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/admin-dashboard.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/admin-sellers.html" class="nav-link">
+                        <i class="fas fa-store"></i>
+                        <span>Sellers</span>
+                    </a>
+                    <a href="/admin-users.html" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="/admin-products.html" class="nav-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="/admin-orders.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="/admin-analytics.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="/admin-activity.html" class="nav-link active">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Activity</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="/admin-settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>View Store</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="admin-profile">
+                    <div class="profile-avatar" id="adminAvatar">A</div>
+                    <div>
+                        <div class="profile-name" id="adminName">Admin</div>
+                        <div class="profile-role">
+                            <i class="fas fa-crown"></i>
+                            <span id="adminRole">Admin</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </button>
+            </div>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="page-title">Admin Activity</h1>
+                        <div class="breadcrumb">
+                            <a href="/admin-dashboard.html">Admin</a>
+                            <span>/</span>
+                            <span>Activity</span>
+                        </div>
+                        <p class="page-subtitle">Real-time audit trail of approvals, updates, and deletes</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationTrigger" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
+                        </button>
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-panel-header">
+                                <div>
+                                    <h3>Notifications</h3>
+                                    <p id="notificationSubtitle">Latest updates</p>
+                                </div>
+                                <button id="notificationRefresh" title="Refresh notifications">
+                                    <i class="fas fa-rotate-right"></i>
+                                </button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="admin-content">
+                <div class="filters-panel">
+                    <label class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="activitySearch" placeholder="Search by action, admin, or context keywords">
+                    </label>
+                    <select id="actionFilter" class="filter-select">
+                        <option value="all">All actions</option>
+                    </select>
+                    <div class="time-filter-group" id="timeFilterGroup">
+                        <button class="time-filter-btn" data-range="24h">24h</button>
+                        <button class="time-filter-btn active" data-range="7d">7 days</button>
+                        <button class="time-filter-btn" data-range="30d">30 days</button>
+                        <button class="time-filter-btn" data-range="all">All time</button>
+                    </div>
+                    <button class="btn-refresh" id="refreshActivityBtn">
+                        <i class="fas fa-sync"></i>
+                        Refresh
+                    </button>
+                    <button class="btn-secondary" id="exportActivityBtn">
+                        <i class="fas fa-download"></i>
+                        Export CSV
+                    </button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Logged actions</div>
+                        <div class="stat-value" id="statTotal">0</div>
+                        <div class="stat-subtext">Last 300 events in view</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Last 24 hours</div>
+                        <div class="stat-value" id="stat24h">0</div>
+                        <div class="stat-subtext">Actions captured today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Unique admins</div>
+                        <div class="stat-value" id="statAdmins">0</div>
+                        <div class="stat-subtext">Active in selected window</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pending timestamps</div>
+                        <div class="stat-value" id="statPending">0</div>
+                        <div class="stat-subtext">Awaiting server time</div>
+                    </div>
+                </div>
+
+                <section class="activity-section">
+                    <div class="activity-section-header">
+                        <h2>Latest activity</h2>
+                        <div class="activity-count" id="activityCountLabel">0 entries</div>
+                    </div>
+                    <div class="activity-list" id="activityList">
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-check"></i>
+                            <p>Activity will appear as soon as admins take action.</p>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-info-circle"></i>
+        <span id="toastText">Copied to clipboard</span>
+    </div>
+
+    <script>
+        const LEAD_ADMIN_EMAIL = 'rajkumarbalu81@gmail.com';
+        const ACTION_LIMIT = 300;
+
+        const firebaseConfig = window.firebaseConfig;
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            throw new Error('Missing Firebase configuration.');
+        }
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let adminShell = null;
+        let notificationFeed = null;
+        let unsubscribeActivity = null;
+        let allActivities = [];
+        let filteredActivities = [];
+        let searchQuery = '';
+        let currentActionFilter = 'all';
+        let currentTimeFilter = '7d';
+
+        const TIME_WINDOWS = {
+            '24h': 24 * 60 * 60 * 1000,
+            '7d': 7 * 24 * 60 * 60 * 1000,
+            '30d': 30 * 24 * 60 * 60 * 1000
+        };
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = '/admin-login.html';
+                return;
+            }
+            const isAdmin = await checkAdminStatus(user.email);
+            if (!isAdmin) {
+                window.location.href = '/admin-login.html';
+                return;
+            }
+            adminShell = AdminShell?.init({ db });
+            initNotifications(user);
+            initializePage(user);
+            bindEventListeners();
+            subscribeToActivity();
+            hideLoading();
+        });
+
+        async function checkAdminStatus(email) {
+            try {
+                const normalizedEmail = normalizeEmail(email);
+                if (!normalizedEmail) return false;
+                if (normalizedEmail === LEAD_ADMIN_EMAIL) return true;
+                const adminDoc = await fetchAdminDocument(email);
+                return !!adminDoc;
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                return false;
+            }
+        }
+
+        function normalizeEmail(email) {
+            return (email || '').trim().toLowerCase();
+        }
+
+        async function fetchAdminDocument(email) {
+            const normalized = normalizeEmail(email);
+            const raw = (email || '').trim();
+            if (!raw) return null;
+            const adminsRef = db.collection('admins');
+            let doc = await adminsRef.doc(normalized).get();
+            if (doc.exists) return doc;
+            if (raw !== normalized) {
+                doc = await adminsRef.doc(raw).get();
+                if (doc.exists) return doc;
+            }
+            const query = await adminsRef.where('email', '==', raw).limit(1).get();
+            return query.empty ? null : query.docs[0];
+        }
+
+        function initializePage(user) {
+            const firstName = user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Admin';
+            document.getElementById('adminName').textContent = user.displayName || user.email;
+            document.getElementById('adminAvatar').textContent = firstName.charAt(0).toUpperCase();
+            document.getElementById('adminRole').textContent = normalizeEmail(user.email) === LEAD_ADMIN_EMAIL ? 'Lead Admin' : 'Admin';
+        }
+
+        function initNotifications(user) {
+            if (typeof NotificationFeed === 'undefined' || !db || !user) return;
+            if (notificationFeed && typeof notificationFeed.refresh === 'function') {
+                notificationFeed.refresh();
+                return;
+            }
+            notificationFeed = NotificationFeed.init({
+                audience: 'admin',
+                db,
+                userId: user.uid,
+                triggerSelector: '#notificationTrigger',
+                panelSelector: '#notificationPanel',
+                listSelector: '#notificationList',
+                badgeSelector: '#notificationDot',
+                refreshSelector: '#notificationRefresh',
+                subtitleSelector: '#notificationSubtitle'
+            });
+        }
+
+        function bindEventListeners() {
+            document.getElementById('activitySearch').addEventListener('input', (event) => {
+                searchQuery = event.target.value.toLowerCase();
+                applyFilters();
+            });
+            document.getElementById('actionFilter').addEventListener('change', (event) => {
+                currentActionFilter = event.target.value;
+                applyFilters();
+            });
+            document.querySelectorAll('.time-filter-btn').forEach((button) => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.time-filter-btn').forEach((btn) => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    currentTimeFilter = button.dataset.range;
+                    applyFilters();
+                });
+            });
+            document.getElementById('refreshActivityBtn').addEventListener('click', () => {
+                subscribeToActivity(true);
+                showToast('Activity feed refreshed');
+            });
+            document.getElementById('exportActivityBtn').addEventListener('click', exportActivityCsv);
+            window.addEventListener('beforeunload', () => {
+                if (unsubscribeActivity) unsubscribeActivity();
+            });
+        }
+
+        function subscribeToActivity(forceReload = false) {
+            if (unsubscribeActivity) {
+                unsubscribeActivity();
+                unsubscribeActivity = null;
+            }
+            let query = db.collection('adminActivity').orderBy('timestamp', 'desc').limit(ACTION_LIMIT);
+            unsubscribeActivity = query.onSnapshot((snapshot) => {
+                allActivities = snapshot.docs.map((doc) => mapActivityDoc(doc));
+                updateStats();
+                populateActionFilter();
+                applyFilters();
+                adminShell?.refresh();
+            }, (error) => {
+                console.error('Failed to stream admin activity:', error);
+                if (!forceReload) {
+                    showToast('Unable to load activity feed', true);
+                }
+            });
+        }
+
+        function mapActivityDoc(doc) {
+            const data = doc.data() || {};
+            const timestamp = data.timestamp?.toDate ? data.timestamp.toDate() : (data.timestamp ? new Date(data.timestamp) : null);
+            return {
+                id: doc.id,
+                ...data,
+                timestamp,
+                timestampMs: timestamp ? timestamp.getTime() : null
+            };
+        }
+
+        function populateActionFilter() {
+            const select = document.getElementById('actionFilter');
+            const previousValue = currentActionFilter;
+            const actions = Array.from(new Set(allActivities.map((activity) => activity.action).filter(Boolean))).sort();
+            select.innerHTML = '<option value="all">All actions</option>' + actions.map((action) => `<option value="${action}">${action}</option>`).join('');
+            if (actions.includes(previousValue)) {
+                select.value = previousValue;
+            } else {
+                currentActionFilter = 'all';
+                select.value = 'all';
+            }
+        }
+
+        function applyFilters() {
+            filteredActivities = allActivities.filter((activity) => {
+                if (currentActionFilter !== 'all' && activity.action !== currentActionFilter) {
+                    return false;
+                }
+                if (currentTimeFilter !== 'all') {
+                    const windowMs = TIME_WINDOWS[currentTimeFilter];
+                    if (windowMs && activity.timestampMs) {
+                        const withinWindow = (Date.now() - activity.timestampMs) <= windowMs;
+                        if (!withinWindow) return false;
+                    }
+                }
+                if (searchQuery) {
+                    const haystack = [
+                        activity.action || '',
+                        activity.performedBy || '',
+                        activity.performerId || '',
+                        JSON.stringify(activity.context || {})
+                    ].join(' ').toLowerCase();
+                    if (!haystack.includes(searchQuery)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+            document.getElementById('activityCountLabel').textContent = `${filteredActivities.length} entr${filteredActivities.length === 1 ? 'y' : 'ies'}`;
+            renderActivityList();
+        }
+
+        function renderActivityList() {
+            const container = document.getElementById('activityList');
+            if (!filteredActivities.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-check"></i>
+                        <p>No activity matches the current filters.</p>
+                    </div>
+                `;
+                return;
+            }
+            container.innerHTML = filteredActivities.map(renderActivityCard).join('');
+        }
+
+        function renderActivityCard(activity) {
+            const iconClass = resolveActionIcon(activity.action || '');
+            const performer = activity.performedBy || 'Unknown admin';
+            const timestampText = formatTimestamp(activity.timestamp);
+            const relative = formatRelativeTime(activity.timestamp);
+            const contextChips = renderContextChips(activity.context);
+            const contextJson = escapeHtml(JSON.stringify(activity.context || {}, null, 2));
+            return `
+                <div class="activity-card">
+                    <div class="activity-icon ${iconClass}">
+                        <i class="${resolveActionIconClass(activity.action)}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-top">
+                            <span class="activity-action">${activity.action || 'Unknown action'}</span>
+                            <span class="activity-time">${relative}${relative && timestampText ? ' · ' : ''}${timestampText}</span>
+                        </div>
+                        <div class="activity-meta">
+                            <span class="meta-chip"><i class="fas fa-user-shield"></i>${performer}</span>
+                            ${activity.performerId ? `<span class="meta-chip"><i class="fas fa-id-card"></i>${activity.performerId}</span>` : ''}
+                            ${activity.context?.productId ? `<span class="meta-chip"><i class="fas fa-box"></i>${activity.context.productId}</span>` : ''}
+                            ${activity.context?.sellerId ? `<span class="meta-chip"><i class="fas fa-store"></i>${activity.context.sellerId}</span>` : ''}
+                        </div>
+                        <div class="activity-context">${contextChips}</div>
+                        <details class="context-details">
+                            <summary>Context JSON</summary>
+                            <pre>${contextJson}</pre>
+                        </details>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderContextChips(context) {
+            if (!context || typeof context !== 'object') {
+                return '<span class="context-chip muted">No additional context</span>';
+            }
+            const entries = Object.entries(context);
+            if (!entries.length) {
+                return '<span class="context-chip muted">No additional context</span>';
+            }
+            return entries.slice(0, 6).map(([key, value]) => {
+                const prettyValue = formatContextValue(value);
+                return `<span class="context-chip"><strong>${escapeHtml(key)}</strong>${escapeHtml(prettyValue)}</span>`;
+            }).join('');
+        }
+
+        function formatContextValue(value) {
+            if (Array.isArray(value)) {
+                return value.length ? `${value.length} item${value.length > 1 ? 's' : ''}` : 'Empty list';
+            }
+            if (typeof value === 'object' && value !== null) {
+                return 'Object';
+            }
+            if (typeof value === 'boolean') {
+                return value ? 'true' : 'false';
+            }
+            return String(value);
+        }
+
+        function updateStats() {
+            const total = allActivities.length;
+            const now = Date.now();
+            const last24h = allActivities.filter((activity) => activity.timestampMs && (now - activity.timestampMs) <= TIME_WINDOWS['24h']).length;
+            const uniqueAdmins = new Set(allActivities.map((activity) => (activity.performedBy || '').toLowerCase()).filter(Boolean)).size;
+            const pending = allActivities.filter((activity) => !activity.timestampMs).length;
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('stat24h').textContent = last24h;
+            document.getElementById('statAdmins').textContent = uniqueAdmins;
+            document.getElementById('statPending').textContent = pending;
+        }
+
+        function resolveActionIcon(action) {
+            if (!action) return 'default';
+            if (action.includes('delete')) return 'delete';
+            if (action.includes('reject')) return 'reject';
+            if (action.includes('approve')) return 'approve';
+            if (action.includes('bulk')) return 'bulk';
+            return 'default';
+        }
+
+        function resolveActionIconClass(action) {
+            if (!action) return 'fas fa-clipboard';
+            if (action.includes('delete')) return 'fas fa-trash';
+            if (action.includes('reject')) return 'fas fa-times-circle';
+            if (action.includes('approve')) return 'fas fa-check-circle';
+            if (action.includes('bulk')) return 'fas fa-layer-group';
+            return 'fas fa-clipboard';
+        }
+
+        function formatRelativeTime(date) {
+            if (!date) return '';
+            const diff = Date.now() - date.getTime();
+            const seconds = Math.floor(diff / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes} min${minutes === 1 ? '' : 's'} ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} hr${hours === 1 ? '' : 's'} ago`;
+            const days = Math.floor(hours / 24);
+            return `${days} day${days === 1 ? '' : 's'} ago`;
+        }
+
+        function formatTimestamp(date) {
+            if (!date) return '';
+            return date.toLocaleString();
+        }
+
+        function escapeHtml(value) {
+            return (value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function exportActivityCsv() {
+            if (!filteredActivities.length) {
+                showToast('Nothing to export yet', true);
+                return;
+            }
+            const header = ['id','action','performedBy','performerId','timestamp','context'];
+            const rows = filteredActivities.map((activity) => {
+                const row = [
+                    activity.id,
+                    activity.action || '',
+                    activity.performedBy || '',
+                    activity.performerId || '',
+                    activity.timestamp ? activity.timestamp.toISOString() : '',
+                    JSON.stringify(activity.context || {})
+                ];
+                return row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',');
+            });
+            const csvContent = [header.join(','), ...rows].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `admin-activity-${Date.now()}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast('Export started');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.querySelector('i').className = `fas fa-${isError ? 'exclamation-circle' : 'info-circle'}`;
+            document.getElementById('toastText').textContent = message;
+            toast.classList.add('show');
+            if (isError) {
+                toast.style.background = varColor('--admin-primary');
+            } else {
+                toast.style.background = varColor('--slate-900');
+            }
+            setTimeout(() => toast.classList.remove('show'), 2600);
+        }
+
+        function varColor(variableName) {
+            return getComputedStyle(document.documentElement).getPropertyValue(variableName) || '#0f172a';
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                window.location.href = '/admin-login.html';
+            } catch (error) {
+                console.error('Logout failed:', error);
+            }
+        }
+
+        window.logout = logout;
+        window.toggleSidebar = toggleSidebar;
+    </script>
+
+</body>
+</html>

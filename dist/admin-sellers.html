@@ -795,6 +795,10 @@
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics</span>
                     </a>
+                    <a href="/admin-activity.html" class="nav-link">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Activity</span>
+                    </a>
                 </div>
                 
                 <div class="nav-section">
@@ -1001,6 +1005,23 @@
             return (email || '').trim();
         }
 
+        function normalizeStatusValue(status) {
+            const normalized = (status || 'pending').toString().trim().toLowerCase();
+            if (['approved', 'pending', 'rejected'].includes(normalized)) {
+                return normalized;
+            }
+            if (['verified', 'verification-complete', 'accepted'].includes(normalized)) {
+                return 'approved';
+            }
+            if (['declined', 'denied', 'failed'].includes(normalized)) {
+                return 'rejected';
+            }
+            if (['review', 'in_review', 'under_review', 'awaiting-review'].includes(normalized)) {
+                return 'pending';
+            }
+            return normalized || 'pending';
+        }
+
         async function fetchAdminDocument(email) {
             const normalized = normalizeEmail(email);
             const raw = rawEmail(email);
@@ -1014,6 +1035,22 @@
             }
             const query = await adminsRef.where('email', '==', raw).limit(1).get();
             return query.empty ? null : query.docs[0];
+        }
+
+        async function logAdminActivity(action, context = {}) {
+            const user = auth.currentUser;
+            if (!db || !user) return;
+            try {
+                await db.collection('adminActivity').add({
+                    action,
+                    context,
+                    performedBy: user.email || 'unknown',
+                    performerId: user.uid || null,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.warn('Admin activity log failed', error);
+            }
         }
 
         auth.onAuthStateChanged(async (user) => {
@@ -1121,10 +1158,20 @@
         }
 
         function updateCounts() {
-            const pending = allVerifications.filter(v => v.status === 'pending').length;
-            const approved = allVerifications.filter(v => v.status === 'approved').length;
-            const rejected = allVerifications.filter(v => v.status === 'rejected').length;
-            
+            let pending = 0;
+            let approved = 0;
+            let rejected = 0;
+            allVerifications.forEach((verification) => {
+                const status = normalizeStatusValue(verification.status);
+                if (status === 'approved') {
+                    approved += 1;
+                } else if (status === 'rejected') {
+                    rejected += 1;
+                } else {
+                    pending += 1;
+                }
+            });
+
             document.getElementById('countAll').textContent = allVerifications.length;
             document.getElementById('countPending').textContent = pending;
             document.getElementById('countApproved').textContent = approved;
@@ -1243,7 +1290,7 @@
         function getSelectedPendingSellers() {
             return Array.from(selectedSellerIds)
                 .map(id => allVerifications.find(v => v.id === id))
-                .filter(seller => seller && seller.status === 'pending');
+                .filter(seller => seller && normalizeStatusValue(seller.status) === 'pending');
         }
 
         async function bulkApproveSelectedSellers() {
@@ -1269,6 +1316,10 @@
                     batch.set(sellerRef, { verified: true }, { merge: true });
                 });
                 await batch.commit();
+                await logAdminActivity('seller-bulk-approved', {
+                    count: pendingSellers.length,
+                    sellerIds: pendingSellers.map((seller) => seller.id)
+                });
                 selectedSellerIds.clear();
                 showToast(`${pendingSellers.length} seller${pendingSellers.length > 1 ? 's' : ''} approved`, 'success');
                 await loadVerifications();
@@ -1307,6 +1358,11 @@
                     });
                 });
                 await batch.commit();
+                await logAdminActivity('seller-bulk-rejected', {
+                    count: pendingSellers.length,
+                    sellerIds: pendingSellers.map((seller) => seller.id),
+                    reason
+                });
                 selectedSellerIds.clear();
                 showToast(`${pendingSellers.length} seller${pendingSellers.length > 1 ? 's' : ''} rejected`, 'success');
                 await loadVerifications();
@@ -1321,7 +1377,9 @@
 
         function renderTable() {
             const tbody = document.getElementById('sellersTableBody');
-            let filtered = currentFilter === 'all' ? allVerifications : allVerifications.filter(v => v.status === currentFilter);
+            let filtered = currentFilter === 'all'
+                ? allVerifications
+                : allVerifications.filter(v => normalizeStatusValue(v.status) === currentFilter);
             if (searchQuery) {
                 filtered = filtered.filter(seller => {
                     const target = [
@@ -1333,7 +1391,9 @@
                 });
             }
             visibleSellerIds = filtered.map(v => v.id);
-            visibleSelectableSellerIds = filtered.filter(v => v.status === 'pending').map(v => v.id);
+            visibleSelectableSellerIds = filtered
+                .filter(v => normalizeStatusValue(v.status) === 'pending')
+                .map(v => v.id);
             selectedSellerIds = new Set(Array.from(selectedSellerIds).filter(id => visibleSelectableSellerIds.includes(id)));
             
             if (filtered.length === 0) {
@@ -1361,8 +1421,11 @@
                 if (seller.panNumber) docs.push('<span class="doc-badge pan">PAN</span>');
                 if (seller.msmeNumber) docs.push('<span class="doc-badge msme">MSME</span>');
                 if (seller.bankAccount) docs.push('<span class="doc-badge bank">Bank</span>');
+                const normalizedStatus = normalizeStatusValue(seller.status);
                 const isSelected = selectedSellerIds.has(seller.id);
-                const isPending = seller.status === 'pending';
+                const isPending = normalizedStatus === 'pending';
+                const statusLabel = normalizedStatus.charAt(0).toUpperCase() + normalizedStatus.slice(1);
+                const statusIcon = normalizedStatus === 'approved' ? 'check' : normalizedStatus === 'rejected' ? 'times' : 'clock';
                 
                 return `
                     <tr data-seller-row="${seller.id}" class="${isSelected ? 'selected' : ''}">
@@ -1381,9 +1444,9 @@
                         <td>${seller.businessType || 'Not specified'}</td>
                         <td><div class="doc-badges">${docs.join('') || '<span style="color: var(--slate-500); font-size: 0.8rem;">No docs</span>'}</div></td>
                         <td>
-                            <span class="status-badge ${seller.status || 'pending'}">
-                                <i class="fas fa-${seller.status === 'approved' ? 'check' : seller.status === 'rejected' ? 'times' : 'clock'}"></i>
-                                ${(seller.status || 'pending').charAt(0).toUpperCase() + (seller.status || 'pending').slice(1)}
+                            <span class="status-badge ${normalizedStatus}">
+                                <i class="fas fa-${statusIcon}"></i>
+                                ${statusLabel}
                             </span>
                         </td>
                         <td>${date}</td>
@@ -1411,6 +1474,7 @@
             const seller = allVerifications.find(v => v.id === id);
             if (!seller) return;
             
+            const normalizedStatus = normalizeStatusValue(seller.status);
             document.getElementById('modalBusinessName').textContent = seller.businessName || 'Seller Details';
             const date = seller.submittedAt ? new Date(seller.submittedAt.toDate()).toLocaleString() : 'N/A';
             let resolvedDocs = [];
@@ -1462,8 +1526,8 @@
                     <div class="detail-grid">
                         <div class="detail-item">
                             <label>Current Status</label>
-                            <span class="status-badge ${seller.status || 'pending'}" style="margin-top: 4px;">
-                                ${(seller.status || 'pending').charAt(0).toUpperCase() + (seller.status || 'pending').slice(1)}
+                            <span class="status-badge ${normalizedStatus}" style="margin-top: 4px;">
+                                ${normalizedStatus.charAt(0).toUpperCase() + normalizedStatus.slice(1)}
                             </span>
                         </div>
                         <div class="detail-item"><label>Submitted On</label><span>${date}</span></div>
@@ -1478,8 +1542,8 @@
             
             const btnApprove = document.getElementById('btnApprove');
             const btnReject = document.getElementById('btnReject');
-            btnApprove.style.display = seller.status === 'pending' ? 'flex' : 'none';
-            btnReject.style.display = seller.status === 'pending' ? 'flex' : 'none';
+            btnApprove.style.display = normalizedStatus === 'pending' ? 'flex' : 'none';
+            btnReject.style.display = normalizedStatus === 'pending' ? 'flex' : 'none';
             
             document.getElementById('detailModal').classList.add('show');
         }
@@ -1510,6 +1574,10 @@
                     approvedBy: auth.currentUser.email
                 });
                 await db.collection('sellers').doc(currentSellerId).update({ verified: true }).catch(() => {});
+                await logAdminActivity('seller-approved', {
+                    sellerId: currentSellerId,
+                    mode: 'detail-modal'
+                });
                 showToast('Seller approved successfully!', 'success');
                 closeModal();
                 await loadVerifications();
@@ -1533,6 +1601,11 @@
                     rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     rejectedBy: auth.currentUser.email
                 });
+                await logAdminActivity('seller-rejected', {
+                    sellerId: currentSellerId,
+                    reason,
+                    mode: 'detail-modal'
+                });
                 showToast('Seller verification rejected', 'success');
                 closeModal();
                 await loadVerifications();
@@ -1551,6 +1624,10 @@
                     approvedBy: auth.currentUser.email
                 });
                 await db.collection('sellers').doc(id).update({ verified: true }).catch(() => {});
+                await logAdminActivity('seller-approved', {
+                    sellerId: id,
+                    mode: 'quick-action'
+                });
                 showToast('Seller approved!', 'success');
                 await loadVerifications();
             } catch (error) {

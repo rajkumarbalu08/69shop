@@ -38,6 +38,49 @@
             --white: #FFFFFF;
             --success: #10B981;
             --success-light: #D1FAE5;
+
+        .verification-alert {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            border: 1px solid #FCD34D;
+            background: var(--warning-light);
+            color: #92400E;
+            margin-bottom: 24px;
+        }
+
+        .verification-alert h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .verification-alert p {
+            font-size: 0.9rem;
+            color: #B45309;
+        }
+
+        .btn-complete-verification {
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 10px 18px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--seller-gradient);
+            color: var(--white);
+            cursor: pointer;
+        }
+
+        .btn-add-product[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
             --warning: #F59E0B;
             --warning-light: #FEF3C7;
             --info: #3B82F6;
@@ -900,6 +943,17 @@
             </header>
             
             <div class="seller-content">
+                <div class="verification-alert" id="verificationAlert">
+                    <div>
+                        <h3>Complete verification to start listing products</h3>
+                        <p>Finish the seller verification steps so we can activate your catalog access.</p>
+                    </div>
+                    <button class="btn-complete-verification" onclick="window.location.href='/seller-verification.html'">
+                        <i class="fas fa-shield-alt"></i>
+                        Finish Verification
+                    </button>
+                </div>
+
                 <div class="stats-grid">
                     <div class="stat-card total">
                         <div class="stat-icon"><i class="fas fa-box-open"></i></div>
@@ -1043,6 +1097,7 @@
         let categories = new Set();
         let notificationFeed = null;
         let sellerProfileName = 'Seller';
+        let sellerIsVerified = false;
         
         try {
             const firebaseConfig = window.firebaseConfig;
@@ -1077,6 +1132,8 @@
                     currentUser = user;
                     const sellerData = sellerDoc.data();
                     sellerProfileName = sellerData.businessName || user.displayName || user.email?.split('@')[0] || 'Seller';
+                    sellerIsVerified = sellerData.verified === true;
+                    updateVerificationState();
                     await syncSellerShell(user, sellerData);
                     initNotifications();
                     
@@ -1155,6 +1212,28 @@
                 refreshSelector: '#notificationRefresh',
                 subtitleSelector: '#notificationSubtitle'
             });
+        }
+
+        function updateVerificationState() {
+            const statusEl = document.querySelector('[data-seller-status]');
+            if (statusEl) {
+                statusEl.classList.toggle('verified', sellerIsVerified);
+                statusEl.classList.toggle('pending', !sellerIsVerified);
+                statusEl.innerHTML = sellerIsVerified
+                    ? '<i class="fas fa-check-circle"></i><span>Verified Seller</span>'
+                    : '<i class="fas fa-clock"></i><span>Verification Pending</span>';
+            }
+
+            const alert = document.getElementById('verificationAlert');
+            if (alert) {
+                alert.style.display = sellerIsVerified ? 'none' : 'flex';
+            }
+
+            const addBtn = document.querySelector('.btn-add-product');
+            if (addBtn) {
+                addBtn.disabled = !sellerIsVerified;
+                addBtn.setAttribute('aria-disabled', (!sellerIsVerified).toString());
+            }
         }
 
         async function syncSellerShell(user, sellerData = {}) {
@@ -1242,6 +1321,14 @@
         }
 
         function openAddModal() {
+            if (!sellerIsVerified) {
+                showToast('Complete verification before adding products', 'error');
+                const alert = document.getElementById('verificationAlert');
+                if (alert) {
+                    alert.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                return;
+            }
             editingProductId = null;
             uploadedImages = [];
             document.getElementById('modalTitle').textContent = 'Add New Product';
@@ -1311,6 +1398,11 @@
 
         async function saveProduct(event) {
             event.preventDefault();
+
+            if (!sellerIsVerified) {
+                showToast('Verification required before saving products', 'error');
+                return;
+            }
             
             const productData = {
                 name: document.getElementById('productName').value.trim(),

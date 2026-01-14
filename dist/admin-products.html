@@ -432,21 +432,30 @@
             color: var(--slate-400);
             font-size: 3rem;
         }
-        
-        .product-status-badge {
+        .product-badges {
             position: absolute;
             top: 12px;
             right: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-end;
+        }
+
+        .product-status-badge {
             padding: 4px 10px;
             border-radius: 12px;
             font-size: 0.7rem;
             font-weight: 600;
             text-transform: uppercase;
         }
-        
-        .product-status-badge.active { background: var(--success-light); color: var(--success); }
+
+        .product-status-badge.active,
+        .product-status-badge.approved { background: var(--success-light); color: var(--success); }
         .product-status-badge.pending { background: var(--warning-light); color: #B45309; }
-        .product-status-badge.flagged { background: var(--admin-primary-light); color: var(--admin-primary); }
+        .product-status-badge.flagged,
+        .product-status-badge.rejected { background: var(--admin-primary-light); color: var(--admin-primary); }
+        .product-status-badge.review { background: var(--info-light); color: var(--info); }
         
         .product-content { padding: 20px; }
         
@@ -487,10 +496,10 @@
             margin-bottom: 16px;
         }
         
-        .product-actions { display: flex; gap: 8px; }
+        .product-actions { display: flex; gap: 8px; flex-wrap: wrap; }
         
         .btn-sm {
-            flex: 1;
+            flex: 1 1 45%;
             padding: 10px;
             border-radius: var(--radius-sm);
             font-size: 0.8rem;
@@ -506,6 +515,10 @@
         
         .btn-sm.view { background: var(--info-light); color: var(--info); }
         .btn-sm.view:hover { background: var(--info); color: var(--white); }
+        .btn-sm.approve { background: var(--success-light); color: var(--success); }
+        .btn-sm.approve:hover { background: var(--success); color: var(--white); }
+        .btn-sm.reject { background: var(--warning-light); color: #B45309; }
+        .btn-sm.reject:hover { background: #B45309; color: var(--white); }
         .btn-sm.delete { background: var(--admin-primary-light); color: var(--admin-primary); }
         .btn-sm.delete:hover { background: var(--admin-primary); color: var(--white); }
         
@@ -640,6 +653,10 @@
         
         .btn-modal.cancel { background: var(--slate-100); color: var(--slate-600); }
         .btn-modal.cancel:hover { background: var(--slate-200); }
+        .btn-modal.approve { background: var(--success); color: var(--white); }
+        .btn-modal.approve:hover { background: #0f9e5b; }
+        .btn-modal.reject { background: var(--warning-light); color: #B45309; }
+        .btn-modal.reject:hover { background: #B45309; color: var(--white); }
         .btn-modal.danger { background: var(--admin-primary); color: var(--white); }
         .btn-modal.danger:hover { background: var(--admin-primary-dark); }
         
@@ -740,6 +757,10 @@
                     <a href="/admin-analytics.html" class="nav-link">
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics</span>
+                    </a>
+                    <a href="/admin-activity.html" class="nav-link">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Activity</span>
                     </a>
                 </div>
                 
@@ -878,10 +899,16 @@
             </div>
             <div class="modal-body" id="modalBody"></div>
             <div class="modal-footer">
-                <button class="btn-modal cancel" onclick="closeModal()">Close</button>
+                <button class="btn-modal approve" id="modalApproveBtn" onclick="approveProduct()">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+                <button class="btn-modal reject" id="modalRejectBtn" onclick="promptRejectProduct()">
+                    <i class="fas fa-times"></i> Reject
+                </button>
                 <button class="btn-modal danger" id="deleteBtn" onclick="deleteProduct()">
                     <i class="fas fa-trash"></i> Delete Product
                 </button>
+                <button class="btn-modal cancel" onclick="closeModal()">Close</button>
             </div>
         </div>
     </div>
@@ -936,6 +963,35 @@
             }
             const query = await adminsRef.where('email', '==', raw).limit(1).get();
             return query.empty ? null : query.docs[0];
+        }
+
+        function resolveApprovalStatus(product = {}) {
+            const rawStatus = (product.approvalStatus || '').toString().trim().toLowerCase();
+            if (rawStatus) return rawStatus;
+            return 'approved';
+        }
+
+        function getApprovalLabel(status) {
+            const normalized = (status || 'pending').toString();
+            if (normalized === 'approved') return 'Approved';
+            if (normalized === 'rejected') return 'Rejected';
+            return 'Pending';
+        }
+
+        async function logAdminActivity(action, context = {}) {
+            const user = auth.currentUser;
+            if (!db || !user) return;
+            try {
+                await db.collection('adminActivity').add({
+                    action,
+                    context,
+                    performedBy: user.email || 'unknown',
+                    performerId: user.uid || null,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.warn('Admin activity log failed', error);
+            }
         }
 
         auth.onAuthStateChanged(async (user) => {
@@ -1114,14 +1170,21 @@
                 const price = product.price ? `₹${product.price.toLocaleString()}` : 'N/A';
                 const image = product.image || product.images?.[0] || null;
                 const inStock = isProductInStock(product);
-                const status = inStock ? 'active' : 'pending';
-                const statusLabel = inStock ? 'In Stock' : 'Out of Stock';
+                const inventoryStatus = inStock ? 'active' : 'pending';
+                const inventoryLabel = inStock ? 'In Stock' : 'Out of Stock';
+                const approvalStatus = resolveApprovalStatus(product);
+                const approvalLabel = getApprovalLabel(approvalStatus);
+                const showApprove = approvalStatus !== 'approved';
+                const showReject = approvalStatus !== 'rejected';
                 
                 return `
                     <div class="product-card">
                         <div class="product-image">
                             ${image ? `<img src="${image}" alt="${name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-box no-image\\'></i>';">` : '<i class="fas fa-box no-image"></i>'}
-                            <span class="product-status-badge ${status}">${statusLabel}</span>
+                            <div class="product-badges">
+                                <span class="product-status-badge ${inventoryStatus}">${inventoryLabel}</span>
+                                <span class="product-status-badge ${approvalStatus}">${approvalLabel}</span>
+                            </div>
                         </div>
                         <div class="product-content">
                             <span class="product-category">${product.category || 'Uncategorized'}</span>
@@ -1135,6 +1198,16 @@
                                 <button class="btn-sm view" onclick="viewProduct('${product.id}')">
                                     <i class="fas fa-eye"></i> View
                                 </button>
+                                ${showApprove ? `
+                                    <button class="btn-sm approve" onclick="approveProduct('${product.id}')">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                ` : ''}
+                                ${showReject ? `
+                                    <button class="btn-sm reject" onclick="promptRejectProduct('${product.id}')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                ` : ''}
                                 <button class="btn-sm delete" onclick="confirmDelete('${product.id}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -1143,6 +1216,67 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        async function approveProduct(productId) {
+            const targetId = productId || currentProductId;
+            if (!targetId) return;
+            await updateProductApproval(targetId, 'approved');
+        }
+
+        async function promptRejectProduct(productId) {
+            const targetId = productId || currentProductId;
+            if (!targetId) return;
+            const reason = (prompt('Enter rejection reason for this product:') || '').trim();
+            if (!reason) {
+                showToast('Rejection reason is required', 'error');
+                return;
+            }
+            await updateProductApproval(targetId, 'rejected', { reason });
+        }
+
+        async function updateProductApproval(productId, status, options = {}) {
+            try {
+                const product = allProducts.find(p => p.id === productId);
+                const now = firebase.firestore.FieldValue.serverTimestamp();
+                const update = {
+                    approvalStatus: status,
+                    approvalUpdatedAt: now,
+                    lastModeratedAt: now,
+                    lastModeratedBy: auth.currentUser?.email || 'unknown'
+                };
+                if (status === 'approved') {
+                    update.approvedAt = now;
+                    update.approvedBy = auth.currentUser?.email || 'unknown';
+                    update.rejectionReason = firebase.firestore.FieldValue.delete();
+                    update.rejectedAt = firebase.firestore.FieldValue.delete();
+                    update.rejectedBy = firebase.firestore.FieldValue.delete();
+                } else if (status === 'rejected') {
+                    update.rejectedAt = now;
+                    update.rejectedBy = auth.currentUser?.email || 'unknown';
+                    update.rejectionReason = options.reason || 'Not specified';
+                }
+                await db.collection('products').doc(productId).set(update, { merge: true });
+                await logAdminActivity(`product-${status}`, {
+                    productId,
+                    productName: product?.name || product?.title || 'Unnamed Product',
+                    reason: options.reason || undefined
+                });
+                showToast(`Product ${status === 'approved' ? 'approved' : 'rejected'}`, 'success');
+                const modalWasOpen = document.getElementById('productModal').classList.contains('show');
+                await loadProducts();
+                if (modalWasOpen) {
+                    const refreshedProduct = allProducts.find(p => p.id === productId);
+                    if (refreshedProduct) {
+                        viewProduct(productId);
+                    } else {
+                        closeModal();
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating product approval status:', error);
+                showToast('Failed to update product status', 'error');
+            }
         }
 
         function viewProduct(id) {
@@ -1156,6 +1290,8 @@
             const date = product.createdAt ? 
                 (product.createdAt.toDate ? new Date(product.createdAt.toDate()).toLocaleString() : new Date(product.createdAt).toLocaleString()) 
                 : 'N/A';
+            const approvalStatus = resolveApprovalStatus(product);
+            const approvalLabel = getApprovalLabel(approvalStatus);
             
             document.getElementById('modalBody').innerHTML = `
                 <div class="product-detail-header">
@@ -1166,9 +1302,14 @@
                         <span class="product-category">${product.category || 'Uncategorized'}</span>
                         <h3>${name}</h3>
                         <div class="price">${price}</div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
                             <span class="product-status-badge ${isProductInStock(product) ? 'active' : 'pending'}" style="position: static;">
-                            ${isProductInStock(product) ? 'In Stock' : 'Out of Stock'}
-                        </span>
+                                ${isProductInStock(product) ? 'In Stock' : 'Out of Stock'}
+                            </span>
+                            <span class="product-status-badge ${approvalStatus}" style="position: static;">
+                                ${approvalLabel}
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div class="detail-grid">
@@ -1196,6 +1337,12 @@
                         <label>Views</label>
                         <span>${product.views || 0}</span>
                     </div>
+                    ${product.rejectionReason ? `
+                        <div class="detail-item full">
+                            <label>Rejection Reason</label>
+                            <span>${product.rejectionReason}</span>
+                        </div>
+                    ` : ''}
                     ${product.description ? `
                         <div class="detail-item full">
                             <label>Description</label>
@@ -1204,6 +1351,15 @@
                     ` : ''}
                 </div>
             `;
+            
+            const modalApproveBtn = document.getElementById('modalApproveBtn');
+            const modalRejectBtn = document.getElementById('modalRejectBtn');
+            if (modalApproveBtn) {
+                modalApproveBtn.style.display = approvalStatus === 'approved' ? 'none' : 'flex';
+            }
+            if (modalRejectBtn) {
+                modalRejectBtn.style.display = approvalStatus === 'rejected' ? 'none' : 'flex';
+            }
             
             document.getElementById('productModal').classList.add('show');
         }
@@ -1223,7 +1379,12 @@
         async function deleteProduct() {
             if (!currentProductId) return;
             try {
+                const product = allProducts.find(p => p.id === currentProductId);
                 await db.collection('products').doc(currentProductId).delete();
+                await logAdminActivity('product-deleted', {
+                    productId: currentProductId,
+                    productName: product?.name || product?.title || 'Unnamed Product'
+                });
                 showToast('Product deleted successfully', 'success');
                 closeModal();
                 await loadProducts();

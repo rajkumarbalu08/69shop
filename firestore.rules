@@ -47,6 +47,12 @@ service cloud.firestore {
         request.resource.data.sellerId == request.auth.uid;
     }
 
+    function sellerIsVerified() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/sellers/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/sellers/$(request.auth.uid)).data.verified == true;
+    }
+
     function notificationAudienceAllowed(audience) {
       return audience == 'all' ||
         audience == 'seller' ||
@@ -77,18 +83,26 @@ service cloud.firestore {
     }
     
     // Sellers collection - sellers can read/write their own documents
+    function sellerOwnerSafeUpdate(sellerId) {
+      return isOwner(sellerId) && resource != null &&
+        !request.resource.data.diff(resource.data).changedKeys()
+          .hasAny(['verified', 'status', 'approvedAt', 'approvedBy', 'approvalNotes']);
+    }
+
     match /sellers/{sellerId} {
       // Any authenticated user can check if they are a seller
       allow read: if isOwner(sellerId) || isAdmin();
-      allow write: if isOwner(sellerId) || isAdmin();
-      allow create: if isAuthenticated() && request.auth.uid == sellerId;
+      allow create: if isAuthenticated() && request.auth.uid == sellerId &&
+        (!request.resource.data.keys().hasAny(['verified', 'status']) || request.resource.data.verified == false);
+      allow update: if isAdmin() || sellerOwnerSafeUpdate(sellerId);
+      allow delete: if isAdmin();
     }
     
     // Products collection - anyone can read, sellers can write their own
     match /products/{productId} {
       allow read: if true;
-      allow create: if sellerOwnsRequestData();
-      allow update: if (sellerOwnsData(resource.data) && sellerOwnsRequestData()) || isAdmin();
+      allow create: if sellerOwnsRequestData() && sellerIsVerified();
+      allow update: if ((sellerOwnsData(resource.data) && sellerOwnsRequestData() && sellerIsVerified()) || isAdmin());
       allow delete: if sellerOwnsData(resource.data) || isAdmin();
     }
     

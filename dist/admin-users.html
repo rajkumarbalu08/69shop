@@ -727,6 +727,10 @@
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics</span>
                     </a>
+                    <a href="/admin-activity.html" class="nav-link">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Activity</span>
+                    </a>
                 </div>
                 
                 <div class="nav-section">
@@ -916,6 +920,55 @@
             return (email || '').trim();
         }
 
+        function pickFirstString(...values) {
+            for (const value of values) {
+                if (typeof value === 'string') {
+                    const trimmed = value.trim();
+                    if (trimmed) {
+                        return trimmed;
+                    }
+                }
+            }
+            return '';
+        }
+
+        function resolveUserName(userData = {}, sellerData = {}) {
+            const profile = userData.profile || {};
+            return pickFirstString(
+                userData.displayName,
+                userData.name,
+                userData.fullName,
+                profile.fullName,
+                profile.name,
+                sellerData.ownerName,
+                sellerData.contactName,
+                sellerData.businessName
+            );
+        }
+
+        function resolveUserEmail(userData = {}, sellerData = {}) {
+            const profile = userData.profile || {};
+            return pickFirstString(
+                userData.email,
+                userData.contactEmail,
+                profile.email,
+                sellerData.email,
+                sellerData.contactEmail,
+                sellerData.businessEmail,
+                sellerData.ownerEmail
+            );
+        }
+
+        function resolveUserAvatar(userData = {}, sellerData = {}) {
+            return pickFirstString(
+                userData.photoURL,
+                userData.photoUrl,
+                sellerData.logoUrl,
+                sellerData.brandLogo,
+                sellerData.storeLogo
+            );
+        }
+
         async function fetchAdminDocument(email) {
             const normalized = normalizeEmail(email);
             const raw = rawEmail(email);
@@ -996,15 +1049,23 @@
             try {
                 const usersSnapshot = await db.collection('users').get();
                 const sellersSnapshot = await db.collection('sellers').get();
-                
-                const sellers = new Set(sellersSnapshot.docs.map(d => d.id));
+                const sellersMap = new Map();
+                sellersSnapshot.docs.forEach((doc) => {
+                    sellersMap.set(doc.id, doc.data() || {});
+                });
+                const sellers = new Set(sellersMap.keys());
                 
                 allUsers = usersSnapshot.docs.map(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
+                    const sellerData = sellersMap.get(doc.id) || {};
                     return {
                         id: doc.id,
                         ...data,
-                        role: sellers.has(doc.id) ? 'seller' : 'buyer'
+                        sellerProfile: sellerData,
+                        role: sellers.has(doc.id) ? 'seller' : 'buyer',
+                        resolvedName: resolveUserName(data, sellerData),
+                        resolvedEmail: resolveUserEmail(data, sellerData),
+                        resolvedAvatar: resolveUserAvatar(data, sellerData)
                     };
                 });
                 
@@ -1066,10 +1127,18 @@
             }
             
             if (searchQuery) {
-                filtered = filtered.filter(u => 
-                    (u.displayName || '').toLowerCase().includes(searchQuery) ||
-                    (u.email || '').toLowerCase().includes(searchQuery)
-                );
+                filtered = filtered.filter(u => {
+                    const haystack = [
+                        u.resolvedName,
+                        u.displayName,
+                        u.resolvedEmail,
+                        u.email,
+                        u.role,
+                        u.sellerProfile?.businessName,
+                        u.sellerProfile?.ownerName
+                    ].map(value => (value || '').toString().toLowerCase());
+                    return haystack.some(value => value.includes(searchQuery));
+                });
             }
             
             if (filtered.length === 0) {
@@ -1088,7 +1157,10 @@
             }
             
             tbody.innerHTML = filtered.map(user => {
-                const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
+                const name = user.resolvedName || user.displayName || user.sellerProfile?.ownerName || user.sellerProfile?.businessName || 'Anonymous User';
+                const email = user.resolvedEmail || user.email || user.sellerProfile?.contactEmail || 'Not provided';
+                const avatarUrl = user.photoURL || user.resolvedAvatar;
+                const initial = (name || email || 'U').charAt(0).toUpperCase();
                 const date = user.createdAt ? 
                     (user.createdAt.toDate ? new Date(user.createdAt.toDate()).toLocaleDateString() : new Date(user.createdAt).toLocaleDateString()) 
                     : 'N/A';
@@ -1099,11 +1171,11 @@
                         <td>
                             <div class="user-info">
                                 <div class="user-avatar">
-                                    ${user.photoURL ? `<img src="${user.photoURL}" alt="">` : initial}
+                                    ${avatarUrl ? `<img src="${avatarUrl}" alt="${name}">` : initial}
                                 </div>
                                 <div class="user-details">
-                                    <h4>${user.displayName || 'Anonymous User'}</h4>
-                                    <p>${user.email || 'No email'}</p>
+                                    <h4>${name}</h4>
+                                    <p>${email}</p>
                                 </div>
                             </div>
                         </td>
@@ -1131,7 +1203,10 @@
             const user = allUsers.find(u => u.id === id);
             if (!user) return;
             
-            const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
+            const name = user.resolvedName || user.displayName || user.sellerProfile?.ownerName || user.sellerProfile?.businessName || 'Anonymous User';
+            const email = user.resolvedEmail || user.email || user.sellerProfile?.contactEmail || 'Not provided';
+            const avatarUrl = user.photoURL || user.resolvedAvatar;
+            const initial = (name || email || 'U').charAt(0).toUpperCase();
             const date = user.createdAt ? 
                 (user.createdAt.toDate ? new Date(user.createdAt.toDate()).toLocaleString() : new Date(user.createdAt).toLocaleString()) 
                 : 'N/A';
@@ -1139,11 +1214,11 @@
             document.getElementById('modalBody').innerHTML = `
                 <div class="user-profile-header">
                     <div class="user-profile-avatar">
-                        ${user.photoURL ? `<img src="${user.photoURL}" alt="">` : initial}
+                        ${avatarUrl ? `<img src="${avatarUrl}" alt="${name}">` : initial}
                     </div>
                     <div class="user-profile-info">
-                        <h3>${user.displayName || 'Anonymous User'}</h3>
-                        <p>${user.email || 'No email'}</p>
+                        <h3>${name}</h3>
+                        <p>${email}</p>
                         <span class="role-badge ${user.role}">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span>
                     </div>
                 </div>
@@ -1167,6 +1242,24 @@
                             ${!user.banned ? 'Active' : 'Banned'}
                         </div>
                     </div>
+                    ${user.sellerProfile?.businessName ? `
+                        <div class="detail-item">
+                            <label>Business</label>
+                            <span>${user.sellerProfile.businessName}</span>
+                        </div>
+                    ` : ''}
+                    ${user.sellerProfile?.ownerName ? `
+                        <div class="detail-item">
+                            <label>Owner Name</label>
+                            <span>${user.sellerProfile.ownerName}</span>
+                        </div>
+                    ` : ''}
+                    ${user.sellerProfile?.contactEmail ? `
+                        <div class="detail-item">
+                            <label>Seller Contact Email</label>
+                            <span>${user.sellerProfile.contactEmail}</span>
+                        </div>
+                    ` : ''}
                     ${user.address ? `
                         <div class="detail-item full">
                             <label>Address</label>
