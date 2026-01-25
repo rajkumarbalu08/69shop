@@ -509,6 +509,412 @@
         .btn-card:hover { opacity: 0.9; }
         
         .card-body { padding: 24px; }
+
+        .service-review-card .card-body {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .review-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        .review-filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .review-filter {
+            border: 1px solid var(--slate-200);
+            background: var(--white);
+            color: var(--slate-600);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .review-filter.active {
+            background: var(--admin-primary);
+            color: var(--white);
+            border-color: var(--admin-primary);
+            box-shadow: 0 6px 12px rgba(220, 38, 38, 0.2);
+        }
+        .review-tip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--slate-500);
+        }
+        .review-tip i {
+            color: var(--warning);
+        }
+        .service-review-list {
+            display: flex;
+            flex-direction: column;
+        }
+        .service-review-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 16px;
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        .service-review-item:last-child { border-bottom: none; }
+        .service-review-details { flex: 1; }
+        .service-review-summary {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+        .service-review-details h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--slate-900);
+            margin-bottom: 4px;
+        }
+        .service-review-details p {
+            font-size: 0.85rem;
+            color: var(--slate-500);
+            margin-bottom: 8px;
+        }
+        .review-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .submission-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 999px;
+            padding: 4px 12px;
+            background: var(--slate-100);
+            color: var(--slate-600);
+        }
+        .submission-pill.pill-category {
+            background: var(--info-light);
+            color: var(--info);
+        }
+        .submission-pill.pill-option {
+            background: var(--purple-light);
+            color: var(--purple);
+        }
+        .review-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--slate-100);
+            color: var(--slate-600);
+        }
+        .review-price {
+            font-weight: 700;
+            color: var(--slate-900);
+            font-size: 1rem;
+        }
+        .review-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 140px;
+        }
+        .review-actions button {
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-approve { background: var(--success); color: var(--white); }
+        .btn-reject {
+            background: var(--admin-primary-light);
+            color: var(--admin-primary);
+        }
+        .service-review-empty {
+            text-align: center;
+            color: var(--slate-500);
+            padding: 32px;
+            font-size: 0.9rem;
+        }
+
+        .support-ticket-card .card-body { padding: 0; }
+        .ticket-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        .ticket-filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .ticket-filter {
+            border: 1px solid var(--slate-200);
+            background: var(--white);
+            color: var(--slate-600);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .ticket-filter.active {
+            background: var(--slate-900);
+            color: var(--white);
+            border-color: var(--slate-900);
+        }
+        .ticket-tip {
+            font-size: 0.8rem;
+            color: var(--slate-500);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .support-ticket-list {
+            display: flex;
+            flex-direction: column;
+        }
+        .support-ticket-item {
+            border-bottom: 1px solid var(--slate-100);
+            padding: 18px 22px;
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+        }
+        .support-ticket-item:last-child { border-bottom: none; }
+        .ticket-details { flex: 1; }
+        .ticket-details h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--slate-900);
+        }
+        .ticket-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+        .ticket-details p {
+            font-size: 0.85rem;
+            color: var(--slate-500);
+            margin-bottom: 8px;
+        }
+        .ticket-note {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: var(--slate-50);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            color: var(--slate-600);
+        }
+        .ticket-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .ticket-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            background: var(--slate-100);
+            color: var(--slate-600);
+        }
+        .ticket-chip.severity-high {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+        .ticket-chip.severity-medium {
+            background: var(--warning-light);
+            color: #B45309;
+        }
+        .ticket-chip.severity-low {
+            background: var(--success-light);
+            color: var(--success);
+        }
+        .ticket-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+        .ticket-status.open {
+            background: var(--info-light);
+            color: var(--info);
+        }
+        .ticket-status.in_progress {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+        .ticket-status.resolved {
+            background: var(--success-light);
+            color: var(--success);
+        }
+        .ticket-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 160px;
+        }
+        .ticket-actions button {
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            background: var(--white);
+            color: var(--slate-700);
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .ticket-actions button.primary {
+            background: var(--slate-900);
+            color: var(--white);
+            border-color: var(--slate-900);
+        }
+        .ticket-actions button.danger {
+            background: var(--admin-primary-light);
+            color: var(--admin-primary-dark);
+            border-color: var(--admin-primary-light);
+        }
+
+        .review-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2100;
+            padding: 20px;
+        }
+        .review-modal-overlay.open { display: flex; }
+        .review-modal {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25);
+            animation: fadeInUp 0.2s ease;
+        }
+        .review-modal-header {
+            padding: 20px 24px 8px;
+        }
+        .review-modal-header h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+        .review-modal-header p {
+            color: var(--slate-500);
+            font-size: 0.85rem;
+        }
+        .review-modal-body {
+            padding: 0 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .reason-chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .reason-chip {
+            border: 1px dashed var(--slate-300);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            background: var(--slate-50);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .reason-chip:hover {
+            border-style: solid;
+            border-color: var(--admin-primary);
+            color: var(--admin-primary);
+        }
+        .review-modal textarea {
+            width: 100%;
+            min-height: 100px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+        .review-modal textarea:focus {
+            outline: none;
+            border-color: var(--admin-primary);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+        }
+        .review-modal-footer {
+            border-top: 1px solid var(--slate-100);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .review-modal-footer button {
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 10px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .review-modal-footer .btn-secondary {
+            background: var(--slate-100);
+            color: var(--slate-600);
+        }
+        .review-modal-footer .btn-primary {
+            background: var(--admin-primary);
+            color: var(--white);
+        }
+        .review-modal-error {
+            font-size: 0.8rem;
+            color: var(--admin-primary);
+            padding: 0 24px;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
         .chart-container { position: relative; height: 300px; }
         
@@ -784,9 +1190,14 @@
                                     <h3>Notifications</h3>
                                     <p id="notificationSubtitle">Latest updates</p>
                                 </div>
-                                <button id="notificationRefresh" title="Refresh notifications">
-                                    <i class="fas fa-rotate-right"></i>
-                                </button>
+                                <div class="header-actions">
+                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
+                                        Mark all read
+                                    </button>
+                                    <button id="notificationRefresh" title="Refresh notifications">
+                                        <i class="fas fa-rotate-right"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="notification-list" id="notificationList">
                                 <div class="notification-empty">
@@ -950,7 +1361,80 @@
                     </div>
                 </div>
             </div>
+            <div class="card service-review-card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-clipboard-check"></i> Service Review Queue</h3>
+                    <span class="review-chip" id="serviceReviewCount">0 pending</span>
+                </div>
+                <div class="card-body">
+                    <div class="review-toolbar" id="serviceReviewToolbar">
+                        <div class="review-filter-group">
+                            <button class="review-filter active" data-review-filter="all">All</button>
+                            <button class="review-filter" data-review-filter="category">Categories</button>
+                            <button class="review-filter" data-review-filter="option">Options</button>
+                        </div>
+                        <div class="review-tip">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Share context with sellers when rejecting submissions.</span>
+                        </div>
+                    </div>
+                    <div class="service-review-list" id="serviceReviewList">
+                        <div class="service-review-empty">
+                            <i class="fas fa-shield-alt" style="display:block;font-size:1.5rem;margin-bottom:8px;"></i>
+                            No service submissions are waiting for review.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card support-ticket-card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-life-ring"></i> Seller Support Tickets</h3>
+                    <span class="review-chip" id="supportTicketCount">0 open</span>
+                </div>
+                <div class="card-body">
+                    <div class="ticket-toolbar" id="supportTicketToolbar">
+                        <div class="ticket-filter-group">
+                            <button class="ticket-filter active" data-ticket-filter="open">Open</button>
+                            <button class="ticket-filter" data-ticket-filter="in_progress">In progress</button>
+                            <button class="ticket-filter" data-ticket-filter="resolved">Resolved</button>
+                            <button class="ticket-filter" data-ticket-filter="urgent">Urgent</button>
+                            <button class="ticket-filter" data-ticket-filter="all">All</button>
+                        </div>
+                        <div class="ticket-tip">
+                            <i class="fas fa-clock"></i>
+                            <span>Respond within 24h to keep sellers unblocked.</span>
+                        </div>
+                    </div>
+                    <div class="support-ticket-list" id="supportTicketList">
+                        <div class="service-review-empty">
+                            <i class="fas fa-inbox" style="display:block;font-size:1.5rem;margin-bottom:8px;"></i>
+                            No support tickets right now.
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
+    </div>
+
+    <div class="review-modal-overlay" id="reviewModalOverlay" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle">
+        <div class="review-modal">
+            <div class="review-modal-header">
+                <h3 id="reviewModalTitle">Add admin note</h3>
+                <p id="reviewModalSubtitle">Share context with the seller.</p>
+            </div>
+            <div class="review-modal-body">
+                <div class="reason-chip-wrapper">
+                    <div class="reason-chip-group" id="reviewModalPresets"></div>
+                </div>
+                <textarea id="reviewModalNote" placeholder="Add helpful details for the seller..."></textarea>
+            </div>
+            <div class="review-modal-error" id="reviewModalError"></div>
+            <div class="review-modal-footer">
+                <button type="button" class="btn-secondary" id="reviewModalCancel">Cancel</button>
+                <button type="button" class="btn-primary" id="reviewModalConfirm">Submit</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -972,6 +1456,14 @@
         let ordersCache = [];
         let revenueRange = 'monthly';
         const REVENUE_RANGE_DAYS = { weekly: 7, monthly: 30 };
+        let serviceReviewUnsubscribe = null;
+        let serviceReviewCache = [];
+        let serviceReviewFilter = 'all';
+        let supportTicketUnsubscribe = null;
+        let supportTicketCache = [];
+        let supportTicketFilter = 'open';
+        let noteModalResolver = null;
+        let noteModalOptions = null;
 
         function normalizeEmail(email) {
             return (email || '').trim().toLowerCase();
@@ -1045,6 +1537,8 @@
                 loadPendingVerifications(),
                 loadRecentActivity()
             ]);
+            initServiceReviewQueue();
+            initSupportTicketQueue();
         }
 
         async function loadDashboardStats() {
@@ -1196,6 +1690,519 @@
                         </div>
                     </li>
                 `;
+            }
+        }
+
+        function initServiceReviewQueue() {
+            if (!db) return;
+            const listEl = document.getElementById('serviceReviewList');
+            if (!listEl) return;
+            const toolbar = document.getElementById('serviceReviewToolbar');
+            if (toolbar && !toolbar.dataset.listenerAttached) {
+                toolbar.addEventListener('click', (event) => {
+                    const button = event.target.closest('[data-review-filter]');
+                    if (!button) return;
+                    serviceReviewFilter = button.dataset.reviewFilter || 'all';
+                    toolbar.querySelectorAll('.review-filter').forEach((el) => {
+                        el.classList.toggle('active', el === button);
+                    });
+                    renderServiceReviewQueue(serviceReviewCache);
+                });
+                toolbar.dataset.listenerAttached = 'true';
+            }
+            if (!listEl.dataset.listenerAttached) {
+                listEl.addEventListener('click', (event) => {
+                    const button = event.target.closest('[data-review-action]');
+                    if (!button) return;
+                    const submissionId = button.dataset.reviewId;
+                    const action = button.dataset.reviewAction;
+                    if (submissionId && action) {
+                        handleServiceReviewAction(submissionId, action);
+                    }
+                });
+                listEl.dataset.listenerAttached = 'true';
+            }
+
+            if (typeof serviceReviewUnsubscribe === 'function') {
+                serviceReviewUnsubscribe();
+            }
+            serviceReviewUnsubscribe = db.collection('serviceVerifications')
+                .where('status', '==', 'pending')
+                .onSnapshot((snapshot) => {
+                    serviceReviewCache = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+                    serviceReviewCache.sort((a, b) => {
+                        const aTime = getTimestamp(a.createdAt);
+                        const bTime = getTimestamp(b.createdAt);
+                        return aTime - bTime;
+                    });
+                    renderServiceReviewQueue(serviceReviewCache);
+                }, (error) => {
+                    console.error('Service review listener error:', error);
+                });
+        }
+
+        function renderServiceReviewQueue(items = []) {
+            const listEl = document.getElementById('serviceReviewList');
+            const countEl = document.getElementById('serviceReviewCount');
+            if (!listEl || !countEl) return;
+            countEl.textContent = `${items.length} pending`;
+            const filteredItems = (items || []).filter((item) => {
+                if (serviceReviewFilter === 'all') return true;
+                return item.submissionType === serviceReviewFilter;
+            });
+
+            if (!filteredItems.length) {
+                listEl.innerHTML = `
+                    <div class="service-review-empty">
+                        <i class="fas fa-check-circle" style="display:block;font-size:1.5rem;margin-bottom:8px;"></i>
+                        ${items.length ? 'No submissions match this filter.' : 'All caught up! No pending submissions.'}
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = filteredItems.map((item) => {
+                const isCategory = item.submissionType === 'category';
+                const payload = item.payload || {};
+                const option = payload.option || {};
+                const seller = item.sellerName || item.sellerEmail || 'Seller';
+                const submitted = formatRelativeTime(getTimestamp(item.createdAt));
+                const title = isCategory
+                    ? `New category • ${payload.name || 'Custom Service'}`
+                    : `New option • ${option.name || 'Custom Option'}`;
+                const subtitle = isCategory
+                    ? (payload.description || 'Awaiting description')
+                    : (option.description || payload.categoryName || 'Awaiting description');
+                const price = !isCategory ? Number(option.price || 0).toLocaleString('en-IN') : null;
+                const deliveryChips = [];
+                if (!isCategory) {
+                    if (option.turnaround) {
+                        deliveryChips.push(`<span class="review-chip"><i class="fas fa-stopwatch"></i>${option.turnaround}</span>`);
+                    }
+                    const delivery = option.deliveryOptions || {};
+                    if (delivery.pickup) {
+                        deliveryChips.push('<span class="review-chip"><i class="fas fa-store"></i>Pickup</span>');
+                    }
+                    if (delivery.venue) {
+                        deliveryChips.push('<span class="review-chip"><i class="fas fa-map-marker-alt"></i>Venue</span>');
+                    }
+                    if (delivery.shipping) {
+                        deliveryChips.push('<span class="review-chip"><i class="fas fa-truck"></i>Shipping</span>');
+                    }
+                } else if (payload.icon) {
+                    deliveryChips.push(`<span class="review-chip"><i class="fas fa-${payload.icon}"></i>${payload.icon}</span>`);
+                }
+                return `
+                    <div class="service-review-item">
+                        <div class="service-review-details">
+                            <div class="service-review-summary">
+                                <div>
+                                    <span class="submission-pill ${isCategory ? 'pill-category' : 'pill-option'}">
+                                        <i class="fas fa-${isCategory ? 'layer-group' : 'list-ul'}"></i>
+                                        ${isCategory ? 'Category' : 'Option'}
+                                    </span>
+                                    <h4>${title}</h4>
+                                </div>
+                                ${!isCategory && price ? `<div class="review-price">₹${price}</div>` : ''}
+                            </div>
+                            <p>${subtitle}</p>
+                            <div class="review-meta">
+                                <span class="review-chip"><i class="fas fa-user"></i>${seller}</span>
+                                <span class="review-chip"><i class="fas fa-clock"></i>${submitted}</span>
+                                ${deliveryChips.join('')}
+                            </div>
+                        </div>
+                        <div class="review-actions">
+                            <button class="btn-approve" data-review-action="approve" data-review-id="${item.id}" data-test="review-approve"><i class="fas fa-check"></i> Approve</button>
+                            <button class="btn-reject" data-review-action="reject" data-review-id="${item.id}" data-test="review-reject"><i class="fas fa-times"></i> Reject</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function handleServiceReviewAction(submissionId, action) {
+            const submission = serviceReviewCache.find((entry) => entry.id === submissionId);
+            if (!submission) return;
+            try {
+                if (action === 'approve') {
+                    await applySubmissionToSeller(submission);
+                    await finalizeSubmission(submissionId, 'approved', 'Approved');
+                } else if (action === 'reject') {
+                    const reason = await openNoteModal({
+                        title: 'Reject submission',
+                        subtitle: 'Explain why this submission was rejected so the seller can fix it quickly.',
+                        presets: [
+                            'Missing supporting details / assets',
+                            'Pricing not aligned with our catalog',
+                            'Duplicate of an existing service',
+                            'Service is outside allowed categories'
+                        ],
+                        confirmLabel: 'Send reason',
+                        requireNote: true
+                    });
+                    if (!reason) return;
+                    await finalizeSubmission(submissionId, 'rejected', reason);
+                }
+            } catch (error) {
+                console.error('Service review action failed:', error);
+                alert('Unable to process this submission. Please try again.');
+            }
+        }
+
+        async function finalizeSubmission(submissionId, status, note) {
+            await db.collection('serviceVerifications').doc(submissionId).update({
+                status,
+                adminNote: note || null,
+                reviewerEmail: auth.currentUser?.email || null,
+                reviewedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        function initSupportTicketQueue() {
+            if (!db) return;
+            const listEl = document.getElementById('supportTicketList');
+            if (!listEl) return;
+
+            const toolbar = document.getElementById('supportTicketToolbar');
+            if (toolbar && !toolbar.dataset.listenerAttached) {
+                toolbar.addEventListener('click', (event) => {
+                    const button = event.target.closest('[data-ticket-filter]');
+                    if (!button) return;
+                    supportTicketFilter = button.dataset.ticketFilter || 'open';
+                    toolbar.querySelectorAll('.ticket-filter').forEach((chip) => {
+                        chip.classList.toggle('active', chip === button);
+                    });
+                    renderSupportTicketQueue(supportTicketCache);
+                });
+                toolbar.dataset.listenerAttached = 'true';
+            }
+
+            if (!listEl.dataset.listenerAttached) {
+                listEl.addEventListener('click', (event) => {
+                    const button = event.target.closest('[data-ticket-action]');
+                    if (!button) return;
+                    handleSupportTicketAction(button.dataset.ticketId, button.dataset.ticketAction);
+                });
+                listEl.dataset.listenerAttached = 'true';
+            }
+
+            if (typeof supportTicketUnsubscribe === 'function') {
+                supportTicketUnsubscribe();
+            }
+
+            supportTicketUnsubscribe = db.collection('supportTickets')
+                .orderBy('createdAt', 'desc')
+                .limit(50)
+                .onSnapshot((snapshot) => {
+                    supportTicketCache = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+                    renderSupportTicketQueue(supportTicketCache);
+                }, (error) => {
+                    console.error('Support ticket listener error:', error);
+                });
+        }
+
+        function renderSupportTicketQueue(items = []) {
+            const listEl = document.getElementById('supportTicketList');
+            const countEl = document.getElementById('supportTicketCount');
+            if (!listEl || !countEl) return;
+
+            const openCount = items.filter((ticket) => (ticket.status || 'open') !== 'resolved').length;
+            countEl.textContent = `${openCount} open`;
+
+            const filteredItems = (items || []).filter((ticket) => {
+                const status = (ticket.status || 'open').toLowerCase();
+                const severity = (ticket.severity || 'medium').toLowerCase();
+                if (supportTicketFilter === 'all') return true;
+                if (supportTicketFilter === 'urgent') {
+                    return severity === 'high' && status !== 'resolved';
+                }
+                if (supportTicketFilter === 'open') {
+                    return status === 'open' || status === 'pending' || status === 'new';
+                }
+                if (supportTicketFilter === 'in_progress') {
+                    return status === 'in_progress';
+                }
+                if (supportTicketFilter === 'resolved') {
+                    return status === 'resolved';
+                }
+                return true;
+            });
+
+            if (!filteredItems.length) {
+                listEl.innerHTML = `
+                    <div class="service-review-empty">
+                        <i class="fas fa-envelope-open" style="display:block;font-size:1.5rem;margin-bottom:8px;"></i>
+                        ${items.length ? 'No tickets in this filter.' : 'Waiting for the next ticket.'}
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = filteredItems.map((ticket) => {
+                const status = (ticket.status || 'open').toLowerCase();
+                const severity = (ticket.severity || 'medium').toLowerCase();
+                const statusLabelMap = {
+                    open: 'Open',
+                    pending: 'Open',
+                    new: 'Open',
+                    in_progress: 'In progress',
+                    resolved: 'Resolved'
+                };
+                const statusIconMap = {
+                    open: 'circle-dot',
+                    pending: 'circle-dot',
+                    new: 'circle-dot',
+                    in_progress: 'spinner',
+                    resolved: 'check'
+                };
+                const seller = ticket.sellerName || ticket.sellerEmail || 'Seller';
+                const lastUpdated = formatRelativeTime(getTimestamp(ticket.lastUpdatedAt || ticket.createdAt));
+                const actions = [];
+                const noteButton = `<button data-ticket-action="note" data-ticket-id="${ticket.id}"><i class="fas fa-comment"></i> Add note</button>`;
+                if (status === 'open' || status === 'pending' || status === 'new') {
+                    actions.push(`<button class="primary" data-ticket-action="acknowledge" data-ticket-id="${ticket.id}"><i class="fas fa-hand"></i> Acknowledge</button>`);
+                    actions.push(noteButton);
+                    actions.push(`<button class="danger" data-ticket-action="resolve" data-ticket-id="${ticket.id}"><i class="fas fa-check"></i> Resolve</button>`);
+                } else if (status === 'in_progress') {
+                    actions.push(noteButton);
+                    actions.push(`<button class="danger" data-ticket-action="resolve" data-ticket-id="${ticket.id}"><i class="fas fa-check"></i> Resolve</button>`);
+                } else if (status === 'resolved') {
+                    actions.push(`<button data-ticket-action="reopen" data-ticket-id="${ticket.id}"><i class="fas fa-undo"></i> Reopen</button>`);
+                }
+
+                const adminNote = ticket.latestAdminNote ? `<div class="ticket-note"><strong>Admin note:</strong> ${ticket.latestAdminNote}</div>` : '';
+                const severityLabel = `${severity.charAt(0).toUpperCase()}${severity.slice(1)} priority`;
+
+                return `
+                    <div class="support-ticket-item">
+                        <div class="ticket-details">
+                            <div class="ticket-header">
+                                <span class="ticket-status ${status}"><i class="fas fa-${statusIconMap[status] || 'circle'}"></i>${statusLabelMap[status] || 'Open'}</span>
+                                <h4>${ticket.subject || 'Support ticket'}</h4>
+                            </div>
+                            <p>${ticket.description || 'No description provided.'}</p>
+                            <div class="ticket-meta">
+                                <span class="ticket-chip severity-${severity}"><i class="fas fa-signal"></i>${severityLabel}</span>
+                                <span class="ticket-chip"><i class="fas fa-user"></i>${seller}</span>
+                                <span class="ticket-chip"><i class="fas fa-clock"></i>${lastUpdated}</span>
+                            </div>
+                            ${adminNote}
+                        </div>
+                        <div class="ticket-actions">
+                            ${actions.join('') || '<span class="review-chip">No actions</span>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function handleSupportTicketAction(ticketId, action) {
+            const ticket = supportTicketCache.find((entry) => entry.id === ticketId);
+            if (!ticket) return;
+            try {
+                if (action === 'acknowledge') {
+                    const note = await openNoteModal({
+                        title: 'Acknowledge ticket',
+                        subtitle: 'Let the seller know you have started investigating.',
+                        presets: [
+                            'Received. Engineering team is investigating.',
+                            'Thanks for reporting this glitch, we are on it.',
+                            'Ticket acknowledged. Expect an update shortly.'
+                        ],
+                        confirmLabel: 'Send update'
+                    });
+                    if (note === null) return;
+                    await updateSupportTicket(ticketId, {
+                        status: 'in_progress',
+                        latestAdminNote: (note || '').trim() || 'Ticket acknowledged. Investigating now.'
+                    });
+                } else if (action === 'note') {
+                    const note = await openNoteModal({
+                        title: 'Add admin note',
+                        subtitle: 'Share a quick update or request for more info.',
+                        confirmLabel: 'Send note',
+                        requireNote: true
+                    });
+                    if (!note) return;
+                    await updateSupportTicket(ticketId, {
+                        latestAdminNote: note
+                    });
+                } else if (action === 'resolve') {
+                    const note = await openNoteModal({
+                        title: 'Resolve ticket',
+                        subtitle: 'Explain how the issue was fixed or next steps.',
+                        presets: [
+                            'Issue fixed. Please retry and confirm.',
+                            'Configuration updated. This should now work as expected.',
+                            'Bug patched. Clear cache and reload the page.'
+                        ],
+                        confirmLabel: 'Resolve ticket',
+                        requireNote: true
+                    });
+                    if (!note) return;
+                    await updateSupportTicket(ticketId, {
+                        status: 'resolved',
+                        latestAdminNote: note,
+                        resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else if (action === 'reopen') {
+                    await updateSupportTicket(ticketId, {
+                        status: 'open',
+                        latestAdminNote: 'Ticket reopened for additional investigation.'
+                    });
+                }
+            } catch (error) {
+                console.error('Support ticket action failed:', error);
+                alert('Unable to update this ticket right now. Please try again.');
+            }
+        }
+
+        async function updateSupportTicket(ticketId, update = {}) {
+            if (!db) return;
+            const payload = {
+                adminEmail: auth.currentUser?.email || null,
+                lastActor: 'admin',
+                lastUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                ...update
+            };
+            await db.collection('supportTickets').doc(ticketId).set(payload, { merge: true });
+        }
+
+        function openNoteModal(options = {}) {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('reviewModalOverlay');
+                if (!overlay) {
+                    resolve(null);
+                    return;
+                }
+                noteModalResolver = resolve;
+                noteModalOptions = options;
+                const titleEl = document.getElementById('reviewModalTitle');
+                const subtitleEl = document.getElementById('reviewModalSubtitle');
+                const presetsEl = document.getElementById('reviewModalPresets');
+                const presetWrapper = presetsEl?.parentElement;
+                const noteInput = document.getElementById('reviewModalNote');
+                const errorEl = document.getElementById('reviewModalError');
+
+                if (titleEl) titleEl.textContent = options.title || 'Add admin note';
+                if (subtitleEl) subtitleEl.textContent = options.subtitle || 'Share a quick update with the seller.';
+                const presets = options.presets || [];
+                if (presetWrapper) {
+                    presetWrapper.style.display = presets.length ? 'block' : 'none';
+                }
+                if (presetsEl) {
+                    presetsEl.innerHTML = presets.map((preset) => `
+                        <button type="button" class="reason-chip" data-reason-chip="${preset}">${preset}</button>
+                    `).join('');
+                }
+                if (noteInput) {
+                    noteInput.value = options.defaultValue || '';
+                    noteInput.placeholder = options.placeholder || 'Add helpful context for the seller...';
+                    setTimeout(() => noteInput.focus(), 20);
+                }
+                if (errorEl) errorEl.textContent = '';
+                overlay.classList.add('open');
+            });
+        }
+
+        function resolveNoteModal(result) {
+            const overlay = document.getElementById('reviewModalOverlay');
+            if (overlay) overlay.classList.remove('open');
+            const resolver = noteModalResolver;
+            noteModalResolver = null;
+            noteModalOptions = null;
+            resolver?.(result);
+        }
+
+        document.getElementById('reviewModalOverlay')?.addEventListener('click', (event) => {
+            if (event.target.id === 'reviewModalOverlay' && noteModalOptions?.dismissible !== false) {
+                resolveNoteModal(null);
+            }
+        });
+
+        document.getElementById('reviewModalCancel')?.addEventListener('click', () => resolveNoteModal(null));
+
+        document.getElementById('reviewModalConfirm')?.addEventListener('click', () => {
+            const noteInput = document.getElementById('reviewModalNote');
+            const value = noteInput?.value.trim() || '';
+            if (noteModalOptions?.requireNote && !value) {
+                const errorEl = document.getElementById('reviewModalError');
+                if (errorEl) errorEl.textContent = 'Please enter a short message before continuing.';
+                noteInput?.focus();
+                return;
+            }
+            const errorEl = document.getElementById('reviewModalError');
+            if (errorEl) errorEl.textContent = '';
+            resolveNoteModal(value || noteModalOptions?.fallbackValue || '');
+        });
+
+        document.getElementById('reviewModalPresets')?.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-reason-chip]');
+            if (!button) return;
+            const noteInput = document.getElementById('reviewModalNote');
+            if (noteInput) {
+                noteInput.value = button.dataset.reasonChip;
+                noteInput.focus();
+            }
+        });
+
+        async function applySubmissionToSeller(submission) {
+            if (!submission?.sellerId) throw new Error('Missing seller reference in submission');
+            if (!submission?.categoryId) throw new Error('Missing category reference in submission');
+            
+            const sellerRef = db.collection('sellerServices').doc(submission.sellerId);
+            const snapshot = await sellerRef.get();
+            const existing = snapshot.exists ? snapshot.data() : {};
+            const categories = existing.categories || {};
+            const payload = submission.payload || {};
+            const categoryId = submission.categoryId;
+            
+            try {
+                if (submission.submissionType === 'category') {
+                    // Approve and apply a new category
+                    categories[categoryId] = {
+                        name: payload.name || 'Custom Service',
+                        description: payload.description || '',
+                        icon: payload.icon || 'concierge-bell',
+                        enabled: true,
+                        options: {}
+                    };
+                } else if (submission.submissionType === 'option') {
+                    // Approve and apply a new option to an existing category
+                    if (!categories[categoryId]) {
+                        categories[categoryId] = {
+                            name: payload.categoryName || 'Service Category',
+                            description: '',
+                            icon: 'concierge-bell',
+                            enabled: true,
+                            options: {}
+                        };
+                    }
+                    const optionId = submission.optionId || payload.optionId || `opt-${Date.now()}`;
+                    const option = payload.option || {};
+                    categories[categoryId].options = categories[categoryId].options || {};
+                    categories[categoryId].options[optionId] = {
+                        name: option.name || 'Custom Option',
+                        description: option.description || '',
+                        price: option.price || 0,
+                        enabled: option.enabled !== false,
+                        deliveryOptions: option.deliveryOptions || {},
+                        turnaround: option.turnaround || ''
+                    };
+                } else {
+                    throw new Error(`Unknown submission type: ${submission.submissionType}`);
+                }
+
+                await sellerRef.set({
+                    categories,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastApprovedBy: auth.currentUser?.email || null,
+                    sellerId: submission.sellerId
+                }, { merge: true });
+            } catch (error) {
+                console.error('Error applying submission to seller:', error);
+                throw new Error(`Failed to apply submission: ${error.message}`);
             }
         }
 

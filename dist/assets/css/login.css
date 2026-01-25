@@ -371,6 +371,57 @@ body {
     cursor: not-allowed;
 }
 
+/* Divider */
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 24px 0;
+    color: var(--text-light);
+    font-size: 0.875rem;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--light-grey);
+}
+
+.divider span {
+    padding: 0 16px;
+    white-space: nowrap;
+}
+
+/* Google Sign-in Button */
+.btn-google {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--white);
+    color: var(--text-dark);
+    border: 2px solid #E5E7EB;
+    border-radius: var(--radius-lg);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn-google:hover {
+    background: #F9FAFB;
+    border-color: #D1D5DB;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-google svg {
+    flex-shrink: 0;
+}
+
 .form-footer {
     text-align: center;
     margin-top: 32px;

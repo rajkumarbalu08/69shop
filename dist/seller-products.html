@@ -509,6 +509,93 @@
         .product-image img { width: 100%; height: 100%; object-fit: cover; }
         .product-image .no-image { color: var(--slate-400); font-size: 3rem; }
         
+        /* Product Image Gallery */
+        .product-image-gallery {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .product-image-gallery .gallery-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .product-image-gallery .gallery-slide.active {
+            opacity: 1;
+        }
+        
+        .product-gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 3;
+            font-size: 0.75rem;
+            color: var(--slate-700);
+        }
+        
+        .product-card:hover .product-gallery-nav { opacity: 1; }
+        .product-gallery-nav.prev { left: 8px; }
+        .product-gallery-nav.next { right: 8px; }
+        .product-gallery-nav:hover { background: var(--seller-primary); color: white; }
+        
+        .product-gallery-dots {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+            z-index: 3;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+        }
+        
+        .product-gallery-dots .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.2s ease;
+        }
+        
+        .product-gallery-dots .dot.active {
+            background: white;
+            width: 14px;
+            border-radius: 3px;
+        }
+        
+        .image-count-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            z-index: 3;
+        }
+        
         .product-status-badge {
             position: absolute;
             top: 12px;
@@ -523,6 +610,44 @@
         .product-status-badge.active { background: var(--success-light); color: var(--success); }
         .product-status-badge.draft { background: var(--warning-light); color: #B45309; }
         .product-status-badge.out-of-stock { background: var(--danger-light); color: var(--danger); }
+        
+        /* Low Stock Warning Styles */
+        .low-stock-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: var(--warning-light);
+            color: #B45309;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            animation: pulse-warning 2s infinite;
+        }
+        @keyframes pulse-warning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .low-stock-badge i { font-size: 0.65rem; }
+        .product-stats .stock-warning {
+            color: #B45309 !important;
+            font-weight: 600;
+        }
+        .product-stats .stock-critical {
+            color: var(--danger) !important;
+            font-weight: 600;
+        }
+        .product-card.low-stock {
+            border: 2px solid var(--warning);
+            box-shadow: 0 0 0 3px var(--warning-light);
+        }
+        .product-card.out-of-stock-card {
+            border: 2px solid var(--danger);
+            box-shadow: 0 0 0 3px var(--danger-light);
+        }
         
         .product-content { padding: 20px; }
         
@@ -697,6 +822,40 @@
         .image-upload-area h3 { font-size: 1rem; color: var(--slate-700); margin-bottom: 4px; }
         .image-upload-area p { color: var(--slate-500); font-size: 0.85rem; }
         
+        .image-count-indicator {
+            margin-top: 12px;
+            padding: 6px 14px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .image-count-indicator.partial {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+        }
+        
+        .image-count-indicator.valid {
+            background: rgba(16, 185, 129, 0.15);
+            color: #059669;
+        }
+        
+        .image-hint {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--slate-500);
+            font-style: italic;
+        }
+        
+        .required-hint {
+            color: var(--danger);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
         .image-previews { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin-top: 16px; }
         
         .image-preview {
@@ -705,6 +864,26 @@
             border-radius: var(--radius-sm);
             overflow: hidden;
             border: 2px solid var(--slate-200);
+        }
+        
+        .image-preview:first-child {
+            border-color: var(--seller-primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .image-preview:first-child::after {
+            content: 'Main';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--seller-primary);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 2px;
+            text-transform: uppercase;
         }
         
         .image-preview img { width: 100%; height: 100%; object-fit: cover; }
@@ -849,6 +1028,10 @@
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics</span>
                     </a>
+                    <a href="/seller-reviews.html" class="nav-link">
+                        <i class="fas fa-star"></i>
+                        <span>Reviews</span>
+                    </a>
                     <a href="/seller-payments.html" class="nav-link">
                         <i class="fas fa-wallet"></i>
                         <span>Payments</span>
@@ -923,9 +1106,14 @@
                                     <h3>Notifications</h3>
                                     <p id="notificationSubtitle">Latest updates</p>
                                 </div>
-                                <button id="notificationRefresh" title="Refresh notifications">
-                                    <i class="fas fa-rotate-right"></i>
-                                </button>
+                                <div class="header-actions">
+                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
+                                        Mark all read
+                                    </button>
+                                    <button id="notificationRefresh" title="Refresh notifications">
+                                        <i class="fas fa-rotate-right"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="notification-list" id="notificationList">
                                 <div class="notification-empty">
@@ -1015,14 +1203,16 @@
             <form id="productForm" onsubmit="saveProduct(event)">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Product Images</label>
+                        <label>Product Images <span class="required-hint">(Minimum 5 images required)</span></label>
                         <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
                             <i class="fas fa-cloud-upload-alt"></i>
                             <h3>Click to upload images</h3>
-                            <p>PNG, JPG up to 5MB each (Max 5 images)</p>
+                            <p>PNG, JPG up to 5MB each (Add at least 5 images)</p>
+                            <div class="image-count-indicator" id="imageCountIndicator">0/5 images added</div>
                         </div>
                         <input type="file" id="imageInput" accept="image/*" multiple hidden onchange="handleImageUpload(event)">
                         <div class="image-previews" id="imagePreviews"></div>
+                        <div class="image-hint" id="imageHint">Tip: Drag images to reorder. First image will be the main product image.</div>
                     </div>
                     
                     <div class="form-group">
@@ -1098,6 +1288,57 @@
         let notificationFeed = null;
         let sellerProfileName = 'Seller';
         let sellerIsVerified = false;
+
+        const VERIFIED_STATUSES = new Set(['approved', 'verified']);
+
+        function normalizeStatus(value) {
+            return typeof value === 'string' ? value.trim().toLowerCase() : '';
+        }
+
+        function needsReverificationFlag(source = {}) {
+            return Boolean(
+                source?.requiresReverification ||
+                source?.reverificationRequired ||
+                source?.forceReverify ||
+                source?.forceReverification ||
+                source?.needsReverification
+            );
+        }
+
+        function deriveSellerVerificationState({ sellerData = {}, verificationData = {}, shellState = null } = {}) {
+            const statusValues = [
+                sellerData.status,
+                sellerData.verificationStatus,
+                sellerData.approvalStatus,
+                verificationData?.status,
+                verificationData?.verificationStatus
+            ].map(normalizeStatus);
+
+            const hasApprovedStatus = statusValues.some(status => VERIFIED_STATUSES.has(status));
+            // Handle both boolean true and string "true"
+            const hasDirectFlag = sellerData.verified === true || 
+                                  sellerData.verified === 'true' || 
+                                  verificationData?.verified === true ||
+                                  verificationData?.verified === 'true';
+            const shellStatus = shellState?.status || {};
+            const shellVerified = shellStatus.isVerified === true;
+            const reverifyRequired = needsReverificationFlag(sellerData) ||
+                needsReverificationFlag(verificationData) ||
+                shellStatus.needsReverify === true;
+
+            const result = (hasDirectFlag || hasApprovedStatus || shellVerified) && !reverifyRequired;
+            console.log('[VerificationCheck]', { 
+                hasDirectFlag, 
+                hasApprovedStatus, 
+                shellVerified, 
+                reverifyRequired, 
+                result,
+                sellerVerified: sellerData.verified,
+                sellerStatus: sellerData.status,
+                verificationStatus: verificationData?.status
+            });
+            return result;
+        }
         
         try {
             const firebaseConfig = window.firebaseConfig;
@@ -1131,10 +1372,22 @@
                     
                     currentUser = user;
                     const sellerData = sellerDoc.data();
+                    const verificationDoc = await db.collection('sellerVerification').doc(user.uid).get().catch(() => null);
+                    const verificationData = verificationDoc?.exists ? verificationDoc.data() : {};
                     sellerProfileName = sellerData.businessName || user.displayName || user.email?.split('@')[0] || 'Seller';
-                    sellerIsVerified = sellerData.verified === true;
+
+                    let derivedStatus = deriveSellerVerificationState({ sellerData, verificationData });
+                    sellerIsVerified = derivedStatus;
                     updateVerificationState();
-                    await syncSellerShell(user, sellerData);
+
+                    const shellState = await syncSellerShell(user, sellerData, verificationData);
+                    if (shellState) {
+                        const resolvedStatus = deriveSellerVerificationState({ sellerData, verificationData, shellState });
+                        if (sellerIsVerified !== resolvedStatus) {
+                            sellerIsVerified = resolvedStatus;
+                            updateVerificationState();
+                        }
+                    }
                     initNotifications();
                     
                     await loadProducts();
@@ -1236,10 +1489,16 @@
             }
         }
 
-        async function syncSellerShell(user, sellerData = {}) {
+        async function syncSellerShell(user, sellerData = {}, verificationData = {}) {
             if (!window.SellerShell) return null;
             try {
-                return await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+                return await SellerShell.sync({
+                    db,
+                    auth,
+                    user,
+                    sellerDoc: sellerData,
+                    verificationDoc: verificationData
+                });
             } catch (error) {
                 console.warn('SellerShell sync failed:', error);
                 return null;
@@ -1287,15 +1546,55 @@
             grid.innerHTML = filtered.map(product => {
                 const name = product.name || product.title || 'Unnamed Product';
                 const price = product.price ? `₹${product.price.toLocaleString()}` : 'N/A';
-                const image = product.image || product.images?.[0] || null;
+                const images = product.images || (product.image ? [product.image] : []);
+                const hasMultipleImages = images.length > 1;
                 const stock = product.stock ?? product.quantity ?? 0;
                 let status = product.status || 'active';
                 if (stock === 0) status = 'out-of-stock';
                 
+                // Low stock detection
+                const isLowStock = stock > 0 && stock <= 5;
+                const isCriticalStock = stock > 0 && stock <= 2;
+                const isOutOfStock = stock === 0;
+                let cardClass = 'product-card';
+                if (isOutOfStock) cardClass += ' out-of-stock-card';
+                else if (isLowStock) cardClass += ' low-stock';
+                
+                let stockClass = '';
+                if (isCriticalStock) stockClass = 'stock-critical';
+                else if (isLowStock) stockClass = 'stock-warning';
+                
+                const lowStockBadge = isLowStock && !isOutOfStock 
+                    ? `<span class="low-stock-badge"><i class="fas fa-exclamation-triangle"></i> Low Stock</span>` 
+                    : '';
+                
+                // Build image gallery HTML
+                let imageHtml = '';
+                if (images.length === 0) {
+                    imageHtml = '<i class="fas fa-box no-image"></i>';
+                } else if (hasMultipleImages) {
+                    imageHtml = `
+                        <div class="product-image-gallery" data-product-id="${product.id}" data-current="0">
+                            ${images.slice(0, 5).map((img, i) => `
+                                <img src="${img}" alt="${name}" class="gallery-slide ${i === 0 ? 'active' : ''}" data-index="${i}" onerror="this.style.display='none';">
+                            `).join('')}
+                            <button class="product-gallery-nav prev" onclick="event.stopPropagation(); prevProductImage('${product.id}')"><i class="fas fa-chevron-left"></i></button>
+                            <button class="product-gallery-nav next" onclick="event.stopPropagation(); nextProductImage('${product.id}')"><i class="fas fa-chevron-right"></i></button>
+                            <div class="product-gallery-dots">
+                                ${images.slice(0, 5).map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`).join('')}
+                            </div>
+                            <span class="image-count-badge"><i class="fas fa-images"></i> ${images.length}</span>
+                        </div>
+                    `;
+                } else {
+                    imageHtml = `<img src="${images[0]}" alt="${name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-box no-image\\'></i>';">`;
+                }
+                
                 return `
-                    <div class="product-card">
+                    <div class="${cardClass}">
                         <div class="product-image">
-                            ${image ? `<img src="${image}" alt="${name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-box no-image\\'></i>';">` : '<i class="fas fa-box no-image"></i>'}
+                            ${imageHtml}
+                            ${lowStockBadge}
                             <span class="product-status-badge ${status}">${status === 'out-of-stock' ? 'Out of Stock' : status.charAt(0).toUpperCase() + status.slice(1)}</span>
                         </div>
                         <div class="product-content">
@@ -1303,7 +1602,7 @@
                             <h3 class="product-name">${name}</h3>
                             <div class="product-price">${price}</div>
                             <div class="product-stats">
-                                <span><i class="fas fa-box"></i> ${stock} in stock</span>
+                                <span class="${stockClass}"><i class="fas fa-box"></i> ${stock} in stock</span>
                                 <span><i class="fas fa-eye"></i> ${product.views || 0} views</span>
                             </div>
                         </div>
@@ -1318,6 +1617,31 @@
                     </div>
                 `;
             }).join('');
+        }
+        
+        // Product image gallery navigation
+        function prevProductImage(productId) {
+            const gallery = document.querySelector(`.product-image-gallery[data-product-id="${productId}"]`);
+            if (!gallery) return;
+            const slides = gallery.querySelectorAll('.gallery-slide');
+            const dots = gallery.querySelectorAll('.dot');
+            let current = parseInt(gallery.dataset.current) || 0;
+            current = (current - 1 + slides.length) % slides.length;
+            gallery.dataset.current = current;
+            slides.forEach((s, i) => s.classList.toggle('active', i === current));
+            dots.forEach((d, i) => d.classList.toggle('active', i === current));
+        }
+        
+        function nextProductImage(productId) {
+            const gallery = document.querySelector(`.product-image-gallery[data-product-id="${productId}"]`);
+            if (!gallery) return;
+            const slides = gallery.querySelectorAll('.gallery-slide');
+            const dots = gallery.querySelectorAll('.dot');
+            let current = parseInt(gallery.dataset.current) || 0;
+            current = (current + 1) % slides.length;
+            gallery.dataset.current = current;
+            slides.forEach((s, i) => s.classList.toggle('active', i === current));
+            dots.forEach((d, i) => d.classList.toggle('active', i === current));
         }
 
         function openAddModal() {
@@ -1334,6 +1658,7 @@
             document.getElementById('modalTitle').textContent = 'Add New Product';
             document.getElementById('productForm').reset();
             document.getElementById('imagePreviews').innerHTML = '';
+            updateImageCounter();
             document.getElementById('productModal').classList.add('show');
         }
 
@@ -1353,6 +1678,7 @@
             document.getElementById('productDescription').value = product.description || '';
             
             renderImagePreviews();
+            updateImageCounter();
             document.getElementById('productModal').classList.add('show');
         }
 
@@ -1364,19 +1690,70 @@
 
         function handleImageUpload(event) {
             const files = Array.from(event.target.files);
-            if (uploadedImages.length + files.length > 5) {
-                showToast('Maximum 5 images allowed', 'error');
+            if (uploadedImages.length + files.length > 10) {
+                showToast('Maximum 10 images allowed', 'error');
                 return;
             }
             
             files.forEach(file => {
+                compressImage(file).then(compressedDataUrl => {
+                    uploadedImages.push(compressedDataUrl);
+                    renderImagePreviews();
+                    updateImageCounter();
+                }).catch(err => {
+                    console.error('Image compression failed:', err);
+                    showToast('Failed to process image', 'error');
+                });
+            });
+        }
+        
+        // Compress image to reduce size for Firestore storage
+        function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+            return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    uploadedImages.push(e.target.result);
-                    renderImagePreviews();
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let { width, height } = img;
+                        
+                        // Calculate new dimensions maintaining aspect ratio
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width = Math.round((width * maxHeight) / height);
+                                height = maxHeight;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convert to compressed JPEG
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                        resolve(compressedDataUrl);
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
                 };
+                reader.onerror = reject;
                 reader.readAsDataURL(file);
             });
+        }
+        
+        function updateImageCounter() {
+            const counter = document.getElementById('imageCountIndicator');
+            const count = uploadedImages.length;
+            const isValid = count >= 5;
+            counter.textContent = `${count}/${count >= 5 ? '✓' : '5'} images added`;
+            counter.className = `image-count-indicator ${isValid ? 'valid' : count > 0 ? 'partial' : ''}`;
         }
 
         function renderImagePreviews() {
@@ -1394,6 +1771,7 @@
         function removeImage(index) {
             uploadedImages.splice(index, 1);
             renderImagePreviews();
+            updateImageCounter();
         }
 
         async function saveProduct(event) {
@@ -1401,6 +1779,15 @@
 
             if (!sellerIsVerified) {
                 showToast('Verification required before saving products', 'error');
+                // Scroll to verification alert if visible
+                const alert = document.getElementById('verificationAlert');
+                if (alert) alert.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+            
+            // Validate minimum 5 images
+            if (uploadedImages.length < 5) {
+                showToast(`Please add at least 5 images (${uploadedImages.length}/5 added)`, 'error');
                 return;
             }
             
@@ -1433,7 +1820,24 @@
                 await loadProducts();
             } catch (error) {
                 console.error('Error saving product:', error);
-                showToast('Failed to save product', 'error');
+                // Provide more specific error messages
+                if (error.code === 'permission-denied') {
+                    showToast('Permission denied. Your account may need re-verification.', 'error');
+                    // Re-check verification status
+                    try {
+                        const sellerDoc = await db.collection('sellers').doc(currentUser.uid).get();
+                        const sellerData = sellerDoc.data() || {};
+                        if (!sellerData.verified) {
+                            sellerIsVerified = false;
+                            updateVerificationState();
+                            showToast('Verification status updated. Please complete verification.', 'error');
+                        }
+                    } catch (e) {
+                        console.error('Error re-checking verification:', e);
+                    }
+                } else {
+                    showToast('Failed to save product: ' + (error.message || 'Unknown error'), 'error');
+                }
             }
         }
 

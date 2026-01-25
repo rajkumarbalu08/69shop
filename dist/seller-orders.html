@@ -474,6 +474,95 @@
         .modal-item span { font-weight: 600; color: var(--slate-900); }
         .modal-footer { padding: 20px 24px; border-top: 1px solid var(--slate-200); display: flex; justify-content: flex-end; gap: 12px; }
 
+        /* Order Status Timeline */
+        .order-timeline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            margin: 8px 0 16px;
+            position: relative;
+        }
+        .order-timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--slate-200);
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+        .timeline-progress {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 3px;
+            background: var(--seller-primary);
+            transform: translateY(-50%);
+            z-index: 1;
+            transition: width 0.5s ease;
+        }
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            background: var(--white);
+            padding: 0 4px;
+        }
+        .timeline-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            background: var(--slate-200);
+            color: var(--slate-500);
+            transition: all 0.3s ease;
+            border: 3px solid var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .timeline-step.completed .timeline-icon {
+            background: var(--seller-primary);
+            color: var(--white);
+        }
+        .timeline-step.active .timeline-icon {
+            background: var(--seller-primary);
+            color: var(--white);
+            box-shadow: 0 0 0 4px var(--seller-primary-light);
+            animation: pulse-ring 2s infinite;
+        }
+        .timeline-step.cancelled .timeline-icon {
+            background: var(--danger);
+            color: var(--white);
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 var(--seller-primary-light); }
+            70% { box-shadow: 0 0 0 8px rgba(0,128,128,0); }
+            100% { box-shadow: 0 0 0 0 rgba(0,128,128,0); }
+        }
+        .timeline-label {
+            margin-top: 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--slate-400);
+            text-align: center;
+        }
+        .timeline-step.completed .timeline-label,
+        .timeline-step.active .timeline-label { color: var(--seller-primary-dark); }
+        .timeline-step.cancelled .timeline-label { color: var(--danger); }
+        .timeline-date {
+            font-size: 0.65rem;
+            color: var(--slate-400);
+            margin-top: 2px;
+        }
+
         .toast {
             position: fixed;
             bottom: 24px;
@@ -610,6 +699,10 @@
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics</span>
                     </a>
+                    <a href="/seller-reviews.html" class="nav-link">
+                        <i class="fas fa-star"></i>
+                        <span>Reviews</span>
+                    </a>
                     <a href="/seller-payments.html" class="nav-link">
                         <i class="fas fa-wallet"></i>
                         <span>Payments</span>
@@ -674,9 +767,14 @@
                                     <h3>Notifications</h3>
                                     <p id="notificationSubtitle">Latest updates</p>
                                 </div>
-                                <button id="notificationRefresh" title="Refresh notifications">
-                                    <i class="fas fa-rotate-right"></i>
-                                </button>
+                                <div class="header-actions">
+                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
+                                        Mark all read
+                                    </button>
+                                    <button id="notificationRefresh" title="Refresh notifications">
+                                        <i class="fas fa-rotate-right"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="notification-list" id="notificationList">
                                 <div class="notification-empty">
@@ -849,10 +947,10 @@
             if (sidebarEmail) sidebarEmail.textContent = email;
         }
 
-        async function syncSellerShell(user, sellerData = {}) {
+        async function syncSellerShell(user, sellerData = {}, verificationData = {}) {
             if (!window.SellerShell) return null;
             try {
-                sellerShellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+                sellerShellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData, verificationDoc: verificationData });
                 return sellerShellState;
             } catch (error) {
                 console.warn('SellerShell sync failed:', error);
@@ -964,7 +1062,15 @@
             const resolvedName = sellerData?.businessName || sellerData?.storeName || fallbackName;
             const avatarInitial = (resolvedName || 'S').charAt(0).toUpperCase();
             updateProfileIdentity(resolvedName, avatarInitial, user.email || 'seller@69shop.in');
-            await syncSellerShell(user, sellerData || {});
+            
+            // Fetch verification data for proper status display
+            let verificationData = {};
+            try {
+                const verificationDoc = await db.collection('sellerVerification').doc(user.uid).get();
+                if (verificationDoc.exists) verificationData = verificationDoc.data();
+            } catch (e) { console.warn('Verification doc fetch failed:', e); }
+            
+            await syncSellerShell(user, sellerData || {}, verificationData);
         }
 
         function hideLoading() {
@@ -1149,8 +1255,10 @@
         async function updateOrderStatus(orderId, status) {
             if (!db) return;
             try {
+                const timestampField = `statusTimestamps.${status}`;
                 await db.collection('orders').doc(orderId).update({
                     status,
+                    [timestampField]: new Date().toISOString(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 showToast(`Order ${orderId.slice(-6)} marked as ${formatStatus(status)}`);
@@ -1159,6 +1267,62 @@
                 console.error('Failed to update status:', error);
                 showToast('Unable to update order status', 'error');
             }
+        }
+
+        function buildOrderTimeline(status, timestamps = {}) {
+            const steps = [
+                { key: 'pending', label: 'Pending', icon: 'fa-clock' },
+                { key: 'processing', label: 'Processing', icon: 'fa-cog' },
+                { key: 'shipped', label: 'Shipped', icon: 'fa-truck' },
+                { key: 'delivered', label: 'Delivered', icon: 'fa-check-circle' }
+            ];
+            const statusOrder = ['pending', 'processing', 'shipped', 'delivered'];
+            const currentIndex = statusOrder.indexOf(status.toLowerCase());
+            const isCancelled = status.toLowerCase() === 'cancelled';
+
+            // Calculate progress width
+            let progressWidth = 0;
+            if (currentIndex >= 0) {
+                progressWidth = (currentIndex / (steps.length - 1)) * 100;
+            }
+
+            const stepsHtml = steps.map((step, index) => {
+                let stepClass = '';
+                if (isCancelled) {
+                    stepClass = index === 0 ? 'cancelled' : '';
+                } else if (index < currentIndex) {
+                    stepClass = 'completed';
+                } else if (index === currentIndex) {
+                    stepClass = 'active';
+                }
+                const date = timestamps[step.key] ? new Date(timestamps[step.key]).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '';
+                return `
+                    <div class="timeline-step ${stepClass}">
+                        <div class="timeline-icon"><i class="fas ${step.icon}"></i></div>
+                        <span class="timeline-label">${step.label}</span>
+                        ${date ? `<span class="timeline-date">${date}</span>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            if (isCancelled) {
+                return `
+                    <div class="order-timeline">
+                        <div class="timeline-progress" style="width: 0%;"></div>
+                        <div class="timeline-step cancelled">
+                            <div class="timeline-icon"><i class="fas fa-times"></i></div>
+                            <span class="timeline-label">Cancelled</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="order-timeline">
+                    <div class="timeline-progress" style="width: ${progressWidth}%;"></div>
+                    ${stepsHtml}
+                </div>
+            `;
         }
 
         function viewOrder(orderId) {
@@ -1170,9 +1334,12 @@
             const modalTitle = document.getElementById('modalOrderId');
             const actionBtn = document.getElementById('modalStatusBtn');
             const nextStatus = getNextStatus(order.status || 'pending');
+            const currentStatus = order.status || 'pending';
+            const timeline = buildOrderTimeline(currentStatus, order.statusTimestamps || {});
 
             modalTitle.textContent = `Order #${order.id}`;
             modalBody.innerHTML = `
+                ${timeline}
                 <div class="modal-grid">
                     <div class="modal-item">
                         <label>Customer</label>
@@ -1188,7 +1355,7 @@
                     </div>
                     <div class="modal-item">
                         <label>Status</label>
-                        <span>${formatStatus(order.status || 'pending')}</span>
+                        <span>${formatStatus(currentStatus)}</span>
                     </div>
                     <div class="modal-item">
                         <label>Placed On</label>

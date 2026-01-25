@@ -2098,44 +2098,88 @@
                 this.updateFilterBar();
             }
             
+            getProductImage(product) {
+                // Support both 'images' array and 'image' field
+                if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+                    return product.images[0];
+                }
+                return product.image || '/Logo/placeholder.png';
+            }
+            
+            getProductImages(product) {
+                // Get all images for gallery
+                if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+                    return product.images;
+                }
+                return product.image ? [product.image] : ['/Logo/placeholder.png'];
+            }
+            
             renderGridItem(product) {
-                const isNew = new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                const isNew = product.createdAt && new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
                 const isPremium = product.sellerType === 'premium';
-                const isVerified = product.isVerified;
-                
-                let badges = [];
-                if (isNew) badges.push('NEW');
-                if (isPremium) badges.push('PREMIUM');
-                if (isVerified) badges.push('VERIFIED');
-                if (product.deliveryTime === '1day') badges.push('1-DAY DELIVERY');
+                const isVerified = product.isVerified || product.verified;
+                const images = this.getProductImages(product);
+                const hasMultipleImages = images.length > 1;
+                const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+                const inStock = (product.stock ?? product.quantity ?? 1) > 0;
                 
                 return `
-                <div class="product-card" data-id="${product.id}">
-                    ${badges.map(badge => `<div class="product-badge">${badge}</div>`).join('')}
-                    <div class="product-image">
-                        <img src="${product.image}" alt="${product.name}" loading="lazy">
-                    </div>
-                    <div class="product-content">
-                        <h3 class="product-name">${product.name}</h3>
-                        <p class="product-description">${product.description}</p>
-                        <div class="product-price">₹${product.price.toLocaleString()}</div>
-                        <div class="product-seller">
-                            <i class="fas fa-store"></i>
-                            <span>${product.seller}</span>
-                            <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
-                                <i class="fas fa-star" style="color: #FFD700;"></i>
-                                <span>${product.rating.toFixed(1)}</span>
+                <div class="product-card ${!inStock ? 'out-of-stock' : ''}" data-id="${product.id}" onclick="productManager.openQuickView('${product.id}')">
+                    <div class="product-image-wrapper">
+                        ${hasMultipleImages ? `
+                        <div class="image-gallery" data-current="0">
+                            ${images.slice(0, 4).map((img, i) => `
+                                <img src="${img}" alt="${product.name}" class="gallery-image ${i === 0 ? 'active' : ''}" data-index="${i}" loading="lazy" onerror="this.src='/Logo/placeholder.png'">
+                            `).join('')}
+                            <div class="gallery-dots">
+                                ${images.slice(0, 4).map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`).join('')}
                             </div>
+                            <button class="gallery-nav prev" onclick="event.stopPropagation(); productManager.prevImage(this)"><i class="fas fa-chevron-left"></i></button>
+                            <button class="gallery-nav next" onclick="event.stopPropagation(); productManager.nextImage(this)"><i class="fas fa-chevron-right"></i></button>
                         </div>
-                        <div class="product-actions">
-                            <button class="btn-add-to-cart" onclick="productManager.addToCart('${product.id}')">
-                                <i class="fas fa-shopping-cart"></i>
-                                Add to Cart
+                        ` : `
+                        <img src="${images[0]}" alt="${product.name}" class="single-image" loading="lazy" onerror="this.src='/Logo/placeholder.png'">
+                        `}
+                        <div class="product-badges">
+                            ${isNew ? '<span class="badge badge-new">NEW</span>' : ''}
+                            ${discount > 0 ? `<span class="badge badge-discount">-${discount}%</span>` : ''}
+                            ${isPremium ? '<span class="badge badge-premium"><i class="fas fa-crown"></i></span>' : ''}
+                        </div>
+                        <div class="product-quick-actions">
+                            <button class="quick-action-btn" onclick="event.stopPropagation(); productManager.toggleWishlist('${product.id}')" title="Add to wishlist">
+                                <i class="fa${this.wishlist.has(product.id) ? 's' : 'r'} fa-heart"></i>
                             </button>
-                            <button class="btn-wishlist ${this.wishlist.has(product.id) ? 'active' : ''}" 
-                                    onclick="productManager.toggleWishlist('${product.id}')"
-                                    aria-label="${this.wishlist.has(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}">
-                                <i class="fas fa-heart"></i>
+                            <button class="quick-action-btn" onclick="event.stopPropagation(); productManager.openQuickView('${product.id}')" title="Quick view">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        ${!inStock ? '<div class="out-of-stock-overlay"><span>Out of Stock</span></div>' : ''}
+                    </div>
+                    <div class="product-details">
+                        <div class="product-category-tag">${product.category || 'General'}</div>
+                        <h3 class="product-title">${product.name}</h3>
+                        <div class="product-rating">
+                            <div class="stars">
+                                ${this.renderStars(product.rating || 0)}
+                            </div>
+                            <span class="rating-count">(${product.reviewCount || 0})</span>
+                        </div>
+                        <div class="product-pricing">
+                            <span class="current-price">₹${product.price?.toLocaleString() || '0'}</span>
+                            ${product.originalPrice ? `<span class="original-price">₹${product.originalPrice.toLocaleString()}</span>` : ''}
+                        </div>
+                        <div class="product-seller-info">
+                            <span class="seller-name"><i class="fas fa-store"></i> ${product.seller || product.sellerName || 'Shop'}</span>
+                            ${isVerified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                        </div>
+                        <div class="product-action-buttons">
+                            <button class="view-product-btn" onclick="event.stopPropagation(); window.location.href='/product.html?id=${product.id}'">
+                                <i class="fas fa-eye"></i>
+                                <span>View</span>
+                            </button>
+                            <button class="add-to-cart-btn ${!inStock ? 'disabled' : ''}" onclick="event.stopPropagation(); productManager.addToCart('${product.id}')" ${!inStock ? 'disabled' : ''}>
+                                <i class="fas fa-shopping-bag"></i>
+                                <span>${inStock ? 'Add' : 'Notify'}</span>
                             </button>
                         </div>
                     </div>
@@ -2143,52 +2187,85 @@
                 `;
             }
             
+            renderStars(rating) {
+                const fullStars = Math.floor(rating);
+                const hasHalf = rating % 1 >= 0.5;
+                const emptyStars = 5 - fullStars - (hasHalf ? 1 : 0);
+                return `
+                    ${'<i class="fas fa-star"></i>'.repeat(fullStars)}
+                    ${hasHalf ? '<i class="fas fa-star-half-alt"></i>' : ''}
+                    ${'<i class="far fa-star"></i>'.repeat(emptyStars)}
+                `;
+            }
+            
+            prevImage(btn) {
+                const gallery = btn.closest('.image-gallery');
+                const images = gallery.querySelectorAll('.gallery-image');
+                const dots = gallery.querySelectorAll('.dot');
+                let current = parseInt(gallery.dataset.current) || 0;
+                current = (current - 1 + images.length) % images.length;
+                gallery.dataset.current = current;
+                images.forEach((img, i) => img.classList.toggle('active', i === current));
+                dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+            }
+            
+            nextImage(btn) {
+                const gallery = btn.closest('.image-gallery');
+                const images = gallery.querySelectorAll('.gallery-image');
+                const dots = gallery.querySelectorAll('.dot');
+                let current = parseInt(gallery.dataset.current) || 0;
+                current = (current + 1) % images.length;
+                gallery.dataset.current = current;
+                images.forEach((img, i) => img.classList.toggle('active', i === current));
+                dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+            }
+            
             renderListItem(product) {
-                const isNew = new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                const isNew = product.createdAt && new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
                 const isPremium = product.sellerType === 'premium';
-                const isVerified = product.isVerified;
-                
-                let badges = [];
-                if (isNew) badges.push('NEW');
-                if (isPremium) badges.push('PREMIUM');
-                if (isVerified) badges.push('VERIFIED');
-                if (product.deliveryTime === '1day') badges.push('1-DAY DELIVERY');
+                const isVerified = product.isVerified || product.verified;
+                const mainImage = this.getProductImage(product);
+                const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+                const inStock = (product.stock ?? product.quantity ?? 1) > 0;
                 
                 return `
-                <div class="product-list-item" data-id="${product.id}">
-                    <div class="product-list-image">
-                        <img src="${product.image}" alt="${product.name}" loading="lazy">
-                        ${badges.length ? `<div class="product-list-badges">${badges.map(badge => `<span class="product-list-badge">${badge}</span>`).join('')}</div>` : ''}
+                <div class="product-list-item ${!inStock ? 'out-of-stock' : ''}" data-id="${product.id}">
+                    <div class="product-list-image" onclick="productManager.openQuickView('${product.id}')">
+                        <img src="${mainImage}" alt="${product.name}" loading="lazy" onerror="this.src='/Logo/placeholder.png'">
+                        ${discount > 0 ? `<span class="discount-tag">-${discount}%</span>` : ''}
+                        ${!inStock ? '<div class="out-of-stock-overlay"><span>Out of Stock</span></div>' : ''}
                     </div>
                     <div class="product-list-content">
-                        <h3 class="product-list-name">${product.name}</h3>
-                        <p class="product-list-description">${product.description}</p>
+                        <div class="list-header">
+                            <span class="category-tag">${product.category || 'General'}</span>
+                            ${isNew ? '<span class="new-tag">NEW</span>' : ''}
+                            ${isPremium ? '<span class="premium-tag"><i class="fas fa-crown"></i> Premium</span>' : ''}
+                        </div>
+                        <h3 class="product-list-name" onclick="productManager.openQuickView('${product.id}')">${product.name}</h3>
+                        <p class="product-list-description">${product.description || ''}</p>
                         <div class="product-list-meta">
-                            <div class="product-list-seller">
+                            <div class="rating-block">
+                                <div class="stars">${this.renderStars(product.rating || 0)}</div>
+                                <span>(${product.reviewCount || 0} reviews)</span>
+                            </div>
+                            <div class="seller-block">
                                 <i class="fas fa-store"></i>
-                                <span>${product.seller}</span>
-                            </div>
-                            <div class="product-list-rating">
-                                <i class="fas fa-star" style="color: #FFD700;"></i>
-                                <span>${product.rating.toFixed(1)}</span>
-                            </div>
-                            <div class="product-list-category">
-                                <i class="fas fa-tag"></i>
-                                <span>${product.category}</span>
+                                <span>${product.seller || product.sellerName || 'Shop'}</span>
+                                ${isVerified ? '<i class="fas fa-check-circle verified"></i>' : ''}
                             </div>
                         </div>
-                        ${product.deliveryTime === '1day' ? '<p class="product-list-delivery"><i class="fas fa-truck"></i> Get it by tomorrow</p>' : ''}
                     </div>
                     <div class="product-list-actions">
-                        <div class="product-list-price">₹${product.price.toLocaleString()}</div>
-                        <button class="btn-add-to-cart" onclick="productManager.addToCart('${product.id}')">
-                            <i class="fas fa-shopping-cart"></i>
-                            Add to Cart
+                        <div class="price-block">
+                            <span class="current-price">₹${product.price?.toLocaleString() || '0'}</span>
+                            ${product.originalPrice ? `<span class="original-price">₹${product.originalPrice.toLocaleString()}</span>` : ''}
+                        </div>
+                        <button class="add-to-cart-btn ${!inStock ? 'disabled' : ''}" onclick="productManager.addToCart('${product.id}')" ${!inStock ? 'disabled' : ''}>
+                            <i class="fas fa-shopping-bag"></i>
+                            ${inStock ? 'Add to Cart' : 'Notify Me'}
                         </button>
-                        <button class="btn-wishlist ${this.wishlist.has(product.id) ? 'active' : ''}" 
-                                onclick="productManager.toggleWishlist('${product.id}')"
-                                aria-label="${this.wishlist.has(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}">
-                            <i class="fas fa-heart"></i>
+                        <button class="wishlist-btn ${this.wishlist.has(product.id) ? 'active' : ''}" onclick="productManager.toggleWishlist('${product.id}')">
+                            <i class="fa${this.wishlist.has(product.id) ? 's' : 'r'} fa-heart"></i>
                         </button>
                     </div>
                 </div>
@@ -2196,6 +2273,102 @@
             }
 
             // ... (rest of the methods remain the same as original ProductManager)
+
+            openQuickView(productId) {
+                const product = this.products.find(p => p.id === productId);
+                if (!product) return;
+                
+                const images = this.getProductImages(product);
+                const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+                const inStock = (product.stock ?? product.quantity ?? 1) > 0;
+                
+                // Create and show quick view modal
+                const existingModal = document.querySelector('.quick-view-modal');
+                if (existingModal) existingModal.remove();
+                
+                const modal = document.createElement('div');
+                modal.className = 'quick-view-modal';
+                modal.innerHTML = `
+                    <div class="quick-view-overlay" onclick="this.parentElement.remove()"></div>
+                    <div class="quick-view-content">
+                        <button class="quick-view-close" onclick="this.closest('.quick-view-modal').remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="quick-view-gallery">
+                            <div class="main-image-container">
+                                <img src="${images[0]}" alt="${product.name}" class="main-image" id="quickViewMainImage">
+                            </div>
+                            ${images.length > 1 ? `
+                            <div class="thumbnail-strip">
+                                ${images.map((img, i) => `
+                                    <img src="${img}" alt="Thumbnail ${i+1}" class="thumbnail ${i === 0 ? 'active' : ''}" 
+                                         onclick="document.getElementById('quickViewMainImage').src='${img}'; 
+                                                  document.querySelectorAll('.thumbnail').forEach(t=>t.classList.remove('active')); 
+                                                  this.classList.add('active');">
+                                `).join('')}
+                            </div>
+                            ` : ''}
+                        </div>
+                        <div class="quick-view-info">
+                            <span class="qv-category">${product.category || 'General'}</span>
+                            <h2 class="qv-title">${product.name}</h2>
+                            <div class="qv-rating">
+                                <div class="stars">${this.renderStars(product.rating || 0)}</div>
+                                <span class="rating-text">${product.rating || 0} (${product.reviewCount || 0} reviews)</span>
+                            </div>
+                            <p class="qv-description">${product.description || 'No description available.'}</p>
+                            <div class="qv-pricing">
+                                <span class="qv-price">₹${product.price?.toLocaleString() || '0'}</span>
+                                ${product.originalPrice ? `<span class="qv-original">₹${product.originalPrice.toLocaleString()}</span>` : ''}
+                                ${discount > 0 ? `<span class="qv-discount">${discount}% OFF</span>` : ''}
+                            </div>
+                            <div class="qv-seller">
+                                <i class="fas fa-store"></i>
+                                <span>Sold by <strong>${product.seller || product.sellerName || 'Shop'}</strong></span>
+                                ${product.isVerified || product.verified ? '<i class="fas fa-check-circle verified"></i>' : ''}
+                            </div>
+                            <div class="qv-stock ${inStock ? 'in-stock' : 'out-of-stock'}">
+                                <i class="fas ${inStock ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                                ${inStock ? `In Stock (${product.stock ?? product.quantity ?? 'Available'})` : 'Out of Stock'}
+                            </div>
+                            <div class="qv-actions">
+                                <button class="qv-add-to-cart ${!inStock ? 'disabled' : ''}" 
+                                        onclick="productManager.addToCart('${product.id}'); this.closest('.quick-view-modal').remove();" 
+                                        ${!inStock ? 'disabled' : ''}>
+                                    <i class="fas fa-shopping-bag"></i>
+                                    ${inStock ? 'Add to Cart' : 'Notify When Available'}
+                                </button>
+                                <button class="qv-wishlist ${this.wishlist.has(product.id) ? 'active' : ''}" 
+                                        onclick="productManager.toggleWishlist('${product.id}'); this.classList.toggle('active');">
+                                    <i class="fa${this.wishlist.has(product.id) ? 's' : 'r'} fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                document.body.style.overflow = 'hidden';
+                
+                // Close on escape key
+                const handleEscape = (e) => {
+                    if (e.key === 'Escape') {
+                        modal.remove();
+                        document.body.style.overflow = '';
+                        document.removeEventListener('keydown', handleEscape);
+                    }
+                };
+                document.addEventListener('keydown', handleEscape);
+                
+                // Restore scroll when modal is removed
+                const observer = new MutationObserver(() => {
+                    if (!document.body.contains(modal)) {
+                        document.body.style.overflow = '';
+                        observer.disconnect();
+                    }
+                });
+                observer.observe(document.body, { childList: true });
+            }
 
             addToCart(productId) {
                 const product = this.products.find(p => p.id === productId);

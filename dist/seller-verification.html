@@ -578,6 +578,27 @@
         }
         
         @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 12px;
+                padding: 16px;
+                text-align: center;
+            }
+            
+            .header-left {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .header-right {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .logo {
+                justify-content: center;
+            }
+            
             .form-grid {
                 grid-template-columns: 1fr;
             }
@@ -1010,7 +1031,17 @@
                 }
                 currentUser = user;
                 document.getElementById('userEmail').textContent = user.email;
-                await syncSellerShell(user);
+                
+                // Fetch seller and verification data for proper status display
+                let sellerData = {}, verificationData = {};
+                try {
+                    const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                    if (sellerDoc.exists) sellerData = sellerDoc.data();
+                    const verificationDoc = await db.collection('sellerVerification').doc(user.uid).get();
+                    if (verificationDoc.exists) verificationData = verificationDoc.data();
+                } catch (e) { console.warn('Doc fetch failed:', e); }
+                
+                await syncSellerShell(user, sellerData, verificationData);
                 loadExistingData();
             });
         }
@@ -1061,10 +1092,10 @@
             }
         }
 
-        async function syncSellerShell(user, sellerData = {}) {
+        async function syncSellerShell(user, sellerData = {}, verificationData = {}) {
             if (!window.SellerShell || !db) return null;
             try {
-                sellerShellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+                sellerShellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData, verificationDoc: verificationData });
                 return sellerShellState;
             } catch (error) {
                 console.warn('SellerShell sync failed:', error);

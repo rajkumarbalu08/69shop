@@ -71,6 +71,8 @@ const TestRunner = {
         
         // Performance tests
         this.testPerformance();
+        this.testSellerServiceFlows();
+        this.testAdminReviewFlows();
         
         const endTime = Date.now();
         
@@ -114,6 +116,78 @@ const TestRunner = {
             this.pass('Favicon configured');
         } else {
             this.warn('No favicon configured');
+        }
+    },
+
+    testSellerServiceFlows() {
+        if (!window.location.pathname.includes('seller-services')) return;
+        console.log('\n%c🧵 Seller Service Flow Checks', 'color: #7C3AED; font-weight: bold;');
+        const pendingCard = document.getElementById('pendingSubmissionsSection');
+        if (pendingCard) {
+            this.pass('Pending submissions card rendered');
+        } else {
+            this.fail('Pending submissions card missing on seller services page');
+        }
+
+        const supportCenter = document.getElementById('supportCenter');
+        if (supportCenter) {
+            this.pass('Seller support center visible');
+        } else {
+            this.fail('Seller support center block missing');
+        }
+
+        const ticketButton = document.querySelector('[data-test="new-support-ticket"]');
+        if (ticketButton) {
+            this.pass('Support ticket CTA available');
+        } else {
+            this.fail('Support ticket CTA not rendered');
+        }
+
+        const ticketList = document.getElementById('sellerSupportTicketList');
+        if (ticketList) {
+            this.pass('Seller ticket timeline container present');
+        } else {
+            this.fail('Seller ticket timeline missing');
+        }
+
+        const ticketModal = document.getElementById('supportTicketModal');
+        if (ticketModal) {
+            this.pass('Support ticket modal available');
+        } else {
+            this.fail('Support ticket modal markup missing');
+        }
+    },
+
+    testAdminReviewFlows() {
+        if (!window.location.pathname.includes('admin-dashboard')) return;
+        console.log('\n%c🛡️ Admin Review Flow Checks', 'color: #DC2626; font-weight: bold;');
+
+        const reviewFilters = document.querySelectorAll('#serviceReviewToolbar [data-review-filter]');
+        if (reviewFilters.length >= 3) {
+            this.pass('Service review filters rendered');
+        } else {
+            this.fail('Expected service review filters on admin dashboard');
+        }
+
+        const reviewModal = document.getElementById('reviewModalOverlay');
+        if (reviewModal) {
+            this.pass('Rejection modal present for admin queue');
+        } else {
+            this.fail('Rejection modal markup missing');
+        }
+
+        const supportTicketCard = document.getElementById('supportTicketList');
+        if (supportTicketCard) {
+            this.pass('Support ticket queue visible to admins');
+        } else {
+            this.fail('Support ticket queue missing on admin dashboard');
+        }
+
+        const ticketFilters = document.querySelectorAll('#supportTicketToolbar [data-ticket-filter]');
+        if (ticketFilters.length >= 4) {
+            this.pass('Support ticket filters available');
+        } else {
+            this.warn('Support ticket filters not fully rendered');
         }
     },
     

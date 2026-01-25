@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews - Seller Hub | 69Shop.in</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/dashboard-notifications.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/seller-shell.js"></script>
+
+    <style>
+        :root {
+            --seller-primary: #7C3AED;
+            --seller-primary-dark: #6D28D9;
+            --seller-primary-light: #EDE9FE;
+            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --danger: #EF4444;
+            --danger-light: #FEE2E2;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--slate-100);
+            min-height: 100vh;
+            color: var(--slate-800);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--slate-200);
+            border-top-color: var(--seller-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .seller-layout { display: flex; min-height: 100vh; }
+        
+        .seller-sidebar {
+            width: var(--sidebar-width);
+            background: var(--slate-900);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 900;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-800); }
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-md);
+            background: var(--seller-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--white);
+            font-weight: 700;
+        }
+        .brand-text { display: flex; flex-direction: column; }
+        .brand-name { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--white); }
+        .brand-badge {
+            font-size: 0.65rem;
+            color: var(--seller-primary);
+            background: rgba(124,58,237,0.15);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: fit-content;
+        }
+        .sidebar-nav { flex: 1; padding: 20px 16px; overflow-y: auto; }
+        .nav-section { margin-bottom: 28px; }
+        .nav-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--slate-500);
+            margin-bottom: 12px;
+            padding: 0 12px;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            color: var(--slate-400);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 4px;
+        }
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        .nav-link.active { background: var(--seller-primary); color: var(--white); }
+        .nav-link i { width: 20px; text-align: center; }
+        
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--slate-800);
+        }
+        .seller-profile { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--seller-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+        }
+        .profile-info { flex: 1; min-width: 0; }
+        .profile-name { font-weight: 600; color: var(--white); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .profile-email { font-size: 0.75rem; color: var(--slate-400); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .profile-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        .profile-status.pending { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .profile-status.verified { background: rgba(16,185,129,0.15); color: var(--success); }
+        .profile-status.approved { background: rgba(16,185,129,0.15); color: var(--success); }
+        .btn-logout {
+            width: 100%;
+            padding: 12px;
+            background: var(--slate-800);
+            border: none;
+            border-radius: var(--radius-md);
+            color: var(--slate-400);
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .btn-logout:hover { background: var(--danger); color: var(--white); }
+
+        .seller-main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+        }
+        
+        .seller-header {
+            height: var(--header-height);
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--slate-100);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--slate-600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            position: relative;
+        }
+        .header-btn:hover { background: var(--slate-200); }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.25rem; color: var(--slate-900); }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        
+        .seller-content { padding: 32px; }
+
+        /* Rating Overview Cards */
+        .rating-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .rating-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .rating-card.primary {
+            background: var(--seller-gradient);
+            color: var(--white);
+        }
+        
+        .rating-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .rating-label {
+            font-size: 0.85rem;
+            color: var(--slate-500);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .rating-card.primary .rating-label { color: rgba(255,255,255,0.8); }
+        
+        .rating-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            color: var(--slate-900);
+        }
+        
+        .rating-card.primary .rating-value { color: var(--white); }
+        
+        .rating-stars {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        
+        .rating-stars i { color: #FBBF24; font-size: 1.1rem; }
+        .rating-stars i.empty { color: var(--slate-300); }
+        .rating-card.primary .rating-stars i.empty { color: rgba(255,255,255,0.3); }
+        
+        .rating-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .breakdown-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .breakdown-label {
+            font-size: 0.8rem;
+            color: var(--slate-500);
+            width: 50px;
+        }
+        
+        .breakdown-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--slate-200);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .breakdown-fill {
+            height: 100%;
+            background: var(--seller-primary);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .breakdown-count {
+            font-size: 0.8rem;
+            color: var(--slate-600);
+            width: 40px;
+            text-align: right;
+        }
+
+        /* Category Scores */
+        .category-scores {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .category-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .category-name {
+            font-size: 0.9rem;
+            color: var(--slate-700);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .category-name i {
+            color: var(--seller-primary);
+            width: 16px;
+        }
+        
+        .category-value {
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+
+        /* Reviews List */
+        .reviews-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+        
+        .reviews-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--slate-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .reviews-header h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            color: var(--slate-900);
+        }
+        
+        .reviews-filters {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            color: var(--slate-700);
+            background: var(--white);
+            cursor: pointer;
+        }
+        
+        .review-list { padding: 0; }
+        
+        .review-item {
+            padding: 24px;
+            border-bottom: 1px solid var(--slate-100);
+            transition: var(--transition);
+        }
+        
+        .review-item:last-child { border-bottom: none; }
+        .review-item:hover { background: var(--slate-50); }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .reviewer-info { display: flex; align-items: center; gap: 12px; }
+        
+        .reviewer-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--seller-primary-light);
+            color: var(--seller-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .reviewer-name {
+            font-weight: 600;
+            color: var(--slate-900);
+            margin-bottom: 2px;
+        }
+        
+        .review-date {
+            font-size: 0.8rem;
+            color: var(--slate-500);
+        }
+        
+        .review-rating {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .review-rating i { color: #FBBF24; font-size: 0.9rem; }
+        .review-rating i.empty { color: var(--slate-300); }
+        
+        .review-content {
+            color: var(--slate-700);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .review-product {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--slate-100);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            color: var(--slate-600);
+        }
+        
+        .review-product i { color: var(--seller-primary); }
+        
+        .review-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .review-action {
+            padding: 6px 12px;
+            border: 1px solid var(--slate-200);
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            color: var(--slate-600);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .review-action:hover {
+            border-color: var(--seller-primary);
+            color: var(--seller-primary);
+        }
+        
+        .review-action.flagged {
+            background: var(--danger-light);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        
+        .empty-state {
+            padding: 60px 24px;
+            text-align: center;
+            color: var(--slate-500);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+        
+        .empty-state h3 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--slate-700);
+            margin-bottom: 8px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 899;
+        }
+        
+        .sidebar-overlay.show { display: block; }
+
+        @media (max-width: 1024px) {
+            .seller-sidebar { transform: translateX(-100%); }
+            .seller-sidebar.open { transform: translateX(0); }
+            .seller-main { margin-left: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .seller-content { padding: 20px; }
+            .rating-overview { grid-template-columns: 1fr; }
+            .category-scores { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div style="color: var(--slate-500); font-size: 0.9rem;">Loading your reviews...</div>
+    </div>
+
+    <div class="seller-layout">
+        <aside class="seller-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/seller-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">Seller Hub</span>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/seller-dashboard.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/seller-products.html" class="nav-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="/seller-orders.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="/seller-services.html" class="nav-link">
+                        <i class="fas fa-concierge-bell"></i>
+                        <span>Services</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Insights</div>
+                    <a href="/seller-analytics.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="/seller-reviews.html" class="nav-link active">
+                        <i class="fas fa-star"></i>
+                        <span>Reviews</span>
+                    </a>
+                    <a href="/seller-payments.html" class="nav-link">
+                        <i class="fas fa-wallet"></i>
+                        <span>Payments</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="/seller-verification.html" class="nav-link" data-verification-link>
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Verification</span>
+                    </a>
+                    <a href="/seller-settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="/shop.html" class="nav-link" target="_blank">
+                        <i class="fas fa-store"></i>
+                        <span>View Shop</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="seller-profile">
+                    <div class="profile-avatar" id="sellerAvatar" data-seller-avatar>S</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="sellerName" data-seller-name>Loading...</div>
+                        <div class="profile-email" id="sellerEmail">seller@69shop.in</div>
+                        <div class="profile-status pending" data-seller-status>
+                            <i class="fas fa-clock"></i>
+                            <span>Verification Pending</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="handleLogout(event)">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <main class="seller-main">
+            <header class="seller-header">
+                <div class="header-left">
+                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">Customer Reviews</h1>
+                </div>
+                <div class="header-right">
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationTrigger" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="seller-content">
+                <!-- Rating Overview -->
+                <div class="rating-overview">
+                    <div class="rating-card primary">
+                        <div class="rating-card-header">
+                            <span class="rating-label"><i class="fas fa-star"></i> Overall Rating</span>
+                        </div>
+                        <div class="rating-value" id="overallRating">0.0</div>
+                        <div class="rating-stars" id="overallStars">
+                            <i class="fas fa-star empty"></i>
+                            <i class="fas fa-star empty"></i>
+                            <i class="fas fa-star empty"></i>
+                            <i class="fas fa-star empty"></i>
+                            <i class="fas fa-star empty"></i>
+                        </div>
+                        <p style="margin-top: 12px; font-size: 0.9rem; opacity: 0.8;" id="totalReviewsText">Based on 0 reviews</p>
+                    </div>
+                    
+                    <div class="rating-card">
+                        <div class="rating-card-header">
+                            <span class="rating-label"><i class="fas fa-chart-bar"></i> Rating Distribution</span>
+                        </div>
+                        <div class="rating-breakdown" id="ratingBreakdown">
+                            <div class="breakdown-row">
+                                <span class="breakdown-label">5 stars</span>
+                                <div class="breakdown-bar"><div class="breakdown-fill" style="width: 0%"></div></div>
+                                <span class="breakdown-count">0</span>
+                            </div>
+                            <div class="breakdown-row">
+                                <span class="breakdown-label">4 stars</span>
+                                <div class="breakdown-bar"><div class="breakdown-fill" style="width: 0%"></div></div>
+                                <span class="breakdown-count">0</span>
+                            </div>
+                            <div class="breakdown-row">
+                                <span class="breakdown-label">3 stars</span>
+                                <div class="breakdown-bar"><div class="breakdown-fill" style="width: 0%"></div></div>
+                                <span class="breakdown-count">0</span>
+                            </div>
+                            <div class="breakdown-row">
+                                <span class="breakdown-label">2 stars</span>
+                                <div class="breakdown-bar"><div class="breakdown-fill" style="width: 0%"></div></div>
+                                <span class="breakdown-count">0</span>
+                            </div>
+                            <div class="breakdown-row">
+                                <span class="breakdown-label">1 star</span>
+                                <div class="breakdown-bar"><div class="breakdown-fill" style="width: 0%"></div></div>
+                                <span class="breakdown-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="rating-card">
+                        <div class="rating-card-header">
+                            <span class="rating-label"><i class="fas fa-th-large"></i> Category Scores</span>
+                        </div>
+                        <div class="category-scores" id="categoryScores">
+                            <div class="category-score">
+                                <span class="category-name"><i class="fas fa-comments"></i> Communication</span>
+                                <span class="category-value">--</span>
+                            </div>
+                            <div class="category-score">
+                                <span class="category-name"><i class="fas fa-gem"></i> Quality</span>
+                                <span class="category-value">--</span>
+                            </div>
+                            <div class="category-score">
+                                <span class="category-name"><i class="fas fa-truck"></i> Delivery</span>
+                                <span class="category-value">--</span>
+                            </div>
+                            <div class="category-score">
+                                <span class="category-name"><i class="fas fa-tag"></i> Pricing</span>
+                                <span class="category-value">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviews List -->
+                <div class="reviews-card">
+                    <div class="reviews-header">
+                        <h3>Recent Reviews</h3>
+                        <div class="reviews-filters">
+                            <select class="filter-select" id="ratingFilter">
+                                <option value="all">All Ratings</option>
+                                <option value="5">5 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="2">2 Stars</option>
+                                <option value="1">1 Star</option>
+                            </select>
+                            <select class="filter-select" id="sortFilter">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="highest">Highest Rated</option>
+                                <option value="lowest">Lowest Rated</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="review-list" id="reviewList">
+                        <div class="empty-state">
+                            <i class="fas fa-star"></i>
+                            <h3>No reviews yet</h3>
+                            <p>Reviews from your customers will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let auth = null;
+        let db = null;
+        let currentUser = null;
+        let allReviews = [];
+        let sellerRatings = null;
+        let notificationFeed = null;
+
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Missing Firebase configuration');
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            db = firebase.firestore();
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+        }
+
+        function updateProfileIdentity(name, avatarInitial, email) {
+            const nameEl = document.getElementById('sellerName');
+            if (nameEl) nameEl.textContent = name;
+            const avatarEl = document.getElementById('sellerAvatar');
+            if (avatarEl) avatarEl.textContent = avatarInitial;
+            const emailEl = document.getElementById('sellerEmail');
+            if (emailEl) emailEl.textContent = email;
+        }
+
+        async function handleLogout(event) {
+            if (event) event.preventDefault();
+            if (auth) {
+                localStorage.removeItem('69shop_user_type');
+                await auth.signOut();
+                window.location.href = '/seller-login.html';
+            }
+        }
+
+        function initNotifications() {
+            if (typeof NotificationFeed === 'undefined' || !db || !currentUser) return;
+            notificationFeed = NotificationFeed.init({
+                audience: 'seller',
+                db,
+                userId: currentUser.uid,
+                triggerSelector: '#notificationTrigger',
+                panelSelector: '#notificationPanel',
+                listSelector: '#notificationList',
+                badgeSelector: '#notificationDot',
+                refreshSelector: '#notificationRefresh',
+                subtitleSelector: '#notificationSubtitle'
+            });
+        }
+
+        if (auth) {
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    window.location.href = '/seller-login.html';
+                    return;
+                }
+
+                try {
+                    const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                    if (!sellerDoc.exists) {
+                        await auth.signOut();
+                        window.location.href = '/seller-login.html';
+                        return;
+                    }
+
+                    currentUser = user;
+                    const sellerData = sellerDoc.data();
+                    const displayName = sellerData.businessName || sellerData.name || user.displayName || 'Seller';
+                    updateProfileIdentity(displayName, displayName.charAt(0).toUpperCase(), user.email);
+                    
+                    // Sync SellerShell for verification status display
+                    if (window.SellerShell) {
+                        try {
+                            const verificationDoc = await db.collection('sellerVerification').doc(user.uid).get();
+                            const verificationData = verificationDoc.exists ? verificationDoc.data() : {};
+                            await SellerShell.sync({
+                                db,
+                                auth,
+                                user,
+                                sellerDoc: sellerData,
+                                verificationDoc: verificationData
+                            });
+                        } catch (shellError) {
+                            console.warn('SellerShell sync failed:', shellError);
+                        }
+                    }
+                    
+                    initNotifications();
+                    setupFilters();
+                    await loadRatings();
+                    await loadReviews();
+                    hideLoading();
+                } catch (error) {
+                    console.error('Error loading seller:', error);
+                    hideLoading();
+                }
+            });
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        async function loadRatings() {
+            if (!currentUser) return;
+            
+            try {
+                const ratingsDoc = await db.collection('sellerRatings').doc(currentUser.uid).get();
+                
+                if (ratingsDoc.exists) {
+                    sellerRatings = ratingsDoc.data();
+                    renderRatingOverview(sellerRatings);
+                }
+            } catch (error) {
+                console.error('Error loading ratings:', error);
+            }
+        }
+
+        function renderRatingOverview(ratings) {
+            // Overall rating
+            const avgRating = ratings.averageRating || 0;
+            document.getElementById('overallRating').textContent = avgRating.toFixed(1);
+            document.getElementById('totalReviewsText').textContent = `Based on ${ratings.totalReviews || 0} reviews`;
+            
+            // Stars
+            const starsContainer = document.getElementById('overallStars');
+            starsContainer.innerHTML = renderStars(avgRating, true);
+            
+            // Breakdown
+            const breakdown = ratings.ratingBreakdown || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            const total = ratings.totalReviews || 1;
+            const breakdownContainer = document.getElementById('ratingBreakdown');
+            breakdownContainer.innerHTML = [5, 4, 3, 2, 1].map(star => {
+                const count = breakdown[star] || 0;
+                const percent = (count / total * 100).toFixed(0);
+                return `
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">${star} stars</span>
+                        <div class="breakdown-bar"><div class="breakdown-fill" style="width: ${percent}%"></div></div>
+                        <span class="breakdown-count">${count}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            // Category scores
+            const categories = ratings.categoryAverages || {};
+            const categoryContainer = document.getElementById('categoryScores');
+            const categoryIcons = {
+                communication: 'fa-comments',
+                quality: 'fa-gem',
+                delivery: 'fa-truck',
+                pricing: 'fa-tag'
+            };
+            categoryContainer.innerHTML = Object.entries(categoryIcons).map(([cat, icon]) => {
+                const value = categories[cat] || '--';
+                return `
+                    <div class="category-score">
+                        <span class="category-name"><i class="fas ${icon}"></i> ${cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
+                        <span class="category-value">${typeof value === 'number' ? value.toFixed(1) : value}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderStars(rating, forPrimary = false) {
+            const emptyClass = forPrimary ? 'empty' : 'empty';
+            return Array.from({ length: 5 }, (_, i) => {
+                if (i < Math.floor(rating)) {
+                    return '<i class="fas fa-star"></i>';
+                } else if (i < rating) {
+                    return '<i class="fas fa-star-half-alt"></i>';
+                } else {
+                    return `<i class="fas fa-star ${emptyClass}"></i>`;
+                }
+            }).join('');
+        }
+
+        async function loadReviews() {
+            if (!currentUser) return;
+            
+            try {
+                const snapshot = await db.collection('reviews')
+                    .where('sellerId', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                allReviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                filterAndRenderReviews();
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                // Try without ordering if index is missing
+                if (error.code === 'failed-precondition') {
+                    const snapshot = await db.collection('reviews')
+                        .where('sellerId', '==', currentUser.uid)
+                        .get();
+                    allReviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    allReviews.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+                    filterAndRenderReviews();
+                }
+            }
+        }
+
+        function setupFilters() {
+            const ratingFilter = document.getElementById('ratingFilter');
+            const sortFilter = document.getElementById('sortFilter');
+            
+            ratingFilter?.addEventListener('change', filterAndRenderReviews);
+            sortFilter?.addEventListener('change', filterAndRenderReviews);
+        }
+
+        function filterAndRenderReviews() {
+            const ratingFilter = document.getElementById('ratingFilter')?.value || 'all';
+            const sortFilter = document.getElementById('sortFilter')?.value || 'newest';
+            
+            let filtered = [...allReviews];
+            
+            // Filter by rating
+            if (ratingFilter !== 'all') {
+                filtered = filtered.filter(r => r.rating === parseInt(ratingFilter));
+            }
+            
+            // Sort
+            switch (sortFilter) {
+                case 'oldest':
+                    filtered.sort((a, b) => (a.createdAt?.toMillis?.() || 0) - (b.createdAt?.toMillis?.() || 0));
+                    break;
+                case 'highest':
+                    filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+                    break;
+                case 'lowest':
+                    filtered.sort((a, b) => (a.rating || 0) - (b.rating || 0));
+                    break;
+                default: // newest
+                    filtered.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+            }
+            
+            renderReviews(filtered);
+        }
+
+        function renderReviews(reviews) {
+            const container = document.getElementById('reviewList');
+            
+            if (!reviews.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-star"></i>
+                        <h3>No reviews found</h3>
+                        <p>${document.getElementById('ratingFilter')?.value !== 'all' ? 'Try changing the filter' : 'Reviews from your customers will appear here'}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = reviews.map(review => {
+                const date = review.createdAt?.toDate?.() || new Date();
+                const reviewerName = review.reviewerName || 'Anonymous';
+                const initial = reviewerName.charAt(0).toUpperCase();
+                
+                return `
+                    <div class="review-item" data-review-id="${review.id}">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-avatar">${initial}</div>
+                                <div>
+                                    <div class="reviewer-name">${reviewerName}</div>
+                                    <div class="review-date">${date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                                </div>
+                            </div>
+                            <div class="review-rating">
+                                ${renderStars(review.rating || 0)}
+                            </div>
+                        </div>
+                        <div class="review-content">${review.comment || review.text || 'No comment provided'}</div>
+                        ${review.productName ? `
+                            <div class="review-product">
+                                <i class="fas fa-box"></i>
+                                ${review.productName}
+                            </div>
+                        ` : ''}
+                        <div class="review-actions">
+                            <button class="review-action" onclick="replyToReview('${review.id}')">
+                                <i class="fas fa-reply"></i> Reply
+                            </button>
+                            <button class="review-action ${review.flagged ? 'flagged' : ''}" onclick="flagReview('${review.id}')">
+                                <i class="fas fa-flag"></i> ${review.flagged ? 'Flagged' : 'Report'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function replyToReview(reviewId) {
+            const reply = prompt('Enter your reply to this review:');
+            if (!reply || !reply.trim()) return;
+            
+            db.collection('reviews').doc(reviewId).update({
+                sellerReply: reply.trim(),
+                replyAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert('Reply posted successfully!');
+                loadReviews();
+            }).catch(error => {
+                console.error('Error posting reply:', error);
+                alert('Failed to post reply. Please try again.');
+            });
+        }
+
+        function flagReview(reviewId) {
+            if (!confirm('Report this review as inappropriate? Our team will review it.')) return;
+            
+            db.collection('reviews').doc(reviewId).update({
+                flagged: true,
+                flaggedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                flaggedBy: currentUser.uid
+            }).then(() => {
+                alert('Review has been reported. Our team will review it shortly.');
+                loadReviews();
+            }).catch(error => {
+                console.error('Error flagging review:', error);
+                alert('Failed to report review. Please try again.');
+            });
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!sidebar || !overlay) return;
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
+        function checkResponsive() {
+            const menuToggle = document.getElementById('menuToggle');
+            if (!menuToggle) return;
+            if (window.innerWidth <= 1024) {
+                menuToggle.style.display = 'flex';
+            } else {
+                menuToggle.style.display = 'none';
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                if (sidebar) sidebar.classList.remove('open');
+                if (overlay) overlay.classList.remove('show');
+            }
+        }
+
+        window.addEventListener('resize', checkResponsive);
+        checkResponsive();
+    </script>
+</body>
+</html>

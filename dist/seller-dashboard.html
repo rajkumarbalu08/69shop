@@ -520,6 +520,59 @@
         .stat-value { font-size: 2rem; font-weight: 700; color: var(--slate-900); margin-bottom: 4px; }
         .stat-label { color: var(--slate-500); font-size: 0.9rem; }
         
+        /* Stats Header with Refresh */
+        .stats-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .stats-header h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            color: var(--slate-900);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .stats-header h3 i { color: var(--seller-primary); }
+        .btn-refresh-stats {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--slate-200);
+            background: var(--white);
+            color: var(--slate-600);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+        .btn-refresh-stats:hover {
+            background: var(--seller-primary-light);
+            border-color: var(--seller-primary);
+            color: var(--seller-primary);
+        }
+        .btn-refresh-stats.loading i { animation: spin 1s linear infinite; }
+        .btn-refresh-stats .refresh-time {
+            font-size: 0.75rem;
+            color: var(--slate-400);
+            margin-left: 4px;
+        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        /* Stat value animation */
+        .stat-value.updating {
+            animation: pulse-stat 0.3s ease-out;
+        }
+        @keyframes pulse-stat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); color: var(--seller-primary); }
+            100% { transform: scale(1); }
+        }
+        
         /* Dashboard Grid */
         .dashboard-grid {
             display: grid;
@@ -764,6 +817,10 @@
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics</span>
                     </a>
+                    <a href="/seller-reviews.html" class="nav-link">
+                        <i class="fas fa-star"></i>
+                        <span>Reviews</span>
+                    </a>
                     <a href="/seller-payments.html" class="nav-link">
                         <i class="fas fa-wallet"></i>
                         <span>Payments</span>
@@ -828,9 +885,14 @@
                                     <h3>Notifications</h3>
                                     <p id="notificationSubtitle">Latest updates</p>
                                 </div>
-                                <button id="notificationRefresh" title="Refresh notifications">
-                                    <i class="fas fa-rotate-right"></i>
-                                </button>
+                                <div class="header-actions">
+                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
+                                        Mark all read
+                                    </button>
+                                    <button id="notificationRefresh" title="Refresh notifications">
+                                        <i class="fas fa-rotate-right"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="notification-list" id="notificationList">
                                 <div class="notification-empty">
@@ -873,12 +935,22 @@
                     </div>
                 </div>
                 
+                <!-- Stats Header with Refresh -->
+                <div class="stats-header">
+                    <h3><i class="fas fa-chart-line"></i> Quick Stats</h3>
+                    <button class="btn-refresh-stats" id="refreshStatsBtn" title="Refresh stats">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh</span>
+                        <span class="refresh-time" id="lastRefreshTime">Just now</span>
+                    </button>
+                </div>
+                
                 <!-- Stats Grid -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-header">
                             <div class="stat-icon revenue"><i class="fas fa-rupee-sign"></i></div>
-                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 12.5%</div>
+                            <div class="stat-trend up" id="revenueTrend"><i class="fas fa-arrow-up"></i> <span>0%</span></div>
                         </div>
                         <div class="stat-value" id="totalRevenue">₹0</div>
                         <div class="stat-label">Total Revenue</div>
@@ -918,9 +990,9 @@
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-chart-area"></i> Sales Overview</h3>
-                            <div>
-                                <button class="btn-card secondary">Weekly</button>
-                                <button class="btn-card primary">Monthly</button>
+                            <div class="sales-range-controls">
+                                <button class="btn-card secondary sales-range-btn" data-sales-range="weekly" aria-pressed="false">Weekly</button>
+                                <button class="btn-card primary sales-range-btn" data-sales-range="monthly" aria-pressed="true">Monthly</button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -1031,10 +1103,15 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
         
+        const SALES_RANGE_SERIES_KEYS = {
+            weekly: 'last7Days',
+            monthly: 'last30Days'
+        };
         let salesChart = null;
         let currentUser = null;
         let notificationFeed = null;
         let metricsCache = null;
+        let activeSalesRange = 'monthly';
 
         auth.onAuthStateChanged(async (user) => {
             if (!user) {
@@ -1057,10 +1134,17 @@
             const welcomeName = displayName.split(' ')[0] || 'Seller';
             document.getElementById('welcomeName').textContent = welcomeName;
 
+            // Fetch verification data for proper status display
+            let verificationData = {};
+            try {
+                const verificationDoc = await db.collection('sellerVerification').doc(user.uid).get();
+                if (verificationDoc.exists) verificationData = verificationDoc.data();
+            } catch (e) { console.warn('Verification doc fetch failed:', e); }
+
             let shellState = null;
             if (window.SellerShell) {
                 try {
-                    shellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+                    shellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData, verificationDoc: verificationData });
                 } catch (error) {
                     console.warn('SellerShell sync failed:', error);
                 }
@@ -1259,7 +1343,42 @@
             document.getElementById('totalRevenue').textContent = formatCurrency(orders.revenueNet || 0);
             document.getElementById('totalViews').textContent = products.totalViews.toLocaleString('en-IN');
             renderLowStock(products.lowStockItems || []);
-            renderSalesChart(orders.revenueSeries?.last7Days);
+            renderSalesChart(getSalesSeriesForRange(metrics));
+        }
+
+        function getSalesSeriesForRange(sourceMetrics = metricsCache, range = activeSalesRange) {
+            if (!sourceMetrics?.orders?.revenueSeries) return null;
+            const seriesKey = SALES_RANGE_SERIES_KEYS[range] || SALES_RANGE_SERIES_KEYS.monthly;
+            return sourceMetrics.orders.revenueSeries[seriesKey] || null;
+        }
+
+        function bindSalesRangeControls() {
+            const buttons = document.querySelectorAll('[data-sales-range]');
+            if (!buttons.length) return;
+            buttons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const nextRange = button.dataset.salesRange;
+                    if (!nextRange || nextRange === activeSalesRange) return;
+                    setActiveSalesRange(nextRange);
+                    const series = getSalesSeriesForRange();
+                    renderSalesChart(series);
+                });
+            });
+            updateSalesRangeButtons();
+        }
+
+        function setActiveSalesRange(range) {
+            activeSalesRange = SALES_RANGE_SERIES_KEYS[range] ? range : 'monthly';
+            updateSalesRangeButtons();
+        }
+
+        function updateSalesRangeButtons() {
+            document.querySelectorAll('[data-sales-range]').forEach((button) => {
+                const isActive = button.dataset.salesRange === activeSalesRange;
+                button.classList.toggle('primary', isActive);
+                button.classList.toggle('secondary', !isActive);
+                button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
         }
 
         function renderLowStock(items) {
@@ -1415,6 +1534,67 @@
             }
         }
 
+        // Stats Refresh Functionality
+        let lastRefreshTime = new Date();
+        
+        function updateRefreshTimeDisplay() {
+            const timeEl = document.getElementById('lastRefreshTime');
+            if (!timeEl) return;
+            const now = new Date();
+            const diffMs = now - lastRefreshTime;
+            const diffSec = Math.floor(diffMs / 1000);
+            const diffMin = Math.floor(diffSec / 60);
+            
+            if (diffSec < 10) {
+                timeEl.textContent = 'Just now';
+            } else if (diffSec < 60) {
+                timeEl.textContent = `${diffSec}s ago`;
+            } else if (diffMin < 60) {
+                timeEl.textContent = `${diffMin}m ago`;
+            } else {
+                timeEl.textContent = lastRefreshTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+            }
+        }
+        
+        function animateStatUpdate(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.classList.remove('updating');
+            void el.offsetWidth; // Force reflow
+            el.classList.add('updating');
+        }
+        
+        async function handleStatsRefresh() {
+            const btn = document.getElementById('refreshStatsBtn');
+            if (!btn || !currentUser) return;
+            
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            try {
+                await refreshDashboardMetrics(currentUser.uid);
+                lastRefreshTime = new Date();
+                updateRefreshTimeDisplay();
+                
+                // Animate stat updates
+                ['totalRevenue', 'totalOrders', 'totalProducts', 'totalViews'].forEach(id => {
+                    animateStatUpdate(id);
+                });
+            } catch (error) {
+                console.error('Stats refresh failed:', error);
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+        
+        // Bind refresh button
+        document.getElementById('refreshStatsBtn')?.addEventListener('click', handleStatsRefresh);
+        
+        // Update time display every 30 seconds
+        setInterval(updateRefreshTimeDisplay, 30000);
+
+        bindSalesRangeControls();
         window.addEventListener('resize', checkResponsive);
         checkResponsive();
     </script>

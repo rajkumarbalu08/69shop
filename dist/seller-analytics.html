@@ -711,6 +711,10 @@
                             <i class="fas fa-chart-line"></i>
                             <span>Analytics</span>
                         </a>
+                        <a href="/seller-reviews.html" class="nav-link">
+                            <i class="fas fa-star"></i>
+                            <span>Reviews</span>
+                        </a>
                         <a href="/seller-payments.html" class="nav-link">
                             <i class="fas fa-wallet"></i>
                             <span>Payments</span>
@@ -779,9 +783,14 @@
                                     <h3>Notifications</h3>
                                     <p id="notificationSubtitle">Latest updates</p>
                                 </div>
-                                <button id="notificationRefresh" title="Refresh notifications">
-                                    <i class="fas fa-rotate-right"></i>
-                                </button>
+                                <div class="header-actions">
+                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
+                                        Mark all read
+                                    </button>
+                                    <button id="notificationRefresh" title="Refresh notifications">
+                                        <i class="fas fa-rotate-right"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="notification-list" id="notificationList">
                                 <div class="notification-empty">
@@ -997,7 +1006,15 @@
                 authUser = user;
                 const sellerData = sellerDoc.data() || {};
                 currentSeller = { uid: user.uid, ...sellerData };
-                await syncSellerShell(user, sellerData);
+                
+                // Fetch verification data for proper status display
+                let verificationData = {};
+                try {
+                    const verificationDoc = await db.collection('sellerVerification').doc(user.uid).get();
+                    if (verificationDoc.exists) verificationData = verificationDoc.data();
+                } catch (e) { console.warn('Verification doc fetch failed:', e); }
+                
+                await syncSellerShell(user, sellerData, verificationData);
                 initNotifications();
                 await refreshAnalytics();
             } catch (error) {
@@ -1041,10 +1058,10 @@
             });
         }
 
-        async function syncSellerShell(user, sellerData = {}) {
+        async function syncSellerShell(user, sellerData = {}, verificationData = {}) {
             if (!window.SellerShell) return null;
             try {
-                return await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+                return await SellerShell.sync({ db, auth, user, sellerDoc: sellerData, verificationDoc: verificationData });
             } catch (error) {
                 console.warn('SellerShell sync failed:', error);
                 return null;

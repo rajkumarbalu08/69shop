@@ -488,6 +488,19 @@
         
         .toggle-switch input:checked + .toggle-slider { background: var(--seller-primary); }
         .toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+        .notification-status {
+            font-size: 0.8rem;
+            color: var(--slate-500);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .notification-status.dirty { color: var(--warning); }
+        .notification-status.saving { color: var(--info); }
+        .notification-status.error { color: var(--danger); }
+        .notification-status.saved { color: var(--success); }
         
         /* Action Buttons */
         .form-actions {
@@ -655,6 +668,10 @@
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics</span>
                     </a>
+                    <a href="/seller-reviews.html" class="nav-link">
+                        <i class="fas fa-star"></i>
+                        <span>Reviews</span>
+                    </a>
                     <a href="/seller-payments.html" class="nav-link">
                         <i class="fas fa-wallet"></i>
                         <span>Payments</span>
@@ -715,9 +732,14 @@
                                     <h3>Notifications</h3>
                                     <p id="notificationSubtitle">Latest updates</p>
                                 </div>
-                                <button id="notificationRefresh" title="Refresh notifications">
-                                    <i class="fas fa-rotate-right"></i>
-                                </button>
+                                <div class="header-actions">
+                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
+                                        Mark all read
+                                    </button>
+                                    <button id="notificationRefresh" title="Refresh notifications">
+                                        <i class="fas fa-rotate-right"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="notification-list" id="notificationList">
                                 <div class="notification-empty">
@@ -795,6 +817,10 @@
                                     <i class="fas fa-save"></i>
                                     Save Changes
                                 </button>
+                                <button type="button" class="btn btn-secondary" onclick="resetProfileForm()">
+                                    <i class="fas fa-times"></i>
+                                    Cancel
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -803,10 +829,13 @@
                 <!-- Notification Settings -->
                 <div class="settings-section">
                     <div class="section-header">
-                        <h2 class="section-title">
-                            <i class="fas fa-bell"></i>
-                            Notifications
-                        </h2>
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-bell"></i>
+                                Notifications
+                            </h2>
+                        </div>
+                        <span class="notification-status" id="notificationSyncStatus"></span>
                     </div>
                     <div class="section-body">
                         <div class="toggle-group">
@@ -882,6 +911,10 @@
                                 <i class="fas fa-key"></i>
                                 Change Password
                             </button>
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('passwordForm').reset()">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -942,6 +975,11 @@
         let notificationFeed = null;
         let authUser = null;
         let sellerShellState = null;
+        const NOTIFICATION_TOGGLE_IDS = ['notifyOrders', 'notifyPayments', 'notifyStock', 'notifyMarketing'];
+        const NOTIFICATION_AUTO_SAVE_DELAY = 800;
+        let notificationSaveTimer = null;
+        let notificationSaveInProgress = false;
+        let notificationSaveQueued = false;
         
         // Auth state listener
         auth.onAuthStateChanged(async (user) => {
@@ -952,7 +990,15 @@
                         authUser = user;
                         const sellerData = sellerDoc.data();
                         currentSeller = { uid: user.uid, email: user.email, ...sellerData };
-                        await syncSellerShell(user, sellerData);
+                        
+                        // Fetch verification data for proper status display
+                        let verificationData = {};
+                        try {
+                            const verificationDoc = await db.collection('sellerVerification').doc(user.uid).get();
+                            if (verificationDoc.exists) verificationData = verificationDoc.data();
+                        } catch (e) { console.warn('Verification doc fetch failed:', e); }
+                        
+                        await syncSellerShell(user, sellerData, verificationData);
                         initNotifications();
                         updateSellerInfo(currentSeller);
                         populateForm(currentSeller);
@@ -987,10 +1033,10 @@
             });
         }
 
-        async function syncSellerShell(user, sellerData = {}) {
+        async function syncSellerShell(user, sellerData = {}, verificationData = {}) {
             if (!window.SellerShell) return null;
             try {
-                sellerShellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+                sellerShellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData, verificationDoc: verificationData });
                 return sellerShellState;
             } catch (error) {
                 console.warn('SellerShell sync failed:', error);
@@ -1030,11 +1076,116 @@
             document.getElementById('notifyPayments').checked = notifications.payments !== false;
             document.getElementById('notifyStock').checked = notifications.stock !== false;
             document.getElementById('notifyMarketing').checked = notifications.marketing === true;
+            updateNotificationStatus('saved');
         }
+
+        function resetProfileForm() {
+            if (!currentSeller) return;
+            document.getElementById('businessName').value = currentSeller.businessName || currentSeller.name || '';
+            document.getElementById('businessEmail').value = currentSeller.businessEmail || currentSeller.email || '';
+            document.getElementById('phone').value = currentSeller.phone || '';
+            document.getElementById('category').value = currentSeller.category || '';
+            document.getElementById('description').value = currentSeller.description || '';
+            document.getElementById('address').value = currentSeller.address || '';
+        }
+
+        function resetPasswordForm() {
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function bindNotificationToggles() {
+            NOTIFICATION_TOGGLE_IDS.forEach((id) => {
+                const toggle = document.getElementById(id);
+                if (toggle) {
+                    toggle.addEventListener('change', () => queueNotificationSave());
+                }
+            });
+        }
+
+        function getNotificationPayload() {
+            return {
+                orders: document.getElementById('notifyOrders')?.checked !== false,
+                payments: document.getElementById('notifyPayments')?.checked !== false,
+                stock: document.getElementById('notifyStock')?.checked !== false,
+                marketing: document.getElementById('notifyMarketing')?.checked === true
+            };
+        }
+
+        function updateNotificationStatus(state) {
+            const statusEl = document.getElementById('notificationSyncStatus');
+            if (!statusEl) return;
+            const map = {
+                dirty: { icon: 'pen', label: 'Unsaved changes' },
+                saving: { icon: 'spinner fa-spin', label: 'Saving…' },
+                saved: { icon: 'check', label: 'Preferences saved' },
+                error: { icon: 'exclamation-triangle', label: 'Save failed' }
+            };
+            const config = map[state];
+            if (!config) {
+                statusEl.textContent = '';
+                statusEl.className = 'notification-status';
+                return;
+            }
+            statusEl.innerHTML = `<i class="fas fa-${config.icon}"></i>${config.label}`;
+            statusEl.className = `notification-status ${state}`;
+        }
+
+        function queueNotificationSave() {
+            if (!currentSeller) return;
+            updateNotificationStatus('dirty');
+            if (notificationSaveTimer) {
+                clearTimeout(notificationSaveTimer);
+            }
+            notificationSaveTimer = setTimeout(() => {
+                notificationSaveTimer = null;
+                persistNotificationPreferences();
+            }, NOTIFICATION_AUTO_SAVE_DELAY);
+        }
+
+        async function persistNotificationPreferences() {
+            if (!currentSeller) return;
+            if (notificationSaveInProgress) {
+                notificationSaveQueued = true;
+                return;
+            }
+            notificationSaveInProgress = true;
+            updateNotificationStatus('saving');
+            try {
+                const notifications = getNotificationPayload();
+                await db.collection('sellers').doc(currentSeller.uid).update({
+                    notifications,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                currentSeller.notifications = notifications;
+                updateNotificationStatus('saved');
+            } catch (error) {
+                console.error('Error updating notification settings:', error);
+                updateNotificationStatus('error');
+                showToast('Failed to auto-save notification settings. Please retry.', true);
+            } finally {
+                notificationSaveInProgress = false;
+                if (notificationSaveQueued) {
+                    notificationSaveQueued = false;
+                    persistNotificationPreferences();
+                }
+            }
+        }
+
+        function clearNotificationAutoSaveTimer() {
+            if (notificationSaveTimer) {
+                clearTimeout(notificationSaveTimer);
+                notificationSaveTimer = null;
+            }
+        }
+
+        bindNotificationToggles();
         
         // Business form submission
         document.getElementById('businessForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            clearNotificationAutoSaveTimer();
             
             const updateData = {
                 businessName: document.getElementById('businessName').value,
@@ -1057,6 +1208,7 @@
                 showToast('Settings saved successfully!');
                 currentSeller = { ...currentSeller, ...updateData };
                 updateSellerInfo(currentSeller);
+                updateNotificationStatus('saved');
             } catch (error) {
                 console.error('Error saving settings:', error);
                 showToast('Failed to save settings. Please try again.', true);

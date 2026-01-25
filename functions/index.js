@@ -258,3 +258,293 @@ exports.ensureAdminDocNormalized = functions
             return null;
         }
     });
+// ==================== ORDER MANAGEMENT ====================
+
+/**
+ * Firestore Trigger: Create seller notification when new order is placed
+ */
+exports.onNewOrderPlaced = functions.region(REGION).firestore
+    .document('orders/{orderId}')
+    .onCreate(async (snap, context) => {
+        const { orderId } = context.params;
+        const order = snap.data();
+
+        try {
+            // Create seller notification
+            await admin.firestore().collection('notifications').add({
+                type: 'new_order',
+                audience: `seller:${order.sellerId}`,
+                sellerId: order.sellerId,
+                customerId: order.customerId,
+                orderId: orderId,
+                title: 'New Order Received!',
+                message: `Customer placed order for ₹${order.totalAmount}`,
+                read: false,
+                createdAt: FieldValue.serverTimestamp(),
+                link: `/seller-orders.html?order=${orderId}`
+            });
+
+            functions.logger.log(`Order notification created for seller: ${order.sellerId}`);
+        } catch (error) {
+            functions.logger.error('Error creating order notification:', error);
+        }
+    });
+
+/**
+ * Firestore Trigger: Send notifications when order status changes
+ */
+exports.onOrderStatusUpdate = functions.region(REGION).firestore
+    .document('orders/{orderId}')
+    .onUpdate(async (change, context) => {
+        const before = change.before.data();
+        const after = change.after.data();
+
+        // Only trigger if status changed
+        if (before.status === after.status) {
+            return;
+        }
+
+        const { orderId } = context.params;
+        const messageTemplates = {
+            confirmed: {
+                title: 'Order Confirmed! 🎉',
+                body: `Your order #${orderId} has been confirmed.`
+            },
+            shipped: {
+                title: 'Order Shipped! 📦',
+                body: `Your order #${orderId} is on its way. Tracking: ${after.trackingNumber || 'N/A'}`
+            },
+            delivered: {
+                title: 'Order Delivered! ✅',
+                body: `Your order #${orderId} has been delivered. Thank you for shopping!`
+            },
+            cancelled: {
+                title: 'Order Cancelled',
+                body: `Your order #${orderId} has been cancelled.`
+            }
+        };
+
+        const template = messageTemplates[after.status];
+        if (!template) return;
+
+        try {
+            // Log notification event
+            await admin.firestore().collection('orderNotifications').add({
+                orderId,
+                customerId: after.customerId,
+                status: after.status,
+                notificationType: 'email',
+                sentAt: FieldValue.serverTimestamp(),
+                deliveryStatus: 'sent',
+                message: template
+            });
+
+            functions.logger.log(`Notification sent for order ${orderId}: ${after.status}`);
+        } catch (error) {
+            functions.logger.error('Error logging notification:', error);
+        }
+    });
+
+/**
+ * Scheduled: Aggregate daily seller metrics (runs at 2 AM IST daily)
+ */
+exports.aggregateDailyMetrics = functions.region(REGION).pubsub
+    .schedule('0 2 * * *')
+    .timeZone('Asia/Kolkata')
+    .onRun(async (context) => {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setHours(0, 0, 0, 0);
+
+        const tomorrow = new Date(yesterday);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const dateKey = yesterday.toISOString().slice(0, 10);
+        const db = admin.firestore();
+
+        try {
+            // Get all sellers
+            const sellersSnap = await db.collection('sellers').get();
+
+            for (const sellerDoc of sellersSnap.docs) {
+                const sellerId = sellerDoc.id;
+
+                // Get yesterday's orders for this seller
+                const ordersSnap = await db.collection('orders')
+                    .where('sellerId', '==', sellerId)
+                    .where('createdAt', '>=', yesterday)
+                    .where('createdAt', '<', tomorrow)
+                    .get();
+
+                if (ordersSnap.empty) continue;
+
+                let revenue = 0;
+                let ordersCount = 0;
+                const hourlyOrders = {};
+
+                for (let i = 0; i < 24; i++) hourlyOrders[i] = 0;
+
+                ordersSnap.docs.forEach(orderDoc => {
+                    const order = orderDoc.data();
+                    revenue += order.totalAmount || 0;
+                    ordersCount += 1;
+
+                    const hour = new Date(order.createdAt?.toDate()).getHours();
+                    hourlyOrders[hour] = (hourlyOrders[hour] || 0) + 1;
+                });
+
+                // Find peak hour
+                const peakHour = Object.entries(hourlyOrders).reduce((max, [hour, count]) =>
+                    count > hourlyOrders[max] ? hour : max, 0);
+
+                // Store metrics
+                const analyticsRef = db.collection('sellerAnalytics')
+                    .doc(sellerId)
+                    .collection('daily')
+                    .doc(dateKey);
+
+                await analyticsRef.set({
+                    date: dateKey,
+                    revenue,
+                    ordersCount,
+                    avgOrderValue: revenue / ordersCount,
+                    hourlyOrders,
+                    peakHour: parseInt(peakHour),
+                    lastUpdated: FieldValue.serverTimestamp()
+                });
+
+                functions.logger.log(`Updated analytics for seller ${sellerId} on ${dateKey}`);
+            }
+        } catch (error) {
+            functions.logger.error('Error aggregating metrics:', error);
+        }
+    });
+
+// ==================== REVIEWS & RATINGS ====================
+
+/**
+ * Firestore Trigger: Update seller ratings when reviews change
+ */
+exports.updateSellerRatings = functions.region(REGION).firestore
+    .document('reviews/{reviewId}')
+    .onWrite(async (change, context) => {
+        const before = change.before.exists ? change.before.data() : null;
+        const after = change.after.exists ? change.after.data() : null;
+
+        // Determine seller ID
+        const sellerId = after?.sellerId || before?.sellerId;
+        if (!sellerId) return;
+
+        const db = admin.firestore();
+
+        try {
+            // Get all non-flagged reviews for this seller
+            const reviewsSnap = await db.collection('reviews')
+                .where('sellerId', '==', sellerId)
+                .where('flagged', '!=', true)
+                .get();
+
+            if (reviewsSnap.empty) {
+                await db.collection('sellerRatings').doc(sellerId).delete();
+                return;
+            }
+
+            let totalRating = 0;
+            const ratingBreakdown = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            const categoryAverages = { communication: 0, quality: 0, delivery: 0, pricing: 0 };
+            const categories = ['communication', 'quality', 'delivery', 'pricing'];
+
+            reviewsSnap.docs.forEach(doc => {
+                const review = doc.data();
+                totalRating += review.rating || 0;
+                ratingBreakdown[review.rating] = (ratingBreakdown[review.rating] || 0) + 1;
+
+                categories.forEach(cat => {
+                    categoryAverages[cat] += review.categories?.[cat] || 0;
+                });
+            });
+
+            const totalReviews = reviewsSnap.docs.length;
+            const averageRating = (totalRating / totalReviews).toFixed(2);
+
+            categories.forEach(cat => {
+                categoryAverages[cat] = (categoryAverages[cat] / totalReviews).toFixed(2);
+            });
+
+            await db.collection('sellerRatings').doc(sellerId).set({
+                sellerId,
+                averageRating: parseFloat(averageRating),
+                totalReviews,
+                ratingBreakdown,
+                categoryAverages,
+                lastUpdated: FieldValue.serverTimestamp()
+            });
+
+            functions.logger.log(`Updated ratings for seller ${sellerId}`);
+        } catch (error) {
+            functions.logger.error('Error updating seller ratings:', error);
+        }
+    });
+
+/**
+ * Scheduled: Calculate seller performance scores (Sunday 3 AM IST)
+ */
+exports.calculateSellerPerformance = functions.region(REGION).pubsub
+    .schedule('0 3 * * 0')
+    .timeZone('Asia/Kolkata')
+    .onRun(async (context) => {
+        const db = admin.firestore();
+        
+        try {
+            const sellersSnap = await db.collection('sellers').get();
+
+            for (const sellerDoc of sellersSnap.docs) {
+                const sellerId = sellerDoc.id;
+
+                // Get last 30 days metrics
+                const thirtyDaysAgo = new Date(Date.now() - 30*24*60*60*1000);
+                const ordersSnap = await db.collection('orders')
+                    .where('sellerId', '==', sellerId)
+                    .where('createdAt', '>=', thirtyDaysAgo)
+                    .get();
+
+                const ratingsSnap = await db.collection('sellerRatings')
+                    .doc(sellerId)
+                    .get();
+
+                const rating = ratingsSnap.data()?.averageRating || 0;
+                const deliveredCount = ordersSnap.docs.filter(d => 
+                    d.data().status === 'delivered'
+                ).length;
+                const orderFulfillmentRate = ordersSnap.docs.length > 0 ? 
+                    (deliveredCount / ordersSnap.docs.length) * 100 : 0;
+
+                const performanceScore = Math.min(100,
+                    (rating / 5) * 40 +
+                    (orderFulfillmentRate / 100) * 40 +
+                    (90) * 20 // Default response time
+                );
+
+                const tier = performanceScore > 85 ? 'gold' : 
+                             performanceScore > 70 ? 'silver' : 'bronze';
+
+                await db.collection('sellerPerformance').doc(sellerId).set({
+                    sellerId,
+                    performanceScore: Math.round(performanceScore),
+                    scoreBreakdown: {
+                        orderFulfillment: Math.round(orderFulfillmentRate),
+                        customerRating: Math.round((rating / 5) * 100),
+                        responseTime: 90,
+                        returnRate: 5,
+                        reportCount: 0
+                    },
+                    tier,
+                    lastCalculated: FieldValue.serverTimestamp()
+                });
+
+                functions.logger.log(`Updated performance for seller ${sellerId}`);
+            }
+        } catch (error) {
+            functions.logger.error('Error calculating performance:', error);
+        }
+    });

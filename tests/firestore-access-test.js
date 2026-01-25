@@ -76,6 +76,13 @@
                 }
             },
             {
+                name: 'Service verification submissions',
+                run: async ({ db }) => {
+                    await db.collection('serviceVerifications').limit(5).get();
+                    return 'Service verification queue accessible.';
+                }
+            },
+            {
                 name: 'Orders collection access',
                 run: async ({ db }) => {
                     await db.collection('orders').limit(5).get();
@@ -104,6 +111,13 @@
                 run: async ({ db }) => {
                     await db.collection('adminActivity').orderBy('timestamp', 'desc').limit(5).get();
                     return 'Admin activity feed readable.';
+                }
+            },
+            {
+                name: 'Support tickets collection',
+                run: async ({ db }) => {
+                    await db.collection('supportTickets').limit(5).get();
+                    return 'Support tickets collection readable.';
                 }
             }
         ],

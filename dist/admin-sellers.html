@@ -865,9 +865,14 @@
                                     <h3>Notifications</h3>
                                     <p id="notificationSubtitle">Latest updates</p>
                                 </div>
-                                <button id="notificationRefresh" title="Refresh notifications">
-                                    <i class="fas fa-rotate-right"></i>
-                                </button>
+                                <div class="header-actions">
+                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
+                                        Mark all read
+                                    </button>
+                                    <button id="notificationRefresh" title="Refresh notifications">
+                                        <i class="fas fa-rotate-right"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="notification-list" id="notificationList">
                                 <div class="notification-empty">
@@ -1305,15 +1310,20 @@
                 bulkActionInFlight = true;
                 updateSellerBulkActions();
                 const batch = db.batch();
+                const now = firebase.firestore.FieldValue.serverTimestamp();
                 pendingSellers.forEach(seller => {
                     const verificationRef = db.collection('sellerVerification').doc(seller.id);
                     batch.update(verificationRef, {
                         status: 'approved',
-                        approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        approvedAt: now,
                         approvedBy: auth.currentUser.email
                     });
                     const sellerRef = db.collection('sellers').doc(seller.id);
-                    batch.set(sellerRef, { verified: true }, { merge: true });
+                    batch.set(sellerRef, { 
+                        verified: true,
+                        status: 'approved',
+                        approvedAt: now
+                    }, { merge: true });
                 });
                 await batch.commit();
                 await logAdminActivity('seller-bulk-approved', {
@@ -1573,7 +1583,12 @@
                     approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     approvedBy: auth.currentUser.email
                 });
-                await db.collection('sellers').doc(currentSellerId).update({ verified: true }).catch(() => {});
+                // Use set with merge to create or update the sellers doc
+                await db.collection('sellers').doc(currentSellerId).set({ 
+                    verified: true,
+                    status: 'approved',
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
                 await logAdminActivity('seller-approved', {
                     sellerId: currentSellerId,
                     mode: 'detail-modal'
@@ -1623,7 +1638,12 @@
                     approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     approvedBy: auth.currentUser.email
                 });
-                await db.collection('sellers').doc(id).update({ verified: true }).catch(() => {});
+                // Use set with merge to create or update the sellers doc
+                await db.collection('sellers').doc(id).set({ 
+                    verified: true,
+                    status: 'approved',
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
                 await logAdminActivity('seller-approved', {
                     sellerId: id,
                     mode: 'quick-action'

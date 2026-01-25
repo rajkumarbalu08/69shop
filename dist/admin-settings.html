@@ -405,9 +405,14 @@
                                     <h3>Notifications</h3>
                                     <p id="notificationSubtitle">Latest updates</p>
                                 </div>
-                                <button id="notificationRefresh" title="Refresh notifications">
-                                    <i class="fas fa-rotate-right"></i>
-                                </button>
+                                <div class="header-actions">
+                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
+                                        Mark all read
+                                    </button>
+                                    <button id="notificationRefresh" title="Refresh notifications">
+                                        <i class="fas fa-rotate-right"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="notification-list" id="notificationList">
                                 <div class="notification-empty">
@@ -606,6 +611,9 @@
         let draftSettings = cloneSettings(DEFAULT_SETTINGS);
         let settingsInputs = {};
         let canEditPlatformSettings = false;
+        let autoSaveTimer = null;
+        const SETTINGS_AUTO_SAVE_DELAY = 800;
+        let isSavingSettings = false;
 
         function normalizeEmail(email) {
             return (email || '').trim().toLowerCase();
@@ -1018,11 +1026,29 @@
                     }
                     setSettingValue(draftSettings, key, input.checked);
                     updateSettingsActionsState();
+                    scheduleSettingsAutoSave();
                 });
             });
             document.getElementById('saveSettingsBtn')?.addEventListener('click', savePlatformSettings);
             document.getElementById('cancelSettingsBtn')?.addEventListener('click', resetPlatformSettings);
             attachSettingsListeners.bound = true;
+        }
+
+        function scheduleSettingsAutoSave() {
+            if (!canEditPlatformSettings) return;
+            if (autoSaveTimer) {
+                clearTimeout(autoSaveTimer);
+            }
+            autoSaveTimer = setTimeout(() => {
+                autoSaveTimer = null;
+                savePlatformSettings();
+            }, SETTINGS_AUTO_SAVE_DELAY);
+        }
+
+        function cancelPendingAutoSave() {
+            if (!autoSaveTimer) return;
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = null;
         }
 
         function setSettingValue(target, path, value) {
@@ -1055,10 +1081,14 @@
 
         async function savePlatformSettings(event) {
             if (event) event.preventDefault();
-            if (!canEditPlatformSettings || !settingsAreDirty()) return;
+            if (!canEditPlatformSettings || !settingsAreDirty() || isSavingSettings) return;
+            cancelPendingAutoSave();
             const saveBtn = document.getElementById('saveSettingsBtn');
             const beforeSnapshot = cloneSettings(storedSettings);
-            saveBtn.disabled = true;
+            if (saveBtn) {
+                saveBtn.disabled = true;
+            }
+            isSavingSettings = true;
             try {
                 await db.collection('platformSettings').doc(SETTINGS_DOC_ID).set(draftSettings, { merge: true });
                 storedSettings = cloneSettings(draftSettings);
@@ -1071,6 +1101,7 @@
                 console.error('Error saving settings:', error);
                 showToast('Failed to save settings: ' + error.message, 'error');
             } finally {
+                isSavingSettings = false;
                 updateSettingsActionsState();
             }
         }
@@ -1081,6 +1112,7 @@
             applySettingsToForm(draftSettings);
             updateSettingsActionsState();
             showToast('Changes discarded', 'info');
+            cancelPendingAutoSave();
         }
 
         async function addAdmin(event) {

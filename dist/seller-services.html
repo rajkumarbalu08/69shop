@@ -354,6 +354,229 @@
         .save-status.saving { color: var(--seller-primary); }
         .save-status.saved { color: #10B981; }
         .save-status.error { color: var(--red); }
+
+        /* Pending submissions */
+        .pending-submissions-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--slate-200);
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .pending-submissions-card.hidden { display: none; }
+        .pending-submissions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .pending-submissions-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--slate-800);
+        }
+        .pending-counter {
+            font-size: 0.85rem;
+            color: var(--slate-500);
+            background: var(--slate-100);
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+        .pending-submission-list {
+            display: grid;
+            gap: 12px;
+        }
+        .pending-submission-card {
+            border: 1px dashed var(--slate-200);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .pending-submission-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .pending-submission-meta h4 {
+            font-size: 0.95rem;
+            color: var(--slate-800);
+        }
+        .pending-submission-meta p {
+            font-size: 0.85rem;
+            color: var(--slate-500);
+        }
+        .pending-status-pill {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--seller-light);
+            color: var(--seller-primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pending-status-pill.approved {
+            background: var(--success-light);
+            color: var(--success);
+        }
+        .pending-status-pill.rejected {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        /* Support center */
+        .support-center-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--slate-200);
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .support-center-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .support-center-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+        .support-center-header p {
+            color: var(--slate-500);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+        .support-center-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .support-pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .support-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: var(--seller-light);
+            color: var(--seller-primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .support-pill.secondary {
+            background: var(--slate-100);
+            color: var(--slate-600);
+        }
+        .ticket-filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .ticket-filter-chip {
+            border: 1px solid var(--slate-200);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--white);
+            color: var(--slate-600);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ticket-filter-chip.active {
+            background: var(--seller-primary);
+            border-color: var(--seller-primary);
+            color: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+        .seller-ticket-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .seller-ticket-card {
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .seller-ticket-info {
+            flex: 1;
+        }
+        .seller-ticket-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--slate-900);
+            margin-bottom: 4px;
+        }
+        .seller-ticket-info p {
+            font-size: 0.85rem;
+            color: var(--slate-600);
+            margin-bottom: 8px;
+        }
+        .ticket-meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: var(--slate-500);
+        }
+        .ticket-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .ticket-status-pill.open {
+            background: var(--info-light);
+            color: var(--info);
+        }
+        .ticket-status-pill.in_progress {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+        .ticket-status-pill.resolved {
+            background: var(--success-light);
+            color: var(--success);
+        }
+        .ticket-status-pill.closed {
+            background: var(--success-light);
+            color: var(--success);
+        }
+        .support-empty {
+            text-align: center;
+            color: var(--slate-500);
+            padding: 24px;
+            border: 1px dashed var(--slate-200);
+            border-radius: var(--radius-sm);
+        }
         
         /* Service Category Card */
         .service-category {
@@ -872,6 +1095,10 @@
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics</span>
                     </a>
+                    <a href="/seller-reviews.html" class="nav-link">
+                        <i class="fas fa-star"></i>
+                        <span>Reviews</span>
+                    </a>
                     <a href="/seller-payments.html" class="nav-link">
                         <i class="fas fa-wallet"></i>
                         <span>Payments</span>
@@ -935,9 +1162,14 @@
                                     <h3>Notifications</h3>
                                     <p id="notificationSubtitle">Latest updates</p>
                                 </div>
-                                <button id="notificationRefresh" title="Refresh notifications">
-                                    <i class="fas fa-rotate-right"></i>
-                                </button>
+                                <div class="header-actions">
+                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
+                                        Mark all read
+                                    </button>
+                                    <button id="notificationRefresh" title="Refresh notifications">
+                                        <i class="fas fa-rotate-right"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="notification-list" id="notificationList">
                                 <div class="notification-empty">
@@ -979,6 +1211,57 @@
                             <i class="fas fa-plus"></i>
                             Add Category
                         </button>
+                    </div>
+                </div>
+
+                <div class="pending-submissions-card hidden" id="pendingSubmissionsSection">
+                    <div class="pending-submissions-header">
+                        <h2><i class="fas fa-shield-check"></i> Service verification queue</h2>
+                        <span class="pending-counter" id="pendingSubmissionsCounter">0 pending</span>
+                    </div>
+                    <div class="pending-submission-list" id="pendingSubmissionsList">
+                        <div style="text-align: center; color: var(--slate-500); padding: 16px;">
+                            No submissions yet. Submit a new service to start verification.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="support-center-card" id="supportCenter">
+                    <div class="support-center-header">
+                        <div>
+                            <h2>Need technical help?</h2>
+                            <p>Raise a ticket so the admin team can unblock you quickly.</p>
+                        </div>
+                        <div class="support-center-actions">
+                            <button class="btn btn-seller" onclick="openSupportTicketModal()" data-test="new-support-ticket">
+                                <i class="fas fa-life-ring"></i>
+                                New support ticket
+                            </button>
+                        </div>
+                    </div>
+                    <div class="support-pill-row">
+                        <span class="support-pill"><i class="fas fa-ticket"></i><span id="openTicketCount">0 open</span></span>
+                        <span class="support-pill secondary"><i class="fas fa-clock"></i>Typical response under 24h</span>
+                    </div>
+                    <div class="ticket-filter-row" id="sellerTicketFilters">
+                        <button type="button" class="ticket-filter-chip active" data-ticket-filter="open">
+                            <i class="fas fa-inbox"></i>Open
+                        </button>
+                        <button type="button" class="ticket-filter-chip" data-ticket-filter="in_progress">
+                            <i class="fas fa-spinner"></i>In progress
+                        </button>
+                        <button type="button" class="ticket-filter-chip" data-ticket-filter="resolved">
+                            <i class="fas fa-check"></i>Resolved
+                        </button>
+                        <button type="button" class="ticket-filter-chip" data-ticket-filter="all">
+                            <i class="fas fa-layer-group"></i>All tickets
+                        </button>
+                    </div>
+                    <div class="seller-ticket-list" id="sellerSupportTicketList">
+                        <div class="support-empty">
+                            <i class="fas fa-inbox" style="display:block;font-size:1.5rem;margin-bottom:8px;"></i>
+                            No support tickets yet. Facing issues? Raise a ticket.
+                        </div>
                     </div>
                 </div>
         
@@ -1297,14 +1580,72 @@
             </form>
         </div>
     </div>
+
+    <!-- Support Ticket Modal -->
+    <div class="modal-overlay" id="supportTicketModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Raise Support Ticket</h2>
+                <button class="modal-close" onclick="closeModal('supportTicketModal')">&times;</button>
+            </div>
+            <form id="supportTicketForm" onsubmit="submitSupportTicket(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="ticketSubject">What seems to be broken? *</label>
+                        <input type="text" id="ticketSubject" required placeholder="e.g., Unable to save new services">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ticketSeverity">Priority *</label>
+                            <select id="ticketSeverity" required>
+                                <option value="high">High – blocking orders</option>
+                                <option value="medium" selected>Medium – affecting workflow</option>
+                                <option value="low">Low – cosmetic or question</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticketChannel">Contact preference</label>
+                            <select id="ticketChannel">
+                                <option value="email" selected>Email updates</option>
+                                <option value="phone">Phone call</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticketDescription">Describe the issue *</label>
+                        <textarea id="ticketDescription" required placeholder="Share what happened, any error messages, and steps we can follow to reproduce the issue."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('supportTicketModal')">Cancel</button>
+                    <button type="submit" class="btn btn-seller">
+                        <i class="fas fa-paper-plane"></i> Submit Ticket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     
     <script>
         let auth = null;
         let db = null;
         let currentUser = null;
         let serviceData = { categories: {} };
+        let sellerProfileData = {};
         let notificationFeed = null;
         let sellerShellState = null;
+        let pendingServiceSave = null;
+        let queuedServiceSave = null;
+        let isServiceSaveRunning = false;
+        const SERVICES_AUTO_SAVE_DELAY = 1200;
+        const SERVICE_VERIFICATION_COLLECTION = 'serviceVerifications';
+        const SUPPORT_TICKETS_COLLECTION = 'supportTickets';
+        const SELLER_TICKET_FILTERS = ['open', 'in_progress', 'resolved', 'all'];
+        let pendingSubmissionUnsubscribe = null;
+        let pendingSubmissions = [];
+        let supportTicketUnsubscribe = null;
+        let sellerSupportTickets = [];
+        let sellerTicketFilter = 'open';
 
         const firebaseConfig = window.firebaseConfig;
         if (!firebaseConfig || !firebaseConfig.apiKey) {
@@ -1366,10 +1707,10 @@
             });
         }
 
-        async function syncSellerShell(user, sellerData = {}) {
+        async function syncSellerShell(user, sellerData = {}, verificationData = {}) {
             if (!window.SellerShell) return null;
             try {
-                sellerShellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData });
+                sellerShellState = await SellerShell.sync({ db, auth, user, sellerDoc: sellerData, verificationDoc: verificationData });
                 return sellerShellState;
             } catch (error) {
                 console.warn('SellerShell sync failed:', error);
@@ -1400,7 +1741,15 @@
             }));
 
             const sellerProfile = await loadSellerProfile(user.uid);
-            const shellState = await syncSellerShell(user, sellerProfile);
+            
+            // Fetch verification data for proper status display
+            let verificationData = {};
+            try {
+                const verificationDoc = await db.collection('sellerVerification').doc(user.uid).get();
+                if (verificationDoc.exists) verificationData = verificationDoc.data();
+            } catch (e) { console.warn('Verification doc fetch failed:', e); }
+            
+            const shellState = await syncSellerShell(user, sellerProfile, verificationData);
             const fallbackName = sellerProfile.businessName || sellerProfile.storeName || user.displayName || user.email || 'Seller';
             const displayName = shellState?.sellerName || fallbackName;
             const avatarInitial = shellState?.avatarInitial || displayName.charAt(0).toUpperCase();
@@ -1408,6 +1757,9 @@
 
             initNotifications();
             await loadServiceData(user.uid);
+            subscribeToPendingSubmissions(user.uid);
+            initSellerTicketFilters();
+            subscribeToSupportTickets(user.uid);
             hideLoading();
         });
 
@@ -1424,15 +1776,21 @@
                 }
                 return userDoc.data();
             } catch (error) {
-                showToast('Unable to verify seller access', 'error');
-                throw error;
+                // Don't logout on network/permission errors - only on explicit access denial
+                if (error.message === 'Seller access required') {
+                    throw error;
+                }
+                console.warn('Seller access check failed (network issue):', error.message);
+                // Allow page to continue loading - might be a temporary issue
+                return {};
             }
         }
 
         async function loadSellerProfile(uid) {
             try {
                 const sellerDoc = await db.collection('sellers').doc(uid).get();
-                return sellerDoc.exists ? sellerDoc.data() : {};
+                sellerProfileData = sellerDoc.exists ? sellerDoc.data() : {};
+                return sellerProfileData;
             } catch (error) {
                 console.error('Error loading seller profile:', error);
                 return {};
@@ -1451,32 +1809,401 @@
             }
         }
 
+        function subscribeToPendingSubmissions(sellerId) {
+            if (!db || !sellerId) return;
+            if (typeof pendingSubmissionUnsubscribe === 'function') {
+                pendingSubmissionUnsubscribe();
+            }
+            try {
+                pendingSubmissionUnsubscribe = db.collection(SERVICE_VERIFICATION_COLLECTION)
+                    .where('sellerId', '==', sellerId)
+                    .onSnapshot((snapshot) => {
+                        pendingSubmissions = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+                        pendingSubmissions.sort((a, b) => {
+                            const aTime = a.createdAt?.toMillis?.() || a.createdAt || 0;
+                            const bTime = b.createdAt?.toMillis?.() || b.createdAt || 0;
+                            return bTime - aTime;
+                        });
+                        renderPendingSubmissions(pendingSubmissions);
+                    }, (error) => {
+                        console.error('Pending submissions listener failed:', error);
+                    });
+            } catch (error) {
+                console.error('Unable to subscribe to submissions:', error);
+            }
+        }
+
+        function renderPendingSubmissions(items = []) {
+            const section = document.getElementById('pendingSubmissionsSection');
+            const list = document.getElementById('pendingSubmissionsList');
+            const counter = document.getElementById('pendingSubmissionsCounter');
+            if (!section || !list || !counter) return;
+
+            const pendingCount = items.filter((item) => item.status === 'pending').length;
+            counter.textContent = `${pendingCount} pending`;
+
+            if (!items.length) {
+                section.classList.add('hidden');
+                list.innerHTML = '<div style="text-align:center;color:var(--slate-500);padding:16px;">No submissions yet. Add a service to begin verification.</div>';
+                return;
+            }
+
+            section.classList.remove('hidden');
+            const visibleItems = items.slice(0, 5);
+            list.innerHTML = visibleItems.map((item) => {
+                const isCategory = item.submissionType === 'category';
+                const title = isCategory
+                    ? (item.payload?.name || 'New category request')
+                    : `${item.payload?.option?.name || 'New option'} • ${item.payload?.categoryName || 'Category'}`;
+                const statusClass = item.status || 'pending';
+                const statusIconMap = { pending: 'clock', approved: 'check', rejected: 'times' };
+                const subtitle = item.status === 'rejected'
+                    ? (item.adminNote || 'Rejected')
+                    : `Submitted ${formatSubmissionTime(item.createdAt)}`;
+                return `
+                    <div class="pending-submission-card">
+                        <div class="pending-submission-meta">
+                            <h4>${title}</h4>
+                            <p>${item.payload?.description || item.payload?.option?.description || 'Awaiting review'}</p>
+                        </div>
+                        <span class="pending-status-pill ${statusClass}">
+                            <i class="fas fa-${statusIconMap[statusClass] || 'clock'}"></i>
+                            ${statusClass.charAt(0).toUpperCase() + statusClass.slice(1)}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function initSellerTicketFilters() {
+            const filterRow = document.getElementById('sellerTicketFilters');
+            if (!filterRow || filterRow.dataset.listenerAttached) return;
+            filterRow.addEventListener('click', (event) => {
+                const button = event.target.closest('[data-ticket-filter]');
+                if (!button) return;
+                const selected = button.dataset.ticketFilter || 'open';
+                if (!SELLER_TICKET_FILTERS.includes(selected) || selected === sellerTicketFilter) return;
+                sellerTicketFilter = selected;
+                filterRow.querySelectorAll('.ticket-filter-chip').forEach((chip) => {
+                    chip.classList.toggle('active', chip === button);
+                });
+                renderSellerSupportTickets(sellerSupportTickets);
+            });
+            filterRow.dataset.listenerAttached = 'true';
+        }
+
+        function subscribeToSupportTickets(sellerId) {
+            if (!db || !sellerId) return;
+            if (typeof supportTicketUnsubscribe === 'function') {
+                supportTicketUnsubscribe();
+            }
+            
+            // Try ordered query first, fallback to unordered if index not ready
+            const trySubscribe = (useOrder) => {
+                let query = db.collection(SUPPORT_TICKETS_COLLECTION)
+                    .where('sellerId', '==', sellerId);
+                
+                if (useOrder) {
+                    query = query.orderBy('createdAt', 'desc');
+                }
+                query = query.limit(20);
+                
+                return query.onSnapshot((snapshot) => {
+                    sellerSupportTickets = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+                    // Sort client-side if we couldn't use server ordering
+                    if (!useOrder) {
+                        sellerSupportTickets.sort((a, b) => {
+                            const aTime = a.createdAt?.toDate?.() || new Date(0);
+                            const bTime = b.createdAt?.toDate?.() || new Date(0);
+                            return bTime - aTime;
+                        });
+                    }
+                    renderSellerSupportTickets(sellerSupportTickets);
+                }, (error) => {
+                    console.error('Support tickets listener failed:', error);
+                    // If index error, retry without ordering
+                    if (error.code === 'failed-precondition' && useOrder) {
+                        console.warn('Index not ready, falling back to unordered query');
+                        supportTicketUnsubscribe = trySubscribe(false);
+                    }
+                });
+            };
+            
+            try {
+                supportTicketUnsubscribe = trySubscribe(true);
+            } catch (error) {
+                console.error('Unable to subscribe to support tickets:', error);
+            }
+        }
+
+        function renderSellerSupportTickets(items = []) {
+            const list = document.getElementById('sellerSupportTicketList');
+            const counter = document.getElementById('openTicketCount');
+            if (!list || !counter) return;
+
+            const closedStates = ['resolved', 'closed'];
+            const openCount = items.filter((ticket) => !closedStates.includes((ticket.status || 'open').toLowerCase())).length;
+            counter.textContent = `${openCount} open • ${items.length} total`;
+
+            if (!items.length) {
+                list.innerHTML = `
+                    <div class="support-empty">
+                        <i class="fas fa-inbox" style="display:block;font-size:1.5rem;margin-bottom:8px;"></i>
+                        No support tickets yet. Facing issues? Raise a ticket.
+                    </div>
+                `;
+                return;
+            }
+
+            const statusIcon = { open: 'circle-dot', new: 'circle-dot', pending: 'circle-dot', in_progress: 'spinner', resolved: 'check', closed: 'check-double' };
+            const statusLabel = { open: 'Open', new: 'Open', pending: 'Open', in_progress: 'In progress', resolved: 'Resolved', closed: 'Closed' };
+
+            const filteredItems = items.filter((ticket) => {
+                const status = (ticket.status || 'open').toLowerCase();
+                if (sellerTicketFilter === 'all') return true;
+                if (sellerTicketFilter === 'open') {
+                    return ['open', 'pending', 'new'].includes(status);
+                }
+                if (sellerTicketFilter === 'in_progress') {
+                    return status === 'in_progress';
+                }
+                if (sellerTicketFilter === 'resolved') {
+                    return closedStates.includes(status);
+                }
+                return true;
+            });
+
+            if (!filteredItems.length) {
+                list.innerHTML = `
+                    <div class="support-empty">
+                        <i class="fas fa-filter-circle-xmark" style="display:block;font-size:1.5rem;margin-bottom:8px;"></i>
+                        No tickets match this filter. Try another tab above.
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = filteredItems.slice(0, 8).map((ticket) => {
+                const status = (ticket.status || 'open').toLowerCase();
+                const severity = (ticket.severity || 'medium').toLowerCase();
+                const lastUpdate = formatSubmissionTime(ticket.lastUpdatedAt || ticket.createdAt);
+                return `
+                    <div class="seller-ticket-card">
+                        <div class="seller-ticket-info">
+                            <div class="ticket-status-pill ${status}">
+                                <i class="fas fa-${statusIcon[status] || 'circle'}"></i>
+                                ${statusLabel[status] || 'Open'}
+                            </div>
+                            <h4>${ticket.subject || 'Support ticket'}</h4>
+                            <p>${ticket.description || 'Awaiting description'}</p>
+                            <div class="ticket-meta-row">
+                                <span><i class="fas fa-signal"></i> ${severity.charAt(0).toUpperCase() + severity.slice(1)} priority</span>
+                                <span><i class="fas fa-clock"></i> Updated ${lastUpdate}</span>
+                            </div>
+                        </div>
+                        <div style="text-align:right;font-size:0.8rem;color:var(--slate-500);min-width:140px;">
+                            <div><i class="fas fa-envelope"></i> ${ticket.adminEmail || 'Awaiting admin'}</div>
+                            <div>${ticket.latestAdminNote ? `“${ticket.latestAdminNote}”` : 'No admin response yet'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatSubmissionTime(timestamp) {
+            if (!timestamp) return 'just now';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+        }
+
         function renderServices() {
-            if (!serviceData.categories) return;
-            Object.keys(serviceData.categories).forEach((categoryId) => {
-                const category = serviceData.categories[categoryId];
-                const categoryEl = document.getElementById(`${categoryId}Category`);
+            const categories = serviceData.categories || {};
+            Object.entries(categories).forEach(([categoryId, category]) => {
+                const categoryEl = ensureCategoryElement(categoryId, category);
                 if (!categoryEl) return;
 
                 const toggle = categoryEl.querySelector('.service-category-toggle input');
                 if (toggle) toggle.checked = category.enabled !== false;
                 categoryEl.style.opacity = category.enabled !== false ? '1' : '0.6';
-
-                Object.keys(category.options || {}).forEach((optionId) => {
-                    const option = category.options[optionId];
-                    const card = categoryEl.querySelector(`[data-option="${optionId}"]`);
-                    if (!card) return;
-
-                    const priceInput = card.querySelector('.price-input input');
-                    if (priceInput) priceInput.value = option.price || 0;
-
-                    const optionToggle = card.querySelector('.toggle-switch input');
-                    if (optionToggle) optionToggle.checked = option.enabled !== false;
-
-                    card.classList.toggle('enabled', option.enabled !== false);
-                    card.classList.toggle('disabled', option.enabled === false);
-                });
+                renderCategoryOptions(categoryId, categoryEl, category);
             });
+        }
+
+        function ensureCategoryElement(categoryId, category = {}) {
+            let categoryEl = document.getElementById(`${categoryId}Category`);
+            if (!categoryEl) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'service-category';
+                wrapper.id = `${categoryId}Category`;
+                wrapper.innerHTML = buildCategoryTemplate(categoryId, category);
+                const emptyState = document.querySelector('.empty-state');
+                if (emptyState) {
+                    emptyState.insertAdjacentElement('beforebegin', wrapper);
+                } else {
+                    document.querySelector('.seller-content')?.appendChild(wrapper);
+                }
+                categoryEl = wrapper;
+            } else {
+                const titleEl = categoryEl.querySelector('.service-category-info h2');
+                if (titleEl && category.name) titleEl.textContent = category.name;
+                const descEl = categoryEl.querySelector('.service-category-info p');
+                if (descEl && category.description) descEl.textContent = category.description;
+                const iconEl = categoryEl.querySelector('.service-category-icon i');
+                if (iconEl && category.icon) {
+                    iconEl.className = `fas fa-${category.icon}`;
+                }
+            }
+            return categoryEl;
+        }
+
+        function buildCategoryTemplate(categoryId, category = {}) {
+            const icon = category.icon || 'concierge-bell';
+            const name = category.name || 'Custom Service';
+            const description = category.description || 'Custom service offerings';
+            return `
+                <div class="service-category-header">
+                    <div class="service-category-info">
+                        <div class="service-category-icon">
+                            <i class="fas fa-${icon}"></i>
+                        </div>
+                        <div>
+                            <h2>${name}</h2>
+                            <p>${description}</p>
+                        </div>
+                    </div>
+                    <div class="service-category-toggle">
+                        <span class="toggle-label">Active</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked onchange="toggleCategory('${categoryId}', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="service-options">
+                    <h3 style="margin-bottom: 16px; font-size: 0.95rem; color: var(--dark-grey);">Service Options</h3>
+                    <div class="service-options-grid" id="${categoryId}Options">
+                        <div class="add-option-card" onclick="openAddOptionModal('${categoryId}')">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Add Service Option</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCategoryOptions(categoryId, categoryEl, category = {}) {
+            const grid = categoryEl.querySelector('.service-options-grid');
+            if (!grid) return;
+            const addCard = grid.querySelector('.add-option-card');
+            grid.querySelectorAll('.service-option-card[data-option]').forEach((card) => card.remove());
+            Object.entries(category.options || {}).forEach(([optionId, option]) => {
+                const optionHtml = buildOptionTemplate(categoryId, optionId, option);
+                if (addCard) {
+                    addCard.insertAdjacentHTML('beforebegin', optionHtml);
+                } else {
+                    grid.insertAdjacentHTML('beforeend', optionHtml);
+                }
+            });
+        }
+
+        function buildOptionTemplate(categoryId, optionId, option = {}) {
+            const enabled = option.enabled !== false;
+            const price = Number(option.price || 0);
+            const deliveryTags = renderDeliveryTags(option.deliveryOptions, option.turnaround);
+            return `
+                <div class="service-option-card ${enabled ? 'enabled' : 'disabled'}" data-option="${optionId}">
+                    <button type="button" class="service-option-delete" onclick="deleteOption('${categoryId}', '${optionId}')" title="Delete option">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="service-option-header">
+                        <div>
+                            <div class="service-option-name">${option.name || 'Custom option'}</div>
+                            <div class="service-option-desc">${option.description || 'Custom service option'}</div>
+                        </div>
+                        <label class="toggle-switch" style="transform: scale(0.8);">
+                            <input type="checkbox" ${enabled ? 'checked' : ''} onchange="toggleOption('${categoryId}', '${optionId}', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="service-option-pricing">
+                        <label>Price:</label>
+                        <div class="price-input">
+                            <span>₹</span>
+                            <input type="number" value="${price}" min="0" onchange="updatePrice('${categoryId}', '${optionId}', this.value)">
+                        </div>
+                    </div>
+                    ${deliveryTags}
+                </div>
+            `;
+        }
+
+        function renderDeliveryTags(options = {}, turnaround) {
+            const tags = [];
+            if (turnaround) {
+                tags.push(`<span class="delivery-tag"><i class="fas fa-clock"></i> ${turnaround}</span>`);
+            }
+            if (options.pickup) {
+                tags.push('<span class="delivery-tag"><i class="fas fa-store"></i> Studio pickup</span>');
+            }
+            if (options.venue) {
+                tags.push('<span class="delivery-tag"><i class="fas fa-map-marker-alt"></i> Venue visit</span>');
+            }
+            if (options.shipping) {
+                tags.push('<span class="delivery-tag"><i class="fas fa-truck"></i> Shipping</span>');
+            }
+            if (!tags.length) return '';
+            return `<div class="delivery-options">${tags.join('')}</div>`;
+        }
+
+        function getCategoryMeta(categoryId) {
+            const fromState = serviceData.categories?.[categoryId];
+            if (fromState) return fromState;
+            const categoryEl = document.getElementById(`${categoryId}Category`);
+            return {
+                name: categoryEl?.querySelector('.service-category-info h2')?.textContent || 'Service category',
+                description: categoryEl?.querySelector('.service-category-info p')?.textContent || '',
+                icon: categoryEl?.querySelector('.service-category-icon i')?.className?.split('fa-')[1]?.split(' ')[0] || 'concierge-bell',
+                enabled: true,
+                options: {}
+            };
+        }
+
+        async function submitServiceForReview(submission) {
+            if (!db || !currentUser) {
+                showToast('Sign in to submit services for review', 'error');
+                return;
+            }
+            if (!submission?.categoryId) {
+                showToast('Category ID is missing. Please try again.', 'error');
+                console.error('Category ID missing in submission:', submission);
+                return;
+            }
+            try {
+                const sellerDisplayName = sellerProfileData.businessName
+                    || sellerProfileData.storeName
+                    || sellerProfileData.name
+                    || currentUser.displayName
+                    || currentUser.email;
+                const docRef = await db.collection(SERVICE_VERIFICATION_COLLECTION).add({
+                    sellerId: currentUser.uid,
+                    sellerEmail: currentUser.email,
+                    sellerName: sellerDisplayName,
+                    submissionType: submission.submissionType,
+                    status: 'pending',
+                    categoryId: submission.categoryId,
+                    optionId: submission.optionId || null,
+                    payload: submission.payload,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log('Service submission successful:', docRef.id);
+                showToast('Submitted for admin review', 'info');
+            } catch (error) {
+                console.error('Error submitting service for review:', error);
+                const errorMsg = error.code === 'permission-denied' 
+                    ? 'Permission denied. Please ensure you are logged in as a seller.'
+                    : error.message || 'Failed to submit for verification. Please try again.';
+                showToast(errorMsg, 'error');
+            }
         }
 
         function toggleCategory(categoryId, enabled) {
@@ -1488,12 +2215,12 @@
                 serviceData.categories[categoryId] = { options: {} };
             }
             serviceData.categories[categoryId].enabled = enabled;
-            saveToFirestore();
+            queueServiceAutoSave('category-toggle');
             showToast(enabled ? 'Category enabled' : 'Category paused');
         }
 
         function toggleOption(categoryId, optionId, enabled) {
-            const card = document.querySelector(`[data-option="${optionId}"]`);
+            const card = document.querySelector(`#${categoryId}Category [data-option="${optionId}"]`);
             if (card) {
                 card.classList.toggle('enabled', enabled);
                 card.classList.toggle('disabled', !enabled);
@@ -1508,7 +2235,7 @@
                 serviceData.categories[categoryId].options[optionId] = {};
             }
             serviceData.categories[categoryId].options[optionId].enabled = enabled;
-            saveToFirestore();
+            queueServiceAutoSave('option-toggle');
         }
 
         function updatePrice(categoryId, optionId, price) {
@@ -1522,7 +2249,7 @@
                 ...(serviceData.categories[categoryId].options[optionId] || {}),
                 price: parseInt(price, 10) || 0
             };
-            saveToFirestore();
+            queueServiceAutoSave('price-update');
         }
 
         function updateSaveStatus(state) {
@@ -1534,6 +2261,10 @@
                 statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
                 statusEl.className = 'save-status saving';
                 if (saveBtn) saveBtn.disabled = true;
+            } else if (state === 'dirty') {
+                statusEl.innerHTML = '<i class="fas fa-pen"></i> Unsaved changes';
+                statusEl.className = 'save-status dirty';
+                if (saveBtn) saveBtn.disabled = false;
             } else if (state === 'saved') {
                 statusEl.innerHTML = '<i class="fas fa-check"></i> All changes saved';
                 statusEl.className = 'save-status saved';
@@ -1552,12 +2283,16 @@
                 const categoryToggle = categoryEl.querySelector('.service-category-toggle input');
                 const categoryName = categoryEl.querySelector('.service-category-info h2')?.textContent;
                 const categoryDesc = categoryEl.querySelector('.service-category-info p')?.textContent;
+                const iconClass = categoryEl.querySelector('.service-category-icon i')?.className || '';
+                const existingCategory = serviceData.categories?.[categoryId] || {};
+                const icon = iconClass.split('fa-')[1]?.split(' ')[0] || existingCategory.icon || 'concierge-bell';
 
                 categories[categoryId] = {
                     name: categoryName,
                     description: categoryDesc,
+                     icon,
                     enabled: categoryToggle?.checked ?? true,
-                    options: {}
+                     options: {}
                 };
 
                 categoryEl.querySelectorAll('.service-option-card[data-option]').forEach((card) => {
@@ -1566,51 +2301,87 @@
                     const priceInput = card.querySelector('.price-input input');
                     const optionName = card.querySelector('.service-option-name')?.textContent;
                     const optionDesc = card.querySelector('.service-option-desc')?.textContent;
+                    const existingOption = existingCategory.options?.[optionId] || {};
 
                     categories[categoryId].options[optionId] = {
                         name: optionName,
                         description: optionDesc,
                         price: parseInt(priceInput?.value, 10) || 0,
-                        enabled: optionToggle?.checked ?? true
+                        enabled: optionToggle?.checked ?? true,
+                        deliveryOptions: existingOption.deliveryOptions || {},
+                        turnaround: existingOption.turnaround || ''
                     };
                 });
             });
             return categories;
         }
 
-        async function saveToFirestore(showFeedback = false) {
-            if (!currentUser || !db) return;
-            if (showFeedback) {
-                updateSaveStatus('saving');
+        function queueServiceAutoSave(reason = 'auto') {
+            updateSaveStatus('dirty');
+            if (pendingServiceSave) {
+                clearTimeout(pendingServiceSave);
             }
+            pendingServiceSave = setTimeout(() => {
+                pendingServiceSave = null;
+                persistServiceData({ reason });
+            }, SERVICES_AUTO_SAVE_DELAY);
+        }
+
+        async function persistServiceData({ showFeedback = false, reason = 'auto' } = {}) {
+            if (!currentUser || !db) return;
+            if (isServiceSaveRunning) {
+                queuedServiceSave = {
+                    showFeedback: showFeedback || queuedServiceSave?.showFeedback || false,
+                    reason: queuedServiceSave?.reason || reason
+                };
+                return;
+            }
+            isServiceSaveRunning = true;
+            updateSaveStatus('saving');
             try {
                 const categories = collectCategoriesFromDom();
                 await db.collection('sellerServices').doc(currentUser.uid).set({
                     categories,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    sellerId: currentUser.uid
+                    sellerId: currentUser.uid,
+                    lastSaveReason: reason
                 }, { merge: true });
 
                 serviceData.categories = categories;
+                updateSaveStatus('saved');
                 if (showFeedback) {
-                    updateSaveStatus('saved');
                     showToast('All changes saved successfully!', 'success');
                 }
             } catch (error) {
                 console.error('Error saving services:', error);
+                updateSaveStatus('error');
                 if (showFeedback) {
-                    updateSaveStatus('error');
+                    showToast('Error saving changes', 'error');
                 }
-                showToast('Error saving changes', 'error');
+            } finally {
+                isServiceSaveRunning = false;
+                const nextSave = queuedServiceSave;
+                queuedServiceSave = null;
+                if (nextSave) {
+                    persistServiceData(nextSave);
+                }
             }
+        }
+
+        async function saveToFirestore(showFeedback = false) {
+            if (pendingServiceSave) {
+                clearTimeout(pendingServiceSave);
+                pendingServiceSave = null;
+            }
+            return persistServiceData({ showFeedback, reason: showFeedback ? 'manual' : 'auto' });
         }
 
         function deleteOption(categoryId, optionId) {
             if (!confirm('Delete this service option?')) return;
-            const card = document.querySelector(`[data-option="${optionId}"]`);
+            const card = document.querySelector(`#${categoryId}Category [data-option="${optionId}"]`);
             if (card) {
                 card.remove();
-                saveToFirestore();
+                queueServiceAutoSave('delete-option');
                 showToast('Option deleted', 'info');
             }
         }
@@ -1620,7 +2391,7 @@
             const categoryEl = document.getElementById(`${categoryId}Category`);
             if (categoryEl) {
                 categoryEl.remove();
-                saveToFirestore();
+                queueServiceAutoSave('delete-category');
                 showToast('Category deleted', 'info');
             }
         }
@@ -1645,51 +2416,50 @@
             document.getElementById('customCategoryGroup').style.display = this.value === 'other' ? 'block' : 'none';
         });
 
-        function saveOption(event) {
+        async function saveOption(event) {
             event.preventDefault();
-            const category = document.getElementById('optionCategory').value;
+            const categoryId = document.getElementById('optionCategory').value;
             const optionName = document.getElementById('optionName').value;
             const optionDesc = document.getElementById('optionDesc').value;
             const optionPrice = parseInt(document.getElementById('optionPrice').value, 10) || 0;
             const optionTurnaround = document.getElementById('optionTurnaround').value;
+            const deliveryOptions = {
+                pickup: document.getElementById('deliveryPickup')?.checked || false,
+                venue: document.getElementById('deliveryVenue')?.checked || false,
+                shipping: document.getElementById('deliveryShipping')?.checked || false
+            };
 
-            const grid = document.getElementById(`${category}Options`);
-            if (!grid) return;
-            const addCard = grid.querySelector('.add-option-card');
+            if (!categoryId) {
+                showToast('Select a category before adding an option', 'error');
+                return;
+            }
+
             const optionId = `opt-${Date.now()}`;
+            const categoryMeta = getCategoryMeta(categoryId);
+            await submitServiceForReview({
+                submissionType: 'option',
+                categoryId,
+                optionId,
+                payload: {
+                    categoryId,
+                    categoryName: categoryMeta.name,
+                    optionId,
+                    option: {
+                        name: optionName,
+                        description: optionDesc,
+                        price: optionPrice,
+                        enabled: true,
+                        turnaround: optionTurnaround,
+                        deliveryOptions
+                    }
+                }
+            });
 
-            const html = `
-                <div class="service-option-card enabled" data-option="${optionId}">
-                    <button type="button" class="service-option-delete" onclick="deleteOption('${category}', '${optionId}')" title="Delete option">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <div class="service-option-header">
-                        <div>
-                            <div class="service-option-name">${optionName}</div>
-                            <div class="service-option-desc">${optionDesc || 'Custom service option'}</div>
-                        </div>
-                        <label class="toggle-switch" style="transform: scale(0.8);">
-                            <input type="checkbox" checked onchange="toggleOption('${category}', '${optionId}', this.checked)">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="service-option-pricing">
-                        <label>Price:</label>
-                        <div class="price-input">
-                            <span>₹</span>
-                            <input type="number" value="${optionPrice}" min="0" onchange="updatePrice('${category}', '${optionId}', this.value)">
-                        </div>
-                    </div>
-                    ${optionTurnaround ? `<div class="delivery-options"><span class="delivery-tag"><i class="fas fa-clock"></i> ${optionTurnaround}</span></div>` : ''}
-                </div>`;
-
-            addCard.insertAdjacentHTML('beforebegin', html);
             closeModal('optionModal');
-            showToast('Service option added successfully', 'success');
-            saveToFirestore();
+            document.getElementById('optionForm').reset();
         }
 
-        function saveCategory(event) {
+        async function saveCategory(event) {
             event.preventDefault();
             const type = document.getElementById('categoryType').value;
             const customName = document.getElementById('categoryName').value;
@@ -1704,45 +2474,117 @@
             };
 
             const info = presets[type];
-            if (!info) return;
+            if (!info) {
+                showToast('Select a service type', 'error');
+                return;
+            }
             const categoryId = `${type}-${Date.now()}`;
 
-            const html = `
-                <div class="service-category" id="${categoryId}Category">
-                    <div class="service-category-header">
-                        <div class="service-category-info">
-                            <div class="service-category-icon">
-                                <i class="fas fa-${info.icon}"></i>
-                            </div>
-                            <div>
-                                <h2>${info.name}</h2>
-                                <p>${info.desc}</p>
-                            </div>
-                        </div>
-                        <div class="service-category-toggle">
-                            <span class="toggle-label">Active</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked onchange="toggleCategory('${categoryId}', this.checked)">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="service-options">
-                        <h3 style="margin-bottom: 16px; font-size: 0.95rem; color: var(--dark-grey);">Service Options</h3>
-                        <div class="service-options-grid" id="${categoryId}Options">
-                            <div class="add-option-card" onclick="openAddOptionModal('${categoryId}')">
-                                <i class="fas fa-plus-circle"></i>
-                                <span>Add Service Option</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
+            await submitServiceForReview({
+                submissionType: 'category',
+                categoryId,
+                payload: {
+                    categoryId,
+                    name: info.name,
+                    description: info.desc,
+                    icon: info.icon,
+                    presetType: type,
+                    sellerNotes: description
+                }
+            });
 
-            const emptyState = document.querySelector('.empty-state');
-            emptyState.insertAdjacentHTML('beforebegin', html);
             closeModal('categoryModal');
-            showToast('Service category added successfully', 'success');
-            saveToFirestore();
+            document.getElementById('categoryForm').reset();
+            document.getElementById('customCategoryGroup').style.display = 'none';
+        }
+
+        function openSupportTicketModal() {
+            document.getElementById('supportTicketForm')?.reset();
+            document.getElementById('supportTicketModal')?.classList.add('active');
+        }
+
+        async function createAdminNotificationForTicket(ticketId, meta = {}) {
+            if (!db || !currentUser || !ticketId) return;
+            try {
+                console.log('[AdminNotification] Creating notification for ticket:', ticketId);
+                const notificationData = {
+                    audience: 'admin',
+                    type: 'support',
+                    title: 'New support ticket',
+                    message: `${meta.sellerName || 'Seller'} • ${meta.subject || 'Support request'}`,
+                    severity: meta.severity || 'medium',
+                    ticketId,
+                    sellerId: currentUser.uid,
+                    sellerName: meta.sellerName || currentUser.email,
+                    unread: true,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                console.log('[AdminNotification] Data:', notificationData);
+                const notifRef = await db.collection('notifications').add(notificationData);
+                console.log('[AdminNotification] Created:', notifRef.id);
+            } catch (error) {
+                console.warn('[AdminNotification] Failed to notify admins:', error);
+            }
+        }
+
+        async function submitSupportTicket(event) {
+            event.preventDefault();
+            if (!currentUser || !db) {
+                showToast('Sign in to raise a support ticket', 'error');
+                return;
+            }
+
+            const subject = document.getElementById('ticketSubject').value.trim();
+            const severity = document.getElementById('ticketSeverity').value || 'medium';
+            const description = document.getElementById('ticketDescription').value.trim();
+            const channel = document.getElementById('ticketChannel').value || 'email';
+
+            if (!subject || !description) {
+                showToast('Add a subject and description before submitting.', 'error');
+                return;
+            }
+
+            const sellerDisplayName = sellerProfileData.businessName
+                || sellerProfileData.storeName
+                || sellerProfileData.name
+                || currentUser.displayName
+                || currentUser.email;
+
+            try {
+                console.log('[SupportTicket] Creating ticket for seller:', currentUser.uid);
+                const ticketData = {
+                    sellerId: currentUser.uid,
+                    sellerEmail: currentUser.email,
+                    sellerName: sellerDisplayName,
+                    subject,
+                    description,
+                    severity,
+                    channelPreference: channel,
+                    status: 'open',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                console.log('[SupportTicket] Ticket data:', ticketData);
+                
+                const ticketRef = await db.collection(SUPPORT_TICKETS_COLLECTION).add(ticketData);
+                console.log('[SupportTicket] Ticket created:', ticketRef.id);
+                
+                await createAdminNotificationForTicket(ticketRef.id, {
+                    sellerName: sellerDisplayName,
+                    subject,
+                    severity
+                });
+                showToast('Ticket submitted. Our admin team will reach out shortly.', 'success');
+                closeModal('supportTicketModal');
+                document.getElementById('supportTicketForm')?.reset();
+            } catch (error) {
+                console.error('[SupportTicket] Failed to submit:', error);
+                if (error.code === 'permission-denied') {
+                    showToast('Permission denied. Please try signing out and back in.', 'error');
+                } else {
+                    showToast('Unable to submit ticket. Please try again.', 'error');
+                }
+            }
         }
 
         function showToast(message, type = 'success') {
