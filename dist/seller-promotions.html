@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promotions & Discounts - Seller Hub | 69Shop.in</title>
+    <meta name="description" content="Create discount codes, bundle offers, and promotional campaigns for your store">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/dashboard-notifications.css">
+    <link rel="stylesheet" href="/assets/css/seller-header.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/seller-shell.js"></script>
+    
+    <style>
+        :root {
+            --seller-primary: #7C3AED;
+            --seller-primary-dark: #6D28D9;
+            --seller-primary-light: #EDE9FE;
+            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --danger: #EF4444;
+            --danger-light: #FEE2E2;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-100);
+            min-height: 100vh;
+            color: var(--slate-800);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--slate-200);
+            border-top-color: var(--seller-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .seller-layout { display: flex; min-height: 100vh; }
+        
+        .seller-sidebar {
+            width: var(--sidebar-width);
+            background: var(--slate-900);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-700); }
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--seller-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--white);
+            font-weight: 700;
+        }
+        .brand-text { display: flex; flex-direction: column; }
+        .brand-name { font-size: 1.1rem; font-weight: 700; color: var(--white); }
+        .brand-badge { font-size: 0.7rem; color: var(--seller-primary); background: var(--seller-primary-light); padding: 2px 8px; border-radius: 999px; width: fit-content; margin-top: 4px; }
+        
+        .sidebar-nav { flex: 1; padding: 20px 0; overflow-y: auto; }
+        .nav-section { padding: 0 16px; margin-bottom: 24px; }
+        .nav-section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500); margin-bottom: 12px; padding: 0 12px; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            color: var(--slate-400);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            margin-bottom: 4px;
+        }
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        .nav-link.active { background: var(--seller-gradient); color: var(--white); }
+        .nav-link i { width: 20px; text-align: center; }
+        .nav-badge { margin-left: auto; background: var(--danger); color: var(--white); padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; }
+        
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
+        .seller-profile { display: flex; gap: 12px; margin-bottom: 16px; }
+        .profile-avatar { width: 44px; height: 44px; background: var(--seller-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 600; font-size: 1.1rem; }
+        .profile-info { flex: 1; }
+        .profile-name { font-size: 0.9rem; font-weight: 600; color: var(--white); }
+        .profile-email { font-size: 0.75rem; color: var(--slate-400); }
+        .profile-status { display: inline-flex; align-items: center; gap: 4px; font-size: 0.7rem; margin-top: 4px; padding: 2px 8px; border-radius: 999px; }
+        .profile-status.verified { background: var(--success-light); color: var(--success); }
+        .profile-status.pending { background: var(--warning-light); color: #B45309; }
+        .btn-logout { width: 100%; padding: 10px; border: 1px solid var(--slate-700); background: transparent; color: var(--slate-400); border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition); }
+        .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+        
+        .seller-main { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; }
+        .seller-header {
+            height: var(--header-height);
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .page-title { font-size: 1.3rem; font-weight: 700; font-family: 'Poppins', sans-serif; color: var(--slate-900); }
+        .seller-content { padding: 32px; }
+        
+        .header-btn {
+            width: 42px;
+            height: 42px;
+            border: none;
+            background: var(--slate-100);
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--slate-600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: var(--transition);
+        }
+        .header-btn:hover { background: var(--slate-200); }
+        .notification-dot { position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; background: var(--danger); border: 2px solid var(--white); border-radius: 50%; display: none; }
+        
+        .dropdown-wrapper { position: relative; }
+        .seller-user-menu { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--seller-primary-light); cursor: pointer; }
+        .seller-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--white); color: var(--seller-primary); font-weight: 600; display: flex; align-items: center; justify-content: center; }
+        .seller-user-info strong { font-size: 0.85rem; color: var(--slate-900); }
+        .user-dropdown { position: absolute; top: calc(100% + 8px); right: 0; background: var(--white); border-radius: var(--radius-md); border: 1px solid var(--slate-200); box-shadow: var(--shadow-lg); min-width: 200px; padding: 8px 0; display: none; z-index: 20; }
+        .user-dropdown.show { display: block; }
+        .user-dropdown a { display: flex; align-items: center; gap: 8px; padding: 10px 16px; text-decoration: none; color: var(--slate-700); font-size: 0.9rem; }
+        .user-dropdown a:hover { background: var(--slate-50); }
+        .user-dropdown hr { border: none; border-top: 1px solid var(--slate-100); margin: 6px 0; }
+        .user-dropdown .logout { color: var(--danger); }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 999px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        .btn-seller { background: var(--seller-gradient); color: var(--white); }
+        .btn-seller:hover { filter: brightness(1.05); }
+        .btn-outline { background: transparent; border: 1px solid var(--slate-300); color: var(--slate-700); }
+        .btn-outline:hover { border-color: var(--seller-primary); color: var(--seller-primary); }
+        
+        /* Promotions Grid */
+        .promo-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .promo-stat-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1px solid var(--slate-100);
+            box-shadow: var(--shadow-sm);
+        }
+        .promo-stat-card .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+        }
+        .promo-stat-card .stat-icon.purple { background: var(--seller-primary-light); color: var(--seller-primary); }
+        .promo-stat-card .stat-icon.green { background: var(--success-light); color: var(--success); }
+        .promo-stat-card .stat-icon.orange { background: var(--warning-light); color: var(--warning); }
+        .promo-stat-card .stat-icon.blue { background: var(--info-light); color: var(--info); }
+        .promo-stat-card h3 { font-size: 1.75rem; font-weight: 700; color: var(--slate-900); margin-bottom: 4px; }
+        .promo-stat-card p { font-size: 0.85rem; color: var(--slate-500); }
+        
+        /* Tabs */
+        .promo-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: var(--white);
+            padding: 6px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--slate-100);
+            width: fit-content;
+        }
+        .promo-tab {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            color: var(--slate-500);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .promo-tab:hover { color: var(--slate-700); }
+        .promo-tab.active { background: var(--seller-gradient); color: var(--white); }
+        
+        /* Promo Cards */
+        .promo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        .promo-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--slate-100);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .promo-card:hover {
+            border-color: var(--seller-primary-light);
+            box-shadow: var(--shadow-md);
+        }
+        .promo-card-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        .promo-code {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Poppins', monospace;
+            color: var(--seller-primary);
+            background: var(--seller-primary-light);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            letter-spacing: 1px;
+        }
+        .promo-status {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .promo-status.active { background: var(--success-light); color: var(--success); }
+        .promo-status.scheduled { background: var(--info-light); color: var(--info); }
+        .promo-status.expired { background: var(--slate-100); color: var(--slate-500); }
+        .promo-status.paused { background: var(--warning-light); color: #B45309; }
+        
+        .promo-card-body { padding: 20px; }
+        .promo-info { margin-bottom: 16px; }
+        .promo-info h4 { font-size: 1rem; color: var(--slate-900); margin-bottom: 4px; }
+        .promo-info p { font-size: 0.85rem; color: var(--slate-500); }
+        
+        .promo-discount {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--slate-50);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+        }
+        .promo-discount-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+        .promo-discount-type { font-size: 0.85rem; color: var(--slate-600); }
+        
+        .promo-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 0.8rem;
+        }
+        .promo-meta-item { display: flex; align-items: center; gap: 6px; color: var(--slate-500); }
+        .promo-meta-item i { color: var(--slate-400); }
+        
+        .promo-card-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--slate-100);
+            display: flex;
+            gap: 8px;
+        }
+        .promo-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .promo-btn.edit { background: var(--slate-100); color: var(--slate-700); }
+        .promo-btn.edit:hover { background: var(--slate-200); }
+        .promo-btn.copy { background: var(--seller-primary-light); color: var(--seller-primary); }
+        .promo-btn.copy:hover { background: var(--seller-primary); color: var(--white); }
+        .promo-btn.delete { background: var(--danger-light); color: var(--danger); }
+        .promo-btn.delete:hover { background: var(--danger); color: var(--white); }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--slate-500);
+        }
+        .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; }
+        .empty-state h3 { font-size: 1.2rem; color: var(--slate-700); margin-bottom: 8px; }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--slate-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            font-size: 1.2rem;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-header h2 i { color: var(--seller-primary); }
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--slate-100);
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--slate-600);
+        }
+        .modal-body { padding: 24px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--slate-700);
+            margin-bottom: 8px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--seller-primary);
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-hint { font-size: 0.75rem; color: var(--slate-500); margin-top: 6px; }
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--slate-100);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        /* Code Generator */
+        .code-generator {
+            display: flex;
+            gap: 8px;
+        }
+        .code-generator input { flex: 1; text-transform: uppercase; font-family: monospace; letter-spacing: 2px; }
+        .code-generator .btn-generate {
+            padding: 12px;
+            border: none;
+            background: var(--seller-primary-light);
+            color: var(--seller-primary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+        }
+        
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--slate-50);
+            border-radius: var(--radius-md);
+        }
+        .toggle-group label { margin-bottom: 0; font-weight: 500; }
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--slate-300);
+            border-radius: 26px;
+            transition: var(--transition);
+        }
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--white);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .toggle-switch input:checked + .toggle-slider { background: var(--seller-primary); }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            color: var(--white);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+            z-index: 1001;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 850; }
+        .sidebar-overlay.show { display: block; }
+        
+        @media (max-width: 1024px) {
+            .seller-sidebar { transform: translateX(-100%); }
+            .seller-sidebar.open { transform: translateX(0); }
+            .seller-main { margin-left: 0; }
+        }
+        @media (max-width: 768px) {
+            .seller-content { padding: 20px; }
+            .promo-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div style="color: var(--slate-500);">Loading promotions...</div>
+    </div>
+
+    <div class="seller-layout">
+        <aside class="seller-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/seller-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">Seller Hub</span>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/seller-dashboard.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/seller-products.html" class="nav-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="/seller-orders.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="/seller-services.html" class="nav-link">
+                        <i class="fas fa-concierge-bell"></i>
+                        <span>Services</span>
+                    </a>
+                    <a href="/seller-promotions.html" class="nav-link active">
+                        <i class="fas fa-tags"></i>
+                        <span>Promotions</span>
+                    </a>
+                    <a href="/seller-messages.html" class="nav-link">
+                        <i class="fas fa-comments"></i>
+                        <span>Messages</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Insights</div>
+                    <a href="/seller-analytics.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="/seller-reviews.html" class="nav-link">
+                        <i class="fas fa-star"></i>
+                        <span>Reviews</span>
+                    </a>
+                    <a href="/seller-payments.html" class="nav-link">
+                        <i class="fas fa-wallet"></i>
+                        <span>Payments</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="/seller-verification.html" class="nav-link">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Verification</span>
+                    </a>
+                    <a href="/seller-settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="/shop.html" class="nav-link" target="_blank">
+                        <i class="fas fa-store"></i>
+                        <span>View Shop</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="seller-profile">
+                    <div class="profile-avatar" data-seller-avatar>S</div>
+                    <div class="profile-info">
+                        <div class="profile-name" data-seller-name>Loading...</div>
+                        <div class="profile-email" id="sidebarEmail">seller@69shop.in</div>
+                        <div class="profile-status pending" data-seller-status>
+                            <i class="fas fa-clock"></i>
+                            <span>Verification Pending</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="handleLogout(event)">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <main class="seller-main">
+            <header class="seller-header">
+                <div class="header-left">
+                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="page-title">Promotions & Discounts</h1>
+                        <p style="font-size: 0.85rem; color: var(--slate-500);">Create and manage promotional campaigns</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationTrigger">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" id="notificationDot"></span>
+                        </button>
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-panel-header">
+                                <div>
+                                    <h3>Notifications</h3>
+                                    <p id="notificationSubtitle">Latest updates</p>
+                                </div>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-wrapper">
+                        <div class="seller-user-menu" onclick="toggleUserDropdown()">
+                            <div class="seller-user-avatar" id="userAvatar" data-seller-avatar>S</div>
+                            <div class="seller-user-info">
+                                <strong id="userName" data-seller-name>Loading...</strong>
+                            </div>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="/seller-settings.html"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="/shop.html" target="_blank"><i class="fas fa-external-link-alt"></i> View Shop</a>
+                            <hr>
+                            <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="seller-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                    <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.2rem;">Your Promotions</h2>
+                    <button class="btn btn-seller" onclick="openPromoModal()">
+                        <i class="fas fa-plus"></i> Create Promotion
+                    </button>
+                </div>
+
+                <div class="promo-stats">
+                    <div class="promo-stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-tags"></i></div>
+                        <h3 id="totalPromos">0</h3>
+                        <p>Total Promotions</p>
+                    </div>
+                    <div class="promo-stat-card">
+                        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                        <h3 id="activePromos">0</h3>
+                        <p>Active</p>
+                    </div>
+                    <div class="promo-stat-card">
+                        <div class="stat-icon orange"><i class="fas fa-ticket-alt"></i></div>
+                        <h3 id="totalRedeemed">0</h3>
+                        <p>Times Redeemed</p>
+                    </div>
+                    <div class="promo-stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-indian-rupee-sign"></i></div>
+                        <h3 id="totalSavings">₹0</h3>
+                        <p>Customer Savings</p>
+                    </div>
+                </div>
+
+                <div class="promo-tabs">
+                    <button class="promo-tab active" onclick="filterPromos('all')">All</button>
+                    <button class="promo-tab" onclick="filterPromos('active')">Active</button>
+                    <button class="promo-tab" onclick="filterPromos('scheduled')">Scheduled</button>
+                    <button class="promo-tab" onclick="filterPromos('expired')">Expired</button>
+                </div>
+
+                <div class="promo-grid" id="promoGrid">
+                    <div class="empty-state">
+                        <i class="fas fa-tags"></i>
+                        <h3>No promotions yet</h3>
+                        <p>Create your first discount code to attract more customers</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create/Edit Promo Modal -->
+    <div class="modal-overlay" id="promoModal" onclick="if(event.target.id==='promoModal')closePromoModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-tags"></i> <span id="modalTitle">Create Promotion</span></h2>
+                <button class="modal-close" onclick="closePromoModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="promoForm" onsubmit="savePromotion(event)">
+                    <div class="form-group">
+                        <label for="promoCode">Discount Code</label>
+                        <div class="code-generator">
+                            <input type="text" id="promoCode" required placeholder="e.g., SAVE20" maxlength="20">
+                            <button type="button" class="btn-generate" onclick="generateCode()" title="Generate random code">
+                                <i class="fas fa-magic"></i>
+                            </button>
+                        </div>
+                        <p class="form-hint">Customers will enter this code at checkout</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="promoName">Promotion Name</label>
+                        <input type="text" id="promoName" required placeholder="e.g., Summer Sale 20% Off">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="discountType">Discount Type</label>
+                            <select id="discountType" onchange="toggleDiscountFields()">
+                                <option value="percentage">Percentage Off</option>
+                                <option value="fixed">Fixed Amount Off</option>
+                                <option value="freeShipping">Free Shipping</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="discountValueGroup">
+                            <label for="discountValue">Discount Value</label>
+                            <input type="number" id="discountValue" required min="1" placeholder="20">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="minPurchase">Minimum Purchase (₹)</label>
+                            <input type="number" id="minPurchase" min="0" value="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="usageLimit">Usage Limit</label>
+                            <input type="number" id="usageLimit" min="0" placeholder="Unlimited if empty">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">Start Date</label>
+                            <input type="datetime-local" id="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">End Date</label>
+                            <input type="datetime-local" id="endDate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="toggle-group">
+                            <label for="isActive">Activate Immediately</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="isActive" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closePromoModal()">Cancel</button>
+                <button class="btn btn-seller" onclick="savePromotion(event)">
+                    <i class="fas fa-save"></i> Save Promotion
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastText">Success</span>
+    </div>
+
+    <script>
+        let auth = null;
+        let db = null;
+        let currentUser = null;
+        let promotions = [];
+        let editingPromoId = null;
+        let currentFilter = 'all';
+        let notificationFeed = null;
+
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Missing Firebase configuration');
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            db = firebase.firestore();
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) dropdown.classList.toggle('show');
+        }
+
+        document.addEventListener('click', (event) => {
+            const dropdown = document.getElementById('userDropdown');
+            if (!dropdown) return;
+            if (!event.target.closest('.dropdown-wrapper')) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        async function handleLogout(event) {
+            if (event) event.preventDefault();
+            if (auth) {
+                localStorage.removeItem('69shop_user_type');
+                await auth.signOut();
+                window.location.href = '/seller-login.html';
+            }
+        }
+
+        function initNotifications() {
+            if (typeof NotificationFeed === 'undefined' || !db || !currentUser) return;
+            notificationFeed = NotificationFeed.init({
+                audience: 'seller',
+                db,
+                userId: currentUser.uid,
+                triggerSelector: '#notificationTrigger',
+                panelSelector: '#notificationPanel',
+                listSelector: '#notificationList',
+                badgeSelector: '#notificationDot',
+                subtitleSelector: '#notificationSubtitle'
+            });
+        }
+
+        if (auth) {
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    window.location.href = '/seller-login.html';
+                    return;
+                }
+
+                currentUser = user;
+                await loadSellerProfile(user);
+                initNotifications();
+                await loadPromotions();
+                hideLoading();
+            });
+        }
+
+        async function loadSellerProfile(user) {
+            const fallbackName = user.displayName || user.email?.split('@')[0] || 'Seller';
+            let sellerData = null;
+            try {
+                const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                if (sellerDoc.exists) sellerData = sellerDoc.data();
+            } catch (e) { console.warn('Seller profile load failed:', e); }
+            
+            const name = sellerData?.businessName || sellerData?.storeName || fallbackName;
+            const initial = name.charAt(0).toUpperCase();
+            
+            document.querySelectorAll('[data-seller-name]').forEach(el => el.textContent = name);
+            document.querySelectorAll('[data-seller-avatar]').forEach(el => el.textContent = initial);
+            document.getElementById('sidebarEmail').textContent = user.email || 'seller@69shop.in';
+            
+            if (window.SellerShell) {
+                await SellerShell.sync({ db, auth, user, sellerDoc: sellerData || {} });
+            }
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        async function loadPromotions() {
+            if (!currentUser || !db) return;
+            try {
+                const snapshot = await db.collection('promotions')
+                    .where('sellerId', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                promotions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateStats();
+                renderPromotions();
+            } catch (error) {
+                console.error('Error loading promotions:', error);
+                // Try without orderBy if index doesn't exist
+                try {
+                    const snapshot = await db.collection('promotions')
+                        .where('sellerId', '==', currentUser.uid)
+                        .get();
+                    promotions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    updateStats();
+                    renderPromotions();
+                } catch (e) {
+                    console.error('Fallback query also failed:', e);
+                }
+            }
+        }
+
+        function updateStats() {
+            const now = new Date();
+            const active = promotions.filter(p => {
+                const start = new Date(p.startDate);
+                const end = new Date(p.endDate);
+                return p.isActive && now >= start && now <= end;
+            }).length;
+            
+            const totalRedeemed = promotions.reduce((sum, p) => sum + (p.usedCount || 0), 0);
+            const totalSavings = promotions.reduce((sum, p) => sum + (p.totalSavings || 0), 0);
+            
+            document.getElementById('totalPromos').textContent = promotions.length;
+            document.getElementById('activePromos').textContent = active;
+            document.getElementById('totalRedeemed').textContent = totalRedeemed;
+            document.getElementById('totalSavings').textContent = `₹${totalSavings.toLocaleString()}`;
+        }
+
+        function getPromoStatus(promo) {
+            const now = new Date();
+            const start = new Date(promo.startDate);
+            const end = new Date(promo.endDate);
+            
+            if (!promo.isActive) return 'paused';
+            if (now < start) return 'scheduled';
+            if (now > end) return 'expired';
+            return 'active';
+        }
+
+        function filterPromos(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.promo-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent.toLowerCase() === filter);
+            });
+            renderPromotions();
+        }
+
+        function renderPromotions() {
+            const grid = document.getElementById('promoGrid');
+            
+            let filtered = promotions;
+            if (currentFilter !== 'all') {
+                filtered = promotions.filter(p => getPromoStatus(p) === currentFilter);
+            }
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-tags"></i>
+                        <h3>No ${currentFilter === 'all' ? '' : currentFilter} promotions</h3>
+                        <p>Create a discount code to boost your sales</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = filtered.map(promo => {
+                const status = getPromoStatus(promo);
+                const discountDisplay = promo.discountType === 'percentage' 
+                    ? `${promo.discountValue}%` 
+                    : promo.discountType === 'fixed' 
+                        ? `₹${promo.discountValue}` 
+                        : 'Free';
+                const discountLabel = promo.discountType === 'freeShipping' ? 'Shipping' : 'Off';
+                
+                const startDate = new Date(promo.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+                const endDate = new Date(promo.endDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+                
+                return `
+                    <div class="promo-card">
+                        <div class="promo-card-header">
+                            <span class="promo-code">${promo.code}</span>
+                            <span class="promo-status ${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+                        </div>
+                        <div class="promo-card-body">
+                            <div class="promo-info">
+                                <h4>${promo.name || 'Unnamed Promotion'}</h4>
+                                <p>${promo.description || 'No description'}</p>
+                            </div>
+                            <div class="promo-discount">
+                                <span class="promo-discount-value">${discountDisplay}</span>
+                                <span class="promo-discount-type">${discountLabel}</span>
+                            </div>
+                            <div class="promo-meta">
+                                <div class="promo-meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    ${startDate} - ${endDate}
+                                </div>
+                                <div class="promo-meta-item">
+                                    <i class="fas fa-ticket-alt"></i>
+                                    ${promo.usedCount || 0} / ${promo.usageLimit || '∞'} used
+                                </div>
+                                <div class="promo-meta-item">
+                                    <i class="fas fa-indian-rupee-sign"></i>
+                                    Min: ₹${promo.minPurchase || 0}
+                                </div>
+                                <div class="promo-meta-item">
+                                    <i class="fas fa-coins"></i>
+                                    Saved: ₹${(promo.totalSavings || 0).toLocaleString()}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-card-footer">
+                            <button class="promo-btn edit" onclick="editPromotion('${promo.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="promo-btn copy" onclick="copyCode('${promo.code}')">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="promo-btn delete" onclick="deletePromotion('${promo.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openPromoModal() {
+            editingPromoId = null;
+            document.getElementById('modalTitle').textContent = 'Create Promotion';
+            document.getElementById('promoForm').reset();
+            
+            // Set default dates
+            const now = new Date();
+            const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            document.getElementById('startDate').value = formatDatetimeLocal(now);
+            document.getElementById('endDate').value = formatDatetimeLocal(nextWeek);
+            document.getElementById('isActive').checked = true;
+            
+            document.getElementById('promoModal').classList.add('show');
+        }
+
+        function editPromotion(id) {
+            const promo = promotions.find(p => p.id === id);
+            if (!promo) return;
+            
+            editingPromoId = id;
+            document.getElementById('modalTitle').textContent = 'Edit Promotion';
+            
+            document.getElementById('promoCode').value = promo.code || '';
+            document.getElementById('promoName').value = promo.name || '';
+            document.getElementById('discountType').value = promo.discountType || 'percentage';
+            document.getElementById('discountValue').value = promo.discountValue || '';
+            document.getElementById('minPurchase').value = promo.minPurchase || 0;
+            document.getElementById('usageLimit').value = promo.usageLimit || '';
+            document.getElementById('startDate').value = promo.startDate || '';
+            document.getElementById('endDate').value = promo.endDate || '';
+            document.getElementById('isActive').checked = promo.isActive !== false;
+            
+            toggleDiscountFields();
+            document.getElementById('promoModal').classList.add('show');
+        }
+
+        function closePromoModal() {
+            document.getElementById('promoModal').classList.remove('show');
+            editingPromoId = null;
+        }
+
+        async function savePromotion(event) {
+            if (event) event.preventDefault();
+            
+            const code = document.getElementById('promoCode').value.trim().toUpperCase();
+            const name = document.getElementById('promoName').value.trim();
+            const discountType = document.getElementById('discountType').value;
+            const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+            const minPurchase = parseFloat(document.getElementById('minPurchase').value) || 0;
+            const usageLimit = parseInt(document.getElementById('usageLimit').value) || null;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const isActive = document.getElementById('isActive').checked;
+            
+            if (!code || !name || !startDate || !endDate) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+            
+            if (discountType !== 'freeShipping' && discountValue <= 0) {
+                showToast('Please enter a valid discount value', 'error');
+                return;
+            }
+            
+            if (new Date(endDate) <= new Date(startDate)) {
+                showToast('End date must be after start date', 'error');
+                return;
+            }
+            
+            const promoData = {
+                code,
+                name,
+                discountType,
+                discountValue: discountType === 'freeShipping' ? 0 : discountValue,
+                minPurchase,
+                usageLimit,
+                startDate,
+                endDate,
+                isActive,
+                sellerId: currentUser.uid,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                if (editingPromoId) {
+                    await db.collection('promotions').doc(editingPromoId).update(promoData);
+                    showToast('Promotion updated successfully');
+                } else {
+                    promoData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    promoData.usedCount = 0;
+                    promoData.totalSavings = 0;
+                    await db.collection('promotions').add(promoData);
+                    showToast('Promotion created successfully');
+                }
+                
+                closePromoModal();
+                await loadPromotions();
+            } catch (error) {
+                console.error('Error saving promotion:', error);
+                showToast('Failed to save promotion', 'error');
+            }
+        }
+
+        async function deletePromotion(id) {
+            if (!confirm('Are you sure you want to delete this promotion?')) return;
+            
+            try {
+                await db.collection('promotions').doc(id).delete();
+                showToast('Promotion deleted');
+                await loadPromotions();
+            } catch (error) {
+                console.error('Error deleting promotion:', error);
+                showToast('Failed to delete promotion', 'error');
+            }
+        }
+
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                showToast(`Code "${code}" copied!`);
+            }).catch(() => {
+                showToast('Failed to copy', 'error');
+            });
+        }
+
+        function generateCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('promoCode').value = code;
+        }
+
+        function toggleDiscountFields() {
+            const type = document.getElementById('discountType').value;
+            const valueGroup = document.getElementById('discountValueGroup');
+            const valueInput = document.getElementById('discountValue');
+            
+            if (type === 'freeShipping') {
+                valueGroup.style.display = 'none';
+                valueInput.removeAttribute('required');
+            } else {
+                valueGroup.style.display = 'block';
+                valueInput.setAttribute('required', 'required');
+            }
+        }
+
+        function formatDatetimeLocal(date) {
+            return date.toISOString().slice(0, 16);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const text = document.getElementById('toastText');
+            if (!toast || !text) return;
+            text.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar) sidebar.classList.toggle('open');
+            if (overlay) overlay.classList.toggle('show');
+        }
+
+        function checkResponsive() {
+            const menuToggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 1024) {
+                if (menuToggle) menuToggle.style.display = 'flex';
+            } else {
+                if (menuToggle) menuToggle.style.display = 'none';
+                document.getElementById('sidebar')?.classList.remove('open');
+                document.getElementById('sidebarOverlay')?.classList.remove('show');
+            }
+        }
+
+        window.addEventListener('resize', checkResponsive);
+        checkResponsive();
+    </script>
+</body>
+</html>

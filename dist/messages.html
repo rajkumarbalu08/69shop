@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Messages - 69Shop.in</title>
+    <meta name="description" content="Chat with sellers on 69Shop.in">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <style>
+        :root {
+            --blue-primary: #0066ff;
+            --blue-primary-light: #E6F0FF;
+            --primary-black: #1A1A1A;
+            --secondary-black: #2D2D2D;
+            --text-dark: #1A1A1A;
+            --text-medium: #666666;
+            --text-light: #999999;
+            --light-grey: #F8F8F8;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --transition: all 0.3s ease;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--light-grey);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+        
+        /* Header */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid #E5E5E5;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-medium);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        .back-link:hover { color: var(--blue-primary); }
+        .page-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-dark);
+        }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--blue-primary);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        /* Main Chat Layout */
+        .chat-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            height: calc(100vh - 73px);
+            background: var(--white);
+        }
+        
+        /* Conversations List */
+        .conversations-panel {
+            width: 340px;
+            border-right: 1px solid #E5E5E5;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .conversations-header {
+            padding: 20px;
+            border-bottom: 1px solid #E5E5E5;
+        }
+        .conversations-header h2 {
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 12px;
+        }
+        .search-box {
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid #E5E5E5;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            background: var(--light-grey);
+        }
+        .search-box input:focus { outline: none; border-color: var(--blue-primary); background: var(--white); }
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .conversation-item {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid #F0F0F0;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .conversation-item:hover { background: var(--light-grey); }
+        .conversation-item.active { background: var(--blue-primary-light); }
+        .conversation-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue-primary) 0%, #3B82F6 100%);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .conversation-content { flex: 1; min-width: 0; }
+        .conversation-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .conversation-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .conversation-time { font-size: 0.75rem; color: var(--text-light); flex-shrink: 0; }
+        .conversation-preview {
+            font-size: 0.85rem;
+            color: var(--text-medium);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .unread-badge {
+            width: 20px;
+            height: 20px;
+            background: var(--blue-primary);
+            color: var(--white);
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .empty-conversations {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-light);
+            text-align: center;
+        }
+        .empty-conversations i { font-size: 3rem; margin-bottom: 16px; }
+        .empty-conversations h3 { font-size: 1rem; color: var(--text-dark); margin-bottom: 8px; }
+        .empty-conversations p { font-size: 0.85rem; }
+        
+        /* Chat Panel */
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #E5E5E5;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--white);
+        }
+        .chat-seller-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue-primary) 0%, #3B82F6 100%);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        .chat-seller-info { flex: 1; }
+        .chat-seller-name { font-weight: 600; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+        .chat-seller-name i { color: var(--success); font-size: 0.85rem; }
+        .chat-seller-status { font-size: 0.8rem; color: var(--text-light); }
+        .chat-actions { display: flex; gap: 8px; }
+        .chat-action-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--light-grey);
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-medium);
+            transition: var(--transition);
+        }
+        .chat-action-btn:hover { background: #E5E5E5; color: var(--blue-primary); }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: #FAFAFA;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .message-date-divider {
+            text-align: center;
+            position: relative;
+            margin: 16px 0;
+        }
+        .message-date-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #E5E5E5;
+        }
+        .message-date-divider span {
+            background: #FAFAFA;
+            padding: 0 16px;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            position: relative;
+        }
+        
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 70%;
+        }
+        .message.sent { align-self: flex-end; flex-direction: row-reverse; }
+        .message.received { align-self: flex-start; }
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--blue-primary);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .message.received .message-avatar { background: #6366F1; }
+        .message-content {
+            max-width: 100%;
+        }
+        .message-text {
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .message.sent .message-text { background: var(--blue-primary); color: var(--white); border-bottom-right-radius: 4px; }
+        .message.received .message-text { background: var(--white); color: var(--text-dark); border-bottom-left-radius: 4px; box-shadow: var(--shadow-sm); }
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: 4px;
+            padding: 0 4px;
+        }
+        .message.sent .message-time { text-align: right; }
+        
+        .chat-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            text-align: center;
+            background: #FAFAFA;
+        }
+        .chat-empty i { font-size: 4rem; margin-bottom: 20px; color: #E5E5E5; }
+        .chat-empty h3 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 8px; }
+        .chat-empty p { font-size: 0.9rem; }
+        
+        .chat-input-area {
+            padding: 16px 24px;
+            background: var(--white);
+            border-top: 1px solid #E5E5E5;
+        }
+        .chat-input-box {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        .chat-input-box textarea {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #E5E5E5;
+            border-radius: var(--radius-lg);
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: none;
+            min-height: 48px;
+            max-height: 120px;
+            line-height: 1.5;
+        }
+        .chat-input-box textarea:focus { outline: none; border-color: var(--blue-primary); }
+        .chat-send-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            background: var(--blue-primary);
+            color: var(--white);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .chat-send-btn:hover { background: #0055DD; transform: scale(1.05); }
+        .chat-send-btn:disabled { background: #CCC; cursor: not-allowed; transform: none; }
+        
+        /* Login Required State */
+        .login-required {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            background: var(--white);
+        }
+        .login-required i { font-size: 4rem; color: var(--blue-primary); margin-bottom: 24px; }
+        .login-required h2 { font-size: 1.5rem; margin-bottom: 12px; }
+        .login-required p { font-size: 1rem; color: var(--text-medium); margin-bottom: 24px; }
+        .login-btn {
+            padding: 14px 32px;
+            background: var(--blue-primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .login-btn:hover { background: #0055DD; }
+        
+        /* Loading */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #E5E5E5;
+            border-top-color: var(--blue-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 24px;
+            background: var(--text-dark);
+            color: var(--white);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1000;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: var(--danger); }
+        .toast.success { background: var(--success); }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .conversations-panel { width: 100%; position: absolute; left: 0; top: 0; height: 100%; background: var(--white); z-index: 10; }
+            .conversations-panel.hidden { display: none; }
+            .chat-panel { width: 100%; }
+            .chat-layout { position: relative; }
+            .back-to-list {
+                display: flex;
+                padding: 8px;
+                margin-right: 8px;
+                border: none;
+                background: none;
+                cursor: pointer;
+            }
+            .page-title { font-size: 1.1rem; }
+        }
+        @media (min-width: 769px) {
+            .back-to-list { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <a href="shop.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Shop
+                </a>
+                <h1 class="page-title">My Messages</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-avatar" id="userAvatar">?</div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Chat Layout -->
+    <div class="chat-layout" id="chatLayout" style="display: none;">
+        <!-- Conversations Panel -->
+        <div class="conversations-panel" id="conversationsPanel">
+            <div class="conversations-header">
+                <h2>Conversations</h2>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchConversations" placeholder="Search conversations...">
+                </div>
+            </div>
+            <div class="conversations-list" id="conversationsList">
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Panel -->
+        <div class="chat-panel" id="chatPanel">
+            <div class="chat-empty" id="chatEmpty">
+                <i class="fas fa-comments"></i>
+                <h3>Select a conversation</h3>
+                <p>Choose a conversation from the list to start chatting</p>
+            </div>
+            
+            <div id="chatContent" style="display: none; flex: 1; display: flex; flex-direction: column;">
+                <div class="chat-header" id="chatHeader">
+                    <button class="back-to-list" onclick="showConversationsList()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="chat-seller-avatar" id="chatSellerAvatar">S</div>
+                    <div class="chat-seller-info">
+                        <div class="chat-seller-name" id="chatSellerName">
+                            Seller Name
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="chat-seller-status" id="chatSellerStatus">Typically replies within 1 hour</div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="chat-action-btn" onclick="viewSellerProfile()" title="View Seller">
+                            <i class="fas fa-store"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages"></div>
+                
+                <div class="chat-input-area">
+                    <div class="chat-input-box">
+                        <textarea id="messageInput" placeholder="Type your message..." rows="1"></textarea>
+                        <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Login Required State -->
+    <div class="login-required" id="loginRequired" style="display: none;">
+        <i class="fas fa-comments"></i>
+        <h2>Sign in to view messages</h2>
+        <p>Login to chat with sellers and track your conversations</p>
+        <a href="shop-login.html" class="login-btn">Sign In</a>
+    </div>
+    
+    <!-- Loading State -->
+    <div class="loading-state" id="loadingState" style="height: calc(100vh - 73px);">
+        <div class="spinner"></div>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastText">Message sent!</span>
+    </div>
+
+    <script>
+        let auth = null;
+        let db = null;
+        let currentUser = null;
+        let conversations = [];
+        let activeConversationId = null;
+        let messagesUnsubscribe = null;
+        let conversationsUnsubscribe = null;
+        
+        // Initialize Firebase
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (firebaseConfig && firebaseConfig.apiKey) {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                auth = firebase.auth();
+                db = firebase.firestore();
+            }
+        } catch (error) {
+            console.error('Firebase init error:', error);
+        }
+        
+        // Auth state listener
+        if (auth) {
+            auth.onAuthStateChanged((user) => {
+                document.getElementById('loadingState').style.display = 'none';
+                
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('userAvatar').textContent = user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U';
+                    document.getElementById('chatLayout').style.display = 'flex';
+                    document.getElementById('loginRequired').style.display = 'none';
+                    loadConversations();
+                    
+                    // Check if coming from product page with sellerId
+                    checkForNewConversation();
+                } else {
+                    document.getElementById('loginRequired').style.display = 'flex';
+                    document.getElementById('chatLayout').style.display = 'none';
+                }
+            });
+        } else {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('loginRequired').style.display = 'flex';
+        }
+        
+        async function checkForNewConversation() {
+            const params = new URLSearchParams(window.location.search);
+            const sellerId = params.get('seller');
+            const productId = params.get('product');
+            
+            if (sellerId && currentUser) {
+                // Check if conversation already exists
+                const existingConv = conversations.find(c => c.sellerId === sellerId);
+                if (existingConv) {
+                    selectConversation(existingConv.id);
+                } else {
+                    // Create new conversation
+                    await createNewConversation(sellerId, productId);
+                }
+                // Clear URL params
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+        
+        async function createNewConversation(sellerId, productId = null) {
+            try {
+                // Get seller info
+                let sellerName = 'Seller';
+                const sellerDoc = await db.collection('sellers').doc(sellerId).get();
+                if (sellerDoc.exists) {
+                    sellerName = sellerDoc.data().businessName || sellerDoc.data().name || 'Seller';
+                }
+                
+                // Get product info if provided
+                let productInfo = null;
+                if (productId) {
+                    const productDoc = await db.collection('products').doc(productId).get();
+                    if (productDoc.exists) {
+                        productInfo = { id: productId, name: productDoc.data().name };
+                    }
+                }
+                
+                // Create conversation document
+                const convRef = await db.collection('conversations').add({
+                    customerId: currentUser.uid,
+                    customerName: currentUser.displayName || currentUser.email?.split('@')[0] || 'Customer',
+                    customerEmail: currentUser.email,
+                    sellerId: sellerId,
+                    sellerName: sellerName,
+                    productId: productId,
+                    productName: productInfo?.name || null,
+                    lastMessage: 'Conversation started',
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    unreadSeller: 0,
+                    unreadCustomer: 0
+                });
+                
+                // Add initial message if product context
+                if (productInfo) {
+                    await db.collection('conversations').doc(convRef.id).collection('messages').add({
+                        text: `Hi! I'm interested in "${productInfo.name}"`,
+                        senderId: currentUser.uid,
+                        senderName: currentUser.displayName || 'Customer',
+                        senderType: 'customer',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    await db.collection('conversations').doc(convRef.id).update({
+                        lastMessage: `Hi! I'm interested in "${productInfo.name}"`,
+                        unreadSeller: 1
+                    });
+                }
+                
+                showToast('Conversation started!', 'success');
+                
+                // The real-time listener will pick up the new conversation
+                setTimeout(() => selectConversation(convRef.id), 500);
+                
+            } catch (error) {
+                console.error('Error creating conversation:', error);
+                showToast('Failed to start conversation', 'error');
+            }
+        }
+        
+        function loadConversations() {
+            if (!db || !currentUser) return;
+            
+            // Listen for customer's conversations
+            conversationsUnsubscribe = db.collection('conversations')
+                .where('customerId', '==', currentUser.uid)
+                .orderBy('lastMessageAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    conversations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderConversations();
+                    
+                    // Check for new conversation after load
+                    if (conversations.length > 0 && !activeConversationId) {
+                        checkForNewConversation();
+                    }
+                }, (error) => {
+                    console.error('Conversations listener error:', error);
+                    // Try without orderBy if index doesn't exist yet
+                    db.collection('conversations')
+                        .where('customerId', '==', currentUser.uid)
+                        .get()
+                        .then(snapshot => {
+                            conversations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                            // Sort manually by lastMessageAt
+                            conversations.sort((a, b) => {
+                                const aTime = a.lastMessageAt?.toDate?.() || new Date(0);
+                                const bTime = b.lastMessageAt?.toDate?.() || new Date(0);
+                                return bTime - aTime;
+                            });
+                            renderConversations();
+                            
+                            if (conversations.length > 0 && !activeConversationId) {
+                                checkForNewConversation();
+                            }
+                        })
+                        .catch(fallbackError => {
+                            console.error('Fallback query also failed:', fallbackError);
+                            document.getElementById('conversationsList').innerHTML = `
+                                <div class="empty-conversations">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <h3>Unable to load</h3>
+                                    <p>Please refresh the page</p>
+                                </div>
+                            `;
+                        });
+                });
+        }
+        
+        function renderConversations() {
+            const container = document.getElementById('conversationsList');
+            const searchTerm = document.getElementById('searchConversations')?.value.toLowerCase() || '';
+            
+            const filtered = conversations.filter(c => 
+                c.sellerName?.toLowerCase().includes(searchTerm) ||
+                c.productName?.toLowerCase().includes(searchTerm) ||
+                c.lastMessage?.toLowerCase().includes(searchTerm)
+            );
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-conversations">
+                        <i class="fas fa-inbox"></i>
+                        <h3>${searchTerm ? 'No results found' : 'No messages yet'}</h3>
+                        <p>${searchTerm ? 'Try a different search' : 'Start chatting with sellers from product pages'}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filtered.map(conv => {
+                const time = formatTime(conv.lastMessageAt);
+                const unread = conv.unreadCustomer || 0;
+                const initial = conv.sellerName?.charAt(0).toUpperCase() || 'S';
+                
+                return `
+                    <div class="conversation-item ${conv.id === activeConversationId ? 'active' : ''}" 
+                         onclick="selectConversation('${conv.id}')">
+                        <div class="conversation-avatar">${initial}</div>
+                        <div class="conversation-content">
+                            <div class="conversation-meta">
+                                <span class="conversation-name">${escapeHtml(conv.sellerName || 'Seller')}</span>
+                                <span class="conversation-time">${time}</span>
+                            </div>
+                            <div class="conversation-preview">${escapeHtml(conv.lastMessage || 'No messages')}</div>
+                        </div>
+                        ${unread > 0 ? `<div class="unread-badge">${unread}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function formatTime(timestamp) {
+            if (!timestamp) return '';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
+            if (diff < 604800000) return Math.floor(diff / 86400000) + 'd';
+            return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+        }
+        
+        async function selectConversation(conversationId) {
+            activeConversationId = conversationId;
+            const conv = conversations.find(c => c.id === conversationId);
+            
+            if (!conv) return;
+            
+            // Update UI
+            document.getElementById('chatEmpty').style.display = 'none';
+            document.getElementById('chatContent').style.display = 'flex';
+            
+            // Update header
+            document.getElementById('chatSellerAvatar').textContent = conv.sellerName?.charAt(0).toUpperCase() || 'S';
+            document.getElementById('chatSellerName').innerHTML = `
+                ${escapeHtml(conv.sellerName || 'Seller')}
+                <i class="fas fa-check-circle"></i>
+            `;
+            
+            // Mark as read
+            if (conv.unreadCustomer > 0) {
+                await db.collection('conversations').doc(conversationId).update({
+                    unreadCustomer: 0
+                });
+            }
+            
+            // Re-render conversations to show active state
+            renderConversations();
+            
+            // Hide conversations panel on mobile
+            if (window.innerWidth < 769) {
+                document.getElementById('conversationsPanel').classList.add('hidden');
+            }
+            
+            // Start listening to messages
+            startMessagesListener(conversationId);
+        }
+        
+        function showConversationsList() {
+            document.getElementById('conversationsPanel').classList.remove('hidden');
+        }
+        
+        function startMessagesListener(conversationId) {
+            if (messagesUnsubscribe) {
+                messagesUnsubscribe();
+            }
+            
+            messagesUnsubscribe = db.collection('conversations')
+                .doc(conversationId)
+                .collection('messages')
+                .orderBy('createdAt', 'asc')
+                .onSnapshot((snapshot) => {
+                    const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderMessages(messages);
+                }, (error) => {
+                    console.error('Messages listener error:', error);
+                });
+        }
+        
+        function renderMessages(messages) {
+            const container = document.getElementById('chatMessages');
+            
+            if (messages.length === 0) {
+                container.innerHTML = `
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-light);">
+                        <i class="fas fa-comment-dots" style="font-size: 3rem; margin-bottom: 16px;"></i>
+                        <h3 style="font-size: 1rem; margin-bottom: 8px;">Start the conversation</h3>
+                        <p style="font-size: 0.85rem;">Send a message to the seller</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let lastDate = null;
+            let html = '';
+            
+            messages.forEach(msg => {
+                const msgDate = msg.createdAt?.toDate?.() || new Date();
+                const dateStr = msgDate.toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' });
+                
+                if (dateStr !== lastDate) {
+                    html += `<div class="message-date-divider"><span>${dateStr}</span></div>`;
+                    lastDate = dateStr;
+                }
+                
+                const isSent = msg.senderId === currentUser.uid;
+                const timeStr = msgDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                const initial = isSent ? 'You'.charAt(0) : (msg.senderName || 'S').charAt(0).toUpperCase();
+                
+                html += `
+                    <div class="message ${isSent ? 'sent' : 'received'}">
+                        <div class="message-avatar">${initial}</div>
+                        <div class="message-content">
+                            <div class="message-text">${escapeHtml(msg.text)}</div>
+                            <div class="message-time">${timeStr}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text || !activeConversationId) return;
+            
+            input.value = '';
+            input.style.height = 'auto';
+            
+            try {
+                const conv = conversations.find(c => c.id === activeConversationId);
+                
+                // Add message to subcollection
+                await db.collection('conversations')
+                    .doc(activeConversationId)
+                    .collection('messages')
+                    .add({
+                        text,
+                        senderId: currentUser.uid,
+                        senderName: currentUser.displayName || 'Customer',
+                        senderType: 'customer',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                
+                // Update conversation metadata
+                await db.collection('conversations').doc(activeConversationId).update({
+                    lastMessage: text.substring(0, 100),
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    unreadSeller: firebase.firestore.FieldValue.increment(1)
+                });
+                
+            } catch (error) {
+                console.error('Failed to send message:', error);
+                showToast('Failed to send message', 'error');
+            }
+        }
+        
+        // Auto-resize textarea
+        document.getElementById('messageInput')?.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+        
+        // Send on Enter
+        document.getElementById('messageInput')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Search
+        document.getElementById('searchConversations')?.addEventListener('input', renderConversations);
+        
+        function viewSellerProfile() {
+            const conv = conversations.find(c => c.id === activeConversationId);
+            if (conv?.sellerId) {
+                // Could link to seller profile page if exists
+                showToast('Seller profile feature coming soon!', 'success');
+            }
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const text = document.getElementById('toastText');
+            if (!toast || !text) return;
+            text.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (messagesUnsubscribe) messagesUnsubscribe();
+            if (conversationsUnsubscribe) conversationsUnsubscribe();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Seller Hub | 69Shop.in</title>
+    <meta name="description" content="Chat with customers about their orders and inquiries">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/dashboard-notifications.css">
+    <link rel="stylesheet" href="/assets/css/seller-header.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/seller-shell.js"></script>
+    
+    <style>
+        :root {
+            --seller-primary: #7C3AED;
+            --seller-primary-dark: #6D28D9;
+            --seller-primary-light: #EDE9FE;
+            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            --danger: #EF4444;
+            --danger-light: #FEE2E2;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-100);
+            min-height: 100vh;
+            color: var(--slate-800);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--slate-200);
+            border-top-color: var(--seller-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .seller-layout { display: flex; min-height: 100vh; }
+        
+        .seller-sidebar {
+            width: var(--sidebar-width);
+            background: var(--slate-900);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-700); }
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--seller-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--white);
+            font-weight: 700;
+        }
+        .brand-text { display: flex; flex-direction: column; }
+        .brand-name { font-size: 1.1rem; font-weight: 700; color: var(--white); }
+        .brand-badge { font-size: 0.7rem; color: var(--seller-primary); background: var(--seller-primary-light); padding: 2px 8px; border-radius: 999px; width: fit-content; margin-top: 4px; }
+        
+        .sidebar-nav { flex: 1; padding: 20px 0; overflow-y: auto; }
+        .nav-section { padding: 0 16px; margin-bottom: 24px; }
+        .nav-section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500); margin-bottom: 12px; padding: 0 12px; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            color: var(--slate-400);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            margin-bottom: 4px;
+        }
+        .nav-link:hover { background: var(--slate-800); color: var(--white); }
+        .nav-link.active { background: var(--seller-gradient); color: var(--white); }
+        .nav-link i { width: 20px; text-align: center; }
+        .nav-badge { margin-left: auto; background: var(--danger); color: var(--white); padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; }
+        
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
+        .seller-profile { display: flex; gap: 12px; margin-bottom: 16px; }
+        .profile-avatar { width: 44px; height: 44px; background: var(--seller-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 600; font-size: 1.1rem; }
+        .profile-info { flex: 1; }
+        .profile-name { font-size: 0.9rem; font-weight: 600; color: var(--white); }
+        .profile-email { font-size: 0.75rem; color: var(--slate-400); }
+        .profile-status { display: inline-flex; align-items: center; gap: 4px; font-size: 0.7rem; margin-top: 4px; padding: 2px 8px; border-radius: 999px; }
+        .profile-status.verified { background: var(--success-light); color: var(--success); }
+        .profile-status.pending { background: var(--warning-light); color: #B45309; }
+        .btn-logout { width: 100%; padding: 10px; border: 1px solid var(--slate-700); background: transparent; color: var(--slate-400); border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition); }
+        .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+        
+        .seller-main { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; height: 100vh; }
+        .seller-header {
+            height: var(--header-height);
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            flex-shrink: 0;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .page-title { font-size: 1.3rem; font-weight: 700; font-family: 'Poppins', sans-serif; color: var(--slate-900); }
+        
+        .header-btn {
+            width: 42px;
+            height: 42px;
+            border: none;
+            background: var(--slate-100);
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--slate-600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: var(--transition);
+        }
+        .header-btn:hover { background: var(--slate-200); }
+        .notification-dot { position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; background: var(--danger); border: 2px solid var(--white); border-radius: 50%; display: none; }
+        
+        .dropdown-wrapper { position: relative; }
+        .seller-user-menu { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--seller-primary-light); cursor: pointer; }
+        .seller-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--white); color: var(--seller-primary); font-weight: 600; display: flex; align-items: center; justify-content: center; }
+        .seller-user-info strong { font-size: 0.85rem; color: var(--slate-900); }
+        .user-dropdown { position: absolute; top: calc(100% + 8px); right: 0; background: var(--white); border-radius: var(--radius-md); border: 1px solid var(--slate-200); box-shadow: var(--shadow-lg); min-width: 200px; padding: 8px 0; display: none; z-index: 20; }
+        .user-dropdown.show { display: block; }
+        .user-dropdown a { display: flex; align-items: center; gap: 8px; padding: 10px 16px; text-decoration: none; color: var(--slate-700); font-size: 0.9rem; }
+        .user-dropdown a:hover { background: var(--slate-50); }
+        .user-dropdown hr { border: none; border-top: 1px solid var(--slate-100); margin: 6px 0; }
+        .user-dropdown .logout { color: var(--danger); }
+        
+        /* Chat Layout */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        /* Conversations List */
+        .conversations-panel {
+            width: 340px;
+            background: var(--white);
+            border-right: 1px solid var(--slate-200);
+            display: flex;
+            flex-direction: column;
+        }
+        .conversations-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        .conversations-header h2 {
+            font-size: 1.1rem;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 16px;
+        }
+        .conversations-search {
+            position: relative;
+        }
+        .conversations-search input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+        }
+        .conversations-search input:focus { outline: none; border-color: var(--seller-primary); }
+        .conversations-search i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-400);
+        }
+        
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .conversation-item {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--slate-100);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .conversation-item:hover { background: var(--slate-50); }
+        .conversation-item.active { background: var(--seller-primary-light); }
+        .conversation-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--seller-gradient);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .conversation-content { flex: 1; min-width: 0; }
+        .conversation-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .conversation-name {
+            font-weight: 600;
+            color: var(--slate-900);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .conversation-time { font-size: 0.75rem; color: var(--slate-400); flex-shrink: 0; }
+        .conversation-preview {
+            font-size: 0.85rem;
+            color: var(--slate-500);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .conversation-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .conversation-order {
+            font-size: 0.7rem;
+            color: var(--seller-primary);
+            background: var(--seller-primary-light);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .unread-badge {
+            width: 20px;
+            height: 20px;
+            background: var(--seller-primary);
+            color: var(--white);
+            border-radius: 50%;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Chat Panel */
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--slate-50);
+        }
+        
+        .chat-header {
+            padding: 16px 24px;
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .chat-header-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--seller-gradient);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        .chat-header-info h3 {
+            font-size: 1rem;
+            color: var(--slate-900);
+        }
+        .chat-header-info p {
+            font-size: 0.8rem;
+            color: var(--slate-500);
+        }
+        .chat-header-actions { margin-left: auto; display: flex; gap: 8px; }
+        .chat-action-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--slate-100);
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--slate-600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chat-action-btn:hover { background: var(--slate-200); }
+        
+        /* Messages Area */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 70%;
+        }
+        .message.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--slate-300);
+            color: var(--slate-700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .message.sent .message-avatar {
+            background: var(--seller-primary);
+            color: var(--white);
+        }
+        .message-content {
+            background: var(--white);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+        .message.sent .message-content {
+            background: var(--seller-gradient);
+            color: var(--white);
+        }
+        .message-text { font-size: 0.9rem; line-height: 1.5; }
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--slate-400);
+            margin-top: 6px;
+        }
+        .message.sent .message-time { color: rgba(255,255,255,0.7); }
+        
+        .message-date-divider {
+            text-align: center;
+            color: var(--slate-400);
+            font-size: 0.75rem;
+            padding: 16px 0;
+        }
+        .message-date-divider span {
+            background: var(--slate-100);
+            padding: 6px 16px;
+            border-radius: 999px;
+        }
+        
+        /* Chat Input */
+        .chat-input-area {
+            padding: 16px 24px;
+            background: var(--white);
+            border-top: 1px solid var(--slate-200);
+        }
+        .chat-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            resize: none;
+            font-size: 0.9rem;
+            font-family: inherit;
+            min-height: 48px;
+            max-height: 120px;
+        }
+        .chat-input:focus { outline: none; border-color: var(--seller-primary); }
+        .chat-send-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            background: var(--seller-gradient);
+            color: var(--white);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+        .chat-send-btn:hover { filter: brightness(1.05); transform: scale(1.05); }
+        .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        /* Empty States */
+        .chat-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--slate-400);
+            padding: 40px;
+        }
+        .chat-empty i { font-size: 4rem; margin-bottom: 16px; opacity: 0.3; }
+        .chat-empty h3 { font-size: 1.2rem; color: var(--slate-600); margin-bottom: 8px; }
+        .chat-empty p { font-size: 0.9rem; }
+        
+        .conversations-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--slate-400);
+        }
+        .conversations-empty i { font-size: 3rem; margin-bottom: 12px; opacity: 0.3; }
+        
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 850; }
+        .sidebar-overlay.show { display: block; }
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            color: var(--white);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+            z-index: 1001;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        @media (max-width: 1024px) {
+            .seller-sidebar { transform: translateX(-100%); }
+            .seller-sidebar.open { transform: translateX(0); }
+            .seller-main { margin-left: 0; }
+        }
+        @media (max-width: 768px) {
+            .conversations-panel { position: absolute; width: 100%; z-index: 10; }
+            .conversations-panel.hidden { display: none; }
+            .chat-panel { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div style="color: var(--slate-500);">Loading messages...</div>
+    </div>
+
+    <div class="seller-layout">
+        <aside class="seller-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/seller-dashboard.html" class="sidebar-brand">
+                    <div class="brand-logo">69</div>
+                    <div class="brand-text">
+                        <span class="brand-name">69Shop.in</span>
+                        <span class="brand-badge">Seller Hub</span>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <a href="/seller-dashboard.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/seller-products.html" class="nav-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                    </a>
+                    <a href="/seller-orders.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="/seller-services.html" class="nav-link">
+                        <i class="fas fa-concierge-bell"></i>
+                        <span>Services</span>
+                    </a>
+                    <a href="/seller-promotions.html" class="nav-link">
+                        <i class="fas fa-tags"></i>
+                        <span>Promotions</span>
+                    </a>
+                    <a href="/seller-messages.html" class="nav-link active">
+                        <i class="fas fa-comments"></i>
+                        <span>Messages</span>
+                        <span class="nav-badge" id="unreadBadge" style="display: none;">0</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Insights</div>
+                    <a href="/seller-analytics.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="/seller-reviews.html" class="nav-link">
+                        <i class="fas fa-star"></i>
+                        <span>Reviews</span>
+                    </a>
+                    <a href="/seller-payments.html" class="nav-link">
+                        <i class="fas fa-wallet"></i>
+                        <span>Payments</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="/seller-verification.html" class="nav-link">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Verification</span>
+                    </a>
+                    <a href="/seller-settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="/shop.html" class="nav-link" target="_blank">
+                        <i class="fas fa-store"></i>
+                        <span>View Shop</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="seller-profile">
+                    <div class="profile-avatar" data-seller-avatar>S</div>
+                    <div class="profile-info">
+                        <div class="profile-name" data-seller-name>Loading...</div>
+                        <div class="profile-email" id="sidebarEmail">seller@69shop.in</div>
+                        <div class="profile-status pending" data-seller-status>
+                            <i class="fas fa-clock"></i>
+                            <span>Verification Pending</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="handleLogout(event)">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <main class="seller-main">
+            <header class="seller-header">
+                <div class="header-left">
+                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="page-title">Messages</h1>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="notification-wrapper">
+                        <button class="header-btn" id="notificationTrigger">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" id="notificationDot"></span>
+                        </button>
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-panel-header">
+                                <div>
+                                    <h3>Notifications</h3>
+                                    <p id="notificationSubtitle">Latest updates</p>
+                                </div>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-wrapper">
+                        <div class="seller-user-menu" onclick="toggleUserDropdown()">
+                            <div class="seller-user-avatar" id="userAvatar" data-seller-avatar>S</div>
+                            <div class="seller-user-info">
+                                <strong id="userName" data-seller-name>Loading...</strong>
+                            </div>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="/seller-settings.html"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="/shop.html" target="_blank"><i class="fas fa-external-link-alt"></i> View Shop</a>
+                            <hr>
+                            <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="chat-container">
+                <!-- Conversations List -->
+                <div class="conversations-panel" id="conversationsPanel">
+                    <div class="conversations-header">
+                        <h2>Conversations</h2>
+                        <div class="conversations-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchConversations" placeholder="Search messages...">
+                        </div>
+                    </div>
+                    <div class="conversations-list" id="conversationsList">
+                        <div class="conversations-empty">
+                            <i class="fas fa-comments"></i>
+                            <p>No conversations yet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Panel -->
+                <div class="chat-panel" id="chatPanel">
+                    <div class="chat-empty" id="chatEmpty">
+                        <i class="fas fa-comment-dots"></i>
+                        <h3>Select a conversation</h3>
+                        <p>Choose a customer from the list to start chatting</p>
+                    </div>
+                    
+                    <div id="activeChat" style="display: none; flex: 1; display: flex; flex-direction: column;">
+                        <div class="chat-header" id="chatHeader">
+                            <div class="chat-header-avatar" id="chatAvatar">C</div>
+                            <div class="chat-header-info">
+                                <h3 id="chatCustomerName">Customer Name</h3>
+                                <p id="chatOrderInfo">Order #------</p>
+                            </div>
+                            <div class="chat-header-actions">
+                                <button class="chat-action-btn" onclick="viewOrder()" title="View Order">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages" id="chatMessages"></div>
+                        
+                        <div class="chat-input-area">
+                            <div class="chat-input-wrapper">
+                                <textarea class="chat-input" id="messageInput" placeholder="Type your message..." rows="1"></textarea>
+                                <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastText">Success</span>
+    </div>
+
+    <script>
+        let auth = null;
+        let db = null;
+        let currentUser = null;
+        let conversations = [];
+        let activeConversationId = null;
+        let messagesUnsubscribe = null;
+        let conversationsUnsubscribe = null;
+        let notificationFeed = null;
+
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Missing Firebase configuration');
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            db = firebase.firestore();
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) dropdown.classList.toggle('show');
+        }
+
+        document.addEventListener('click', (event) => {
+            const dropdown = document.getElementById('userDropdown');
+            if (!dropdown) return;
+            if (!event.target.closest('.dropdown-wrapper')) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        async function handleLogout(event) {
+            if (event) event.preventDefault();
+            if (auth) {
+                localStorage.removeItem('69shop_user_type');
+                await auth.signOut();
+                window.location.href = '/seller-login.html';
+            }
+        }
+
+        function initNotifications() {
+            if (typeof NotificationFeed === 'undefined' || !db || !currentUser) return;
+            notificationFeed = NotificationFeed.init({
+                audience: 'seller',
+                db,
+                userId: currentUser.uid,
+                triggerSelector: '#notificationTrigger',
+                panelSelector: '#notificationPanel',
+                listSelector: '#notificationList',
+                badgeSelector: '#notificationDot',
+                subtitleSelector: '#notificationSubtitle'
+            });
+        }
+
+        if (auth) {
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    window.location.href = '/seller-login.html';
+                    return;
+                }
+
+                currentUser = user;
+                await loadSellerProfile(user);
+                initNotifications();
+                startConversationsListener();
+                hideLoading();
+            });
+        }
+
+        async function loadSellerProfile(user) {
+            const fallbackName = user.displayName || user.email?.split('@')[0] || 'Seller';
+            let sellerData = null;
+            try {
+                const sellerDoc = await db.collection('sellers').doc(user.uid).get();
+                if (sellerDoc.exists) sellerData = sellerDoc.data();
+            } catch (e) { console.warn('Seller profile load failed:', e); }
+            
+            const name = sellerData?.businessName || sellerData?.storeName || fallbackName;
+            const initial = name.charAt(0).toUpperCase();
+            
+            document.querySelectorAll('[data-seller-name]').forEach(el => el.textContent = name);
+            document.querySelectorAll('[data-seller-avatar]').forEach(el => el.textContent = initial);
+            document.getElementById('sidebarEmail').textContent = user.email || 'seller@69shop.in';
+            
+            if (window.SellerShell) {
+                await SellerShell.sync({ db, auth, user, sellerDoc: sellerData || {} });
+            }
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function startConversationsListener() {
+            if (!currentUser || !db) return;
+            
+            conversationsUnsubscribe = db.collection('conversations')
+                .where('sellerId', '==', currentUser.uid)
+                .orderBy('lastMessageAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    conversations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderConversations();
+                    updateUnreadBadge();
+                }, (error) => {
+                    console.error('Conversations listener error:', error);
+                    // Try without orderBy if index doesn't exist
+                    db.collection('conversations')
+                        .where('sellerId', '==', currentUser.uid)
+                        .get()
+                        .then(snapshot => {
+                            conversations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                            renderConversations();
+                        });
+                });
+        }
+
+        function updateUnreadBadge() {
+            const totalUnread = conversations.reduce((sum, c) => sum + (c.unreadSeller || 0), 0);
+            const badge = document.getElementById('unreadBadge');
+            if (badge) {
+                if (totalUnread > 0) {
+                    badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        function renderConversations() {
+            const list = document.getElementById('conversationsList');
+            const searchTerm = document.getElementById('searchConversations')?.value.toLowerCase() || '';
+            
+            let filtered = conversations;
+            if (searchTerm) {
+                filtered = conversations.filter(c => 
+                    (c.customerName || '').toLowerCase().includes(searchTerm) ||
+                    (c.orderId || '').toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="conversations-empty">
+                        <i class="fas fa-comments"></i>
+                        <p>${searchTerm ? 'No matching conversations' : 'No conversations yet'}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = filtered.map(conv => {
+                const initial = (conv.customerName || 'C').charAt(0).toUpperCase();
+                const time = conv.lastMessageAt?.toDate?.() || new Date();
+                const timeStr = formatRelativeTime(time);
+                const isActive = conv.id === activeConversationId;
+                const unread = conv.unreadSeller || 0;
+                
+                return `
+                    <div class="conversation-item ${isActive ? 'active' : ''}" onclick="openConversation('${conv.id}')">
+                        <div class="conversation-avatar">${initial}</div>
+                        <div class="conversation-content">
+                            <div class="conversation-header">
+                                <span class="conversation-name">${conv.customerName || 'Customer'}</span>
+                                <span class="conversation-time">${timeStr}</span>
+                            </div>
+                            <div class="conversation-preview">${conv.lastMessage || 'No messages yet'}</div>
+                            <div class="conversation-meta">
+                                ${conv.orderId ? `<span class="conversation-order">Order #${conv.orderId.slice(-6)}</span>` : '<span></span>'}
+                                ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatRelativeTime(date) {
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+            return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+        }
+
+        async function openConversation(conversationId) {
+            activeConversationId = conversationId;
+            const conv = conversations.find(c => c.id === conversationId);
+            if (!conv) return;
+            
+            // Update UI
+            document.getElementById('chatEmpty').style.display = 'none';
+            document.getElementById('activeChat').style.display = 'flex';
+            
+            // Update header
+            document.getElementById('chatAvatar').textContent = (conv.customerName || 'C').charAt(0).toUpperCase();
+            document.getElementById('chatCustomerName').textContent = conv.customerName || 'Customer';
+            document.getElementById('chatOrderInfo').textContent = conv.orderId ? `Order #${conv.orderId.slice(-6)}` : 'General inquiry';
+            
+            // Mark as read
+            if (conv.unreadSeller > 0) {
+                await db.collection('conversations').doc(conversationId).update({
+                    unreadSeller: 0
+                });
+            }
+            
+            // Re-render conversations to update active state
+            renderConversations();
+            
+            // Start messages listener
+            startMessagesListener(conversationId);
+        }
+
+        function startMessagesListener(conversationId) {
+            if (messagesUnsubscribe) {
+                messagesUnsubscribe();
+            }
+            
+            messagesUnsubscribe = db.collection('conversations')
+                .doc(conversationId)
+                .collection('messages')
+                .orderBy('createdAt', 'asc')
+                .onSnapshot((snapshot) => {
+                    const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderMessages(messages);
+                }, (error) => {
+                    console.error('Messages listener error:', error);
+                });
+        }
+
+        function renderMessages(messages) {
+            const container = document.getElementById('chatMessages');
+            
+            if (messages.length === 0) {
+                container.innerHTML = `
+                    <div class="chat-empty" style="background: transparent;">
+                        <i class="fas fa-comment-dots"></i>
+                        <h3>Start the conversation</h3>
+                        <p>Send a message to begin chatting</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let lastDate = null;
+            let html = '';
+            
+            messages.forEach(msg => {
+                const msgDate = msg.createdAt?.toDate?.() || new Date();
+                const dateStr = msgDate.toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' });
+                
+                if (dateStr !== lastDate) {
+                    html += `<div class="message-date-divider"><span>${dateStr}</span></div>`;
+                    lastDate = dateStr;
+                }
+                
+                const isSent = msg.senderId === currentUser.uid;
+                const timeStr = msgDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                const initial = isSent ? 'You'.charAt(0) : (msg.senderName || 'C').charAt(0).toUpperCase();
+                
+                html += `
+                    <div class="message ${isSent ? 'sent' : 'received'}">
+                        <div class="message-avatar">${initial}</div>
+                        <div class="message-content">
+                            <div class="message-text">${escapeHtml(msg.text)}</div>
+                            <div class="message-time">${timeStr}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text || !activeConversationId) return;
+            
+            input.value = '';
+            input.style.height = 'auto';
+            
+            try {
+                const conv = conversations.find(c => c.id === activeConversationId);
+                
+                // Add message to subcollection
+                await db.collection('conversations')
+                    .doc(activeConversationId)
+                    .collection('messages')
+                    .add({
+                        text,
+                        senderId: currentUser.uid,
+                        senderName: 'Seller',
+                        senderType: 'seller',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                
+                // Update conversation metadata
+                await db.collection('conversations').doc(activeConversationId).update({
+                    lastMessage: text.substring(0, 100),
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    unreadCustomer: firebase.firestore.FieldValue.increment(1)
+                });
+                
+            } catch (error) {
+                console.error('Failed to send message:', error);
+                showToast('Failed to send message', 'error');
+            }
+        }
+
+        // Auto-resize textarea
+        document.getElementById('messageInput')?.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Send on Enter (Shift+Enter for new line)
+        document.getElementById('messageInput')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Search conversations
+        document.getElementById('searchConversations')?.addEventListener('input', renderConversations);
+
+        function viewOrder() {
+            const conv = conversations.find(c => c.id === activeConversationId);
+            if (conv?.orderId) {
+                window.open(`/seller-orders.html?order=${conv.orderId}`, '_blank');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const text = document.getElementById('toastText');
+            if (!toast || !text) return;
+            text.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar) sidebar.classList.toggle('open');
+            if (overlay) overlay.classList.toggle('show');
+        }
+
+        function checkResponsive() {
+            const menuToggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 1024) {
+                if (menuToggle) menuToggle.style.display = 'flex';
+            } else {
+                if (menuToggle) menuToggle.style.display = 'none';
+                document.getElementById('sidebar')?.classList.remove('open');
+                document.getElementById('sidebarOverlay')?.classList.remove('show');
+            }
+        }
+
+        window.addEventListener('resize', checkResponsive);
+        checkResponsive();
+
+        // Cleanup listeners on page unload
+        window.addEventListener('beforeunload', () => {
+            if (messagesUnsubscribe) messagesUnsubscribe();
+            if (conversationsUnsubscribe) conversationsUnsubscribe();
+        });
+    </script>
+</body>
+</html>

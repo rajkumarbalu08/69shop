@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/dashboard-notifications.css">
+    <link rel="stylesheet" href="/assets/css/seller-header.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -546,6 +547,169 @@
         
         .btn-danger:hover { background: var(--danger); color: var(--white); }
         
+        /* Two-Factor Authentication */
+        .tfa-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--slate-500);
+        }
+        
+        .tfa-status i {
+            font-size: 0.5rem;
+        }
+        
+        .tfa-status.enabled {
+            color: var(--success);
+        }
+        
+        .section-desc {
+            color: var(--slate-500);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        
+        .tfa-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .tfa-method {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            border: 2px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+        
+        .tfa-method:hover {
+            border-color: var(--seller-primary);
+        }
+        
+        .tfa-method.enabled {
+            border-color: var(--success);
+            background: var(--success-light);
+        }
+        
+        .tfa-method-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            background: var(--seller-primary-light);
+            color: var(--seller-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .tfa-method.enabled .tfa-method-icon {
+            background: var(--success);
+            color: var(--white);
+        }
+        
+        .tfa-method-info {
+            flex: 1;
+        }
+        
+        .tfa-method-info h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+            color: var(--slate-900);
+        }
+        
+        .tfa-method-info p {
+            font-size: 0.85rem;
+            color: var(--slate-500);
+            margin-bottom: 6px;
+        }
+        
+        .tfa-method-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--slate-400);
+        }
+        
+        .tfa-method.enabled .tfa-method-status {
+            color: var(--success);
+        }
+        
+        .tfa-setup-panel {
+            margin-top: 24px;
+            padding: 24px;
+            background: var(--slate-50);
+            border-radius: var(--radius-md);
+            border: 2px solid var(--seller-primary);
+        }
+        
+        .tfa-setup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .tfa-setup-header h3 {
+            font-size: 1.1rem;
+            color: var(--slate-900);
+        }
+        
+        .btn-close-tfa {
+            background: none;
+            border: none;
+            color: var(--slate-400);
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
+        
+        .tfa-target {
+            padding: 16px;
+            background: var(--white);
+            border: 2px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            color: var(--seller-primary);
+            margin: 16px 0;
+            text-align: center;
+        }
+        
+        .otp-input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .otp-input {
+            width: 50px;
+            height: 55px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: 2px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+        
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--seller-primary);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        }
+        
+        .tfa-setup-body {
+            text-align: center;
+        }
+        
+        .tfa-setup-body .btn {
+            margin: 8px;
+        }
+        
         /* Password Change */
         .password-form { max-width: 400px; }
         
@@ -660,6 +824,14 @@
                         <i class="fas fa-concierge-bell"></i>
                         <span>Services</span>
                     </a>
+                    <a href="/seller-promotions.html" class="nav-link">
+                        <i class="fas fa-tags"></i>
+                        <span>Promotions</span>
+                    </a>
+                    <a href="/seller-messages.html" class="nav-link">
+                        <i class="fas fa-comments"></i>
+                        <span>Messages</span>
+                    </a>
                 </div>
 
                 <div class="nav-section">
@@ -747,6 +919,20 @@
                                     <p>No notifications yet</p>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-wrapper">
+                        <div class="seller-user-menu" onclick="toggleUserDropdown()">
+                            <div class="seller-user-avatar" id="userAvatar" data-seller-avatar>S</div>
+                            <div class="seller-user-info">
+                                <strong id="userName" data-seller-name>Loading...</strong>
+                            </div>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="/seller-settings.html"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="/shop.html" target="_blank"><i class="fas fa-external-link-alt"></i> View Shop</a>
+                            <hr>
+                            <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
                         </div>
                     </div>
                 </div>
@@ -884,6 +1070,90 @@
                     </div>
                 </div>
                 
+                <!-- Two-Factor Authentication -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-shield-alt"></i>
+                            Two-Factor Authentication
+                        </h2>
+                        <span class="tfa-status" id="tfaStatus">
+                            <i class="fas fa-circle"></i> Not Enabled
+                        </span>
+                    </div>
+                    <div class="section-body">
+                        <p class="section-desc">Add an extra layer of security to your account by requiring a verification code in addition to your password.</p>
+                        
+                        <div class="tfa-options">
+                            <div class="tfa-method" id="tfaEmailMethod">
+                                <div class="tfa-method-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="tfa-method-info">
+                                    <h4>Email Verification</h4>
+                                    <p>Receive a 6-digit code via email when you sign in</p>
+                                    <span class="tfa-method-status" id="emailTfaStatus">Not Configured</span>
+                                </div>
+                                <button class="btn btn-outline" id="setupEmailTfaBtn" onclick="setupEmailTFA()">
+                                    <i class="fas fa-plus"></i> Enable
+                                </button>
+                            </div>
+                            
+                            <div class="tfa-method" id="tfaSmsMethod">
+                                <div class="tfa-method-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="tfa-method-info">
+                                    <h4>SMS Verification</h4>
+                                    <p>Receive a 6-digit code via SMS when you sign in</p>
+                                    <span class="tfa-method-status" id="smsTfaStatus">Not Configured</span>
+                                </div>
+                                <button class="btn btn-outline" id="setupSmsTfaBtn" onclick="setupSmsTFA()">
+                                    <i class="fas fa-plus"></i> Enable
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- TFA Setup Modal Content (inline) -->
+                        <div class="tfa-setup-panel" id="tfaSetupPanel" style="display: none;">
+                            <div class="tfa-setup-header">
+                                <h3 id="tfaSetupTitle">Setup Two-Factor Authentication</h3>
+                                <button class="btn-close-tfa" onclick="closeTFASetup()"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="tfa-setup-body">
+                                <div class="tfa-step" id="tfaStep1">
+                                    <p>We'll send a verification code to:</p>
+                                    <div class="tfa-target" id="tfaTarget"></div>
+                                    <div class="form-group" id="phoneInputGroup" style="display: none;">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-input" id="tfaPhoneNumber" placeholder="+91 9876543210">
+                                    </div>
+                                    <button class="btn btn-primary" onclick="sendTFACode()">
+                                        <i class="fas fa-paper-plane"></i> Send Code
+                                    </button>
+                                </div>
+                                <div class="tfa-step" id="tfaStep2" style="display: none;">
+                                    <p>Enter the 6-digit code sent to you:</p>
+                                    <div class="otp-input-group">
+                                        <input type="text" maxlength="1" class="otp-input" data-index="0">
+                                        <input type="text" maxlength="1" class="otp-input" data-index="1">
+                                        <input type="text" maxlength="1" class="otp-input" data-index="2">
+                                        <input type="text" maxlength="1" class="otp-input" data-index="3">
+                                        <input type="text" maxlength="1" class="otp-input" data-index="4">
+                                        <input type="text" maxlength="1" class="otp-input" data-index="5">
+                                    </div>
+                                    <button class="btn btn-primary" onclick="verifyTFACode()">
+                                        <i class="fas fa-check"></i> Verify & Enable
+                                    </button>
+                                    <button class="btn btn-outline" onclick="resendTFACode()">
+                                        <i class="fas fa-redo"></i> Resend Code
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Password Change -->
                 <div class="settings-section">
                     <div class="section-header">
@@ -1002,6 +1272,7 @@
                         initNotifications();
                         updateSellerInfo(currentSeller);
                         populateForm(currentSeller);
+                        loadTFAStatus();
                     } else {
                         window.location.href = '/seller-login.html';
                     }
@@ -1240,6 +1511,264 @@
             }
         }
         
+        // Two-Factor Authentication Functions
+        let tfaMethod = null;
+        let tfaTarget = null;
+        let tfaCode = null;
+        let tfaCodeSentAt = null;
+        
+        async function loadTFAStatus() {
+            if (!currentSeller) return;
+            
+            try {
+                const sellerDoc = await db.collection('sellers').doc(currentSeller.uid).get();
+                const data = sellerDoc.data();
+                
+                if (data.tfaEnabled) {
+                    const statusEl = document.querySelector('.tfa-status');
+                    if (statusEl) {
+                        statusEl.innerHTML = '<i class="fas fa-circle"></i> Enabled';
+                        statusEl.classList.add('enabled');
+                    }
+                    
+                    if (data.tfaMethod === 'email') {
+                        const emailMethod = document.querySelector('.tfa-method[onclick*="Email"]');
+                        if (emailMethod) {
+                            emailMethod.classList.add('enabled');
+                            emailMethod.querySelector('.tfa-method-status').textContent = 'Enabled';
+                            emailMethod.querySelector('.btn').textContent = 'Disable';
+                            emailMethod.querySelector('.btn').classList.remove('btn-primary');
+                            emailMethod.querySelector('.btn').classList.add('btn-danger');
+                        }
+                    } else if (data.tfaMethod === 'sms') {
+                        const smsMethod = document.querySelector('.tfa-method[onclick*="SMS"]');
+                        if (smsMethod) {
+                            smsMethod.classList.add('enabled');
+                            smsMethod.querySelector('.tfa-method-status').textContent = 'Enabled';
+                            smsMethod.querySelector('.btn').textContent = 'Disable';
+                            smsMethod.querySelector('.btn').classList.remove('btn-primary');
+                            smsMethod.querySelector('.btn').classList.add('btn-danger');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading TFA status:', error);
+            }
+        }
+        
+        function setupEmailTFA() {
+            const emailMethod = document.querySelector('.tfa-method[onclick*="Email"]');
+            if (emailMethod && emailMethod.classList.contains('enabled')) {
+                disableTFA('email');
+                return;
+            }
+            
+            tfaMethod = 'email';
+            tfaTarget = currentSeller.email;
+            
+            const setupPanel = document.getElementById('tfaSetupPanel');
+            document.getElementById('tfaMethodTitle').textContent = 'Email Verification';
+            document.getElementById('tfaTarget').textContent = maskEmail(currentSeller.email);
+            document.getElementById('tfaStep1').style.display = 'block';
+            document.getElementById('tfaStep2').style.display = 'none';
+            setupPanel.style.display = 'block';
+            
+            setupPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        function setupSmsTFA() {
+            const smsMethod = document.querySelector('.tfa-method[onclick*="SMS"]');
+            if (smsMethod && smsMethod.classList.contains('enabled')) {
+                disableTFA('sms');
+                return;
+            }
+            
+            const phone = document.getElementById('businessPhone')?.value || '';
+            if (!phone) {
+                showToast('Please add a phone number to your profile first', true);
+                return;
+            }
+            
+            tfaMethod = 'sms';
+            tfaTarget = phone;
+            
+            const setupPanel = document.getElementById('tfaSetupPanel');
+            document.getElementById('tfaMethodTitle').textContent = 'SMS Verification';
+            document.getElementById('tfaTarget').textContent = maskPhone(phone);
+            document.getElementById('tfaStep1').style.display = 'block';
+            document.getElementById('tfaStep2').style.display = 'none';
+            setupPanel.style.display = 'block';
+            
+            setupPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        function maskEmail(email) {
+            const [local, domain] = email.split('@');
+            const masked = local.charAt(0) + '***' + local.charAt(local.length - 1);
+            return `${masked}@${domain}`;
+        }
+        
+        function maskPhone(phone) {
+            return phone.slice(0, 3) + '****' + phone.slice(-4);
+        }
+        
+        async function sendTFACode() {
+            // Generate a 6-digit code
+            tfaCode = Math.floor(100000 + Math.random() * 900000).toString();
+            tfaCodeSentAt = Date.now();
+            
+            try {
+                // Store the code temporarily in Firestore
+                await db.collection('sellers').doc(currentSeller.uid).update({
+                    tfaPendingCode: tfaCode,
+                    tfaPendingCodeSentAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    tfaPendingMethod: tfaMethod
+                });
+                
+                // In production, this would send via Firebase Functions
+                // For now, we'll show the code in toast (demo purposes)
+                if (tfaMethod === 'email') {
+                    showToast(`Verification code sent to ${maskEmail(tfaTarget)}`);
+                    console.log('Demo - Email Code:', tfaCode);
+                } else {
+                    showToast(`Verification code sent to ${maskPhone(tfaTarget)}`);
+                    console.log('Demo - SMS Code:', tfaCode);
+                }
+                
+                // Show step 2
+                document.getElementById('tfaStep1').style.display = 'none';
+                document.getElementById('tfaStep2').style.display = 'block';
+                
+                // Focus first OTP input
+                document.querySelectorAll('.otp-input')[0].focus();
+                
+            } catch (error) {
+                console.error('Error sending TFA code:', error);
+                showToast('Failed to send verification code. Please try again.', true);
+            }
+        }
+        
+        async function verifyTFACode() {
+            const inputs = document.querySelectorAll('.otp-input');
+            const enteredCode = Array.from(inputs).map(i => i.value).join('');
+            
+            if (enteredCode.length !== 6) {
+                showToast('Please enter all 6 digits', true);
+                return;
+            }
+            
+            // Check if code is expired (5 minutes)
+            if (Date.now() - tfaCodeSentAt > 5 * 60 * 1000) {
+                showToast('Code expired. Please request a new one.', true);
+                return;
+            }
+            
+            if (enteredCode !== tfaCode) {
+                showToast('Invalid verification code', true);
+                inputs.forEach(i => i.value = '');
+                inputs[0].focus();
+                return;
+            }
+            
+            try {
+                // Enable TFA in Firestore
+                await db.collection('sellers').doc(currentSeller.uid).update({
+                    tfaEnabled: true,
+                    tfaMethod: tfaMethod,
+                    tfaEnabledAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    tfaPendingCode: firebase.firestore.FieldValue.delete(),
+                    tfaPendingCodeSentAt: firebase.firestore.FieldValue.delete(),
+                    tfaPendingMethod: firebase.firestore.FieldValue.delete()
+                });
+                
+                showToast('Two-factor authentication enabled successfully!');
+                closeTFASetup();
+                loadTFAStatus();
+                
+            } catch (error) {
+                console.error('Error enabling TFA:', error);
+                showToast('Failed to enable two-factor authentication', true);
+            }
+        }
+        
+        async function disableTFA(method) {
+            if (!confirm('Are you sure you want to disable two-factor authentication? This will make your account less secure.')) {
+                return;
+            }
+            
+            try {
+                await db.collection('sellers').doc(currentSeller.uid).update({
+                    tfaEnabled: false,
+                    tfaMethod: firebase.firestore.FieldValue.delete(),
+                    tfaDisabledAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast('Two-factor authentication disabled');
+                
+                // Reset UI
+                const statusEl = document.querySelector('.tfa-status');
+                if (statusEl) {
+                    statusEl.innerHTML = '<i class="fas fa-circle"></i> Not Enabled';
+                    statusEl.classList.remove('enabled');
+                }
+                
+                const methodEl = document.querySelector(`.tfa-method[onclick*="${method === 'email' ? 'Email' : 'SMS'}"]`);
+                if (methodEl) {
+                    methodEl.classList.remove('enabled');
+                    methodEl.querySelector('.tfa-method-status').textContent = 'Not enabled';
+                    methodEl.querySelector('.btn').textContent = 'Enable';
+                    methodEl.querySelector('.btn').classList.remove('btn-danger');
+                    methodEl.querySelector('.btn').classList.add('btn-primary');
+                }
+                
+            } catch (error) {
+                console.error('Error disabling TFA:', error);
+                showToast('Failed to disable two-factor authentication', true);
+            }
+        }
+        
+        function resendTFACode() {
+            document.querySelectorAll('.otp-input').forEach(i => i.value = '');
+            sendTFACode();
+        }
+        
+        function closeTFASetup() {
+            const setupPanel = document.getElementById('tfaSetupPanel');
+            setupPanel.style.display = 'none';
+            document.querySelectorAll('.otp-input').forEach(i => i.value = '');
+            tfaMethod = null;
+            tfaTarget = null;
+            tfaCode = null;
+            tfaCodeSentAt = null;
+        }
+        
+        // OTP Input Auto-Focus
+        document.querySelectorAll('.otp-input').forEach((input, index, inputs) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+            
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                const digits = paste.replace(/\D/g, '').slice(0, 6);
+                digits.split('').forEach((digit, i) => {
+                    if (inputs[i]) inputs[i].value = digit;
+                });
+                if (digits.length === 6) {
+                    inputs[5].focus();
+                }
+            });
+        });
+        
         async function changePassword(e) {
             e.preventDefault();
             
@@ -1316,6 +1845,24 @@
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('userDropdown');
+            const userMenu = document.querySelector('.seller-user-menu');
+            if (dropdown && userMenu && !dropdown.contains(e.target) && !userMenu.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        function handleLogout(event) {
+            event.preventDefault();
+            logout();
         }
         
         function logout() {

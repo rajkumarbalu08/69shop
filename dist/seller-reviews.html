@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/dashboard-notifications.css">
+    <link rel="stylesheet" href="/assets/css/seller-header.css">
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -590,6 +591,14 @@
                         <i class="fas fa-concierge-bell"></i>
                         <span>Services</span>
                     </a>
+                    <a href="/seller-promotions.html" class="nav-link">
+                        <i class="fas fa-tags"></i>
+                        <span>Promotions</span>
+                    </a>
+                    <a href="/seller-messages.html" class="nav-link">
+                        <i class="fas fa-comments"></i>
+                        <span>Messages</span>
+                    </a>
                 </div>
                 <div class="nav-section">
                     <div class="nav-section-title">Insights</div>
@@ -656,6 +665,20 @@
                             <i class="fas fa-bell"></i>
                             <span class="notification-dot" id="notificationDot" style="display: none;"></span>
                         </button>
+                    </div>
+                    <div class="dropdown-wrapper">
+                        <div class="seller-user-menu" onclick="toggleUserDropdown()">
+                            <div class="seller-user-avatar" id="userAvatar" data-seller-avatar>S</div>
+                            <div class="seller-user-info">
+                                <strong id="userName" data-seller-name>Loading...</strong>
+                            </div>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="/seller-settings.html"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="/shop.html" target="_blank"><i class="fas fa-external-link-alt"></i> View Shop</a>
+                            <hr>
+                            <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -1105,6 +1128,24 @@
             if (!sidebar || !overlay) return;
             sidebar.classList.toggle('open');
             overlay.classList.toggle('show');
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('userDropdown');
+            const userMenu = document.querySelector('.seller-user-menu');
+            if (dropdown && userMenu && !dropdown.contains(e.target) && !userMenu.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        function handleLogout(event) {
+            event.preventDefault();
+            logout();
         }
 
         function checkResponsive() {

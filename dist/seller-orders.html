@@ -336,6 +336,246 @@
             min-width: 200px;
         }
 
+        /* Status Filter Chips */
+        .status-filter-chips {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 999px;
+            border: 2px solid var(--slate-200);
+            background: var(--white);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--slate-600);
+            transition: all 0.2s ease;
+        }
+        .status-chip:hover {
+            border-color: var(--seller-primary);
+            color: var(--seller-primary);
+        }
+        .status-chip.active {
+            background: var(--seller-gradient);
+            border-color: var(--seller-primary);
+            color: var(--white);
+        }
+        .status-chip .chip-count {
+            background: var(--slate-100);
+            color: var(--slate-700);
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            min-width: 24px;
+            text-align: center;
+        }
+        .status-chip.active .chip-count {
+            background: rgba(255,255,255,0.25);
+            color: var(--white);
+        }
+        .status-chip.pending { --chip-accent: var(--warning); }
+        .status-chip.processing { --chip-accent: #3B82F6; }
+        .status-chip.shipped { --chip-accent: var(--seller-primary); }
+        .status-chip.delivered { --chip-accent: var(--success); }
+        .status-chip.cancelled { --chip-accent: var(--danger); }
+        .status-chip.returned { --chip-accent: #F97316; }
+        .status-chip.refunded { --chip-accent: #8B5CF6; }
+
+        /* Bulk Selection */
+        .bulk-actions-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--seller-primary) 0%, #5B21B6 100%);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            color: var(--white);
+        }
+        .bulk-actions-bar.active { display: flex; }
+        .bulk-actions-bar .selected-count {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .bulk-actions-bar .bulk-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .bulk-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: var(--white);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s ease;
+        }
+        .bulk-btn:hover { background: rgba(255,255,255,0.3); }
+        .bulk-btn.danger { background: var(--danger); }
+        .bulk-btn.danger:hover { background: #DC2626; }
+
+        .order-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--seller-primary);
+            cursor: pointer;
+        }
+
+        /* Return/Refund Styles */
+        .status-badge.returned { background: #FFEDD5; color: #C2410C; }
+        .status-badge.refunded { background: #EDE9FE; color: #6D28D9; }
+        .status-badge.return_requested { background: #FEF3C7; color: #B45309; }
+
+        /* Real-time indicator */
+        .realtime-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: var(--white);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+        .realtime-badge .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--white);
+            border-radius: 50%;
+            animation: realtime-pulse 2s infinite;
+        }
+        @keyframes realtime-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        /* Tracking Number Modal */
+        .tracking-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .tracking-input-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--slate-700);
+        }
+        .tracking-input-group input {
+            padding: 14px 16px;
+            border: 2px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+        .tracking-input-group input:focus {
+            outline: none;
+            border-color: var(--seller-primary);
+        }
+        .tracking-input-group .carrier-select {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .carrier-option {
+            padding: 10px 16px;
+            border: 2px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .carrier-option:hover {
+            border-color: var(--seller-primary);
+        }
+        .carrier-option.selected {
+            background: var(--seller-primary-light);
+            border-color: var(--seller-primary);
+            color: var(--seller-primary-dark);
+        }
+
+        /* Order Card - Compact View */
+        .order-card-compact {
+            background: var(--white);
+            border: 1px solid var(--slate-100);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .order-card-compact:hover {
+            border-color: var(--seller-primary);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+        }
+        .order-card-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .order-card-id {
+            font-weight: 700;
+            color: var(--slate-900);
+        }
+        .order-card-customer {
+            color: var(--slate-600);
+            font-size: 0.9rem;
+        }
+        .order-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: var(--slate-500);
+            font-size: 0.85rem;
+        }
+
+        /* New Order Animation */
+        @keyframes new-order-glow {
+            0% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(124, 58, 237, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+        }
+        .orders-table tr.new-order {
+            animation: new-order-glow 2s ease-out;
+            background: var(--seller-primary-light) !important;
+        }
+        .new-order-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            background: var(--seller-primary);
+            color: var(--white);
+            border-radius: 999px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 8px;
+            animation: pulse-badge 1s infinite;
+        }
+        @keyframes pulse-badge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         .orders-card {
             background: var(--white);
             border-radius: var(--radius-lg);
@@ -692,6 +932,14 @@
                         <i class="fas fa-concierge-bell"></i>
                         <span>Services</span>
                     </a>
+                    <a href="/seller-promotions.html" class="nav-link">
+                        <i class="fas fa-tags"></i>
+                        <span>Promotions</span>
+                    </a>
+                    <a href="/seller-messages.html" class="nav-link">
+                        <i class="fas fa-comments"></i>
+                        <span>Messages</span>
+                    </a>
                 </div>
                 <div class="nav-section">
                     <div class="nav-section-title">Insights</div>
@@ -804,7 +1052,13 @@
             <div class="seller-content">
                 <div class="page-header">
                     <div>
-                        <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.3rem;">Live Order Queue</h2>
+                        <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.3rem;">
+                            Live Order Queue
+                            <span class="realtime-badge" id="realtimeBadge" style="display: none;">
+                                <span class="pulse-dot"></span>
+                                Live
+                            </span>
+                        </h2>
                         <p id="ordersSubtitle">Keep your customers informed with timely updates</p>
                     </div>
                     <div class="page-header-actions">
@@ -836,6 +1090,35 @@
                     </div>
                 </div>
 
+                <!-- Status Filter Chips -->
+                <div class="status-filter-chips" id="statusFilterChips">
+                    <button class="status-chip active" data-status="all" onclick="setStatusFilter('all')">
+                        <i class="fas fa-list"></i>
+                        All Orders
+                        <span class="chip-count" id="countAll">0</span>
+                    </button>
+                    <button class="status-chip pending" data-status="pending" onclick="setStatusFilter('pending')">
+                        <i class="fas fa-clock"></i>
+                        Pending
+                        <span class="chip-count" id="countPending">0</span>
+                    </button>
+                    <button class="status-chip processing" data-status="processing" onclick="setStatusFilter('processing')">
+                        <i class="fas fa-cog"></i>
+                        Processing
+                        <span class="chip-count" id="countProcessing">0</span>
+                    </button>
+                    <button class="status-chip shipped" data-status="shipped" onclick="setStatusFilter('shipped')">
+                        <i class="fas fa-truck"></i>
+                        Shipped
+                        <span class="chip-count" id="countShipped">0</span>
+                    </button>
+                    <button class="status-chip delivered" data-status="delivered" onclick="setStatusFilter('delivered')">
+                        <i class="fas fa-check-circle"></i>
+                        Delivered
+                        <span class="chip-count" id="countDelivered">0</span>
+                    </button>
+                </div>
+
                 <div class="orders-toolbar">
                     <div class="search-field">
                         <i class="fas fa-search"></i>
@@ -847,6 +1130,9 @@
                         <option value="processing">Processing</option>
                         <option value="shipped">Shipped</option>
                         <option value="delivered">Delivered</option>
+                        <option value="return_requested">Return Requested</option>
+                        <option value="returned">Returned</option>
+                        <option value="refunded">Refunded</option>
                         <option value="cancelled">Cancelled</option>
                     </select>
                 </div>
@@ -862,10 +1148,25 @@
                             <button class="btn btn-seller" onclick="bulkAdvance()"><i class="fas fa-truck-fast"></i> Auto-progress</button>
                         </div>
                     </div>
+                    
+                    <!-- Bulk Actions Bar -->
+                    <div class="bulk-actions-bar" id="bulkActionsBar">
+                        <span class="selected-count"><span id="selectedCount">0</span> orders selected</span>
+                        <div class="bulk-btns">
+                            <button class="bulk-btn" onclick="bulkUpdateStatus('processing')"><i class="fas fa-cog"></i> Process All</button>
+                            <button class="bulk-btn" onclick="bulkUpdateStatus('shipped')"><i class="fas fa-truck"></i> Ship All</button>
+                            <button class="bulk-btn" onclick="bulkUpdateStatus('delivered')"><i class="fas fa-check-circle"></i> Deliver All</button>
+                            <button class="bulk-btn" onclick="bulkApproveReturns()"><i class="fas fa-undo"></i> Approve Returns</button>
+                            <button class="bulk-btn" onclick="bulkIssueRefunds()"><i class="fas fa-money-bill-wave"></i> Issue Refunds</button>
+                            <button class="bulk-btn danger" onclick="clearSelection()"><i class="fas fa-times"></i> Clear</button>
+                        </div>
+                    </div>
+                    
                     <div class="table-wrapper">
                         <table class="orders-table">
                             <thead>
                                 <tr>
+                                    <th style="width: 50px;"><input type="checkbox" class="order-checkbox" id="selectAllOrders" onchange="toggleSelectAll()"></th>
                                     <th>Order</th>
                                     <th>Customer</th>
                                     <th>Items</th>
@@ -912,6 +1213,87 @@
         <span id="toastText">Updated</span>
     </div>
 
+    <!-- Tracking Number Modal -->
+    <div class="modal-overlay" id="trackingModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-truck" style="color: var(--seller-primary); margin-right: 8px;"></i> Add Tracking Info</h2>
+                <button class="modal-close" onclick="closeTrackingModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--slate-600); margin-bottom: 16px;">
+                    Enter shipment details for order <strong id="trackingOrderId">#------</strong>
+                </p>
+                <div class="tracking-input-group">
+                    <label>Shipping Carrier</label>
+                    <div class="carrier-select">
+                        <div class="carrier-option selected" data-carrier="delhivery" onclick="selectCarrier(this)">Delhivery</div>
+                        <div class="carrier-option" data-carrier="bluedart" onclick="selectCarrier(this)">Blue Dart</div>
+                        <div class="carrier-option" data-carrier="dtdc" onclick="selectCarrier(this)">DTDC</div>
+                        <div class="carrier-option" data-carrier="ecom" onclick="selectCarrier(this)">Ecom Express</div>
+                        <div class="carrier-option" data-carrier="other" onclick="selectCarrier(this)">Other</div>
+                    </div>
+                </div>
+                <div class="tracking-input-group">
+                    <label for="trackingNumber">Tracking Number / AWB</label>
+                    <input type="text" id="trackingNumber" placeholder="e.g., DEL123456789IN" autocomplete="off">
+                </div>
+                <div class="tracking-input-group" id="customCarrierGroup" style="display: none;">
+                    <label for="customCarrier">Carrier Name</label>
+                    <input type="text" id="customCarrier" placeholder="Enter carrier name">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeTrackingModal()">Cancel</button>
+                <button class="btn btn-seller" onclick="confirmShipment()">
+                    <i class="fas fa-check"></i> Confirm Shipment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return/Refund Modal -->
+    <div class="modal-overlay" id="returnModal">
+        <div class="modal" style="max-width: 550px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-undo" style="color: #F97316; margin-right: 8px;"></i> Process Return/Refund</h2>
+                <button class="modal-close" onclick="closeReturnModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="returnOrderDetails" style="background: var(--slate-50); padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px;"></div>
+                <div class="tracking-input-group">
+                    <label>Return Reason</label>
+                    <select id="returnReason" style="padding: 12px; border: 2px solid var(--slate-200); border-radius: var(--radius-md);">
+                        <option value="">Select reason...</option>
+                        <option value="defective">Defective Product</option>
+                        <option value="wrong_item">Wrong Item Received</option>
+                        <option value="not_as_described">Not As Described</option>
+                        <option value="damaged">Damaged in Transit</option>
+                        <option value="customer_request">Customer Changed Mind</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="tracking-input-group">
+                    <label>Refund Amount (₹)</label>
+                    <input type="number" id="refundAmount" placeholder="Enter refund amount">
+                </div>
+                <div class="tracking-input-group">
+                    <label>Internal Notes</label>
+                    <textarea id="returnNotes" rows="3" placeholder="Add notes for your records..." style="padding: 12px; border: 2px solid var(--slate-200); border-radius: var(--radius-md); resize: vertical;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeReturnModal()">Cancel</button>
+                <button class="btn" style="background: #F97316; color: white;" onclick="approveReturn()">
+                    <i class="fas fa-check"></i> Approve Return
+                </button>
+                <button class="btn btn-seller" onclick="issueRefund()">
+                    <i class="fas fa-money-bill-wave"></i> Issue Refund
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let auth = null;
         let db = null;
@@ -922,6 +1304,12 @@
         let activeOrderId = null;
         let notificationFeed = null;
         let sellerShellState = null;
+        let ordersUnsubscribe = null; // Real-time listener
+        let pendingShipmentOrderId = null;
+        let selectedCarrier = 'delhivery';
+        let newOrderIds = new Set(); // Track newly received orders
+        let selectedOrders = new Set(); // Bulk selection
+        let pendingReturnOrderId = null;
         const STATUS_FLOW = { pending: 'processing', processing: 'shipped', shipped: 'delivered' };
 
         try {
@@ -1015,6 +1403,7 @@
                 initNotifications();
                 setupFilters();
                 await loadOrders();
+                startRealtimeListener(); // Start real-time updates
                 hideLoading();
             });
         }
@@ -1103,6 +1492,186 @@
             }
         }
 
+        // Real-time Firestore listener for live order updates
+        function startRealtimeListener() {
+            if (!currentUser || !db) return;
+            
+            // Unsubscribe from previous listener if exists
+            if (ordersUnsubscribe) {
+                ordersUnsubscribe();
+            }
+
+            const realtimeBadge = document.getElementById('realtimeBadge');
+            
+            try {
+                const baseQuery = db.collection('orders').where('sellerId', '==', currentUser.uid);
+                
+                ordersUnsubscribe = baseQuery.onSnapshot((snapshot) => {
+                    // Show realtime badge
+                    if (realtimeBadge) realtimeBadge.style.display = 'inline-flex';
+                    
+                    const previousOrderIds = new Set(allOrders.map(o => o.id));
+                    
+                    allOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    
+                    // Sort by createdAt descending
+                    allOrders.sort((a, b) => {
+                        const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+                        const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+                        return dateB - dateA;
+                    });
+                    
+                    // Detect new orders (not previously in list)
+                    newOrderIds = new Set();
+                    allOrders.forEach(order => {
+                        if (!previousOrderIds.has(order.id) && previousOrderIds.size > 0) {
+                            newOrderIds.add(order.id);
+                            // Play notification sound or visual alert
+                            playNewOrderAlert();
+                        }
+                    });
+                    
+                    // Clear new order highlighting after 5 seconds
+                    if (newOrderIds.size > 0) {
+                        setTimeout(() => {
+                            newOrderIds.clear();
+                            filterOrders();
+                        }, 5000);
+                    }
+                    
+                    updateStats();
+                    updateStatusChipCounts();
+                    filterOrders();
+                    updateSubtitle();
+                }, (error) => {
+                    console.error('Real-time listener error:', error);
+                    if (realtimeBadge) realtimeBadge.style.display = 'none';
+                    // Fall back to manual loading
+                    showToast('Live updates unavailable, using manual refresh', 'error');
+                });
+            } catch (error) {
+                console.error('Failed to start real-time listener:', error);
+            }
+        }
+
+        function playNewOrderAlert() {
+            // Visual notification
+            showToast('🔔 New order received!', 'success');
+            
+            // Optional: Audio notification (uncomment if desired)
+            // const audio = new Audio('/assets/sounds/notification.mp3');
+            // audio.volume = 0.5;
+            // audio.play().catch(() => {});
+        }
+
+        // Status filter chip functions
+        function setStatusFilter(status) {
+            currentStatus = status;
+            
+            // Update chip active states
+            const chips = document.querySelectorAll('.status-chip');
+            chips.forEach(chip => {
+                if (chip.dataset.status === status) {
+                    chip.classList.add('active');
+                } else {
+                    chip.classList.remove('active');
+                }
+            });
+            
+            // Also update the select dropdown to stay in sync
+            const statusSelect = document.getElementById('statusFilter');
+            if (statusSelect) statusSelect.value = status;
+            
+            filterOrders();
+        }
+
+        function updateStatusChipCounts() {
+            const counts = {
+                all: allOrders.length,
+                pending: allOrders.filter(o => (o.status || 'pending') === 'pending').length,
+                processing: allOrders.filter(o => o.status === 'processing').length,
+                shipped: allOrders.filter(o => o.status === 'shipped').length,
+                delivered: allOrders.filter(o => o.status === 'delivered').length
+            };
+            
+            document.getElementById('countAll').textContent = counts.all;
+            document.getElementById('countPending').textContent = counts.pending;
+            document.getElementById('countProcessing').textContent = counts.processing;
+            document.getElementById('countShipped').textContent = counts.shipped;
+            document.getElementById('countDelivered').textContent = counts.delivered;
+        }
+
+        // Tracking Modal Functions
+        function selectCarrier(element) {
+            document.querySelectorAll('.carrier-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedCarrier = element.dataset.carrier;
+            
+            // Show/hide custom carrier input
+            const customGroup = document.getElementById('customCarrierGroup');
+            if (customGroup) {
+                customGroup.style.display = selectedCarrier === 'other' ? 'block' : 'none';
+            }
+        }
+
+        function openTrackingModal(orderId) {
+            pendingShipmentOrderId = orderId;
+            const modal = document.getElementById('trackingModal');
+            const orderIdEl = document.getElementById('trackingOrderId');
+            
+            if (orderIdEl) orderIdEl.textContent = `#${orderId.slice(-6)}`;
+            
+            // Reset form
+            document.getElementById('trackingNumber').value = '';
+            document.getElementById('customCarrier').value = '';
+            selectCarrier(document.querySelector('.carrier-option[data-carrier="delhivery"]'));
+            
+            if (modal) modal.classList.add('show');
+        }
+
+        function closeTrackingModal() {
+            const modal = document.getElementById('trackingModal');
+            if (modal) modal.classList.remove('show');
+            pendingShipmentOrderId = null;
+        }
+
+        async function confirmShipment() {
+            if (!pendingShipmentOrderId) return;
+            
+            const trackingNumber = document.getElementById('trackingNumber').value.trim();
+            const customCarrier = document.getElementById('customCarrier').value.trim();
+            
+            if (!trackingNumber) {
+                showToast('Please enter a tracking number', 'error');
+                return;
+            }
+            
+            const carrier = selectedCarrier === 'other' ? customCarrier : selectedCarrier;
+            
+            if (!carrier) {
+                showToast('Please select or enter a carrier name', 'error');
+                return;
+            }
+            
+            try {
+                await db.collection('orders').doc(pendingShipmentOrderId).update({
+                    status: 'shipped',
+                    'statusTimestamps.shipped': new Date().toISOString(),
+                    'tracking.carrier': carrier,
+                    'tracking.number': trackingNumber,
+                    'tracking.addedAt': new Date().toISOString(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast(`Order shipped with tracking: ${trackingNumber}`);
+                closeTrackingModal();
+                // Real-time listener will handle the UI update
+            } catch (error) {
+                console.error('Failed to update shipment:', error);
+                showToast('Failed to update tracking info', 'error');
+            }
+        }
+
         function updateStats() {
             const total = allOrders.length;
             const pending = allOrders.filter(order => order.status === 'pending' || order.status === 'processing').length;
@@ -1115,6 +1684,9 @@
             document.getElementById('shippedOrders').textContent = shipped;
             document.getElementById('totalRevenue').textContent = formatCurrency(revenue);
             document.getElementById('revenueTrend').textContent = total ? `Avg ${formatCurrency(Math.round(revenue / Math.max(total,1)))}` : 'No sales yet';
+            
+            // Also update chip counts
+            updateStatusChipCounts();
         }
 
         function updateSubtitle() {
@@ -1166,7 +1738,7 @@
             if (!orders.length) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7">
+                        <td colspan="8">
                             <div class="empty-state">
                                 <i class="fas fa-box-open"></i>
                                 <h3>No ${currentStatus === 'all' ? '' : currentStatus} orders</h3>
@@ -1187,9 +1759,26 @@
                 const customerEmail = order.customerEmail || order.shippingAddress?.email || '';
                 const initial = customerName.charAt(0).toUpperCase();
                 const nextStatus = getNextStatus(status);
+                const isNewOrder = newOrderIds.has(order.id);
+                const hasTracking = order.tracking?.number;
+                const isSelected = selectedOrders.has(order.id);
+                const canReturn = ['delivered', 'shipped'].includes(status);
+                const canRefund = ['returned', 'return_requested', 'cancelled'].includes(status);
+                const isReturnRequested = status === 'return_requested';
+                
                 return `
-                    <tr>
-                        <td><span class="order-id">#${order.id.slice(-6)}</span></td>
+                    <tr class="${isNewOrder ? 'new-order' : ''}">
+                        <td>
+                            <input type="checkbox" class="order-checkbox order-row-checkbox" 
+                                   data-order-id="${order.id}" 
+                                   ${isSelected ? 'checked' : ''}
+                                   onchange="toggleOrderSelection('${order.id}', this)">
+                        </td>
+                        <td>
+                            <span class="order-id">#${order.id.slice(-6)}</span>
+                            ${isNewOrder ? '<span class="new-order-badge"><i class="fas fa-sparkles"></i> New</span>' : ''}
+                            ${hasTracking ? `<div style="font-size: 0.75rem; color: var(--seller-primary); margin-top: 4px;"><i class="fas fa-truck"></i> ${order.tracking.number}</div>` : ''}
+                        </td>
                         <td>
                             <div class="customer-cell">
                                 <div class="customer-initial">${initial}</div>
@@ -1201,12 +1790,15 @@
                         </td>
                         <td>${itemCount} item${itemCount > 1 ? 's' : ''}</td>
                         <td>${formatCurrency(amount)}</td>
-                        <td><span class="status-badge ${status}">${formatStatus(status)}</span></td>
+                        <td><span class="status-badge ${status}">${formatStatus(status.replace('_', ' '))}</span></td>
                         <td>${createdAt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
                         <td>
                             <div class="order-actions">
-                                <button class="order-action ghost" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i> View</button>
-                                ${nextStatus ? `<button class="order-action primary" onclick="advanceStatus('${order.id}')"><i class="fas fa-check"></i> ${formatStatus(nextStatus)}</button>` : ''}
+                                <button class="order-action ghost" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i></button>
+                                ${nextStatus ? `<button class="order-action primary" onclick="advanceStatus('${order.id}')" title="${formatStatus(nextStatus)}"><i class="fas fa-check"></i></button>` : ''}
+                                ${canReturn ? `<button class="order-action ghost" onclick="openReturnModal('${order.id}')" title="Process Return" style="color: #F97316;"><i class="fas fa-undo"></i></button>` : ''}
+                                ${isReturnRequested ? `<button class="order-action primary" onclick="openReturnModal('${order.id}')" style="background: #F97316;"><i class="fas fa-undo"></i> Review</button>` : ''}
+                                ${canRefund ? `<button class="order-action ghost" onclick="openReturnModal('${order.id}')" title="Issue Refund" style="color: var(--seller-primary);"><i class="fas fa-money-bill-wave"></i></button>` : ''}
                             </div>
                         </td>
                     </tr>
@@ -1240,6 +1832,16 @@
             return status.charAt(0).toUpperCase() + status.slice(1);
         }
 
+        function formatCarrierName(carrier) {
+            const carriers = {
+                'delhivery': 'Delhivery',
+                'bluedart': 'Blue Dart',
+                'dtdc': 'DTDC',
+                'ecom': 'Ecom Express'
+            };
+            return carriers[carrier] || carrier || 'Unknown';
+        }
+
         function getNextStatus(status) {
             return STATUS_FLOW[status] || null;
         }
@@ -1249,6 +1851,13 @@
             if (!order) return;
             const nextStatus = getNextStatus(order.status || 'pending');
             if (!nextStatus) return;
+            
+            // If advancing to shipped, show tracking modal
+            if (nextStatus === 'shipped') {
+                openTrackingModal(orderId);
+                return;
+            }
+            
             await updateOrderStatus(orderId, nextStatus);
         }
 
@@ -1338,6 +1947,18 @@
             const timeline = buildOrderTimeline(currentStatus, order.statusTimestamps || {});
 
             modalTitle.textContent = `Order #${order.id}`;
+            
+            // Build tracking info HTML if available
+            const trackingHtml = order.tracking?.number ? `
+                <div class="modal-item" style="margin-top: 8px; padding: 12px; background: var(--seller-primary-light); border-radius: var(--radius-md);">
+                    <label style="color: var(--seller-primary-dark);"><i class="fas fa-truck"></i> Tracking Information</label>
+                    <div style="display: flex; gap: 16px; margin-top: 8px;">
+                        <span><strong>Carrier:</strong> ${formatCarrierName(order.tracking.carrier)}</span>
+                        <span><strong>AWB:</strong> ${order.tracking.number}</span>
+                    </div>
+                </div>
+            ` : '';
+            
             modalBody.innerHTML = `
                 ${timeline}
                 <div class="modal-grid">
@@ -1370,6 +1991,7 @@
                     <label>Shipping Address</label>
                     <span>${formatAddress(order.shippingAddress)}</span>
                 </div>
+                ${trackingHtml}
                 <div class="modal-item" style="margin-top: 8px;">
                     <label>Items</label>
                     <span>${formatItems(order.items)}</span>
@@ -1511,6 +2133,272 @@
 
         window.addEventListener('resize', checkResponsive);
         checkResponsive();
+
+        // Cleanup real-time listener on page unload
+        window.addEventListener('beforeunload', () => {
+            if (ordersUnsubscribe) {
+                ordersUnsubscribe();
+            }
+        });
+
+        // Close tracking modal on overlay click
+        document.getElementById('trackingModal')?.addEventListener('click', (event) => {
+            if (event.target.id === 'trackingModal') {
+                closeTrackingModal();
+            }
+        });
+
+        // Close return modal on overlay click
+        document.getElementById('returnModal')?.addEventListener('click', (event) => {
+            if (event.target.id === 'returnModal') {
+                closeReturnModal();
+            }
+        });
+
+        // ==========================================
+        // BULK ORDER PROCESSING FUNCTIONS
+        // ==========================================
+        
+        function toggleOrderSelection(orderId, checkbox) {
+            if (checkbox.checked) {
+                selectedOrders.add(orderId);
+            } else {
+                selectedOrders.delete(orderId);
+            }
+            updateBulkActionsBar();
+            updateSelectAllCheckbox();
+        }
+
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAllOrders');
+            const checkboxes = document.querySelectorAll('.order-row-checkbox');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+                const orderId = cb.dataset.orderId;
+                if (selectAll.checked) {
+                    selectedOrders.add(orderId);
+                } else {
+                    selectedOrders.delete(orderId);
+                }
+            });
+            updateBulkActionsBar();
+        }
+
+        function updateSelectAllCheckbox() {
+            const selectAll = document.getElementById('selectAllOrders');
+            const checkboxes = document.querySelectorAll('.order-row-checkbox');
+            const allChecked = checkboxes.length > 0 && [...checkboxes].every(cb => cb.checked);
+            if (selectAll) selectAll.checked = allChecked;
+        }
+
+        function updateBulkActionsBar() {
+            const bar = document.getElementById('bulkActionsBar');
+            const count = document.getElementById('selectedCount');
+            if (selectedOrders.size > 0) {
+                bar.classList.add('active');
+                count.textContent = selectedOrders.size;
+            } else {
+                bar.classList.remove('active');
+            }
+        }
+
+        function clearSelection() {
+            selectedOrders.clear();
+            document.querySelectorAll('.order-row-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAllOrders').checked = false;
+            updateBulkActionsBar();
+        }
+
+        async function bulkUpdateStatus(newStatus) {
+            if (selectedOrders.size === 0) {
+                showToast('No orders selected', 'error');
+                return;
+            }
+            
+            const confirmed = confirm(`Update ${selectedOrders.size} order(s) to "${newStatus}"?`);
+            if (!confirmed) return;
+            
+            showToast(`Updating ${selectedOrders.size} orders...`);
+            
+            let successCount = 0;
+            let failCount = 0;
+            
+            for (const orderId of selectedOrders) {
+                try {
+                    await db.collection('orders').doc(orderId).update({
+                        status: newStatus,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        [`statusHistory.${newStatus}`]: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    successCount++;
+                } catch (error) {
+                    console.error(`Failed to update order ${orderId}:`, error);
+                    failCount++;
+                }
+            }
+            
+            clearSelection();
+            showToast(`Updated ${successCount} orders${failCount > 0 ? `, ${failCount} failed` : ''}`);
+        }
+
+        async function bulkApproveReturns() {
+            const returnOrders = [...selectedOrders].filter(orderId => {
+                const order = allOrders.find(o => o.id === orderId);
+                return order && order.status === 'return_requested';
+            });
+            
+            if (returnOrders.length === 0) {
+                showToast('No return requests selected', 'error');
+                return;
+            }
+            
+            const confirmed = confirm(`Approve ${returnOrders.length} return request(s)?`);
+            if (!confirmed) return;
+            
+            for (const orderId of returnOrders) {
+                try {
+                    await db.collection('orders').doc(orderId).update({
+                        status: 'returned',
+                        returnApprovedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch (error) {
+                    console.error(`Failed to approve return for ${orderId}:`, error);
+                }
+            }
+            
+            clearSelection();
+            showToast(`Approved ${returnOrders.length} returns`);
+        }
+
+        async function bulkIssueRefunds() {
+            const eligibleOrders = [...selectedOrders].filter(orderId => {
+                const order = allOrders.find(o => o.id === orderId);
+                return order && ['returned', 'return_requested', 'cancelled'].includes(order.status);
+            });
+            
+            if (eligibleOrders.length === 0) {
+                showToast('No eligible orders for refund', 'error');
+                return;
+            }
+            
+            const confirmed = confirm(`Issue refunds for ${eligibleOrders.length} order(s)?`);
+            if (!confirmed) return;
+            
+            for (const orderId of eligibleOrders) {
+                const order = allOrders.find(o => o.id === orderId);
+                try {
+                    await db.collection('orders').doc(orderId).update({
+                        status: 'refunded',
+                        refundedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        refundAmount: order.total || order.amount || 0,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch (error) {
+                    console.error(`Failed to refund ${orderId}:`, error);
+                }
+            }
+            
+            clearSelection();
+            showToast(`Refunded ${eligibleOrders.length} orders`);
+        }
+
+        // ==========================================
+        // RETURN/REFUND MODAL FUNCTIONS
+        // ==========================================
+        
+        function openReturnModal(orderId) {
+            pendingReturnOrderId = orderId;
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const modal = document.getElementById('returnModal');
+            const detailsEl = document.getElementById('returnOrderDetails');
+            const refundAmountInput = document.getElementById('refundAmount');
+            
+            detailsEl.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="font-size: 1.1rem;">Order #${orderId.slice(-6)}</strong>
+                        <p style="color: var(--slate-500); margin-top: 4px;">${order.customerName || 'Customer'}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <strong style="font-size: 1.2rem; color: var(--seller-primary);">₹${(order.total || order.amount || 0).toLocaleString('en-IN')}</strong>
+                        <p style="color: var(--slate-500); margin-top: 4px;">${order.items?.length || 1} item(s)</p>
+                    </div>
+                </div>
+            `;
+            
+            refundAmountInput.value = order.total || order.amount || '';
+            document.getElementById('returnReason').value = order.returnReason || '';
+            document.getElementById('returnNotes').value = '';
+            
+            modal.classList.add('active');
+        }
+
+        function closeReturnModal() {
+            document.getElementById('returnModal').classList.remove('active');
+            pendingReturnOrderId = null;
+        }
+
+        async function approveReturn() {
+            if (!pendingReturnOrderId) return;
+            
+            const reason = document.getElementById('returnReason').value;
+            const notes = document.getElementById('returnNotes').value;
+            
+            if (!reason) {
+                showToast('Please select a return reason', 'error');
+                return;
+            }
+            
+            try {
+                await db.collection('orders').doc(pendingReturnOrderId).update({
+                    status: 'returned',
+                    returnReason: reason,
+                    returnNotes: notes,
+                    returnApprovedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                closeReturnModal();
+                showToast('Return approved successfully');
+            } catch (error) {
+                console.error('Failed to approve return:', error);
+                showToast('Failed to approve return', 'error');
+            }
+        }
+
+        async function issueRefund() {
+            if (!pendingReturnOrderId) return;
+            
+            const refundAmount = parseFloat(document.getElementById('refundAmount').value) || 0;
+            const reason = document.getElementById('returnReason').value;
+            const notes = document.getElementById('returnNotes').value;
+            
+            if (refundAmount <= 0) {
+                showToast('Please enter a valid refund amount', 'error');
+                return;
+            }
+            
+            try {
+                await db.collection('orders').doc(pendingReturnOrderId).update({
+                    status: 'refunded',
+                    refundAmount: refundAmount,
+                    refundReason: reason,
+                    refundNotes: notes,
+                    refundedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                closeReturnModal();
+                showToast(`Refund of ₹${refundAmount.toLocaleString('en-IN')} issued`);
+            } catch (error) {
+                console.error('Failed to issue refund:', error);
+                showToast('Failed to issue refund', 'error');
+            }
+        }
     </script>
 </body>
 </html>

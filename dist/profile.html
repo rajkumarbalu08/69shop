@@ -16,6 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="./firebase-config.js"></script>
+    <script src="./products-data.js"></script>
 </head>
 <body>
     <header class="top-bar">
@@ -161,33 +162,38 @@
     const db = firebase.firestore();
     const storage = firebase.storage();
 
+        // Get real data from localStorage
+        const savedCart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+        const savedWishlist = JSON.parse(localStorage.getItem('69shop_wishlist') || '[]');
+        const cartTotal = savedCart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+        
         const defaultInsights = {
-            ordersOpen: 3,
-            awaitingShipment: 2,
-            wishlistItems: 14,
-            wishlistPriceDrops: 5,
-            savedAddresses: 4,
-            primaryCity: 'Mumbai',
-            rewardsTier: 'Gold',
-            rewardsPoints: 1250,
-            returnsWindow: 2,
-            invoicesAvailable: 18,
-            cartItems: 3,
-            cartValue: 18450,
-            couponsEligible: 2,
-            savedCards: 3,
-            upiIds: 2,
-            activePlans: 2,
-            publishedReviews: 18,
-            serviceBookings: 12,
-            deliveriesOnTime: 98,
-            avgRating: 4.9,
-            messagesUnread: 3,
-            notificationsUnread: 5,
-            recentOrderId: '45231',
-            recentOrderStatus: 'packed and ready for dispatch',
-            deliveryEta: '2 days',
-            wishlistTrending: 'Smart Watch Pro',
+            ordersOpen: 0,
+            awaitingShipment: 0,
+            wishlistItems: savedWishlist.length,
+            wishlistPriceDrops: 0,
+            savedAddresses: 0,
+            primaryCity: 'Not Set',
+            rewardsTier: 'Bronze',
+            rewardsPoints: 0,
+            returnsWindow: 0,
+            invoicesAvailable: 0,
+            cartItems: savedCart.length,
+            cartValue: cartTotal,
+            couponsEligible: 0,
+            savedCards: 0,
+            upiIds: 0,
+            activePlans: 0,
+            publishedReviews: 0,
+            serviceBookings: 0,
+            deliveriesOnTime: 0,
+            avgRating: 0,
+            messagesUnread: 0,
+            notificationsUnread: 0,
+            recentOrderId: '',
+            recentOrderStatus: '',
+            deliveryEta: '',
+            wishlistTrending: '',
             conciergeContact: 'support@69shop.in'
         };
 
@@ -283,27 +289,34 @@
             title: 'My Orders',
             description: 'Stay on top of every purchase with proactive status updates and helpful actions.',
             stats: (insights) => [
-                { label: 'Active Orders', value: String(insights.ordersOpen), helper: 'Live deliveries' },
-                { label: 'Returns Window', value: String(insights.returnsWindow), helper: 'Eligible orders' },
-                { label: 'Invoices', value: String(insights.invoicesAvailable), helper: 'Download anytime' }
+                { label: 'Active Orders', value: String(insights.ordersOpen || 0), helper: 'Live deliveries' },
+                { label: 'Returns Window', value: String(insights.returnsWindow || 0), helper: 'Eligible orders' },
+                { label: 'Invoices', value: String(insights.invoicesAvailable || 0), helper: 'Download anytime' }
             ],
             body: (insights) => `
-                <div class="content-card">
-                    <h3>Latest Orders</h3>
-                    <ul class="timeline">
-                        <li>
-                            <strong>Order #${insights.recentOrderId}</strong> • Premium Wireless Headphones
-                            <div class="badge info">Out for delivery</div>
-                        </li>
-                        <li>
-                            <strong>Order #45190</strong> • Saree Pre-Pleating Service
-                            <div class="badge success">Completed</div>
-                        </li>
-                        <li>
-                            <strong>Order #45145</strong> • Smart Watch Pro
-                            <div class="badge warning">Awaiting payment confirmation</div>
-                        </li>
-                    </ul>
+                <div class="content-card orders-card">
+                    <div class="orders-header-row">
+                        <h3>Latest Orders</h3>
+                        <div class="orders-filter">
+                            <select id="orderStatusFilter" onchange="filterOrders(this.value)">
+                                <option value="all">All Orders</option>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="ordersLoading" class="orders-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading orders...
+                    </div>
+                    <div id="ordersList" class="orders-list" style="display: none;"></div>
+                    <div id="noOrders" class="no-orders" style="display: none;">
+                        <i class="fas fa-shopping-bag"></i>
+                        <p>No orders found. Start shopping!</p>
+                        <a href="/shop.html" class="btn-shop">Browse Products</a>
+                    </div>
                 </div>
                 <div class="content-card">
                     <h3>Need Assistance?</h3>
@@ -313,60 +326,49 @@
                         <a href="tel:+919876543210">Call +91 98765 43210</a>
                     </div>
                 </div>
-            `
+            `,
+            onMount: loadUserOrders
         },
         wishlist: {
             badge: 'Wishlist',
             title: 'Wishlist & Saved Ideas',
             description: 'Your curated list of favorites with real-time stock and price alerts.',
             stats: (insights) => [
-                { label: 'Saved Items', value: String(insights.wishlistItems), helper: `${insights.wishlistPriceDrops} in stock today` },
-                { label: 'Bundles', value: '3', helper: 'Ready for checkout' }
+                { label: 'Saved Items', value: String(insights.wishlistItems), helper: 'In your wishlist' }
             ],
             body: (insights) => `
                 <div class="content-card">
-                    <h3>Trending Today</h3>
-                    <ul class="list">
-                        <li>${insights.wishlistTrending} • <strong>₹12,499</strong> • 10% off for the next 6 hours.</li>
-                        <li>Designer Leather Handbag • <strong>₹8,199</strong> • Free express shipping.</li>
-                        <li>Home Spa Experience • <strong>₹1,999</strong> • Slots open this weekend.</li>
-                    </ul>
+                    <h3>Your Wishlist</h3>
+                    <div id="wishlistPreview" class="wishlist-preview-list">
+                        <p class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading wishlist...</p>
+                    </div>
                     <div class="quick-actions">
-                        <a href="/shop.html">Add to cart</a>
-                        <a href="/shop.html#promotionSection">View offers</a>
+                        <a href="/shop.html">Continue Shopping</a>
                     </div>
                 </div>
-            `
+            `,
+            onMount: loadWishlistPreview
         },
         cart: {
             badge: 'Cart',
             title: 'My Cart Overview',
             description: 'Review items in your cart with real-time shipping estimates.',
             stats: (insights) => [
-                { label: 'Items in Cart', value: String(insights.cartItems), helper: `Worth ₹${Number(insights.cartValue || 0).toLocaleString('en-IN')}` },
-                { label: 'Eligible Coupons', value: String(insights.couponsEligible), helper: 'Auto-applied at checkout' }
+                { label: 'Items in Cart', value: String(insights.cartItems), helper: `Worth ₹${Number(insights.cartValue || 0).toLocaleString('en-IN')}` }
             ],
             body: (insights) => `
                 <div class="content-card">
-                    <h3>Cart Snapshot</h3>
-                    <ul class="list">
-                        <li>Premium Wireless Headphones • ₹4,299 • Delivery tomorrow.</li>
-                        <li>Professional Camera Kit • ₹24,999 • Add protection plan.</li>
-                        <li>Home Service Booking • ₹799 • Schedule slot.</li>
-                    </ul>
+                    <h3>Cart Items</h3>
+                    <div id="cartPreview" class="cart-preview-list">
+                        <p class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading cart...</p>
+                    </div>
                     <div class="quick-actions">
                         <a href="/shop.html">Go to checkout</a>
                         <a href="/shop.html">Continue shopping</a>
                     </div>
                 </div>
-                <div class="empty-state">
-                    <h4>Need more inspiration?</h4>
-                    <p>Explore curated collections and community favorites updated daily.</p>
-                    <div class="quick-actions" style="justify-content: center;">
-                        <a href="/shop.html#promotionSection">Browse Collections</a>
-                    </div>
-                </div>
-            `
+            `,
+            onMount: loadCartPreview
         },
         messages: {
             badge: 'Inbox',
@@ -412,25 +414,93 @@
             title: 'Saved Addresses',
             description: 'Manage delivery and pick-up locations for faster checkout.',
             stats: (insights) => [
-                { label: 'Active Addresses', value: String(insights.savedAddresses), helper: 'Primary + backups' }
+                { label: 'Saved Addresses', value: String(insights.savedAddresses || 0), helper: 'Delivery locations' }
             ],
             body: (insights) => `
-                <div class="content-card">
-                    <h3>Default Address</h3>
-                    <p><strong>${insights.primaryCity} Residence</strong><br>14th Floor, Sunrise Heights, ${insights.primaryCity} 400076<br>+91 98765 43210</p>
-                    <div class="quick-actions">
-                        <a href="?section=addresses#edit-default">Edit</a>
-                        <a href="?section=addresses#add-address">Add new</a>
+                <div class="content-card addresses-card">
+                    <div class="addresses-header-row">
+                        <h3>My Addresses</h3>
+                        <button class="btn-add-address" onclick="openAddressModal()">
+                            <i class="fas fa-plus"></i> Add New Address
+                        </button>
+                    </div>
+                    <div id="addressesLoading" class="addresses-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading addresses...
+                    </div>
+                    <div id="addressesList" class="addresses-grid" style="display: none;"></div>
+                    <div id="noAddresses" class="no-addresses" style="display: none;">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>No addresses saved yet.</p>
+                        <button class="btn-add-first" onclick="openAddressModal()">Add Your First Address</button>
                     </div>
                 </div>
-                <div class="content-card">
-                    <h3>Pickup Locations</h3>
-                    <ul class="list">
-                        <li>Colaba Studio • Preferred for service bookings.</li>
-                        <li>Pune Office • Default for bulk deliveries.</li>
-                    </ul>
+                
+                <!-- Address Modal -->
+                <div class="address-modal-overlay" id="addressModalOverlay">
+                    <div class="address-modal">
+                        <div class="address-modal-header">
+                            <h3 id="addressModalTitle">Add New Address</h3>
+                            <button class="close-modal" onclick="closeAddressModal()"><i class="fas fa-times"></i></button>
+                        </div>
+                        <form id="addressForm">
+                            <input type="hidden" id="addressId" name="id">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="addressLabel">Label</label>
+                                    <select id="addressLabel" name="label" required>
+                                        <option value="home">Home</option>
+                                        <option value="office">Office</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="addressName">Full Name</label>
+                                    <input type="text" id="addressName" name="name" placeholder="Recipient name" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="addressPhone">Phone Number</label>
+                                <input type="tel" id="addressPhone" name="phone" placeholder="+91 98765 43210" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="addressLine1">Address Line 1</label>
+                                <input type="text" id="addressLine1" name="line1" placeholder="House/Flat No., Building Name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="addressLine2">Address Line 2 (Optional)</label>
+                                <input type="text" id="addressLine2" name="line2" placeholder="Street, Landmark">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="addressCity">City</label>
+                                    <input type="text" id="addressCity" name="city" placeholder="Mumbai" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="addressState">State</label>
+                                    <input type="text" id="addressState" name="state" placeholder="Maharashtra" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="addressPincode">Pincode</label>
+                                    <input type="text" id="addressPincode" name="pincode" placeholder="400001" required pattern="[0-9]{6}">
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="addressDefault" name="isDefault">
+                                        <span>Set as default address</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn-cancel" onclick="closeAddressModal()">Cancel</button>
+                                <button type="submit" class="btn-save">Save Address</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            `
+            `,
+            onMount: loadUserAddresses
         },
         payments: {
             badge: 'Payments',
@@ -497,24 +567,176 @@
             `
         },
         settings: {
-            badge: 'Security',
+            badge: 'Settings',
             title: 'Account Settings',
             description: 'Control privacy, security, and communication preferences.',
             stats: [],
             body: `
-                <div class="content-card">
-                    <h3>Security Controls</h3>
-                    <ul class="list">
-                        <li>Two-factor authentication <strong>Enabled</strong></li>
-                        <li>Login alerts <strong>Enabled</strong></li>
-                        <li>Biometric checkout <strong>Available on mobile</strong></li>
-                    </ul>
+                <div class="settings-grid">
+                    <div class="content-card settings-card">
+                        <div class="settings-card-header">
+                            <div class="settings-icon" style="background: #EFF6FF; color: #3B82F6;">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div>
+                                <h3>Security Controls</h3>
+                                <p class="settings-desc">Manage your account security</p>
+                            </div>
+                        </div>
+                        <div class="settings-items">
+                            <div class="settings-item">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Two-Factor Authentication</span>
+                                    <span class="settings-item-desc">Add an extra layer of security</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Login Alerts</span>
+                                    <span class="settings-item-desc">Get notified of new logins</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Biometric Checkout</span>
+                                    <span class="settings-item-desc">Use fingerprint for payments</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-card settings-card">
+                        <div class="settings-card-header">
+                            <div class="settings-icon" style="background: #FEF3C7; color: #D97706;">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div>
+                                <h3>Notifications</h3>
+                                <p class="settings-desc">Customize your alerts</p>
+                            </div>
+                        </div>
+                        <div class="settings-items">
+                            <div class="settings-item">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Order Updates</span>
+                                    <span class="settings-item-desc">Shipping and delivery alerts</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Promotional Emails</span>
+                                    <span class="settings-item-desc">Deals and offers</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Price Drop Alerts</span>
+                                    <span class="settings-item-desc">Wishlist item price changes</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-card settings-card">
+                        <div class="settings-card-header">
+                            <div class="settings-icon" style="background: #ECFDF5; color: #10B981;">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div>
+                                <h3>Account Details</h3>
+                                <p class="settings-desc">Update personal information</p>
+                            </div>
+                        </div>
+                        <div class="settings-items">
+                            <div class="settings-item clickable" onclick="window.location.href='?section=dashboard'">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Edit Profile</span>
+                                    <span class="settings-item-desc">Name, email, and photo</span>
+                                </div>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                            <div class="settings-item clickable" onclick="window.location.href='?section=addresses'">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Manage Addresses</span>
+                                    <span class="settings-item-desc">Shipping and billing</span>
+                                </div>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                            <div class="settings-item clickable" onclick="window.location.href='?section=payments'">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Payment Methods</span>
+                                    <span class="settings-item-desc">Cards and UPI</span>
+                                </div>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-card settings-card">
+                        <div class="settings-card-header">
+                            <div class="settings-icon" style="background: #FEE2E2; color: #DC2626;">
+                                <i class="fas fa-palette"></i>
+                            </div>
+                            <div>
+                                <h3>Preferences</h3>
+                                <p class="settings-desc">App appearance and language</p>
+                            </div>
+                        </div>
+                        <div class="settings-items">
+                            <div class="settings-item">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Dark Mode</span>
+                                    <span class="settings-item-desc">Reduce eye strain</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Language</span>
+                                    <span class="settings-item-desc">English (India)</span>
+                                </div>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-item-info">
+                                    <span class="settings-item-title">Currency</span>
+                                    <span class="settings-item-desc">Indian Rupee (₹)</span>
+                                </div>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="content-card">
-                    <h3>Notifications</h3>
-                    <p>Customize the alerts you receive from 69Shop.in.</p>
-                    <div class="quick-actions">
-                        <a href="?section=notifications">Manage alerts</a>
+                <div class="content-card danger-zone">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+                    <p>Irreversible account actions. Proceed with caution.</p>
+                    <div class="danger-actions">
+                        <button class="btn-danger-outline">Download My Data</button>
+                        <button class="btn-danger">Delete Account</button>
                     </div>
                 </div>
             `
@@ -899,6 +1121,11 @@
         const bodyContent = typeof config.body === 'function' ? config.body(state.insights) : config.body || '';
         sectionBody.innerHTML = bodyContent;
         updateActiveLink(sectionKey);
+        
+        // Call onMount callback if present
+        if (typeof config.onMount === 'function') {
+            config.onMount();
+        }
     }
 
     function updateActiveLink(activeSection) {
@@ -919,7 +1146,711 @@
             if (target === state.currentSection) return;
             window.history.replaceState({}, '', `?section=${target}`);
             renderSection(target);
+            // Scroll to content area so user can see the section
+            const contentArea = document.querySelector('.profile-content');
+            if (contentArea) {
+                contentArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         });
+    });
+    
+    // ===== ORDERS FUNCTIONALITY =====
+    let userOrders = [];
+    let ordersFilterValue = 'all';
+    
+    async function loadUserOrders() {
+        const loadingEl = document.getElementById('ordersLoading');
+        const listEl = document.getElementById('ordersList');
+        const noOrdersEl = document.getElementById('noOrders');
+        
+        if (!loadingEl || !listEl || !noOrdersEl) return;
+        
+        loadingEl.style.display = 'block';
+        listEl.style.display = 'none';
+        noOrdersEl.style.display = 'none';
+        
+        try {
+            const user = auth.currentUser;
+            if (!user) {
+                loadingEl.innerHTML = '<p>Please log in to view orders</p>';
+                return;
+            }
+            
+            if (db) {
+                const snapshot = await db.collection('orders')
+                    .where('userId', '==', user.uid)
+                    .orderBy('createdAt', 'desc')
+                    .limit(20)
+                    .get();
+                
+                userOrders = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    createdAt: doc.data().createdAt?.toDate() || new Date()
+                }));
+            } else {
+                // Demo orders
+                userOrders = generateDemoOrders();
+            }
+            
+            loadingEl.style.display = 'none';
+            renderOrders();
+            updateOrderStats();
+        } catch (error) {
+            console.log('Orders fetch error:', error);
+            loadingEl.style.display = 'none';
+            
+            // Try without orderBy if index is missing
+            try {
+                const user = auth.currentUser;
+                if (db && user) {
+                    const snapshot = await db.collection('orders')
+                        .where('userId', '==', user.uid)
+                        .get();
+                    
+                    userOrders = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        createdAt: doc.data().createdAt?.toDate() || new Date()
+                    })).sort((a, b) => b.createdAt - a.createdAt);
+                    
+                    renderOrders();
+                    updateOrderStats();
+                    return;
+                }
+            } catch (e) {
+                console.log('Fallback orders fetch also failed:', e);
+            }
+            
+            userOrders = generateDemoOrders();
+            renderOrders();
+            updateOrderStats();
+        }
+    }
+    
+    function generateDemoOrders() {
+        const items = [
+            { name: 'Premium Wireless Headphones', price: 4999, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200' },
+            { name: 'Smart Watch Pro', price: 12999, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200' },
+            { name: 'Leather Wallet', price: 1499, image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=200' },
+            { name: 'Running Shoes', price: 3999, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200' }
+        ];
+        const statuses = ['pending', 'confirmed', 'shipped', 'delivered'];
+        
+        return Array.from({ length: 5 }, (_, i) => {
+            const daysAgo = i * 7 + Math.floor(Math.random() * 5);
+            const date = new Date();
+            date.setDate(date.getDate() - daysAgo);
+            const orderItems = [items[Math.floor(Math.random() * items.length)]];
+            if (Math.random() > 0.5) orderItems.push(items[Math.floor(Math.random() * items.length)]);
+            
+            return {
+                id: `ORD-${Math.floor(100000 + Math.random() * 900000)}`,
+                items: orderItems.map(item => ({ ...item, quantity: Math.floor(Math.random() * 2) + 1 })),
+                total: orderItems.reduce((sum, item) => sum + item.price, 0),
+                status: statuses[Math.min(i, statuses.length - 1)],
+                paymentMethod: 'Cash on Delivery',
+                createdAt: date,
+                shippingAddress: {
+                    line1: '123, Example Street',
+                    city: 'Mumbai',
+                    state: 'Maharashtra',
+                    pincode: '400001'
+                }
+            };
+        });
+    }
+    
+    function renderOrders() {
+        const listEl = document.getElementById('ordersList');
+        const noOrdersEl = document.getElementById('noOrders');
+        
+        const filtered = ordersFilterValue === 'all' 
+            ? userOrders 
+            : userOrders.filter(o => o.status === ordersFilterValue);
+        
+        if (filtered.length === 0) {
+            listEl.style.display = 'none';
+            noOrdersEl.style.display = 'block';
+            return;
+        }
+        
+        noOrdersEl.style.display = 'none';
+        listEl.style.display = 'flex';
+        
+        listEl.innerHTML = filtered.map(order => `
+            <div class="order-card" data-order-id="${order.id}">
+                <div class="order-card-header">
+                    <div class="order-id-date">
+                        <span class="order-id">#${order.id}</span>
+                        <span class="order-date">${formatOrderDate(order.createdAt)}</span>
+                    </div>
+                    <span class="order-status ${order.status}">
+                        <i class="fas ${getStatusIcon(order.status)}"></i>
+                        ${formatStatus(order.status)}
+                    </span>
+                </div>
+                <div class="order-items">
+                    ${order.items.map(item => `
+                        <div class="order-item">
+                            <img src="${item.image || '/Logo/placeholder.png'}" alt="${item.name}" class="order-item-image" onerror="this.src='/Logo/placeholder.png'">
+                            <div class="order-item-details">
+                                <div class="order-item-name">${item.name}</div>
+                                <div class="order-item-qty">Qty: ${item.quantity || 1}</div>
+                            </div>
+                            <div class="order-item-price">₹${(item.price * (item.quantity || 1)).toLocaleString('en-IN')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="order-card-footer">
+                    <div class="order-total">Total: ₹${(order.total || order.items.reduce((s, i) => s + i.price * (i.quantity || 1), 0)).toLocaleString('en-IN')}</div>
+                    <div class="order-actions">
+                        ${order.status === 'shipped' ? '<button onclick="trackOrder(\'' + order.id + '\')"><i class="fas fa-truck"></i> Track</button>' : ''}
+                        ${order.status === 'out_for_delivery' ? '<button onclick="trackOrder(\'' + order.id + '\')"><i class="fas fa-motorcycle"></i> Track</button>' : ''}
+                        ${order.status === 'delivered' ? '<button onclick="viewInvoice(\'' + order.id + '\')"><i class="fas fa-file-invoice"></i> Invoice</button>' : ''}
+                        ${order.status === 'delivered' ? '<button onclick="reorderItems(\'' + order.id + '\')"><i class="fas fa-redo"></i> Reorder</button>' : ''}
+                        ${['pending', 'confirmed'].includes(order.status) ? '<button class="btn-danger" onclick="cancelOrder(\'' + order.id + '\')"><i class="fas fa-times"></i> Cancel</button>' : ''}
+                        ${order.status === 'delivered' ? '<button class="btn-outline" onclick="requestReturn(\'' + order.id + '\')"><i class="fas fa-undo"></i> Return</button>' : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function formatOrderDate(date) {
+        if (!date) return 'N/A';
+        return date.toLocaleDateString('en-IN', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+        });
+    }
+    
+    function formatStatus(status) {
+        const map = {
+            'pending': 'Pending',
+            'confirmed': 'Confirmed',
+            'shipped': 'Shipped',
+            'delivered': 'Delivered',
+            'cancelled': 'Cancelled',
+            'return_requested': 'Return Requested',
+            'returned': 'Returned',
+            'refunded': 'Refunded'
+        };
+        return map[status] || status;
+    }
+    
+    function getStatusIcon(status) {
+        const icons = {
+            'pending': 'fa-clock',
+            'confirmed': 'fa-check',
+            'shipped': 'fa-truck',
+            'delivered': 'fa-box',
+            'cancelled': 'fa-times-circle',
+            'return_requested': 'fa-undo',
+            'returned': 'fa-undo',
+            'refunded': 'fa-money-bill-wave'
+        };
+        return icons[status] || 'fa-info-circle';
+    }
+    
+    function updateOrderStats() {
+        const activeOrders = userOrders.filter(o => ['pending', 'confirmed', 'shipped'].includes(o.status)).length;
+        const returnsWindow = userOrders.filter(o => o.status === 'delivered').length;
+        
+        state.insights.ordersOpen = activeOrders;
+        state.insights.returnsWindow = returnsWindow;
+        state.insights.invoicesAvailable = userOrders.filter(o => o.status === 'delivered').length;
+    }
+    
+    window.filterOrders = function(value) {
+        ordersFilterValue = value;
+        renderOrders();
+    };
+    
+    window.trackOrder = function(orderId) {
+        alert('Order tracking for ' + orderId + ' - Coming soon!');
+    };
+    
+    window.reorderItems = function(orderId) {
+        const order = userOrders.find(o => o.id === orderId);
+        if (order) {
+            // Add items to cart
+            const cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+            order.items.forEach(item => {
+                const existing = cart.find(c => c.name === item.name);
+                if (existing) {
+                    existing.quantity += item.quantity || 1;
+                } else {
+                    cart.push({ ...item });
+                }
+            });
+            localStorage.setItem('69shop_cart', JSON.stringify(cart));
+            alert('Items added to cart!');
+            window.location.href = '/shop.html';
+        }
+    };
+    
+    window.cancelOrder = async function(orderId) {
+        if (!confirm('Are you sure you want to cancel this order?')) return;
+        
+        try {
+            if (db) {
+                await db.collection('orders').doc(orderId).update({
+                    status: 'cancelled',
+                    cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            const order = userOrders.find(o => o.id === orderId);
+            if (order) order.status = 'cancelled';
+            renderOrders();
+            alert('Order cancelled successfully');
+        } catch (error) {
+            console.error('Error cancelling order:', error);
+            alert('Failed to cancel order. Please try again.');
+        }
+    };
+    
+    window.requestReturn = function(orderId) {
+        alert('Return request for ' + orderId + ' - Please contact support.');
+    };
+    
+    // ===== WISHLIST PREVIEW FUNCTIONALITY =====
+    function loadWishlistPreview() {
+        const container = document.getElementById('wishlistPreview');
+        if (!container) return;
+        
+        let wishlist = JSON.parse(localStorage.getItem('69shop_wishlist') || '[]');
+        const products = window.productsData || [];
+        
+        console.log('Wishlist IDs:', wishlist);
+        console.log('Products available:', products.length);
+        
+        // Normalize wishlist: handle both ID strings and product objects
+        wishlist = wishlist.map(item => {
+            if (typeof item === 'object' && item !== null) {
+                return item.id || item;
+            }
+            return String(item);
+        });
+        
+        if (wishlist.length === 0) {
+            container.innerHTML = `
+                <div class="empty-preview">
+                    <i class="fas fa-heart"></i>
+                    <p>Your wishlist is empty</p>
+                    <a href="/shop.html" class="btn-browse">Start Shopping</a>
+                </div>
+            `;
+            return;
+        }
+        
+        // Get wishlist items from products data
+        const wishlistItems = wishlist.map(id => {
+            const product = products.find(p => String(p.id) === String(id));
+            if (product) {
+                const ratingStars = product.rating ? '⭐'.repeat(Math.round(product.rating)) : '';
+                return `
+                    <div class="wishlist-item">
+                        <img src="${product.image || '/Logo/placeholder.png'}" alt="${product.name}" onerror="this.src='/Logo/placeholder.png'">
+                        <div class="wishlist-item-info">
+                            <span class="item-brand">${product.brand || product.seller || ''}</span>
+                            <span class="item-name">${product.name}</span>
+                            <span class="item-meta">
+                                ${product.rating ? `<span class="item-rating">${ratingStars} ${product.rating}</span>` : ''}
+                            </span>
+                            <span class="item-price">₹${product.price?.toLocaleString('en-IN') || 0}</span>
+                        </div>
+                        <div class="wishlist-item-actions">
+                            <button onclick="addWishlistToCart('${product.id}')" title="Add to Cart" class="btn-add-cart">
+                                <i class="fas fa-cart-plus"></i>
+                            </button>
+                            <button onclick="removeFromWishlist('${product.id}')" title="Remove" class="btn-remove">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            return '';
+        }).filter(Boolean).join('');
+        
+        if (wishlistItems) {
+            container.innerHTML = wishlistItems;
+        } else {
+            container.innerHTML = `
+                <div class="empty-preview">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Unable to load product details</p>
+                    <a href="/shop.html" class="btn-browse">Continue Shopping</a>
+                </div>
+            `;
+        }
+    }
+    
+    window.removeFromWishlist = function(productId) {
+        let wishlist = JSON.parse(localStorage.getItem('69shop_wishlist') || '[]');
+        wishlist = wishlist.filter(item => {
+            const id = typeof item === 'object' ? item.id : item;
+            return id !== productId;
+        });
+        localStorage.setItem('69shop_wishlist', JSON.stringify(wishlist));
+        loadWishlistPreview();
+        
+        // Update stats
+        state.insights.wishlistItems = wishlist.length;
+        renderSection(state.activeSection);
+    };
+    
+    window.addWishlistToCart = function(productId) {
+        const products = window.productsData || [];
+        const product = products.find(p => p.id === productId);
+        if (!product) return;
+        
+        const cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+        const existing = cart.find(c => c.id === productId);
+        if (existing) {
+            existing.quantity = (existing.quantity || 1) + 1;
+        } else {
+            cart.push({ ...product, quantity: 1 });
+        }
+        localStorage.setItem('69shop_cart', JSON.stringify(cart));
+        alert('Added to cart!');
+        
+        // Update cart stats
+        state.insights.cartItems = cart.length;
+        state.insights.cartValue = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    };
+    
+    // ===== CART PREVIEW FUNCTIONALITY =====
+    function loadCartPreview() {
+        const container = document.getElementById('cartPreview');
+        if (!container) return;
+        
+        const cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+        
+        if (cart.length === 0) {
+            container.innerHTML = `
+                <div class="empty-preview">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Your cart is empty</p>
+                    <a href="/shop.html" class="btn-browse">Start Shopping</a>
+                </div>
+            `;
+            return;
+        }
+        
+        const cartItems = cart.slice(0, 5).map(item => `
+            <div class="cart-item">
+                <img src="${item.image || '/Logo/placeholder.png'}" alt="${item.name}" onerror="this.src='/Logo/placeholder.png'">
+                <div class="cart-item-info">
+                    <span class="item-name">${item.name}</span>
+                    <span class="item-qty">Qty: ${item.quantity || 1}</span>
+                </div>
+                <span class="item-price">₹${((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}</span>
+            </div>
+        `).join('');
+        
+        const total = cart.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+        
+        container.innerHTML = cartItems + `
+            <div class="cart-total">
+                <strong>Total: ₹${total.toLocaleString('en-IN')}</strong>
+            </div>
+        `;
+        
+        if (cart.length > 5) {
+            container.innerHTML += `<p class="more-items">+${cart.length - 5} more items</p>`;
+        }
+    }
+    
+    // ===== ADDRESSES FUNCTIONALITY =====
+    let userAddresses = [];
+    let editingAddressId = null;
+    
+    async function loadUserAddresses() {
+        const loadingEl = document.getElementById('addressesLoading');
+        const listEl = document.getElementById('addressesList');
+        const noAddressesEl = document.getElementById('noAddresses');
+        
+        if (!loadingEl || !listEl || !noAddressesEl) return;
+        
+        loadingEl.style.display = 'block';
+        listEl.style.display = 'none';
+        noAddressesEl.style.display = 'none';
+        
+        try {
+            const user = auth.currentUser;
+            if (!user) {
+                loadingEl.innerHTML = '<p>Please log in to view addresses</p>';
+                return;
+            }
+            
+            if (db) {
+                const snapshot = await db.collection('users').doc(user.uid)
+                    .collection('addresses')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                userAddresses = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+            }
+            
+            loadingEl.style.display = 'none';
+            renderAddresses();
+            updateAddressStats();
+        } catch (error) {
+            console.log('Addresses fetch error:', error);
+            loadingEl.style.display = 'none';
+            
+            // Fallback: try without orderBy
+            try {
+                const user = auth.currentUser;
+                if (db && user) {
+                    const snapshot = await db.collection('users').doc(user.uid)
+                        .collection('addresses')
+                        .get();
+                    
+                    userAddresses = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    
+                    renderAddresses();
+                    updateAddressStats();
+                    return;
+                }
+            } catch (e) {
+                console.log('Fallback addresses fetch also failed:', e);
+            }
+            
+            userAddresses = [];
+            renderAddresses();
+        }
+    }
+    
+    function renderAddresses() {
+        const listEl = document.getElementById('addressesList');
+        const noAddressesEl = document.getElementById('noAddresses');
+        
+        if (userAddresses.length === 0) {
+            listEl.style.display = 'none';
+            noAddressesEl.style.display = 'block';
+            return;
+        }
+        
+        noAddressesEl.style.display = 'none';
+        listEl.style.display = 'grid';
+        
+        listEl.innerHTML = userAddresses.map(addr => `
+            <div class="address-card ${addr.isDefault ? 'default' : ''}" data-id="${addr.id}">
+                ${addr.isDefault ? '<span class="default-badge">Default</span>' : ''}
+                <span class="address-label ${addr.label || 'home'}">${getLabelIcon(addr.label)} ${addr.label || 'Home'}</span>
+                <div class="address-name">${escapeHTML(addr.name)}</div>
+                <div class="address-details">
+                    ${escapeHTML(addr.line1)}<br>
+                    ${addr.line2 ? escapeHTML(addr.line2) + '<br>' : ''}
+                    ${escapeHTML(addr.city)}, ${escapeHTML(addr.state)} ${escapeHTML(addr.pincode)}
+                </div>
+                <div class="address-phone"><i class="fas fa-phone"></i> ${escapeHTML(addr.phone)}</div>
+                <div class="address-actions">
+                    <button onclick="editAddress('${addr.id}')"><i class="fas fa-edit"></i> Edit</button>
+                    ${!addr.isDefault ? `<button onclick="setDefaultAddress('${addr.id}')"><i class="fas fa-star"></i> Default</button>` : ''}
+                    <button class="btn-delete" onclick="deleteAddress('${addr.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function getLabelIcon(label) {
+        const icons = {
+            'home': '<i class="fas fa-home"></i>',
+            'office': '<i class="fas fa-building"></i>',
+            'other': '<i class="fas fa-map-marker-alt"></i>'
+        };
+        return icons[label] || icons.home;
+    }
+    
+    function escapeHTML(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+    
+    function updateAddressStats() {
+        state.insights.savedAddresses = userAddresses.length;
+        const defaultAddr = userAddresses.find(a => a.isDefault);
+        if (defaultAddr) {
+            state.insights.primaryCity = defaultAddr.city || 'Not Set';
+        }
+    }
+    
+    window.openAddressModal = function(addressId = null) {
+        editingAddressId = addressId;
+        const modal = document.getElementById('addressModalOverlay');
+        const title = document.getElementById('addressModalTitle');
+        const form = document.getElementById('addressForm');
+        
+        if (addressId) {
+            title.textContent = 'Edit Address';
+            const addr = userAddresses.find(a => a.id === addressId);
+            if (addr) {
+                document.getElementById('addressId').value = addr.id;
+                document.getElementById('addressLabel').value = addr.label || 'home';
+                document.getElementById('addressName').value = addr.name || '';
+                document.getElementById('addressPhone').value = addr.phone || '';
+                document.getElementById('addressLine1').value = addr.line1 || '';
+                document.getElementById('addressLine2').value = addr.line2 || '';
+                document.getElementById('addressCity').value = addr.city || '';
+                document.getElementById('addressState').value = addr.state || '';
+                document.getElementById('addressPincode').value = addr.pincode || '';
+                document.getElementById('addressDefault').checked = addr.isDefault || false;
+            }
+        } else {
+            title.textContent = 'Add New Address';
+            form.reset();
+            document.getElementById('addressDefault').checked = userAddresses.length === 0;
+        }
+        
+        modal.classList.add('active');
+    };
+    
+    window.closeAddressModal = function() {
+        const modal = document.getElementById('addressModalOverlay');
+        modal.classList.remove('active');
+        editingAddressId = null;
+    };
+    
+    window.editAddress = function(addressId) {
+        openAddressModal(addressId);
+    };
+    
+    window.deleteAddress = async function(addressId) {
+        if (!confirm('Are you sure you want to delete this address?')) return;
+        
+        try {
+            const user = auth.currentUser;
+            if (db && user) {
+                await db.collection('users').doc(user.uid)
+                    .collection('addresses').doc(addressId).delete();
+            }
+            
+            userAddresses = userAddresses.filter(a => a.id !== addressId);
+            renderAddresses();
+            updateAddressStats();
+        } catch (error) {
+            console.error('Error deleting address:', error);
+            alert('Failed to delete address. Please try again.');
+        }
+    };
+    
+    window.setDefaultAddress = async function(addressId) {
+        try {
+            const user = auth.currentUser;
+            if (db && user) {
+                // Remove default from all others
+                const batch = db.batch();
+                userAddresses.forEach(addr => {
+                    const ref = db.collection('users').doc(user.uid).collection('addresses').doc(addr.id);
+                    batch.update(ref, { isDefault: addr.id === addressId });
+                });
+                await batch.commit();
+            }
+            
+            userAddresses.forEach(addr => {
+                addr.isDefault = addr.id === addressId;
+            });
+            renderAddresses();
+            updateAddressStats();
+        } catch (error) {
+            console.error('Error setting default address:', error);
+            alert('Failed to update default address. Please try again.');
+        }
+    };
+    
+    // Address form submit handler
+    document.addEventListener('submit', async function(e) {
+        if (e.target.id !== 'addressForm') return;
+        e.preventDefault();
+        
+        const form = e.target;
+        const formData = new FormData(form);
+        
+        const addressData = {
+            label: formData.get('label'),
+            name: formData.get('name'),
+            phone: formData.get('phone'),
+            line1: formData.get('line1'),
+            line2: formData.get('line2') || '',
+            city: formData.get('city'),
+            state: formData.get('state'),
+            pincode: formData.get('pincode'),
+            isDefault: formData.get('isDefault') === 'on'
+        };
+        
+        try {
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Please log in to save address');
+                return;
+            }
+            
+            if (db) {
+                // If setting as default, remove default from others
+                if (addressData.isDefault) {
+                    const batch = db.batch();
+                    userAddresses.forEach(addr => {
+                        if (addr.isDefault) {
+                            const ref = db.collection('users').doc(user.uid).collection('addresses').doc(addr.id);
+                            batch.update(ref, { isDefault: false });
+                        }
+                    });
+                    await batch.commit();
+                }
+                
+                if (editingAddressId) {
+                    // Update existing
+                    await db.collection('users').doc(user.uid)
+                        .collection('addresses').doc(editingAddressId)
+                        .update({
+                            ...addressData,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    
+                    const index = userAddresses.findIndex(a => a.id === editingAddressId);
+                    if (index !== -1) {
+                        userAddresses[index] = { ...userAddresses[index], ...addressData };
+                    }
+                } else {
+                    // Add new
+                    const docRef = await db.collection('users').doc(user.uid)
+                        .collection('addresses').add({
+                            ...addressData,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    
+                    userAddresses.unshift({ id: docRef.id, ...addressData });
+                }
+                
+                // Update default status in memory
+                if (addressData.isDefault) {
+                    userAddresses.forEach(addr => {
+                        addr.isDefault = addr.id === (editingAddressId || userAddresses[0].id);
+                    });
+                }
+            }
+            
+            closeAddressModal();
+            renderAddresses();
+            updateAddressStats();
+        } catch (error) {
+            console.error('Error saving address:', error);
+            alert('Failed to save address. Please try again.');
+        }
     });
 
     auth.onAuthStateChanged(async (user) => {
@@ -1007,6 +1938,337 @@
         }
     };
 </script>
+
+<!-- Order Tracking Modal -->
+<div id="trackingModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content tracking-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-truck"></i> Order Tracking</h3>
+            <button class="modal-close" onclick="closeTrackingModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="trackingModalBody">
+            <!-- Content loaded dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Invoice Modal -->
+<div id="invoiceModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content invoice-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-file-invoice"></i> Invoice</h3>
+            <button class="modal-close" onclick="closeInvoiceModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="invoiceModalBody">
+            <!-- Invoice content loaded dynamically -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="printInvoice()"><i class="fas fa-print"></i> Print</button>
+            <button class="btn btn-primary" onclick="downloadInvoice()"><i class="fas fa-download"></i> Download PDF</button>
+        </div>
+    </div>
+</div>
+
+<!-- Return Request Modal -->
+<div id="returnModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content return-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-undo"></i> Return Request</h3>
+            <button class="modal-close" onclick="closeReturnModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="returnModalBody">
+            <form id="returnForm">
+                <div class="form-group">
+                    <label>Reason for Return</label>
+                    <select id="returnReason" required>
+                        <option value="">Select a reason</option>
+                        <option value="defective">Product is defective/damaged</option>
+                        <option value="wrong_item">Wrong item received</option>
+                        <option value="not_as_described">Product not as described</option>
+                        <option value="size_issue">Size/fit issue</option>
+                        <option value="changed_mind">Changed my mind</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Additional Details (Optional)</label>
+                    <textarea id="returnDetails" rows="3" placeholder="Please provide more details about your return request..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="returnPickup" checked>
+                        Request pickup from my address
+                    </label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeReturnModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="submitReturnRequest()">Submit Request</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===== ENHANCED ORDER ACTIONS =====
+    let currentTrackingOrderId = null;
+    let currentInvoiceOrderId = null;
+    let currentReturnOrderId = null;
+    
+    window.trackOrder = function(orderId) {
+        currentTrackingOrderId = orderId;
+        const order = userOrders.find(o => o.id === orderId);
+        if (!order) return alert('Order not found');
+        
+        const trackingSteps = [
+            { status: 'confirmed', label: 'Order Confirmed', icon: 'fa-check-circle', date: order.createdAt },
+            { status: 'processing', label: 'Processing', icon: 'fa-cog', date: order.processedAt },
+            { status: 'shipped', label: 'Shipped', icon: 'fa-truck', date: order.shippedAt },
+            { status: 'out_for_delivery', label: 'Out for Delivery', icon: 'fa-motorcycle', date: order.outForDeliveryAt },
+            { status: 'delivered', label: 'Delivered', icon: 'fa-box-open', date: order.deliveredAt }
+        ];
+        
+        const currentStepIndex = getOrderStepIndex(order.status);
+        const trackingNumber = order.trackingNumber || 'TRK' + orderId.slice(-8).toUpperCase();
+        const estimatedDelivery = order.estimatedDelivery || getEstimatedDelivery(order);
+        
+        document.getElementById('trackingModalBody').innerHTML = `
+            <div class="tracking-header">
+                <div class="tracking-info">
+                    <p><strong>Order ID:</strong> ${orderId}</p>
+                    <p><strong>Tracking Number:</strong> ${trackingNumber}</p>
+                    <p><strong>Estimated Delivery:</strong> ${estimatedDelivery}</p>
+                </div>
+            </div>
+            <div class="tracking-timeline">
+                ${trackingSteps.map((step, index) => `
+                    <div class="tracking-step ${index <= currentStepIndex ? 'completed' : ''} ${index === currentStepIndex ? 'current' : ''}">
+                        <div class="step-icon"><i class="fas ${step.icon}"></i></div>
+                        <div class="step-content">
+                            <div class="step-label">${step.label}</div>
+                            <div class="step-date">${step.date ? formatOrderDate(step.date) : 'Pending'}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            ${order.carrier ? `
+                <div class="carrier-info">
+                    <p><i class="fas fa-shipping-fast"></i> Shipped via <strong>${order.carrier}</strong></p>
+                    ${order.carrierTrackingUrl ? `<a href="${order.carrierTrackingUrl}" target="_blank" class="btn btn-outline btn-sm">Track on ${order.carrier}</a>` : ''}
+                </div>
+            ` : ''}
+        `;
+        
+        document.getElementById('trackingModal').style.display = 'flex';
+    };
+    
+    function getOrderStepIndex(status) {
+        const steps = ['confirmed', 'processing', 'shipped', 'out_for_delivery', 'delivered'];
+        const index = steps.indexOf(status);
+        return index >= 0 ? index : 0;
+    }
+    
+    function getEstimatedDelivery(order) {
+        if (order.estimatedDelivery) return formatOrderDate(order.estimatedDelivery);
+        const date = new Date(order.createdAt || Date.now());
+        date.setDate(date.getDate() + 5);
+        return formatOrderDate(date);
+    }
+    
+    window.closeTrackingModal = function() {
+        document.getElementById('trackingModal').style.display = 'none';
+        currentTrackingOrderId = null;
+    };
+    
+    // ===== INVOICE FUNCTIONALITY =====
+    window.viewInvoice = function(orderId) {
+        currentInvoiceOrderId = orderId;
+        const order = userOrders.find(o => o.id === orderId);
+        if (!order) return alert('Order not found');
+        
+        const invoiceNumber = 'INV-' + orderId.slice(-8).toUpperCase();
+        const invoiceDate = formatOrderDate(order.deliveredAt || order.createdAt);
+        const subtotal = order.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+        const tax = Math.round(subtotal * 0.18); // 18% GST
+        const shipping = order.shipping || 0;
+        const total = subtotal + tax + shipping;
+        
+        document.getElementById('invoiceModalBody').innerHTML = `
+            <div class="invoice-content" id="invoicePrintArea">
+                <div class="invoice-header-section">
+                    <div class="invoice-brand">
+                        <h2>69SHOP.IN</h2>
+                        <p>Premium Marketplace</p>
+                    </div>
+                    <div class="invoice-details">
+                        <h3>INVOICE</h3>
+                        <p><strong>Invoice #:</strong> ${invoiceNumber}</p>
+                        <p><strong>Date:</strong> ${invoiceDate}</p>
+                        <p><strong>Order #:</strong> ${orderId}</p>
+                    </div>
+                </div>
+                
+                <div class="invoice-addresses">
+                    <div class="bill-to">
+                        <h4>Bill To:</h4>
+                        <p>${state.user?.displayName || 'Customer'}</p>
+                        <p>${state.user?.email || ''}</p>
+                    </div>
+                    <div class="ship-to">
+                        <h4>Ship To:</h4>
+                        <p>${order.shippingAddress?.name || state.user?.displayName || 'Customer'}</p>
+                        <p>${order.shippingAddress?.address || ''}</p>
+                        <p>${order.shippingAddress?.city || ''} ${order.shippingAddress?.pincode || ''}</p>
+                    </div>
+                </div>
+                
+                <table class="invoice-items">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${order.items.map(item => `
+                            <tr>
+                                <td>${item.name}</td>
+                                <td>${item.quantity || 1}</td>
+                                <td>₹${item.price.toLocaleString('en-IN')}</td>
+                                <td>₹${(item.price * (item.quantity || 1)).toLocaleString('en-IN')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                
+                <div class="invoice-totals">
+                    <div class="total-row"><span>Subtotal:</span><span>₹${subtotal.toLocaleString('en-IN')}</span></div>
+                    <div class="total-row"><span>GST (18%):</span><span>₹${tax.toLocaleString('en-IN')}</span></div>
+                    <div class="total-row"><span>Shipping:</span><span>${shipping > 0 ? '₹' + shipping.toLocaleString('en-IN') : 'FREE'}</span></div>
+                    <div class="total-row grand-total"><span>Grand Total:</span><span>₹${total.toLocaleString('en-IN')}</span></div>
+                </div>
+                
+                <div class="invoice-footer-section">
+                    <p>Thank you for shopping with 69Shop.in!</p>
+                    <p class="invoice-note">This is a computer-generated invoice and does not require a signature.</p>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('invoiceModal').style.display = 'flex';
+    };
+    
+    window.closeInvoiceModal = function() {
+        document.getElementById('invoiceModal').style.display = 'none';
+        currentInvoiceOrderId = null;
+    };
+    
+    window.printInvoice = function() {
+        const printContent = document.getElementById('invoicePrintArea').innerHTML;
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Invoice - 69Shop.in</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; }
+                    .invoice-header-section { display: flex; justify-content: space-between; margin-bottom: 30px; }
+                    .invoice-brand h2 { margin: 0; color: #0066ff; }
+                    .invoice-details { text-align: right; }
+                    .invoice-addresses { display: flex; gap: 40px; margin-bottom: 30px; }
+                    .invoice-items { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                    .invoice-items th, .invoice-items td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                    .invoice-items th { background: #f5f5f5; }
+                    .invoice-totals { margin-left: auto; width: 300px; }
+                    .total-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+                    .grand-total { font-weight: bold; font-size: 1.1em; border-top: 2px solid #333; }
+                    .invoice-footer-section { margin-top: 40px; text-align: center; color: #666; }
+                    .invoice-note { font-size: 0.9em; }
+                </style>
+            </head>
+            <body>${printContent}</body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+    };
+    
+    window.downloadInvoice = function() {
+        // For simple HTML-only solution, we'll use print dialog with save as PDF option
+        alert('To download as PDF, click Print and select "Save as PDF" as the destination.');
+        printInvoice();
+    };
+    
+    // ===== RETURN REQUEST FUNCTIONALITY =====
+    window.requestReturn = function(orderId) {
+        currentReturnOrderId = orderId;
+        const order = userOrders.find(o => o.id === orderId);
+        if (!order) return alert('Order not found');
+        
+        // Check if within return window (7 days)
+        const deliveredDate = order.deliveredAt || order.createdAt;
+        const daysSinceDelivery = Math.floor((Date.now() - new Date(deliveredDate).getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysSinceDelivery > 7) {
+            return alert('Return window has expired. Returns are only accepted within 7 days of delivery.');
+        }
+        
+        document.getElementById('returnForm').reset();
+        document.getElementById('returnModal').style.display = 'flex';
+    };
+    
+    window.closeReturnModal = function() {
+        document.getElementById('returnModal').style.display = 'none';
+        currentReturnOrderId = null;
+    };
+    
+    window.submitReturnRequest = async function() {
+        const reason = document.getElementById('returnReason').value;
+        const details = document.getElementById('returnDetails').value;
+        const pickup = document.getElementById('returnPickup').checked;
+        
+        if (!reason) return alert('Please select a reason for return');
+        
+        try {
+            if (db && currentReturnOrderId) {
+                await db.collection('orders').doc(currentReturnOrderId).update({
+                    status: 'return_requested',
+                    returnRequest: {
+                        reason: reason,
+                        details: details,
+                        pickupRequested: pickup,
+                        requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }
+                });
+            }
+            
+            const order = userOrders.find(o => o.id === currentReturnOrderId);
+            if (order) order.status = 'return_requested';
+            
+            closeReturnModal();
+            renderOrders();
+            alert('Return request submitted successfully! We will contact you within 24-48 hours.');
+        } catch (error) {
+            console.error('Error submitting return request:', error);
+            alert('Failed to submit return request. Please try again.');
+        }
+    };
+    
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+    });
+</script>
+
+<!-- Profile Enhancements -->
+<script src="js/profile-enhancements.js"></script>
 </body>
 </html>
 

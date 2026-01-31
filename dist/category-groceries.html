@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groceries & Essentials - 69Shop.in</title>
+    <meta name="description" content="Shop fresh groceries on 69Shop.in - Fruits, Vegetables, Dairy, Snacks and Daily Essentials">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    <script src="products-data.js"></script>
+    
+    <script>
+        let auth = null, db = null, firebaseReady = false;
+        try {
+            const cfg = window.firebaseConfig;
+            if (cfg && cfg.apiKey) { if (!firebase.apps.length) firebase.initializeApp(cfg); auth = firebase.auth(); db = firebase.firestore(); firebaseReady = true; }
+        } catch (e) { console.warn('Firebase init error:', e); }
+        window.firebaseReady = firebaseReady;
+    </script>
+
+    <link rel="stylesheet" href="assets/css/shop.css">
+    <link rel="stylesheet" href="assets/css/elite-shop.css">
+    <link rel="stylesheet" href="assets/css/elegant-shop.css">
+    <link rel="stylesheet" href="assets/css/shop-animations.css">
+    <link rel="stylesheet" href="assets/css/category-page.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon"><img src="/Logo/69shopc.png" alt="69Shop.in Logo" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    <div class="logo-text"><div class="site-name">69SHOP.IN</div><div class="tagline">Premium Marketplace</div></div>
+                </a>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+                <div class="search-container" id="searchContainer">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search groceries..." autocomplete="off">
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="search-mobile-toggle" id="searchMobileToggle"><i class="fas fa-search"></i></button>
+                    <button class="wishlist-header-btn" id="wishlistBtn" onclick="window.location.href='/profile.html?section=wishlist'"><i class="fas fa-heart"></i><span class="wishlist-count" id="wishlistCount">0</span></button>
+                    <button class="cart-btn" id="cartBtn"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cartCount">0</span></button>
+                    <button type="button" class="user-profile-btn" id="userProfileBtn" onclick="openProfileSidebar(event)">
+                        <div class="user-avatar" id="userAvatar">G</div><span class="user-name" id="userName">Guest</span><i class="fas fa-chevron-down user-chevron"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Category Navigation -->
+    <nav class="category-nav">
+        <div class="container">
+            <div class="category-nav-inner">
+                <a href="/shop.html" class="category-nav-item"><i class="fas fa-store"></i> All</a>
+                <a href="/category-electronics.html" class="category-nav-item"><i class="fas fa-laptop"></i> Electronics</a>
+                <a href="/category-fashion.html" class="category-nav-item"><i class="fas fa-tshirt"></i> Fashion</a>
+                <a href="/category-home.html" class="category-nav-item"><i class="fas fa-couch"></i> Home</a>
+                <a href="/category-beauty.html" class="category-nav-item"><i class="fas fa-spa"></i> Beauty</a>
+                <a href="/category-sports.html" class="category-nav-item"><i class="fas fa-running"></i> Sports</a>
+                <a href="/category-groceries.html" class="category-nav-item active"><i class="fas fa-shopping-basket"></i> Groceries</a>
+                <a href="/category-books.html" class="category-nav-item"><i class="fas fa-book"></i> Books</a>
+                <a href="/category-toys.html" class="category-nav-item"><i class="fas fa-gamepad"></i> Toys</a>
+                <a href="/category-automotive.html" class="category-nav-item"><i class="fas fa-car"></i> Automotive</a>
+                <a href="/category-jewelry.html" class="category-nav-item"><i class="fas fa-gem"></i> Jewelry</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Category Hero -->
+    <section class="category-hero groceries-hero">
+        <div class="category-hero-overlay"></div>
+        <div class="container">
+            <div class="category-hero-content">
+                <span class="category-badge"><i class="fas fa-leaf"></i> Fresh Daily</span>
+                <h1>Groceries & Essentials</h1>
+                <p>Fresh fruits, vegetables, dairy products, snacks, and daily essentials delivered to your doorstep.</p>
+                <div class="category-hero-stats">
+                    <div class="stat-item"><span class="stat-value" id="productCount">0</span><span class="stat-label">Products</span></div>
+                    <div class="stat-item"><span class="stat-value">200+</span><span class="stat-label">Brands</span></div>
+                    <div class="stat-item"><span class="stat-value">20%</span><span class="stat-label">Off Select Items</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Wrapper -->
+    <div class="category-page-wrapper">
+        <!-- Trending Section -->
+        <section class="category-section trending-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-title-wrap">
+                        <span class="section-icon"><i class="fas fa-fire"></i></span>
+                        <h2>Trending in Groceries</h2>
+                    </div>
+                    <p class="section-subtitle">Best-selling daily essentials</p>
+                </div>
+                <div class="trending-carousel" id="trendingCarousel"></div>
+            </div>
+        </section>
+
+        <!-- Filter Bar -->
+        <div class="category-filter-bar">
+            <div class="container">
+                <div class="filter-bar-inner">
+                    <div class="filter-group">
+                        <label>Sort by:</label>
+                        <select id="sortSelect" onchange="CategoryPage.sortProducts(this.value)">
+                            <option value="popular">Most Popular</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="newest">Newest First</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Price Range:</label>
+                        <select id="priceFilter" onchange="CategoryPage.filterByPrice(this.value)">
+                            <option value="all">All Prices</option>
+                            <option value="0-200">Under ₹200</option>
+                            <option value="200-500">₹200 - ₹500</option>
+                            <option value="500-1000">₹500 - ₹1,000</option>
+                            <option value="1000+">Above ₹1,000</option>
+                        </select>
+                    </div>
+                    <div class="filter-tags" id="subCategoryTags">
+                        <button class="filter-tag active" data-subcategory="all">All</button>
+                        <button class="filter-tag" data-subcategory="fruits">Fruits</button>
+                        <button class="filter-tag" data-subcategory="vegetables">Vegetables</button>
+                        <button class="filter-tag" data-subcategory="dairy">Dairy</button>
+                        <button class="filter-tag" data-subcategory="snacks">Snacks</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Products Section -->
+        <section class="category-section products-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-title-wrap">
+                        <span class="section-icon"><i class="fas fa-shopping-basket"></i></span>
+                        <h2>All Grocery Products</h2>
+                    </div>
+                    <span class="product-count-badge"><span id="filteredCount">0</span> items</span>
+                </div>
+                
+                <div class="products-grid" id="productsGrid"></div>
+                
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <div class="empty-state-icon"><i class="fas fa-shopping-basket"></i></div>
+                    <h3>No grocery products found</h3>
+                    <p>Try adjusting your filters or check back later for new arrivals.</p>
+                    <button class="btn-primary" onclick="CategoryPage.resetFilters()"><i class="fas fa-redo"></i> Reset Filters</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Brands Section -->
+        <section class="category-section brands-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-title-wrap">
+                        <span class="section-icon"><i class="fas fa-star"></i></span>
+                        <h2>Top Brands</h2>
+                    </div>
+                </div>
+                <div class="brands-grid">
+                    <div class="brand-card"><div class="brand-logo">AMUL</div><span>Dairy Products</span></div>
+                    <div class="brand-card"><div class="brand-logo">TATA</div><span>Premium Foods</span></div>
+                    <div class="brand-card"><div class="brand-logo">MTR</div><span>Ready to Eat</span></div>
+                    <div class="brand-card"><div class="brand-logo">HALDIRAM</div><span>Snacks</span></div>
+                    <div class="brand-card"><div class="brand-logo">NESTLE</div><span>Beverages</span></div>
+                    <div class="brand-card"><div class="brand-logo">BRITANNIA</div><span>Biscuits</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Promo Banner -->
+        <section class="category-section promo-banner-section">
+            <div class="container">
+                <div class="promo-banner">
+                    <div class="promo-content">
+                        <span class="promo-label"><i class="fas fa-truck"></i> Free Delivery</span>
+                        <h3>Fresh Grocery Delivery - Order Now!</h3>
+                        <p>Get fresh groceries delivered within 2 hours. Free delivery on orders above ₹499!</p>
+                        <button class="promo-btn" onclick="document.getElementById('productsGrid').scrollIntoView({behavior: 'smooth'})">
+                            Shop Now <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="promo-image">
+                        <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80" alt="Fresh Groceries">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header"><h3>Shopping Cart</h3><button class="close-cart" id="closeCart"><i class="fas fa-times"></i></button></div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer"><div class="cart-total"><span>Total:</span><span id="cartTotal">₹0</span></div><button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button></div>
+    </div>
+
+    <!-- Profile Sidebar -->
+    <div class="profile-overlay" id="profileOverlay"></div>
+    <div class="profile-sidebar" id="profileSidebar">
+        <div class="profile-header"><h3 class="profile-title">My Profile</h3><button class="close-profile" id="closeProfile"><i class="fas fa-times"></i></button></div>
+        <div class="profile-content">
+            <div class="profile-info"><div class="profile-avatar-large" id="profileAvatarLarge">G</div><h2 class="profile-name-large" id="profileNameLarge">Guest</h2><p class="profile-email" id="profileEmail">Not signed in</p></div>
+            <ul class="profile-menu">
+                <li><a href="/profile.html?section=dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
+                <li><a href="/profile.html?section=orders"><i class="fas fa-shopping-bag"></i><span>My Orders</span></a></li>
+                <li><a href="/profile.html?section=wishlist"><i class="fas fa-heart"></i><span>Wishlist</span></a></li>
+                <li><a href="/profile.html?section=settings"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+            </ul>
+            <div class="profile-actions"><button class="btn-login" id="loginBtn" onclick="window.location.href='/shop-login.html'"><i class="fas fa-sign-in-alt"></i> Sign In</button></div>
+        </div>
+    </div>
+
+    <!-- Quick View Modal -->
+    <div class="quick-view-overlay" id="quickViewOverlay"></div>
+    <div class="quick-view-modal" id="quickViewModal">
+        <button class="quick-view-close" id="quickViewClose"><i class="fas fa-times"></i></button>
+        <div class="quick-view-content" id="quickViewContent"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Shop Categories</h4>
+                    <ul>
+                        <li><a href="/category-electronics.html">Electronics</a></li>
+                        <li><a href="/category-fashion.html">Fashion</a></li>
+                        <li><a href="/category-home.html">Home & Living</a></li>
+                        <li><a href="/category-beauty.html">Beauty</a></li>
+                        <li><a href="/category-sports.html">Sports & Fitness</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Track Order</a></li>
+                        <li><a href="#">Returns & Refunds</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>About 69Shop</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect With Us</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 69Shop.in. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/category-page.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            CategoryPage.init('groceries', ['fruits', 'vegetables', 'dairy', 'snacks', 'beverages']);
+        });
+    </script>
+</body>
+</html>

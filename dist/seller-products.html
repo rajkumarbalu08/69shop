@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/dashboard-notifications.css">
+    <link rel="stylesheet" href="/assets/css/seller-header.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -438,6 +439,7 @@
             gap: 16px;
             margin-bottom: 24px;
             flex-wrap: wrap;
+            align-items: center;
         }
         
         .search-box {
@@ -476,6 +478,93 @@
         }
         
         .filter-select:focus { outline: none; border-color: var(--seller-primary); }
+        
+        /* CSV Import/Export Buttons */
+        .csv-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-csv {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 2px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            background: var(--white);
+            color: var(--slate-700);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-csv:hover {
+            border-color: var(--seller-primary);
+            color: var(--seller-primary);
+        }
+        
+        .btn-csv.primary {
+            background: var(--seller-gradient);
+            border-color: transparent;
+            color: var(--white);
+        }
+        
+        .btn-csv.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* CSV Import Modal */
+        .csv-preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: block;
+        }
+        
+        .csv-preview-table th, .csv-preview-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .csv-preview-table th {
+            background: var(--slate-50);
+            font-weight: 600;
+            color: var(--slate-700);
+            position: sticky;
+            top: 0;
+        }
+        
+        .csv-import-stats {
+            display: flex;
+            gap: 20px;
+            padding: 16px;
+            background: var(--slate-50);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+        }
+        
+        .csv-import-stats .stat {
+            text-align: center;
+        }
+        
+        .csv-import-stats .stat strong {
+            display: block;
+            font-size: 1.5rem;
+            color: var(--seller-primary);
+        }
+        
+        .csv-import-stats .stat span {
+            font-size: 0.85rem;
+            color: var(--slate-500);
+        }
+
         
         /* Products Grid */
         .products-grid {
@@ -647,6 +736,190 @@
         .product-card.out-of-stock-card {
             border: 2px solid var(--danger);
             box-shadow: 0 0 0 3px var(--danger-light);
+        }
+
+        /* Bulk Inventory Management */
+        .inventory-alert-banner {
+            display: none;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border: 1px solid #FCD34D;
+            margin-bottom: 20px;
+        }
+        .inventory-alert-banner.show { display: flex; }
+        .inventory-alert-banner i {
+            font-size: 1.5rem;
+            color: #B45309;
+        }
+        .inventory-alert-banner .alert-content {
+            flex: 1;
+        }
+        .inventory-alert-banner .alert-content h4 {
+            font-size: 0.95rem;
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .inventory-alert-banner .alert-content p {
+            font-size: 0.85rem;
+            color: #B45309;
+        }
+        .inventory-alert-banner .btn-alert {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: var(--seller-gradient);
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Quick Stock Edit */
+        .quick-stock-edit {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--slate-50);
+            border-top: 1px solid var(--slate-100);
+        }
+        .quick-stock-edit label {
+            font-size: 0.8rem;
+            color: var(--slate-600);
+            font-weight: 500;
+        }
+        .quick-stock-edit input {
+            width: 70px;
+            padding: 6px 10px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .quick-stock-edit input:focus {
+            outline: none;
+            border-color: var(--seller-primary);
+        }
+        .quick-stock-edit .btn-update-stock {
+            padding: 6px 12px;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: var(--seller-primary);
+            color: var(--white);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .quick-stock-edit .btn-update-stock:hover {
+            background: var(--seller-primary-dark);
+        }
+        .quick-stock-edit .btn-update-stock:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Bulk Actions Bar */
+        .bulk-actions-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: var(--seller-primary-light);
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+        }
+        .bulk-actions-bar.show { display: flex; }
+        .bulk-actions-bar .selected-count {
+            font-weight: 600;
+            color: var(--seller-primary-dark);
+        }
+        .bulk-actions-bar .bulk-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .bulk-actions-bar .btn-bulk {
+            padding: 8px 14px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bulk-actions-bar .btn-bulk.primary {
+            background: var(--seller-gradient);
+            color: var(--white);
+        }
+        .bulk-actions-bar .btn-bulk.outline {
+            background: var(--white);
+            border: 1px solid var(--slate-300);
+            color: var(--slate-700);
+        }
+
+        /* Product Selection Checkbox */
+        .product-select-checkbox {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 5;
+        }
+        .product-select-checkbox input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--seller-primary);
+        }
+
+        /* Stock Update Modal */
+        .bulk-stock-modal {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+        }
+        .bulk-stock-modal h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bulk-stock-modal h3 i { color: var(--seller-primary); }
+        .bulk-stock-modal .stock-input-group {
+            margin-bottom: 20px;
+        }
+        .bulk-stock-modal .stock-input-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--slate-600);
+            margin-bottom: 8px;
+        }
+        .bulk-stock-modal .stock-input-row {
+            display: flex;
+            gap: 10px;
+        }
+        .bulk-stock-modal select,
+        .bulk-stock-modal input {
+            padding: 12px 14px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+        }
+        .bulk-stock-modal select { flex: 1; }
+        .bulk-stock-modal input[type="number"] { width: 100px; }
+        .bulk-stock-modal .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
         }
         
         .product-content { padding: 20px; }
@@ -1020,6 +1293,14 @@
                         <i class="fas fa-concierge-bell"></i>
                         <span>Services</span>
                     </a>
+                    <a href="/seller-promotions.html" class="nav-link">
+                        <i class="fas fa-tags"></i>
+                        <span>Promotions</span>
+                    </a>
+                    <a href="/seller-messages.html" class="nav-link">
+                        <i class="fas fa-comments"></i>
+                        <span>Messages</span>
+                    </a>
                 </div>
 
                 <div class="nav-section">
@@ -1127,6 +1408,20 @@
                         <i class="fas fa-plus"></i>
                         Add Product
                     </button>
+                    <div class="dropdown-wrapper">
+                        <div class="seller-user-menu" onclick="toggleUserDropdown()">
+                            <div class="seller-user-avatar" id="userAvatar" data-seller-avatar>S</div>
+                            <div class="seller-user-info">
+                                <strong id="userName" data-seller-name>Loading...</strong>
+                            </div>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="/seller-settings.html"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="/shop.html" target="_blank"><i class="fas fa-external-link-alt"></i> View Shop</a>
+                            <hr>
+                            <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                        </div>
+                    </div>
                 </div>
             </header>
             
@@ -1165,6 +1460,29 @@
                     </div>
                 </div>
                 
+                <!-- Low Stock Alert Banner -->
+                <div class="inventory-alert-banner" id="inventoryAlertBanner">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="alert-content">
+                        <h4 id="alertTitle">Low Stock Alert!</h4>
+                        <p id="alertMessage">Some products are running low on stock. Update inventory to avoid stockouts.</p>
+                    </div>
+                    <button class="btn-alert" onclick="filterLowStock()">View Low Stock Items</button>
+                </div>
+
+                <!-- Bulk Actions Bar -->
+                <div class="bulk-actions-bar" id="bulkActionsBar">
+                    <span class="selected-count"><span id="selectedCount">0</span> products selected</span>
+                    <div class="bulk-btns">
+                        <button class="btn-bulk outline" onclick="clearSelection()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                        <button class="btn-bulk primary" onclick="openBulkStockModal()">
+                            <i class="fas fa-boxes-stacked"></i> Update Stock
+                        </button>
+                    </div>
+                </div>
+
                 <div class="toolbar">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
@@ -1179,6 +1497,15 @@
                         <option value="draft">Draft</option>
                         <option value="out-of-stock">Out of Stock</option>
                     </select>
+                    <div class="csv-actions">
+                        <button class="btn-csv" onclick="exportProductsCSV()" title="Export to CSV">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                        <button class="btn-csv primary" onclick="document.getElementById('csvFileInput').click()" title="Import from CSV">
+                            <i class="fas fa-upload"></i> Import CSV
+                        </button>
+                        <input type="file" id="csvFileInput" accept=".csv" hidden onchange="importProductsCSV(event)">
+                    </div>
                 </div>
                 
                 <div class="products-grid" id="productsGrid">
@@ -1276,6 +1603,33 @@
         <span id="toastText">Success</span>
     </div>
 
+    <!-- Bulk Stock Update Modal -->
+    <div class="modal-overlay" id="bulkStockModal" onclick="if(event.target.id==='bulkStockModal')closeBulkStockModal()">
+        <div class="bulk-stock-modal">
+            <h3><i class="fas fa-boxes-stacked"></i> Bulk Stock Update</h3>
+            <div class="stock-input-group">
+                <label>Update Type</label>
+                <div class="stock-input-row">
+                    <select id="stockUpdateType">
+                        <option value="set">Set stock to</option>
+                        <option value="add">Add to current stock</option>
+                        <option value="subtract">Subtract from stock</option>
+                    </select>
+                    <input type="number" id="stockUpdateValue" min="0" value="10" placeholder="Qty">
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--slate-500); margin-bottom: 16px;">
+                This will update <strong id="bulkUpdateCount">0</strong> selected products.
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeBulkStockModal()">Cancel</button>
+                <button class="btn btn-seller" onclick="applyBulkStockUpdate()">
+                    <i class="fas fa-check"></i> Apply Update
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let auth = null;
         let db = null;
@@ -1288,6 +1642,7 @@
         let notificationFeed = null;
         let sellerProfileName = 'Seller';
         let sellerIsVerified = false;
+        let selectedProducts = new Set(); // For bulk operations
 
         const VERIFIED_STATUSES = new Set(['approved', 'verified']);
 
@@ -1434,12 +1789,166 @@
         function updateStats() {
             const active = products.filter(p => p.status === 'active' && (p.stock > 0 || p.quantity > 0)).length;
             const lowStock = products.filter(p => (p.stock > 0 && p.stock <= 5) || (p.quantity > 0 && p.quantity <= 5)).length;
+            const outOfStock = products.filter(p => (p.stock === 0 || p.quantity === 0)).length;
             const totalViews = products.reduce((sum, p) => sum + (p.views || 0), 0);
             
             document.getElementById('totalProducts').textContent = products.length;
             document.getElementById('activeProducts').textContent = active;
             document.getElementById('totalViews').textContent = totalViews;
             document.getElementById('lowStock').textContent = lowStock;
+            
+            // Show inventory alert banner if there are low stock items
+            updateInventoryAlert(lowStock, outOfStock);
+        }
+
+        function updateInventoryAlert(lowStock, outOfStock) {
+            const banner = document.getElementById('inventoryAlertBanner');
+            const title = document.getElementById('alertTitle');
+            const message = document.getElementById('alertMessage');
+            
+            if (!banner) return;
+            
+            if (outOfStock > 0) {
+                banner.classList.add('show');
+                title.textContent = `⚠️ ${outOfStock} Product${outOfStock > 1 ? 's' : ''} Out of Stock!`;
+                message.textContent = `${lowStock} additional products are running low. Update inventory immediately to avoid lost sales.`;
+            } else if (lowStock > 0) {
+                banner.classList.add('show');
+                title.textContent = `Low Stock Alert: ${lowStock} Item${lowStock > 1 ? 's' : ''}`;
+                message.textContent = 'Some products are running low on stock. Update inventory to avoid stockouts.';
+            } else {
+                banner.classList.remove('show');
+            }
+        }
+
+        function filterLowStock() {
+            const statusFilter = document.getElementById('statusFilter');
+            if (statusFilter) {
+                statusFilter.value = 'out-of-stock';
+                renderProducts();
+            }
+            // Scroll to products grid
+            document.getElementById('productsGrid')?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Bulk Selection Functions
+        function toggleProductSelection(productId, checkbox) {
+            if (checkbox.checked) {
+                selectedProducts.add(productId);
+            } else {
+                selectedProducts.delete(productId);
+            }
+            updateBulkActionsBar();
+        }
+
+        function updateBulkActionsBar() {
+            const bar = document.getElementById('bulkActionsBar');
+            const countEl = document.getElementById('selectedCount');
+            
+            if (selectedProducts.size > 0) {
+                bar.classList.add('show');
+                countEl.textContent = selectedProducts.size;
+            } else {
+                bar.classList.remove('show');
+            }
+        }
+
+        function clearSelection() {
+            selectedProducts.clear();
+            document.querySelectorAll('.product-select-checkbox input').forEach(cb => cb.checked = false);
+            updateBulkActionsBar();
+        }
+
+        function openBulkStockModal() {
+            if (selectedProducts.size === 0) {
+                showToast('Select products first', 'error');
+                return;
+            }
+            document.getElementById('bulkUpdateCount').textContent = selectedProducts.size;
+            document.getElementById('bulkStockModal').classList.add('show');
+        }
+
+        function closeBulkStockModal() {
+            document.getElementById('bulkStockModal').classList.remove('show');
+        }
+
+        async function applyBulkStockUpdate() {
+            const updateType = document.getElementById('stockUpdateType').value;
+            const updateValue = parseInt(document.getElementById('stockUpdateValue').value) || 0;
+            
+            if (updateValue < 0) {
+                showToast('Please enter a valid quantity', 'error');
+                return;
+            }
+            
+            const batch = db.batch();
+            let updateCount = 0;
+            
+            for (const productId of selectedProducts) {
+                const product = products.find(p => p.id === productId);
+                if (!product) continue;
+                
+                const currentStock = product.stock ?? product.quantity ?? 0;
+                let newStock = currentStock;
+                
+                switch (updateType) {
+                    case 'set':
+                        newStock = updateValue;
+                        break;
+                    case 'add':
+                        newStock = currentStock + updateValue;
+                        break;
+                    case 'subtract':
+                        newStock = Math.max(0, currentStock - updateValue);
+                        break;
+                }
+                
+                const productRef = db.collection('products').doc(productId);
+                batch.update(productRef, { 
+                    stock: newStock,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                updateCount++;
+            }
+            
+            try {
+                await batch.commit();
+                showToast(`Updated stock for ${updateCount} product${updateCount > 1 ? 's' : ''}`);
+                closeBulkStockModal();
+                clearSelection();
+                await loadProducts();
+            } catch (error) {
+                console.error('Bulk update failed:', error);
+                showToast('Failed to update stock', 'error');
+            }
+        }
+
+        // Quick Stock Update (inline on product card)
+        async function quickUpdateStock(productId, inputEl) {
+            const newStock = parseInt(inputEl.value);
+            if (isNaN(newStock) || newStock < 0) {
+                showToast('Invalid stock value', 'error');
+                return;
+            }
+            
+            try {
+                await db.collection('products').doc(productId).update({
+                    stock: newStock,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast('Stock updated');
+                
+                // Update local data
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    product.stock = newStock;
+                    updateStats();
+                    renderProducts();
+                }
+            } catch (error) {
+                console.error('Quick stock update failed:', error);
+                showToast('Failed to update stock', 'error');
+            }
         }
 
         function setupEventListeners() {
@@ -1592,6 +2101,12 @@
                 
                 return `
                     <div class="${cardClass}">
+                        <div class="product-select-checkbox">
+                            <input type="checkbox" 
+                                   onclick="event.stopPropagation(); toggleProductSelection('${product.id}', this)" 
+                                   ${selectedProducts.has(product.id) ? 'checked' : ''}
+                                   title="Select for bulk actions">
+                        </div>
                         <div class="product-image">
                             ${imageHtml}
                             ${lowStockBadge}
@@ -1605,6 +2120,17 @@
                                 <span class="${stockClass}"><i class="fas fa-box"></i> ${stock} in stock</span>
                                 <span><i class="fas fa-eye"></i> ${product.views || 0} views</span>
                             </div>
+                        </div>
+                        <div class="quick-stock-edit">
+                            <label>Stock:</label>
+                            <input type="number" 
+                                   value="${stock}" 
+                                   min="0" 
+                                   id="quickStock_${product.id}"
+                                   onkeypress="if(event.key==='Enter')quickUpdateStock('${product.id}', this)">
+                            <button class="btn-update-stock" onclick="quickUpdateStock('${product.id}', document.getElementById('quickStock_${product.id}'))">
+                                <i class="fas fa-check"></i>
+                            </button>
                         </div>
                         <div class="product-actions">
                             <button class="btn-sm edit" onclick="editProduct('${product.id}')">
@@ -1868,6 +2394,24 @@
             document.getElementById('sidebarOverlay').classList.toggle('show');
         }
 
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('userDropdown');
+            const userMenu = document.querySelector('.seller-user-menu');
+            if (dropdown && userMenu && !dropdown.contains(e.target) && !userMenu.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        function handleLogout(event) {
+            event.preventDefault();
+            logout();
+        }
+
         async function logout() {
             try {
                 localStorage.removeItem('69shop_user_type');
@@ -1899,6 +2443,196 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeModal();
         });
+
+        // ==========================================
+        // CSV IMPORT/EXPORT FUNCTIONS
+        // ==========================================
+        
+        function exportProductsCSV() {
+            if (!products || products.length === 0) {
+                showNotification('No products to export', 'error');
+                return;
+            }
+            
+            // Define CSV columns
+            const headers = [
+                'ID', 'Name', 'Description', 'Category', 'Price', 'OriginalPrice',
+                'Stock', 'Status', 'Images', 'Rating', 'Reviews', 'CreatedAt'
+            ];
+            
+            // Convert products to CSV rows
+            const rows = products.map(product => {
+                return [
+                    product.id || '',
+                    escapeCSV(product.name || ''),
+                    escapeCSV(product.description || ''),
+                    product.category || '',
+                    product.price || 0,
+                    product.originalPrice || product.price || 0,
+                    product.stock ?? 0,
+                    product.status || 'active',
+                    (product.images || []).join('|'),
+                    product.rating || 0,
+                    product.reviews || 0,
+                    product.createdAt?.toDate?.()?.toISOString() || ''
+                ].join(',');
+            });
+            
+            // Combine headers and rows
+            const csv = [headers.join(','), ...rows].join('\n');
+            
+            // Download file
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `products_export_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            
+            showNotification(`Exported ${products.length} products to CSV`, 'success');
+        }
+        
+        function escapeCSV(str) {
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
+        }
+        
+        async function importProductsCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const csv = e.target.result;
+                const lines = csv.split('\n').filter(line => line.trim());
+                
+                if (lines.length < 2) {
+                    showNotification('CSV file is empty or invalid', 'error');
+                    return;
+                }
+                
+                // Parse headers
+                const headers = parseCSVLine(lines[0]);
+                const requiredHeaders = ['name', 'price', 'category'];
+                const headerLower = headers.map(h => h.toLowerCase().trim());
+                
+                const missingHeaders = requiredHeaders.filter(h => !headerLower.includes(h));
+                if (missingHeaders.length > 0) {
+                    showNotification(`Missing required columns: ${missingHeaders.join(', ')}`, 'error');
+                    return;
+                }
+                
+                // Parse data rows
+                const productsToImport = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+                    if (values.length < headers.length) continue;
+                    
+                    const product = {};
+                    headers.forEach((header, index) => {
+                        const key = header.toLowerCase().trim();
+                        const value = values[index]?.trim() || '';
+                        
+                        if (key === 'price' || key === 'originalprice' || key === 'stock' || key === 'rating' || key === 'reviews') {
+                            product[key] = parseFloat(value) || 0;
+                        } else if (key === 'images') {
+                            product[key] = value ? value.split('|') : [];
+                        } else {
+                            product[key] = value;
+                        }
+                    });
+                    
+                    if (product.name && product.price) {
+                        productsToImport.push(product);
+                    }
+                }
+                
+                if (productsToImport.length === 0) {
+                    showNotification('No valid products found in CSV', 'error');
+                    return;
+                }
+                
+                // Show confirmation
+                const confirmed = confirm(`Import ${productsToImport.length} products?\n\nThis will add them to your catalog.`);
+                if (!confirmed) return;
+                
+                // Import products to Firestore
+                showNotification(`Importing ${productsToImport.length} products...`);
+                let successCount = 0;
+                let errorCount = 0;
+                
+                for (const product of productsToImport) {
+                    try {
+                        await db.collection('products').add({
+                            ...product,
+                            sellerId: currentUser.uid,
+                            sellerName: sellerData?.storeName || sellerData?.businessName || 'Unknown Seller',
+                            status: product.status || 'active',
+                            stock: product.stock ?? 10,
+                            price: product.price,
+                            originalPrice: product.originalprice || product.price,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        successCount++;
+                    } catch (error) {
+                        console.error('Failed to import product:', error);
+                        errorCount++;
+                    }
+                }
+                
+                // Clear file input
+                event.target.value = '';
+                
+                // Refresh products
+                await loadProducts();
+                
+                showNotification(`Imported ${successCount} products${errorCount > 0 ? `, ${errorCount} failed` : ''}`, successCount > 0 ? 'success' : 'error');
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+            
+            return result;
+        }
+        
+        // Download CSV template
+        function downloadCSVTemplate() {
+            const template = 'Name,Description,Category,Price,OriginalPrice,Stock,Status\n' +
+                           '"Sample Product","Product description here","Electronics",999,1299,50,active\n' +
+                           '"Another Product","Another description","Fashion",499,699,100,active';
+            
+            const blob = new Blob([template], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'product_import_template.csv';
+            link.click();
+        }
     </script>
 </body>
 </html>

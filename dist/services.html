@@ -212,6 +212,78 @@
             </div>
         </section>
 
+        <!-- Premium Concierge Booking Section -->
+        <section class="container" style="padding: 0 24px;">
+            <div class="concierge-booking-section">
+                <div class="concierge-content">
+                    <p class="concierge-label">Concierge booking</p>
+                    <h2 class="concierge-title">Book premium services without leaving the shop experience.</h2>
+                    <p class="concierge-description">Pair your cart with couture-ready pleating, jewellery ateliers, gifting studios, bakers, distributors, and photographers that already work with 69Shop buyers. Every request is verified, insured, and tracked.</p>
+                    
+                    <div class="concierge-badges">
+                        <span class="concierge-badge"><i class="fas fa-star"></i> Verified studios</span>
+                        <span class="concierge-badge"><i class="fas fa-bolt"></i> 48h proposals</span>
+                        <span class="concierge-badge"><i class="fas fa-shield-alt"></i> Escrow-ready</span>
+                    </div>
+                    
+                    <div class="concierge-actions">
+                        <a href="#directory" class="btn-browse-services">
+                            <i class="fas fa-layer-group"></i> Browse services
+                        </a>
+                        <a href="#contact" class="btn-concierge-call">
+                            <i class="fas fa-phone"></i> Talk to concierge
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="concierge-moodboard">
+                    <p class="moodboard-header">Service collaboration moodboard</p>
+                    <div class="moodboard-stats">
+                        <span class="moodboard-stats-number">800+</span>
+                        <span class="moodboard-stats-label">Briefs Fulfilled</span>
+                    </div>
+                    <div class="moodboard-image">
+                        <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=600&q=80" alt="Premium craftsmanship">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Featured Services Grid -->
+            <div class="featured-services-grid">
+                <article class="featured-service-card">
+                    <img src="https://images.unsplash.com/photo-1573408301185-9146fe634ad0?auto=format&fit=crop&w=600&q=80" alt="Handmade Jewellery">
+                    <div class="featured-service-overlay">
+                        <span class="featured-service-chip"><i class="fas fa-gem"></i> Handmade Jewellery</span>
+                        <h3 class="featured-service-title">Custom ateliers for bridal & festive</h3>
+                    </div>
+                </article>
+                
+                <article class="featured-service-card">
+                    <img src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80" alt="Saree Pre-Pleating">
+                    <div class="featured-service-overlay">
+                        <span class="featured-service-chip"><i class="fas fa-fan"></i> Saree Pre-Pleating</span>
+                        <h3 class="featured-service-title">Location-smart pleating teams across India</h3>
+                    </div>
+                </article>
+                
+                <article class="featured-service-card">
+                    <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=600&q=80" alt="Bakery & Cookies">
+                    <div class="featured-service-overlay">
+                        <span class="featured-service-chip"><i class="fas fa-cookie-bite"></i> Bakery & Cookies</span>
+                        <h3 class="featured-service-title">FSSAI-certified kitchens for gifting & events</h3>
+                    </div>
+                </article>
+                
+                <article class="featured-service-card">
+                    <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=600&q=80" alt="Photographers">
+                    <div class="featured-service-overlay">
+                        <span class="featured-service-chip"><i class="fas fa-camera"></i> Photographers</span>
+                        <h3 class="featured-service-title">Lifestyle, product, and wedding storytellers</h3>
+                    </div>
+                </article>
+            </div>
+        </section>
+
         <!-- Service Sections -->
         <section class="service-section" id="handmade-jewellery">
             <div class="container">
@@ -688,6 +760,25 @@
         </section>
     </main>
 
+    <!-- Booking Confirmation Modal -->
+    <div class="booking-confirmation-overlay" id="bookingConfirmation">
+        <div class="booking-confirmation-modal">
+            <div class="booking-confirmation-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3>Booking Request Submitted!</h3>
+            <p>Thank you for your request. Our concierge team will review your brief and get back to you within 24-48 hours.</p>
+            <div class="booking-confirmation-details" id="bookingDetails">
+                <h4>Request Summary</h4>
+                <ul id="bookingDetailsList"></ul>
+            </div>
+            <button class="booking-confirmation-close" onclick="closeBookingConfirmation()">
+                <i class="fas fa-thumbs-up"></i>
+                Got it!
+            </button>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -1013,10 +1104,7 @@
                         }
 
                         if (storedInFirestore || emailSent) {
-                            const successCopy = emailSent
-                                ? `Thanks! Your ${payload.service} brief is with our concierge.`
-                                : `Thanks! Your ${payload.service} brief is logged. Our concierge desk will follow up shortly.`;
-                            showNotification(successCopy, 'success');
+                            showBookingConfirmation(payload);
                             form.reset();
                         } else {
                             showNotification('Unable to submit right now. Please try again or email info@69shop.in.', 'error');
@@ -1129,6 +1217,60 @@
                 setTimeout(() => notification.remove(), 300);
             }, 4000);
         }
+
+        function showBookingConfirmation(payload) {
+            const overlay = document.getElementById('bookingConfirmation');
+            const detailsList = document.getElementById('bookingDetailsList');
+            
+            // Build summary items
+            const items = [];
+            items.push({ label: 'Service', value: payload.service || 'Service Request' });
+            if (payload.fullName || payload.founder || payload.coordinator) {
+                items.push({ label: 'Name', value: payload.fullName || payload.founder || payload.coordinator });
+            }
+            if (payload.email || payload.workEmail) {
+                items.push({ label: 'Email', value: payload.email || payload.workEmail });
+            }
+            if (payload.phone) {
+                items.push({ label: 'Phone', value: payload.phone });
+            }
+            if (payload.city || payload.location) {
+                items.push({ label: 'Location', value: payload.city || payload.location });
+            }
+            if (payload.budget) {
+                items.push({ label: 'Budget', value: payload.budget });
+            }
+            if (payload.eventDate || payload.deliveryDate) {
+                const date = new Date(payload.eventDate || payload.deliveryDate);
+                items.push({ label: 'Date', value: date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) });
+            }
+            if (payload.recordId) {
+                items.push({ label: 'Reference ID', value: payload.recordId.substring(0, 8).toUpperCase() });
+            }
+            
+            detailsList.innerHTML = items.map(item => `
+                <li>
+                    <span>${item.label}</span>
+                    <span>${item.value}</span>
+                </li>
+            `).join('');
+            
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeBookingConfirmation() {
+            const overlay = document.getElementById('bookingConfirmation');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on overlay click
+        document.getElementById('bookingConfirmation')?.addEventListener('click', (e) => {
+            if (e.target.id === 'bookingConfirmation') {
+                closeBookingConfirmation();
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             checkAuthState();
