@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
+    <title>Book a Service | 69Shop.in Concierge</title>
+    <meta name="description" content="Book premium concierge services - Jewellery, Saree Pre-Pleating, Gifts, Bakery, Distribution, Photography">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --blue-primary: #0066ff;
+            --emerald: #00c0a3;
+            --gold: #f5a524;
+            --text-dark: #1a1a2e;
+            --text-medium: #4a5568;
+            --text-light: #718096;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 8px 30px rgba(0,0,0,0.08);
+            --shadow-lg: 0 20px 50px rgba(0,0,0,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 30px;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #f8fafc 0%, #e8f4ff 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+        
+        /* Header */
+        .booking-header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 0;
+        }
+        
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+        }
+        
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .site-name {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--blue-primary);
+        }
+        
+        .tagline {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--bg-light);
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 50px;
+            color: var(--text-medium);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-back:hover {
+            background: var(--white);
+            color: var(--blue-primary);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* Hero Section */
+        .booking-hero {
+            background: linear-gradient(135deg, #0066ff 0%, #00c0a3 100%);
+            padding: 80px 24px 100px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .booking-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23fff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            animation: patternMove 30s linear infinite;
+        }
+        
+        @keyframes patternMove {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(60px); }
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        
+        .booking-hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            color: white;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        
+        .booking-hero p {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+        
+        /* Main Content */
+        .booking-main {
+            max-width: 1200px;
+            margin: -60px auto 60px;
+            padding: 0 24px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Service Selection Grid */
+        .service-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .service-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--blue-primary), var(--emerald));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .service-card:hover::before,
+        .service-card.selected::before {
+            transform: scaleX(1);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .service-card.selected {
+            border-color: var(--blue-primary);
+            background: linear-gradient(180deg, rgba(0,102,255,0.02) 0%, var(--white) 100%);
+        }
+        
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(0,102,255,0.1), rgba(0,192,163,0.1));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .service-icon i {
+            font-size: 1.5rem;
+            color: var(--blue-primary);
+        }
+        
+        .service-card:hover .service-icon,
+        .service-card.selected .service-icon {
+            background: linear-gradient(135deg, var(--blue-primary), var(--emerald));
+        }
+        
+        .service-card:hover .service-icon i,
+        .service-card.selected .service-icon i {
+            color: white;
+        }
+        
+        .service-card h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+        
+        .service-card p {
+            color: var(--text-medium);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .service-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .meta-item i {
+            color: var(--emerald);
+            font-size: 0.75rem;
+        }
+        
+        .service-check {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--blue-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .service-check i {
+            color: white;
+            font-size: 0.8rem;
+        }
+        
+        .service-card.selected .service-check {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* Booking Form */
+        .booking-form-container {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            display: none;
+            animation: slideUp 0.5s ease;
+        }
+        
+        .booking-form-container.active {
+            display: block;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-header {
+            background: linear-gradient(135deg, #0066ff 0%, #00c0a3 100%);
+            padding: 30px 40px;
+            color: white;
+        }
+        
+        .form-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .form-header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        .form-body {
+            padding: 40px;
+        }
+        
+        .form-section {
+            margin-bottom: 35px;
+        }
+        
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .form-section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-section-title i {
+            color: var(--blue-primary);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-medium);
+        }
+        
+        .form-group label span {
+            color: #e53e3e;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 14px 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--blue-primary);
+            box-shadow: 0 0 0 4px rgba(0,102,255,0.1);
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+        
+        /* Provider Cards */
+        .provider-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .provider-option {
+            border: 2px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .provider-option:hover {
+            border-color: var(--blue-primary);
+            background: rgba(0,102,255,0.02);
+        }
+        
+        .provider-option.selected {
+            border-color: var(--blue-primary);
+            background: linear-gradient(180deg, rgba(0,102,255,0.05) 0%, var(--white) 100%);
+        }
+        
+        .provider-option input {
+            display: none;
+        }
+        
+        .provider-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+        
+        .provider-location {
+            font-size: 0.85rem;
+            color: var(--text-medium);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .provider-location i {
+            color: var(--emerald);
+        }
+        
+        .provider-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--gold);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 50px;
+        }
+        
+        /* Submit Button */
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .btn-submit {
+            flex: 1;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--blue-primary), var(--emerald));
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,102,255,0.3);
+        }
+        
+        .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-reset {
+            padding: 16px 32px;
+            background: var(--bg-light);
+            border: 1px solid #e2e8f0;
+            border-radius: 50px;
+            color: var(--text-medium);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reset:hover {
+            background: var(--white);
+            border-color: var(--text-light);
+        }
+        
+        /* Trust Badges */
+        .trust-section {
+            margin-top: 50px;
+            text-align: center;
+        }
+        
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-medium);
+        }
+        
+        .trust-badge i {
+            font-size: 1.5rem;
+            color: var(--emerald);
+        }
+        
+        .trust-badge span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        /* Success Modal */
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 24px;
+        }
+        
+        .success-overlay.show {
+            display: flex;
+        }
+        
+        .success-modal {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 50px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: modalPop 0.4s ease;
+        }
+        
+        @keyframes modalPop {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--emerald), #00d9b5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        
+        .success-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .success-modal h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+        
+        .success-modal p {
+            color: var(--text-medium);
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+        
+        .booking-ref {
+            background: var(--bg-light);
+            padding: 16px 24px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+        }
+        
+        .booking-ref-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        
+        .booking-ref-code {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--blue-primary);
+        }
+        
+        .btn-done {
+            padding: 14px 40px;
+            background: linear-gradient(135deg, var(--blue-primary), var(--emerald));
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-done:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,102,255,0.3);
+        }
+        
+        /* Footer */
+        .booking-footer {
+            background: #1a1a2e;
+            padding: 40px 24px;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .booking-footer p {
+            font-size: 0.9rem;
+        }
+        
+        .booking-footer a {
+            color: var(--emerald);
+            text-decoration: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-body {
+                padding: 24px;
+            }
+            
+            .form-header {
+                padding: 24px;
+            }
+            
+            .service-selection {
+                grid-template-columns: 1fr;
+            }
+            
+            .booking-hero {
+                padding: 60px 24px 80px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .trust-badges {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+        }
+    </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
+    <link rel="stylesheet" href="assets/css/mobile-enhancements.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="booking-header">
+        <div class="header-inner">
+            <a href="/" class="logo-link">
+                <div class="logo-icon">
+                    <img src="/Logo/69shopc.png" alt="69Shop.in Logo">
+                </div>
+                <div class="logo-text">
+                    <div class="site-name">69SHOP.IN</div>
+                    <div class="tagline">Concierge Services</div>
+                </div>
+            </a>
+            <div class="header-actions">
+                <a href="/services.html" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Services</a>
+            </div>
+        </div>
+    </header>
+    <script src="assets/js/shared-header.js"></script>
+    
+    <!-- Hero -->
+    <section class="booking-hero">
+        <div class="hero-content">
+            <span class="hero-badge"><i class="fas fa-concierge-bell"></i> Concierge Booking</span>
+            <h1>Book a Premium Service</h1>
+            <p>Select a service category below to begin. Our concierge team will match you with verified professionals within 48 hours.</p>
+        </div>
+    </section>
+    
+    <!-- Main Content -->
+    <main class="booking-main">
+        <!-- Service Selection -->
+        <div class="service-selection" id="serviceSelection">
+            <div class="service-card" data-service="jewellery" onclick="selectService('jewellery')">
+                <div class="service-check"><i class="fas fa-check"></i></div>
+                <div class="service-icon"><i class="fas fa-gem"></i></div>
+                <h3>Handmade Jewellery</h3>
+                <p>Custom bridal, festive, and corporate jewellery from trusted ateliers with CAD previews and hallmarking.</p>
+                <div class="service-meta">
+                    <span class="meta-item"><i class="fas fa-check"></i> 12 Studios</span>
+                    <span class="meta-item"><i class="fas fa-clock"></i> 3-6 weeks</span>
+                    <span class="meta-item"><i class="fas fa-tag"></i> ₹40k+</span>
+                </div>
+            </div>
+            
+            <div class="service-card" data-service="pleating" onclick="selectService('pleating')">
+                <div class="service-check"><i class="fas fa-check"></i></div>
+                <div class="service-icon"><i class="fas fa-fan"></i></div>
+                <h3>Saree Pre-Pleating</h3>
+                <p>Precision pleating for weddings and events with pan-India pickup and express 48h slots available.</p>
+                <div class="service-meta">
+                    <span class="meta-item"><i class="fas fa-check"></i> Express Slots</span>
+                    <span class="meta-item"><i class="fas fa-truck"></i> Pan-India</span>
+                    <span class="meta-item"><i class="fas fa-tag"></i> ₹350+</span>
+                </div>
+            </div>
+            
+            <div class="service-card" data-service="gifts" onclick="selectService('gifts')">
+                <div class="service-check"><i class="fas fa-check"></i></div>
+                <div class="service-icon"><i class="fas fa-gift"></i></div>
+                <h3>Handmade Gifts</h3>
+                <p>Artisanal hampers for weddings, festivals, corporate gifting with eco-friendly packaging.</p>
+                <div class="service-meta">
+                    <span class="meta-item"><i class="fas fa-check"></i> MOQ 25</span>
+                    <span class="meta-item"><i class="fas fa-leaf"></i> Eco-friendly</span>
+                    <span class="meta-item"><i class="fas fa-tag"></i> ₹1.5k+</span>
+                </div>
+            </div>
+            
+            <div class="service-card" data-service="bakery" onclick="selectService('bakery')">
+                <div class="service-check"><i class="fas fa-check"></i></div>
+                <div class="service-icon"><i class="fas fa-cookie-bite"></i></div>
+                <h3>Bakery & Desserts</h3>
+                <p>FSSAI-certified micro-bakeries for cookie tins, dessert tables, and subscription gifting.</p>
+                <div class="service-meta">
+                    <span class="meta-item"><i class="fas fa-check"></i> 15 Kitchens</span>
+                    <span class="meta-item"><i class="fas fa-clock"></i> 72h Lead</span>
+                    <span class="meta-item"><i class="fas fa-snowflake"></i> Cold Chain</span>
+                </div>
+            </div>
+            
+            <div class="service-card" data-service="distribution" onclick="selectService('distribution')">
+                <div class="service-check"><i class="fas fa-check"></i></div>
+                <div class="service-icon"><i class="fas fa-boxes"></i></div>
+                <h3>Distribution Partners</h3>
+                <p>Regional distributors for D2C brands with warehousing, GST billing, and retailer outreach.</p>
+                <div class="service-meta">
+                    <span class="meta-item"><i class="fas fa-check"></i> 9 Metro Hubs</span>
+                    <span class="meta-item"><i class="fas fa-chart-line"></i> +30% Sales</span>
+                    <span class="meta-item"><i class="fas fa-clock"></i> 45 Days</span>
+                </div>
+            </div>
+            
+            <div class="service-card" data-service="photography" onclick="selectService('photography')">
+                <div class="service-check"><i class="fas fa-check"></i></div>
+                <div class="service-icon"><i class="fas fa-camera-retro"></i></div>
+                <h3>Photography</h3>
+                <p>Lifestyle, product, and wedding photography with edited deliverables in 72 hours.</p>
+                <div class="service-meta">
+                    <span class="meta-item"><i class="fas fa-star"></i> 4.9 Rating</span>
+                    <span class="meta-item"><i class="fas fa-clock"></i> 72h Edits</span>
+                    <span class="meta-item"><i class="fas fa-video"></i> Photo + Video</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Form -->
+        <div class="booking-form-container" id="bookingForm">
+            <div class="form-header">
+                <h2 id="formTitle">Complete Your Booking</h2>
+                <p id="formSubtitle">Fill in the details below and our concierge team will get back to you within 48 hours.</p>
+            </div>
+            
+            <form id="serviceForm" class="form-body">
+                <input type="hidden" name="serviceType" id="serviceType">
+                
+                <!-- Contact Information -->
+                <div class="form-section">
+                    <h3 class="form-section-title"><i class="fas fa-user"></i> Contact Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name <span>*</span></label>
+                            <input type="text" name="fullName" required placeholder="Your full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Email <span>*</span></label>
+                            <input type="email" name="email" required placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone <span>*</span></label>
+                            <input type="tel" name="phone" required placeholder="+91 98765 43210">
+                        </div>
+                        <div class="form-group">
+                            <label>City <span>*</span></label>
+                            <input type="text" name="city" required placeholder="Your city">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Service Details (Dynamic) -->
+                <div class="form-section" id="serviceDetails">
+                    <h3 class="form-section-title"><i class="fas fa-clipboard-list"></i> Service Details</h3>
+                    <div class="form-grid" id="dynamicFields">
+                        <!-- Dynamic fields will be inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Requirements -->
+                <div class="form-section">
+                    <h3 class="form-section-title"><i class="fas fa-file-alt"></i> Your Requirements</h3>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Describe your needs <span>*</span></label>
+                            <textarea name="requirements" required placeholder="Tell us about your project, style preferences, special requirements, deadlines, etc."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-reset" onclick="resetForm()"><i class="fas fa-redo"></i> Reset</button>
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> Submit Booking Request
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Trust Badges -->
+        <div class="trust-section">
+            <div class="trust-badges">
+                <div class="trust-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Escrow Protected</span>
+                </div>
+                <div class="trust-badge">
+                    <i class="fas fa-star"></i>
+                    <span>Verified Partners</span>
+                </div>
+                <div class="trust-badge">
+                    <i class="fas fa-headset"></i>
+                    <span>24/7 Support</span>
+                </div>
+                <div class="trust-badge">
+                    <i class="fas fa-bolt"></i>
+                    <span>48h Response</span>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Success Modal -->
+    <div class="success-overlay" id="successModal">
+        <div class="success-modal">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3>Booking Submitted!</h3>
+            <p>Thank you for your request. Our concierge team will review your brief and contact you within 48 hours with curated proposals.</p>
+            <div class="booking-ref">
+                <div class="booking-ref-label">Booking Reference</div>
+                <div class="booking-ref-code" id="bookingRefCode">69S-XXXX</div>
+            </div>
+            <button class="btn-done" onclick="closeSuccessModal()">
+                <i class="fas fa-thumbs-up"></i> Done
+            </button>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="booking-footer">
+        <p>&copy; 2026 69Shop.in. All rights reserved. | <a href="/services.html">View All Services</a> | <a href="mailto:info@69shop.in">info@69shop.in</a></p>
+    </footer>
+    
+    <script>
+        // Firebase initialization
+        const firebaseConfig = window.firebaseConfig;
+        let db = null, auth = null;
+        if (firebaseConfig && firebaseConfig.apiKey) {
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            auth = firebase.auth();
+        }
+        
+        let selectedService = null;
+        
+        // Service configurations
+        const serviceConfig = {
+            jewellery: {
+                title: 'Book Jewellery Expert',
+                subtitle: 'Connect with verified ateliers for custom bridal and festive jewellery.',
+                fields: `
+                    <div class="form-group">
+                        <label>Occasion <span>*</span></label>
+                        <select name="occasion" required>
+                            <option value="">Select occasion</option>
+                            <option value="bridal">Bridal Trousseau</option>
+                            <option value="festive">Festive / Puja</option>
+                            <option value="corporate">Corporate Gifting</option>
+                            <option value="daily">Daily Wear</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Budget Range <span>*</span></label>
+                        <select name="budget" required>
+                            <option value="">Select budget</option>
+                            <option value="40k-1L">₹40,000 - ₹1,00,000</option>
+                            <option value="1L-3L">₹1,00,000 - ₹3,00,000</option>
+                            <option value="3L+">Above ₹3,00,000</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Desired Delivery Date <span>*</span></label>
+                        <input type="date" name="deliveryDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Company / Event Name</label>
+                        <input type="text" name="eventName" placeholder="e.g., Wedding of Priya & Rahul">
+                    </div>
+                `
+            },
+            pleating: {
+                title: 'Reserve Pleating Slot',
+                subtitle: 'Book precision saree pre-pleating with express 48h slots.',
+                fields: `
+                    <div class="form-group">
+                        <label>Number of Sarees <span>*</span></label>
+                        <input type="number" name="quantity" min="1" required placeholder="e.g., 10">
+                    </div>
+                    <div class="form-group">
+                        <label>Event Date <span>*</span></label>
+                        <input type="date" name="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Service Tier <span>*</span></label>
+                        <select name="serviceTier" required>
+                            <option value="">Select tier</option>
+                            <option value="studio">Studio Drop-off</option>
+                            <option value="pickup">Doorstep Pickup</option>
+                            <option value="onsite">Onsite Draping Crew</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Preferred Partner</label>
+                        <select name="provider">
+                            <option value="">Any available</option>
+                            <option value="priya-tirupur">Priya Ravi • Tirupur (Express)</option>
+                            <option value="raji-chennai">Raji Kumar • Chennai (Heritage)</option>
+                            <option value="ramani-madurai">Ramani Selvam • Madurai</option>
+                        </select>
+                    </div>
+                `
+            },
+            gifts: {
+                title: 'Customise Gift Hampers',
+                subtitle: 'Create artisanal hampers for weddings, festivals, and corporate events.',
+                fields: `
+                    <div class="form-group">
+                        <label>Quantity (MOQ 25) <span>*</span></label>
+                        <input type="number" name="quantity" min="25" required placeholder="Minimum 25 units">
+                    </div>
+                    <div class="form-group">
+                        <label>Dispatch Date <span>*</span></label>
+                        <input type="date" name="dispatchDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Theme <span>*</span></label>
+                        <select name="theme" required>
+                            <option value="">Select theme</option>
+                            <option value="premium">Premium / Luxury</option>
+                            <option value="sustainable">Sustainable / Eco</option>
+                            <option value="festive">Festive / Cultural</option>
+                            <option value="corporate">Corporate / Professional</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Company / Brand</label>
+                        <input type="text" name="brand" placeholder="Your company name">
+                    </div>
+                `
+            },
+            bakery: {
+                title: 'Plan Dessert Collaboration',
+                subtitle: 'Connect with FSSAI-certified micro-bakeries for events and gifting.',
+                fields: `
+                    <div class="form-group">
+                        <label>Servings Required <span>*</span></label>
+                        <input type="number" name="servings" min="20" required placeholder="Minimum 20 servings">
+                    </div>
+                    <div class="form-group">
+                        <label>Event / Campaign <span>*</span></label>
+                        <input type="text" name="event" required placeholder="e.g., Corporate Diwali Party">
+                    </div>
+                    <div class="form-group">
+                        <label>Logistics <span>*</span></label>
+                        <select name="logistics" required>
+                            <option value="">Select option</option>
+                            <option value="pickup">Client Pickup</option>
+                            <option value="cold-chain">Cold Chain Shipping</option>
+                            <option value="on-site">On-site Dessert Table</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Delivery Date <span>*</span></label>
+                        <input type="date" name="deliveryDate" required>
+                    </div>
+                `
+            },
+            distribution: {
+                title: 'Discuss Distribution',
+                subtitle: 'Scale your D2C brand with regional distribution partners.',
+                fields: `
+                    <div class="form-group">
+                        <label>Brand Name <span>*</span></label>
+                        <input type="text" name="brand" required placeholder="Your brand name">
+                    </div>
+                    <div class="form-group">
+                        <label>Product Category <span>*</span></label>
+                        <input type="text" name="category" required placeholder="e.g., Beauty, Food, Fashion">
+                    </div>
+                    <div class="form-group">
+                        <label>Current Markets <span>*</span></label>
+                        <input type="text" name="currentMarkets" required placeholder="e.g., Online, Chennai, Bangalore">
+                    </div>
+                    <div class="form-group">
+                        <label>Support Required <span>*</span></label>
+                        <select name="support" required>
+                            <option value="">Select support type</option>
+                            <option value="warehousing">Warehousing + Fulfillment</option>
+                            <option value="sales">Sales + Merchandising</option>
+                            <option value="both">End-to-end Distribution</option>
+                        </select>
+                    </div>
+                `
+            },
+            photography: {
+                title: 'Schedule a Shoot',
+                subtitle: 'Book lifestyle, product, or wedding photography with 72h edited deliverables.',
+                fields: `
+                    <div class="form-group">
+                        <label>Shoot Type <span>*</span></label>
+                        <select name="shootType" required>
+                            <option value="">Select type</option>
+                            <option value="product">Product Catalog</option>
+                            <option value="lifestyle">Lifestyle / Editorial</option>
+                            <option value="wedding">Wedding / Events</option>
+                            <option value="social">Social Media Content</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Shoot Date <span>*</span></label>
+                        <input type="date" name="shootDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Location <span>*</span></label>
+                        <input type="text" name="location" required placeholder="Studio / Venue address">
+                    </div>
+                    <div class="form-group">
+                        <label>Brand / Couple Names</label>
+                        <input type="text" name="brand" placeholder="For personalization">
+                    </div>
+                `
+            }
+        };
+        
+        function selectService(service) {
+            // Update UI
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-service="${service}"]`).classList.add('selected');
+            
+            selectedService = service;
+            const config = serviceConfig[service];
+            
+            // Update form
+            document.getElementById('serviceType').value = service;
+            document.getElementById('formTitle').textContent = config.title;
+            document.getElementById('formSubtitle').textContent = config.subtitle;
+            document.getElementById('dynamicFields').innerHTML = config.fields;
+            
+            // Show form
+            const formContainer = document.getElementById('bookingForm');
+            formContainer.classList.add('active');
+            
+            // Scroll to form
+            setTimeout(() => {
+                formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+        
+        function resetForm() {
+            document.getElementById('serviceForm').reset();
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById('bookingForm').classList.remove('active');
+            selectedService = null;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function generateBookingRef() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let ref = '69S-';
+            for (let i = 0; i < 6; i++) {
+                ref += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return ref;
+        }
+        
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+            resetForm();
+        }
+        
+        // Form submission
+        document.getElementById('serviceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            data.bookingRef = generateBookingRef();
+            data.createdAt = new Date().toISOString();
+            data.status = 'pending';
+            
+            try {
+                // Save to Firestore if available
+                if (db) {
+                    await db.collection('serviceBookings').add(data);
+                }
+                
+                // Show success modal
+                document.getElementById('bookingRefCode').textContent = data.bookingRef;
+                document.getElementById('successModal').classList.add('show');
+                
+            } catch (error) {
+                console.error('Booking error:', error);
+                alert('There was an error submitting your booking. Please try again or contact us directly.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Booking Request';
+            }
+        });
+        
+        // Check URL params for pre-selected service
+        const urlParams = new URLSearchParams(window.location.search);
+        const preselectedService = urlParams.get('service');
+        if (preselectedService && serviceConfig[preselectedService]) {
+            selectService(preselectedService);
+        }
+    </script>
+    <script src="js/xss-sanitizer.js"></script>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+        <div class="mobile-nav-items">
+            <a href="/shop.html" class="mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/search.html" class="mobile-nav-item" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="/services.html" class="mobile-nav-item" aria-label="Services">
+                <i class="fas fa-concierge-bell"></i>
+                <span>Services</span>
+            </a>
+            <a href="/messages.html" class="mobile-nav-item" aria-label="Messages">
+                <i class="fas fa-comment-dots"></i>
+                <span>Chat</span>
+            </a>
+            <a href="/profile.html" class="mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
+</body>
+</html>
+

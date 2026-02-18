@@ -3,910 +3,1058 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>69Shop.in - India's Premium Marketplace</title>
-    <meta name="description" content="69Shop.in - India's premium marketplace connecting buyers and sellers. Shop quality products or start selling your services today.">
-    
+    <title>69Shop.in — India's Premium Marketplace</title>
+    <meta name="description" content="69Shop.in — India's premium marketplace connecting buyers and sellers. Shop quality products or start selling your services today.">
+    <meta name="theme-color" content="#FFFFFF">
+    <link rel="icon" href="favicon.ico">
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="./firebase-config.js"></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
+
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/home.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Design System -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
+
+    <style>
+    /* ═══ LIGHT LUXURY — INDEX PAGE ═══ */
+
+    /* ── NAV ── */
+    .nav {
+        position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+        padding: var(--space-5) 0;
+        background: rgba(17, 24, 39, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        transition: all var(--t-normal);
+    }
+
+    .nav.scrolled {
+        padding: var(--space-3) 0;
+        background: rgba(17, 24, 39, 0.98);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+
+    .nav-logo { display: flex; align-items: center; gap: var(--space-3); text-decoration: none; }
+    .nav-logo-icon { width: 40px; height: 48px; display: flex; align-items: center; justify-content: center; }
+    .nav-logo-icon img { width: 100%; height: 100%; object-fit: contain; }
+    .nav-logo-text { display: flex; flex-direction: column; }
+    .nav-logo-name {
+        font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700;
+        color: #FFFFFF; letter-spacing: 0.02em;
+    }
+    .nav-logo-tagline {
+        font-size: 0.65rem; color: rgba(255,255,255,0.5);
+        letter-spacing: 0.1em; text-transform: uppercase;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: var(--space-1); list-style: none; }
+    .nav-links a {
+        padding: var(--space-2) var(--space-4); color: rgba(255,255,255,0.7);
+        font-size: 0.9rem; font-weight: 500; border-radius: var(--radius-full);
+        transition: all var(--t-fast); text-decoration: none;
+    }
+    .nav-links a:hover { color: #FFFFFF; background: rgba(255,255,255,0.1); }
+    .nav-links a.active {
+        color: #FFFFFF; background: rgba(37,99,235,0.3);
+        font-weight: 600;
+    }
+
+    .nav-actions { display: flex; align-items: center; gap: var(--space-3); }
+    .nav-user { display: flex; align-items: center; gap: var(--space-3); }
+    .nav-avatar {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: var(--gradient-brand);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 0.85rem; color: white;
+    }
+    .nav-user-name { font-size: 0.85rem; color: rgba(255,255,255,0.7); }
+    .nav-user-name strong { color: #FFFFFF; }
+
+    .mobile-toggle {
+        display: none; background: none; border: none;
+        color: #FFFFFF; font-size: 1.4rem; cursor: pointer; padding: var(--space-2);
+    }
+
+    /* ── HERO ── */
+    .hero {
+        min-height: 92vh; display: flex; align-items: center;
+        position: relative; overflow: hidden;
+        padding-top: 96px;
+        background: linear-gradient(135deg, #111827 0%, #1E293B 40%, #1E1B4B 80%, #111827 100%);
+        color: white;
+    }
+
+    .hero::before {
+        content: ''; position: absolute; inset: 0;
+        background-image:
+            radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.12) 0%, transparent 50%),
+            radial-gradient(circle at 80% 50%, rgba(124, 58, 237, 0.08) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .hero-content {
+        position: relative; z-index: 1;
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: var(--space-16); align-items: center;
+    }
+
+    .hero-text { animation: fadeInUp 0.8s ease both; }
+
+    .hero-label {
+        display: inline-flex; align-items: center; gap: var(--space-2);
+        padding: var(--space-2) var(--space-5);
+        background: rgba(37, 99, 235, 0.15);
+        border: 1px solid rgba(37, 99, 235, 0.2);
+        border-radius: var(--radius-full);
+        font-size: 0.78rem; font-weight: 600;
+        letter-spacing: 0.06em; text-transform: uppercase;
+        color: #93C5FD; margin-bottom: var(--space-8);
+    }
+    .hero-label i { font-size: 0.7rem; }
+
+    .hero-title {
+        font-size: clamp(2.5rem, 5vw, 3.8rem); font-weight: 800;
+        line-height: 1.1; margin-bottom: var(--space-6); letter-spacing: -0.03em;
+        color: white;
+    }
+
+    .hero-desc {
+        font-size: 1.15rem; color: rgba(255, 255, 255, 0.65);
+        line-height: 1.7; max-width: 480px; margin-bottom: var(--space-10);
+    }
+
+    .hero-actions { display: flex; gap: var(--space-4); flex-wrap: wrap; }
+    .hero-actions .btn-secondary,
+    .hero-actions .btn.btn-secondary {
+        background: rgba(255,255,255,0.08) !important;
+        border: 1px solid rgba(255,255,255,0.18) !important;
+        color: rgba(255,255,255,0.9) !important;
+        backdrop-filter: blur(8px);
+    }
+    .hero-actions .btn-secondary:hover,
+    .hero-actions .btn.btn-secondary:hover {
+        background: rgba(255,255,255,0.15) !important;
+        border-color: rgba(255,255,255,0.3) !important;
+        color: white !important;
+    }
+
+    .hero-stats {
+        display: flex; gap: var(--space-10); margin-top: var(--space-12);
+        padding-top: var(--space-10);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .hero-stat-value {
+        font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700;
+        color: white;
+    }
+    .hero-stat-label { font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin-top: var(--space-1); }
+
+    .hero-visual { position: relative; animation: fadeInUp 0.8s ease 0.2s both; }
+    .hero-image-wrapper {
+        position: relative; border-radius: var(--radius-2xl);
+        overflow: hidden; box-shadow: var(--shadow-xl);
+    }
+    .hero-image-wrapper img { width: 100%; height: 480px; object-fit: cover; display: block; }
+    .hero-image-wrapper::after {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.15) 100%);
+    }
+
+    /* Float cards removed for cleaner professional look */
+
+    /* ── MARQUEE ── */
+    .marquee-section {
+        padding: var(--space-5) 0;
+        background: var(--surface-subtle);
+        overflow: hidden;
+    }
+    .marquee-track { display: flex; gap: var(--space-10); animation: scrollMarquee 40s linear infinite; width: max-content; }
+    .marquee-item { display: flex; align-items: center; gap: var(--space-3); white-space: nowrap; flex-shrink: 0; }
+    .marquee-badge {
+        padding: var(--space-1) var(--space-3); border-radius: var(--radius-full);
+        font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .marquee-badge-hot { background: #FEF2F2; color: var(--accent-rose); }
+    .marquee-badge-new { background: #ECFDF5; color: var(--accent-emerald); }
+    .marquee-badge-top { background: #FFFBEB; color: var(--accent-amber); }
+    .marquee-badge-trend { background: #ECFEFF; color: var(--accent-cyan); }
+    .marquee-text { font-size: 0.85rem; color: var(--text-secondary); }
+    .marquee-section:hover .marquee-track { animation-play-state: paused; }
+
+    /* ── FEATURES ── */
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8); }
+    .feature-card { padding: var(--space-10); }
+    .feature-icon {
+        width: 56px; height: 56px; border-radius: var(--radius-lg);
+        background: var(--accent-light);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; color: var(--accent-primary);
+        margin-bottom: var(--space-6); transition: all var(--t-normal);
+    }
+    .feature-card:hover .feature-icon {
+        background: var(--accent-primary); color: white;
+        box-shadow: 0 8px 24px rgba(37,99,235,0.2);
+    }
+    .feature-card h3 { margin-bottom: var(--space-3); font-size: 1.15rem; }
+    .feature-card p { color: var(--text-secondary); font-size: 0.93rem; line-height: 1.75; }
+
+    /* ── CATEGORIES ── */
+    .categories-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+    .category-card {
+        position: relative; border-radius: var(--radius-xl); overflow: hidden;
+        text-decoration: none; transition: all var(--t-normal); aspect-ratio: 4/3;
+        box-shadow: var(--shadow-sm);
+    }
+    .category-card img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--t-slow); }
+    .category-card:hover img { transform: scale(1.05); }
+    .category-card::after {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.65) 100%);
+    }
+    .category-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .category-info { position: absolute; bottom: 0; left: 0; right: 0; padding: var(--space-6); z-index: 1; }
+    .category-info i { font-size: 1.4rem; color: white; margin-bottom: var(--space-2); opacity: 0.9; }
+    .category-info h3 { color: white; font-size: 1.15rem; margin-bottom: var(--space-1); }
+    .category-info span { font-size: 0.8rem; color: rgba(255,255,255,0.8); }
+
+    /* ── TRENDING ── */
+    .trending-header {
+        display: flex; align-items: flex-end; justify-content: space-between;
+        margin-bottom: var(--space-10);
+    }
+    .trending-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); }
+
+    .product-card-v2 { border-radius: var(--radius-xl); overflow: hidden; }
+    .product-card-v2 .product-image { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--surface-subtle); }
+    .product-card-v2 .product-image img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--t-slow); }
+    .product-card-v2:hover .product-image img { transform: scale(1.05); }
+    .product-card-v2 .product-badge { position: absolute; top: var(--space-3); left: var(--space-3); z-index: 2; }
+    .product-card-v2 .product-body { padding: var(--space-5) var(--space-6); }
+    .product-card-v2 .product-title {
+        font-size: 0.95rem; font-weight: 600; color: var(--text-primary);
+        margin-bottom: var(--space-2);
+        display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .product-price-row { display: flex; align-items: baseline; gap: var(--space-2); margin-bottom: var(--space-2); }
+    .price-current { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+    .price-original { font-size: 0.8rem; color: var(--text-tertiary); text-decoration: line-through; }
+    .product-meta { display: flex; align-items: center; gap: var(--space-4); font-size: 0.78rem; color: var(--text-tertiary); }
+    .product-meta i { margin-right: var(--space-1); }
+    .product-meta .fire { color: var(--accent-rose); }
+    .product-meta .star { color: var(--accent-amber); }
+
+    /* ── STEPS ── */
+    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-10); position: relative; }
+    .steps-grid::before {
+        content: ''; position: absolute; top: 32px; left: 20%; right: 20%;
+        height: 2px; background: var(--surface-muted);
+    }
+    .step-card { text-align: center; position: relative; z-index: 1; }
+    .step-number {
+        width: 64px; height: 64px; border-radius: 50%;
+        background: var(--accent-primary);
+        display: flex; align-items: center; justify-content: center;
+        font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; color: white;
+        margin: 0 auto var(--space-6);
+        box-shadow: 0 8px 24px rgba(37,99,235,0.2);
+    }
+    .step-card h3 { margin-bottom: var(--space-3); }
+    .step-card p { color: var(--text-secondary); font-size: 0.93rem; line-height: 1.75; max-width: 280px; margin: 0 auto; }
+
+    /* ── GALLERY ── */
+    .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+    .gallery-column-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6); }
+    .gallery-column-header .icon-circle {
+        width: 40px; height: 40px; border-radius: 50%;
+        background: var(--accent-primary);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.85rem; color: white;
+    }
+    .gallery-column-header h3 { margin-bottom: 0; }
+    .gallery-column-header p { color: var(--text-tertiary); font-size: 0.8rem; }
+
+    .mini-products { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+    .mini-product { border-radius: var(--radius-lg); overflow: hidden; transition: all var(--t-normal); background: var(--surface-card); box-shadow: var(--shadow-xs); }
+    .mini-product:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .mini-product img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+    .mini-product-body { padding: var(--space-4) var(--space-5); }
+    .mini-product-body h4 { font-size: 0.85rem; margin-bottom: var(--space-1); }
+    .mini-product-body .price { color: var(--text-primary); font-weight: 600; font-size: 0.9rem; }
+    .mini-product-body .seller { font-size: 0.72rem; color: var(--text-tertiary); margin-top: var(--space-1); }
+
+    .providers-list { display: flex; flex-direction: column; gap: var(--space-3); }
+    .provider-row {
+        display: flex; align-items: center; gap: var(--space-4);
+        padding: var(--space-4) var(--space-5); border-radius: var(--radius-lg);
+        transition: all var(--t-normal);
+    }
+    .provider-row:hover { background: var(--surface-subtle); }
+    .provider-avatar { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+    .provider-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .provider-info { flex: 1; }
+    .provider-info h4 { font-size: 0.95rem; margin-bottom: var(--space-1); }
+    .provider-info .category { font-size: 0.78rem; color: var(--accent-primary); }
+    .provider-rating { display: flex; align-items: center; gap: var(--space-1); font-size: 0.75rem; color: var(--accent-amber); }
+    .provider-location { font-size: 0.72rem; color: var(--text-tertiary); }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8); }
+    .testimonial-card { padding: var(--space-10); }
+    .testimonial-stars { display: flex; gap: var(--space-1); margin-bottom: var(--space-5); color: var(--accent-amber); font-size: 0.85rem; }
+    .testimonial-text { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.85; margin-bottom: var(--space-6); font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: var(--space-3); }
+    .testimonial-author img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+    .testimonial-author h4 { font-size: 0.9rem; margin-bottom: 0; }
+    .testimonial-author p { font-size: 0.75rem; color: var(--text-tertiary); }
+
+    /* ── CTA ── */
+    .cta-section { background: var(--surface-subtle); }
+    .cta-inner {
+        text-align: center; padding: var(--space-24) var(--space-10);
+        border-radius: var(--radius-2xl);
+        background: var(--surface-card);
+        box-shadow: var(--shadow-sm);
+    }
+    .cta-inner h2 { margin-bottom: var(--space-4); }
+    .cta-inner p { color: var(--text-secondary); font-size: 1.1rem; max-width: 560px; margin: 0 auto var(--space-10); }
+    .cta-buttons { display: flex; justify-content: center; gap: var(--space-4); }
+
+    /* ── BRANDS ── */
+    .brands-track-wrapper {
+        overflow: hidden;
+        mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+        -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+    }
+    .brands-track { display: flex; gap: var(--space-12); animation: scrollMarquee 30s linear infinite; width: max-content; }
+    .brand-item {
+        width: 100px; height: 48px; display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; opacity: 0.35; filter: grayscale(1);
+        transition: all var(--t-normal);
+    }
+    .brand-item:hover { opacity: 1; filter: grayscale(0); }
+    .brand-item img { max-height: 36px; max-width: 80px; object-fit: contain; }
+    .brand-item span { font-family: var(--font-heading); font-weight: 600; font-size: 1rem; color: var(--text-tertiary); }
+
+    /* ── NEWSLETTER ── */
+    .newsletter-section { background: var(--surface-subtle); }
+    .newsletter-inner {
+        display: flex; align-items: center; gap: var(--space-12);
+        padding: var(--space-12); border-radius: var(--radius-2xl);
+        background: var(--surface-card);
+        box-shadow: var(--shadow-sm);
+    }
+    .newsletter-text { flex: 1; }
+    .newsletter-text h3 { margin-bottom: var(--space-2); font-size: 1.3rem; }
+    .newsletter-text p { color: var(--text-secondary); font-size: 0.95rem; }
+    .newsletter-form { flex: 1; }
+    .newsletter-input-row { display: flex; gap: var(--space-3); }
+    .newsletter-input-row input {
+        flex: 1; padding: var(--space-4) var(--space-5);
+        background: var(--surface-subtle); border: none;
+        border-radius: var(--radius-full); color: var(--text-primary);
+        font-size: 0.95rem; outline: none; transition: all var(--t-fast);
+        font-family: var(--font-body);
+    }
+    .newsletter-input-row input:focus { background: white; box-shadow: 0 0 0 3px var(--accent-glow); }
+    .newsletter-input-row input::placeholder { color: var(--text-tertiary); }
+    .newsletter-disclaimer { font-size: 0.72rem; color: var(--text-tertiary); margin-top: var(--space-3); padding-left: var(--space-5); }
+
+    /* ── APP ── */
+    .app-section-inner { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: center; }
+    .app-features-list { display: flex; flex-direction: column; gap: var(--space-3); margin: var(--space-6) 0; }
+    .app-feature { display: flex; align-items: center; gap: var(--space-3); font-size: 0.93rem; color: var(--text-secondary); }
+    .app-feature i { color: var(--accent-emerald); }
+    .app-buttons { display: flex; gap: var(--space-4); }
+    .app-btn {
+        display: flex; align-items: center; gap: var(--space-3);
+        padding: var(--space-3) var(--space-5);
+        background: var(--surface-subtle); border: none;
+        border-radius: var(--radius-md); color: var(--text-primary);
+        text-decoration: none; transition: all var(--t-normal); cursor: pointer;
+    }
+    .app-btn:hover { background: var(--surface-muted); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .app-btn i { font-size: 1.5rem; }
+    .app-btn span { font-size: 0.65rem; color: var(--text-tertiary); }
+    .app-btn strong { font-size: 0.9rem; }
+    .app-mockup { display: flex; justify-content: center; }
+    .app-mockup-img { border-radius: var(--radius-2xl); overflow: hidden; max-width: 360px; box-shadow: var(--shadow-xl); }
+    .app-mockup-img img { width: 100%; height: auto; }
+
+    /* ── ARRIVALS ── */
+    .arrivals-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); }
+    .arrival-card { position: relative; overflow: hidden; border-radius: var(--radius-xl); }
+    .arrival-card .new-tag { position: absolute; top: var(--space-3); left: var(--space-3); z-index: 2; }
+    .arrival-card img { width: 100%; aspect-ratio: 1; object-fit: cover; transition: transform var(--t-slow); background: var(--surface-subtle); }
+    .arrival-card:hover img { transform: scale(1.05); }
+    .arrival-body { padding: var(--space-5) var(--space-6); }
+    .arrival-body h4 { font-size: 0.93rem; margin-bottom: var(--space-1); }
+    .arrival-body .price { color: var(--text-primary); font-weight: 700; font-size: 1rem; }
+    .arrival-body .date { font-size: 0.72rem; color: var(--text-tertiary); margin-top: var(--space-1); }
+
+    /* ── CONTACT ── */
+    .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8); }
+    .contact-card { text-align: center; padding: var(--space-10); }
+    .contact-card .icon-circle {
+        width: 56px; height: 56px; border-radius: 50%;
+        background: var(--accent-light);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; color: var(--accent-primary);
+        margin: 0 auto var(--space-5);
+    }
+    .contact-card h3 { margin-bottom: var(--space-2); font-size: 1.05rem; }
+    .contact-card p { color: var(--text-secondary); font-size: 0.9rem; }
+    .contact-card .highlight { color: var(--accent-primary); font-weight: 500; }
+
+    /* ── FOOTER ── */
+    .site-footer {
+        background: #111827;
+        padding: var(--space-20) 0 var(--space-10);
+    }
+    .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: var(--space-10); margin-bottom: var(--space-16); }
+    .footer-brand .footer-logo {
+        font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700;
+        color: white; margin-bottom: var(--space-4);
+    }
+    .footer-brand p { color: rgba(255,255,255,0.5); font-size: 0.88rem; line-height: 1.7; margin-bottom: var(--space-6); }
+    .social-links { display: flex; gap: var(--space-3); }
+    .social-links a {
+        width: 40px; height: 40px; border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        display: flex; align-items: center; justify-content: center;
+        color: rgba(255,255,255,0.5); font-size: 0.9rem; transition: all var(--t-fast);
+    }
+    .social-links a:hover { background: var(--accent-primary); color: white; transform: translateY(-2px); }
+    .footer-column h4 {
+        font-size: 0.85rem; font-weight: 600; color: white;
+        margin-bottom: var(--space-5); text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .footer-column ul { list-style: none; display: flex; flex-direction: column; gap: var(--space-3); }
+    .footer-column a {
+        color: rgba(255,255,255,0.45); font-size: 0.88rem;
+        transition: color var(--t-fast); display: flex; align-items: center; gap: var(--space-2);
+    }
+    .footer-column a:hover { color: white; }
+    .footer-column a i { width: 16px; font-size: 0.75rem; }
+    .footer-bottom {
+        text-align: center; padding-top: var(--space-10);
+        border-top: 1px solid rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.35); font-size: 0.8rem;
+    }
+
+    /* ── MOBILE NAV ── */
+    .mobile-nav {
+        display: none; position: fixed; bottom: 0; left: 0; width: 100%;
+        background: #FFFFFF; z-index: 1000;
+        padding: var(--space-2) 0 calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+        box-shadow: 0 -1px 0 rgba(0,0,0,0.06);
+    }
+    .mobile-nav-items { display: flex; justify-content: space-around; }
+    .mobile-nav-item {
+        display: flex; flex-direction: column; align-items: center; gap: 2px;
+        color: var(--text-tertiary); font-size: 0.65rem; text-decoration: none;
+        padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); transition: all var(--t-fast);
+    }
+    .mobile-nav-item i { font-size: 1.1rem; }
+    .mobile-nav-item.active { color: var(--accent-primary); }
+
+    /* ── NOTIFICATION ── */
+    .notification {
+        position: fixed; top: 100px; right: 20px;
+        padding: var(--space-4) var(--space-6); border-radius: var(--radius-lg);
+        background: #FFFFFF; box-shadow: var(--shadow-lg);
+        color: var(--text-primary); z-index: 9999;
+        display: flex; align-items: center; gap: var(--space-3);
+        animation: fadeInUp 0.3s ease both; max-width: 400px;
+    }
+    .notification-success { border-left: 3px solid var(--accent-emerald); }
+    .notification-error { border-left: 3px solid var(--accent-rose); }
+    .notification-info { border-left: 3px solid var(--accent-primary); }
+    .notification button { background: none; border: none; color: var(--text-tertiary); font-size: 1.2rem; cursor: pointer; margin-left: var(--space-3); }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 1024px) {
+        .hero-content { grid-template-columns: 1fr; gap: var(--space-10); text-align: center; }
+        .hero-desc { margin: 0 auto var(--space-8); }
+        .hero-actions { justify-content: center; }
+        .hero-stats { justify-content: center; }
+        .hero-visual { max-width: 500px; margin: 0 auto; }
+
+        .categories-grid { grid-template-columns: repeat(2, 1fr); }
+        .trending-grid, .arrivals-grid { grid-template-columns: repeat(2, 1fr); }
+        .gallery-grid { grid-template-columns: 1fr; }
+        .footer-grid { grid-template-columns: 1fr 1fr; }
+        .app-section-inner { grid-template-columns: 1fr; text-align: center; }
+        .app-buttons { justify-content: center; }
+    }
+
+    @media (max-width: 768px) {
+        .nav-links, .nav-actions .btn { display: none; }
+        .mobile-toggle { display: block; }
+        .mobile-nav { display: block; }
+        body { padding-bottom: 70px; }
+        .features-grid, .steps-grid, .testimonials-grid, .contact-grid { grid-template-columns: 1fr; }
+        .steps-grid::before { display: none; }
+        .newsletter-inner { flex-direction: column; text-align: center; }
+        .newsletter-input-row { flex-direction: column; }
+        .newsletter-disclaimer { padding-left: 0; text-align: center; }
+        .footer-grid { grid-template-columns: 1fr; }
+        .hero-stats { flex-wrap: wrap; gap: var(--space-6); }
+        .mini-products { grid-template-columns: 1fr 1fr; }
+        .trending-header { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+        .cta-inner { padding: var(--space-12) var(--space-6); }
+        .cta-buttons { flex-direction: column; align-items: center; }
+    }
+
+    @media (max-width: 480px) {
+        .categories-grid, .trending-grid, .arrivals-grid { grid-template-columns: 1fr; }
+        .mini-products { grid-template-columns: 1fr; }
+        .hero-stats { flex-direction: column; align-items: center; }
+    }
+
+    /* ── LANDING PAGE POLISH ── */
+    /* Smooth scroll */
+    html { scroll-behavior: smooth; }
+
+    /* Section spacing consistency */
+    .section { padding: var(--space-20) 0; }
+    .section:nth-child(even) { background: var(--surface-subtle); }
+
+    /* Hero text gradient animation */
+    .hero-title .text-gradient {
+        background-size: 200% 200%;
+        animation: gradientShift 4s ease-in-out infinite;
+    }
+    @keyframes gradientShift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+
+    /* Category card overlay polish */
+    .category-card::after {
+        background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.7) 100%);
+    }
+
+    /* Category card text — ensure white on dark overlay */
+    .category-info h3 {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }
+    .category-info span {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+    .category-info i {
+        color: #FFFFFF !important;
+    }
+
+    /* Feature card subtle border on hover */
+    .feature-card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: rgba(37, 99, 235, 0.1);
+    }
+
+    /* Testimonial quote mark */
+    .testimonial-text::before {
+        content: '\201C';
+        font-size: 3rem;
+        font-family: Georgia, serif;
+        color: var(--accent-light);
+        line-height: 0;
+        display: block;
+        margin-bottom: var(--space-2);
+    }
+
+    /* CTA section enhancement */
+    .cta-inner {
+        border: 1px solid var(--surface-muted);
+    }
+
+    /* Footer link underline animation */
+    .footer-column a {
+        position: relative;
+    }
+    .footer-column a::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 1px;
+        background: white;
+        transition: width 0.3s ease;
+    }
+    .footer-column a:hover::after {
+        width: 100%;
+    }
+    </style>
 </head>
-
 <body>
-    <!-- Header -->
-    <header class="header">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- ═══ NAVIGATION ═══ -->
+    <nav class="nav" id="mainNav" aria-label="Main navigation">
         <div class="container">
-            <div class="header-content">
-                <a href="/" class="logo" onclick="handleLogoClick(event)">
-                    <div class="logo-icon">
-                        <img src="/Logo/69shopc.png" alt="69Shop.in Logo" style="width: 100%; height: 100%; object-fit: contain;">
+            <div class="nav-inner">
+                <a href="/" class="nav-logo" onclick="handleLogoClick(event)">
+                    <div class="nav-logo-icon">
+                        <img src="/Logo/69shopc.png" alt="69Shop.in">
                     </div>
-                    <div class="logo-text">
-                        <div class="site-name">69SHOP.IN</div>
-                        <div class="tagline">Premium Marketplace</div>
+                    <div class="nav-logo-text">
+                        <div class="nav-logo-name">69SHOP.IN</div>
+                        <div class="nav-logo-tagline">Premium Marketplace</div>
                     </div>
                 </a>
 
-                <!-- Mobile Menu Toggle -->
-                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                <ul class="nav-links">
+                    <li><a href="/" class="active" onclick="handleHomeClick(event)">Home</a></li>
+                    <li><a href="/shop.html" onclick="handleShopClick(event)">Shop</a></li>
+                    <li><a href="/services.html">Services</a></li>
+                    <li><a href="#sell">Sell</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+
+                <div class="nav-actions" id="authButtons"></div>
+
+                <button class="mobile-toggle" id="mobileMenuToggle" aria-label="Menu">
                     <i class="fas fa-bars"></i>
                 </button>
-
-                <!-- Desktop Navigation -->
-                <nav class="main-nav" id="mainNav">
-                    <ul class="nav-links">
-                        <li><a href="/" class="active" onclick="handleHomeClick(event)"><i class="fas fa-home"></i> Home</a></li>
-                        <li><a href="/shop.html" onclick="handleShopClick(event)"><i class="fas fa-store"></i> Shop</a></li>
-                        <li><a href="#sell"><i class="fas fa-briefcase"></i> Sell</a></li>
-                        <li><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
-                        <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
-                    </ul>
-                    
-                    <div class="auth-buttons" id="authButtons">
-                        <!-- User info will be inserted here by JavaScript -->
-                    </div>
-                </nav>
             </div>
         </div>
+    </nav>
+    <script src="assets/js/shared-header.js"></script>
 
-        <!-- Mobile Menu Overlay -->
-        <div class="menu-overlay" id="menuOverlay"></div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Hero Section -->
-        <section class="hero-section">
-            <div class="container">
-                <div class="hero-content">
-                    <div class="hero-text animate-in">
-                        <h1>India's Premium Marketplace</h1>
-                        <p>Discover quality products from trusted sellers or start your own business journey with 69Shop.in - where dreams meet opportunities.</p>
-                        <div class="hero-buttons" id="heroAuthButtons">
-                            <!-- Buttons will be updated by JavaScript based on auth state -->
-                            <a href="/shop.html" class="btn-primary" onclick="handleShopClick(event)">
-                                <i class="fas fa-shopping-cart"></i>
-                                Shop Now
-                            </a>
-                            <a href="#sell" class="btn-secondary">
-                                <i class="fas fa-briefcase"></i>
-                                Start Selling
-                            </a>
-                        </div>
-                    </div>
-                    <div class="hero-illustration animate-in" style="animation-delay: 0.2s">
-                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Marketplace Illustration">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Live Stats Section -->
-        <section class="stats-section">
-            <div class="container">
-                <div class="stats-grid">
-                    <div class="stat-item animate-in">
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
-                        <div class="stat-number" data-target="5000">0</div>
-                        <div class="stat-label">Happy Customers</div>
-                    </div>
-                    <div class="stat-item animate-in" style="animation-delay: 0.1s">
-                        <div class="stat-icon"><i class="fas fa-box"></i></div>
-                        <div class="stat-number" data-target="1200">0</div>
-                        <div class="stat-label">Products Listed</div>
-                    </div>
-                    <div class="stat-item animate-in" style="animation-delay: 0.2s">
-                        <div class="stat-icon"><i class="fas fa-store"></i></div>
-                        <div class="stat-number" data-target="350">0</div>
-                        <div class="stat-label">Verified Sellers</div>
-                    </div>
-                    <div class="stat-item animate-in" style="animation-delay: 0.3s">
-                        <div class="stat-icon"><i class="fas fa-star"></i></div>
-                        <div class="stat-number" data-target="4.8" data-decimal="true">0</div>
-                        <div class="stat-label">Average Rating</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="ad-banner">
-            <div class="ad-banner-content">
-                <div class="ad-banner-track">
-                    <div class="ad-item">
-                        <span class="ad-badge">TOP SELLER</span>
-                        <span class="ad-text">Priya Sharma - Top service provider through her service. Book now!</span>
-                    </div>
-                    <div class="ad-item">
-                        <span class="ad-badge">BESTSELLER</span>
-                        <span class="ad-text">Rajesh Mehta - 500+ Home services completed with 4.8⭐ rating</span>
-                    </div>
-                    <div class="ad-item">
-                        <span class="ad-badge">NEW</span>
-                        <span class="ad-text">Anjali Verma - Fashion consulting services now available!</span>
-                    </div>
-                    <div class="ad-item">
-                        <span class="ad-badge">TRENDING</span>
-                        <span class="ad-text">Suresh Kumar - Electronics repair with 24-hour service guarantee</span>
-                    </div>
-                    <!-- Duplicate items for seamless loop -->
-                    <div class="ad-item">
-                        <span class="ad-badge">TOP SELLER</span>
-                        <span class="ad-text">Priya Sharma - Top service provider through her Saree pre-pleating service. Book now!</span>
-                    </div>
-                    <div class="ad-item">
-                        <span class="ad-badge">BESTSELLER</span>
-                        <span class="ad-text">Rajesh Mehta - 500+ Home services completed with 4.8⭐ rating</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Features Section -->
-        <section class="features-section" id="shop">
-            <div class="container">
-                <h2 class="section-title">Why Choose 69Shop.in?</h2>
-                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
-                    We provide the perfect platform for both buyers and sellers with our premium marketplace ecosystem
-                </p>
-                
-                <div class="features-grid">
-                    <div class="feature-card animate-in">
-                        <div class="feature-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h3>Trust & Safety</h3>
-                        <p>Verified sellers, secure transactions, and buyer protection for peace of mind in every purchase.</p>
-                    </div>
-                    
-                    <div class="feature-card animate-in" style="animation-delay: 0.1s">
-                        <div class="feature-icon">
-                            <i class="fas fa-truck"></i>
-                        </div>
-                        <h3>Fast Delivery</h3>
-                        <p>Nationwide shipping with reliable partners and real-time tracking for all your orders.</p>
-                    </div>
-                    
-                    <div class="feature-card animate-in" style="animation-delay: 0.2s">
-                        <div class="feature-icon">
-                            <i class="fas fa-headset"></i>
-                        </div>
-                        <h3>24/7 Support</h3>
-                        <p>Round-the-clock customer support to assist you with any queries or concerns.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Featured Categories Section -->
-        <section class="categories-section">
-            <div class="container">
-                <h2 class="section-title">Shop by Category</h2>
-                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
-                    Explore our wide range of categories and find exactly what you're looking for
-                </p>
-                
-                <div class="categories-grid">
-                    <a href="/shop.html?category=Electronics" class="category-card animate-in">
-                        <div class="category-image">
-                            <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=400&q=80" alt="Electronics">
-                        </div>
-                        <div class="category-overlay">
-                            <i class="fas fa-laptop"></i>
-                            <h3>Electronics</h3>
-                            <span>500+ Products</span>
-                        </div>
-                    </a>
-                    <a href="/shop.html?category=Fashion" class="category-card animate-in" style="animation-delay: 0.1s">
-                        <div class="category-image">
-                            <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=400&q=80" alt="Fashion">
-                        </div>
-                        <div class="category-overlay">
-                            <i class="fas fa-tshirt"></i>
-                            <h3>Fashion</h3>
-                            <span>300+ Products</span>
-                        </div>
-                    </a>
-                    <a href="/shop.html?category=Mobiles" class="category-card animate-in" style="animation-delay: 0.15s">
-                        <div class="category-image">
-                            <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80" alt="Mobiles">
-                        </div>
-                        <div class="category-overlay">
-                            <i class="fas fa-mobile-alt"></i>
-                            <h3>Mobiles</h3>
-                            <span>150+ Products</span>
-                        </div>
-                    </a>
-                    <a href="/shop.html?category=Home" class="category-card animate-in" style="animation-delay: 0.2s">
-                        <div class="category-image">
-                            <img src="https://images.unsplash.com/photo-1484101403633-562f891dc89a?auto=format&fit=crop&w=400&q=80" alt="Home & Living">
-                        </div>
-                        <div class="category-overlay">
-                            <i class="fas fa-home"></i>
-                            <h3>Home & Living</h3>
-                            <span>200+ Products</span>
-                        </div>
-                    </a>
-                    <a href="/shop.html?category=Beauty" class="category-card animate-in" style="animation-delay: 0.25s">
-                        <div class="category-image">
-                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=400&q=80" alt="Beauty">
-                        </div>
-                        <div class="category-overlay">
-                            <i class="fas fa-spa"></i>
-                            <h3>Beauty</h3>
-                            <span>180+ Products</span>
-                        </div>
-                    </a>
-                    <a href="/shop.html?category=Sports" class="category-card animate-in" style="animation-delay: 0.3s">
-                        <div class="category-image">
-                            <img src="https://images.unsplash.com/photo-1461896836934- voices-of-industry?auto=format&fit=crop&w=400&q=80" alt="Sports">
-                        </div>
-                        <div class="category-overlay">
-                            <i class="fas fa-running"></i>
-                            <h3>Sports</h3>
-                            <span>120+ Products</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Trending Products Section -->
-        <section class="trending-section">
-            <div class="container">
-                <div class="section-header-flex">
-                    <div>
-                        <h2 class="section-title" style="text-align: left; margin-bottom: 8px;">🔥 Trending Now</h2>
-                        <p style="color: var(--text-medium);">Most popular products this week</p>
-                    </div>
-                    <a href="/shop.html" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
-                </div>
-                
-                <div class="trending-grid">
-                    <div class="trending-card animate-in">
-                        <div class="trending-badge">HOT</div>
-                        <div class="trending-image">
-                            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80" alt="Headphones">
-                        </div>
-                        <div class="trending-content">
-                            <h4>Premium Wireless Headphones</h4>
-                            <div class="trending-price">
-                                <span class="current">₹3,999</span>
-                                <span class="original">₹5,999</span>
-                            </div>
-                            <div class="trending-stats">
-                                <span><i class="fas fa-fire"></i> 234 sold</span>
-                                <span><i class="fas fa-star"></i> 4.8</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="trending-card animate-in" style="animation-delay: 0.1s">
-                        <div class="trending-badge">SALE</div>
-                        <div class="trending-image">
-                            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80" alt="Smart Watch">
-                        </div>
-                        <div class="trending-content">
-                            <h4>Smart Watch Pro Max</h4>
-                            <div class="trending-price">
-                                <span class="current">₹8,999</span>
-                                <span class="original">₹12,999</span>
-                            </div>
-                            <div class="trending-stats">
-                                <span><i class="fas fa-fire"></i> 189 sold</span>
-                                <span><i class="fas fa-star"></i> 4.9</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="trending-card animate-in" style="animation-delay: 0.2s">
-                        <div class="trending-badge">NEW</div>
-                        <div class="trending-image">
-                            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80" alt="Sneakers">
-                        </div>
-                        <div class="trending-content">
-                            <h4>Running Sneakers 2026</h4>
-                            <div class="trending-price">
-                                <span class="current">₹4,499</span>
-                                <span class="original">₹6,999</span>
-                            </div>
-                            <div class="trending-stats">
-                                <span><i class="fas fa-fire"></i> 156 sold</span>
-                                <span><i class="fas fa-star"></i> 4.7</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="trending-card animate-in" style="animation-delay: 0.3s">
-                        <div class="trending-badge">BEST</div>
-                        <div class="trending-image">
-                            <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=400&q=80" alt="Camera">
-                        </div>
-                        <div class="trending-content">
-                            <h4>Professional Camera Kit</h4>
-                            <div class="trending-price">
-                                <span class="current">₹24,999</span>
-                                <span class="original">₹32,999</span>
-                            </div>
-                            <div class="trending-stats">
-                                <span><i class="fas fa-fire"></i> 98 sold</span>
-                                <span><i class="fas fa-star"></i> 4.9</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="how-it-works" id="sell">
-            <div class="container">
-                <h2 class="section-title">Start Selling in 3 Easy Steps</h2>
-                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
-                    Join thousands of successful sellers on India's fastest growing marketplace
-                </p>
-                
-                <!-- Background Shapes -->
-                <div class="background-shapes">
-                    <div class="shape shape-1"></div>
-                    <div class="shape shape-2"></div>
-                    <div class="shape shape-3"></div>
-                    <div class="shape shape-4"></div>
-                </div>
-                
-                <div class="steps">
-                    <div class="step animate-in">
-                        <div class="step-number">1</div>
-                        <h3>Create Your Store</h3>
-                        <p>Sign up and set up your personalized storefront in minutes. No technical skills required.</p>
-                    </div>
-                    
-                    <div class="step animate-in" style="animation-delay: 0.1s">
-                        <div class="step-number">2</div>
-                        <h3>List Your Products</h3>
-                        <p>Add products with detailed descriptions, high-quality images, and competitive pricing.</p>
-                    </div>
-                    
-                    <div class="step animate-in" style="animation-delay: 0.2s">
-                        <div class="step-number">3</div>
-                        <h3>Start Selling</h3>
-                        <p>Get discovered by millions of buyers, manage orders, and grow your business with our tools.</p>
-                    </div>
-                </div>
-                
-                <div class="text-center mt-4" style="position: relative; z-index: 2;">
-                    <a href="#contact" class="btn-primary">
-                        <i class="fas fa-rocket"></i>
-                        Start Your Selling Journey
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Gallery Section -->
-        <section class="gallery-section">
-            <div class="container">
-                <h2 class="section-title">Discover Our Marketplace</h2>
-                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
-                    Explore quality products and trusted service providers from our community
-                </p>
-                
-                <div class="gallery-container">
-                    <!-- Product Gallery Column -->
-                    <div class="gallery-column animate-in">
-                        <div class="gallery-header">
-                            <h3>Featured Products</h3>
-                            <p>Quality products from verified sellers</p>
-                        </div>
-                        
-                        <div class="product-grid">
-                            <!-- Product 1 -->
-                            <div class="product-card">
-                                <div class="product-image">
-                                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Premium Wireless Headphones">
-                                </div>
-                                <div class="product-content">
-                                    <span class="product-badge">BESTSELLER</span>
-                                    <h3 class="product-name">Premium Wireless Headphones</h3>
-                                    <div class="product-price">₹4,299</div>
-                                    <div class="product-seller">
-                                        <i class="fas fa-store"></i>
-                                        <span>Urban Style Co.</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Product 2 -->
-                            <div class="product-card">
-                                <div class="product-image">
-                                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Designer Handbag">
-                                </div>
-                                <div class="product-content">
-                                    <span class="product-badge">LUXURY</span>
-                                    <h3 class="product-name">Designer Leather Handbag</h3>
-                                    <div class="product-price">₹8,499</div>
-                                    <div class="product-seller">
-                                        <i class="fas fa-store"></i>
-                                        <span>Luxury Fashion Hub</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Product 3 -->
-                            <div class="product-card">
-                                <div class="product-image">
-                                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Smart Watch">
-                                </div>
-                                <div class="product-content">
-                                    <span class="product-badge">NEW</span>
-                                    <h3 class="product-name">Smart Watch Pro</h3>
-                                    <div class="product-price">₹12,999</div>
-                                    <div class="product-seller">
-                                        <i class="fas fa-store"></i>
-                                        <span>Tech Gadgets Pro</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Product 4 -->
-                            <div class="product-card">
-                                <div class="product-image">
-                                    <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Camera">
-                                </div>
-                                <div class="product-content">
-                                    <span class="product-badge">TRENDING</span>
-                                    <h3 class="product-name">Professional Camera</h3>
-                                    <div class="product-price">₹24,999</div>
-                                    <div class="product-seller">
-                                        <i class="fas fa-store"></i>
-                                        <span>Photo Masters</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="text-center mt-2">
-                            <a href="/shop.html" class="btn-primary" onclick="handleShopClick(event)">
-                                <i class="fas fa-arrow-right"></i>
-                                View All Products
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <!-- Service Provider Gallery Column -->
-                    <div class="gallery-column animate-in" style="animation-delay: 0.2s">
-                        <div class="gallery-header">
-                            <h3>Top Service Providers</h3>
-                            <p>Trusted professionals for your needs</p>
-                        </div>
-                        
-                        <div class="provider-grid">
-                            <!-- Provider 1 -->
-                            <div class="provider-card">
-                                <div class="provider-avatar">
-                                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Rajesh Mehta">
-                                </div>
-                                <h3 class="provider-name">Rajesh Mehta</h3>
-                                <div class="provider-category">Home Services</div>
-                                <div class="provider-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
-                                    <span>4.8</span>
-                                </div>
-                                <div class="provider-location">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>Mumbai, Maharashtra</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Provider 2 -->
-                            <div class="provider-card">
-                                <div class="provider-avatar">
-                                    <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Priya Sharma">
-                                </div>
-                                <h3 class="provider-name">Priya Sharma</h3>
-                                <div class="provider-category">Beauty & Wellness</div>
-                                <div class="provider-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <span>5.0</span>
-                                </div>
-                                <div class="provider-location">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>Delhi, NCR</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Provider 3 -->
-                            <div class="provider-card">
-                                <div class="provider-avatar">
-                                    <img src="https://images.unsplash.com/photo-1551836026-d5c2c49b63c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Anjali Verma">
-                                </div>
-                                <h3 class="provider-name">Anjali Verma</h3>
-                                <div class="provider-category">Education & Tutoring</div>
-                                <div class="provider-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <span>5.0</span>
-                                </div>
-                                <div class="provider-location">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>Bangalore, Karnataka</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Provider 4 -->
-                            <div class="provider-card">
-                                <div class="provider-avatar">
-                                    <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Suresh Kumar">
-                                </div>
-                                <h3 class="provider-name">Suresh Kumar</h3>
-                                <div class="provider-category">Electronics Repair</div>
-                                <div class="provider-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                    <span>4.2</span>
-                                </div>
-                                <div class="provider-location">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>Chennai, Tamil Nadu</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="text-center mt-2">
-                            <a href="#contact" class="btn-primary">
-                                <i class="fas fa-briefcase"></i>
-                                Become a Service Provider
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Testimonials Section -->
-        <section class="testimonials-section" id="about">
-            <div class="container">
-                <h2 class="section-title">Success Stories</h2>
-                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
-                    Hear from our community of satisfied buyers and successful sellers
-                </p>
-                
-                <div class="testimonial-grid">
-                    <div class="testimonial-card animate-in">
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <div class="testimonial-content">
-                            "69Shop.in transformed my small home business. Within 6 months, I went from 10 orders a week to over 100! The platform is seller-friendly and the support team is amazing."
-                        </div>
-                        <div class="testimonial-author">
-                            <div class="author-avatar">
-                                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Rajesh Mehta">
-                            </div>
-                            <div class="author-info">
-                                <h4>Rajesh Mehta</h4>
-                                <p>Handicraft Seller, Mumbai</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="testimonial-card animate-in" style="animation-delay: 0.1s">
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                        </div>
-                        <div class="testimonial-content">
-                            "As a buyer, I love the quality of products and the transparency of sellers on 69Shop.in. The return policy is fair and customer service actually solves problems!"
-                        </div>
-                        <div class="testimonial-author">
-                            <div class="author-avatar">
-                                <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Priya Sharma">
-                            </div>
-                            <div class="author-info">
-                                <h4>Priya Sharma</h4>
-                                <p>Regular Buyer, Delhi</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="testimonial-card animate-in" style="animation-delay: 0.2s">
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <div class="testimonial-content">
-                            "The analytics dashboard helped me understand customer behavior. I optimized my inventory and increased profits by 45% in just 3 months. Best decision for my business!"
-                        </div>
-                        <div class="testimonial-author">
-                            <div class="author-avatar">
-                                <img src="https://images.unsplash.com/photo-1551836026-d5c2c49b63c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Anjali Verma">
-                            </div>
-                            <div class="author-info">
-                                <h4>Anjali Verma</h4>
-                                <p>Fashion Boutique Owner, Bangalore</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- CTA Section -->
-        <section class="cta-section">
-            <div class="container">
-                <div class="cta-content">
-                    <h2>Ready to Join India's Premium Marketplace?</h2>
-                    <p>Whether you want to shop quality products or start your selling journey, 69Shop.in is the perfect platform for you.</p>
-                    <div class="cta-buttons" id="ctaAuthButtons">
-                        <!-- Buttons will be updated by JavaScript based on auth state -->
-                        <a href="/shop.html" class="btn-dark" onclick="handleShopClick(event)">
-                            <i class="fas fa-shopping-cart"></i>
-                            Explore Products
+    <main id="main-content">
+    <!-- ═══ HERO ═══ -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="hero-label"><i class="fas fa-bolt"></i> India's Fastest Growing Marketplace</div>
+                    <h1 class="hero-title">Shop. Sell.<br><span class="text-gradient" style="background: linear-gradient(135deg, #60A5FA, #A78BFA, #F472B6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Succeed.</span></h1>
+                    <p class="hero-desc">Discover premium products from verified sellers or launch your business on India's most trusted marketplace platform.</p>
+                    <div class="hero-actions" id="heroAuthButtons">
+                        <a href="/shop.html" class="btn btn-primary btn-lg" onclick="handleShopClick(event)">
+                            <i class="fas fa-shopping-bag"></i> Shop Now
                         </a>
-                        <a href="#contact" class="btn-primary">
-                            <i class="fas fa-briefcase"></i>
-                            Become a Seller
+                        <a href="/seller-login.html" class="btn btn-secondary btn-lg" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
+                            <i class="fas fa-rocket"></i> Start Selling
                         </a>
                     </div>
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" data-target="5000">0</div>
+                            <div class="hero-stat-label">Happy Customers</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" data-target="1200">0</div>
+                            <div class="hero-stat-label">Products Listed</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" data-target="350">0</div>
+                            <div class="hero-stat-label">Verified Sellers</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" data-target="4.8" data-decimal="true">0</div>
+                            <div class="hero-stat-label">Avg Rating</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </section>
+                <div class="hero-visual">
+                    <div class="hero-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Premium Marketplace">
+                    </div>
 
-        <!-- Contact Section -->
-        <section class="features-section" id="contact">
-            <div class="container">
-                <h2 class="section-title">Get in Touch</h2>
-                <p class="text-center mb-4" style="color: var(--text-medium); max-width: 800px; margin: 0 auto;">
-                    Have questions or need assistance? Our team is here to help you
-                </p>
-                
-                <div class="features-grid">
-                    <div class="feature-card animate-in">
-                        <div class="feature-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <h3>Email Support</h3>
-                        <p>support@69shop.in</p>
-                        <p style="color: var(--blue-primary); font-weight: 500;">Response time: 24 hours</p>
-                    </div>
-                    
-                    <div class="feature-card animate-in" style="animation-delay: 0.1s">
-                        <div class="feature-icon">
-                            <i class="fas fa-phone"></i>
-                        </div>
-                        <h3>Phone Support</h3>
-                        <p>+91 98765 43210</p>
-                        <p style="color: var(--blue-primary); font-weight: 500;">Mon-Sat: 9AM - 7PM</p>
-                    </div>
-                    
-                    <div class="feature-card animate-in" style="animation-delay: 0.2s">
-                        <div class="feature-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <h3>Visit Us</h3>
-                        <p>69Shop.in Headquarters</p>
-                        <p style="color: var(--blue-primary); font-weight: 500;">Mumbai, India</p>
-                    </div>
                 </div>
             </div>
-        </section>
-        
-        <!-- Popular Brands Section -->
-        <section class="brands-section">
-            <div class="container">
-                <h2 class="section-title">Trusted Brands</h2>
-                <p class="text-center mb-4" style="color: var(--text-medium);">Shop from your favorite brands</p>
-                
-                <div class="brands-carousel">
-                    <div class="brands-track">
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/apple.com" alt="Apple" onerror="this.parentElement.innerHTML='<span>Apple</span>'"></div>
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/samsung.com" alt="Samsung" onerror="this.parentElement.innerHTML='<span>Samsung</span>'"></div>
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/sony.com" alt="Sony" onerror="this.parentElement.innerHTML='<span>Sony</span>'"></div>
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/nike.com" alt="Nike" onerror="this.parentElement.innerHTML='<span>Nike</span>'"></div>
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/adidas.com" alt="Adidas" onerror="this.parentElement.innerHTML='<span>Adidas</span>'"></div>
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/boat-lifestyle.com" alt="boAt" onerror="this.parentElement.innerHTML='<span>boAt</span>'"></div>
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/oneplus.com" alt="OnePlus" onerror="this.parentElement.innerHTML='<span>OnePlus</span>'"></div>
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/xiaomi.com" alt="Xiaomi" onerror="this.parentElement.innerHTML='<span>Xiaomi</span>'"></div>
-                        <!-- Duplicate for seamless scroll -->
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/apple.com" alt="Apple" onerror="this.parentElement.innerHTML='<span>Apple</span>'"></div>
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/samsung.com" alt="Samsung" onerror="this.parentElement.innerHTML='<span>Samsung</span>'"></div>
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/sony.com" alt="Sony" onerror="this.parentElement.innerHTML='<span>Sony</span>'"></div>
-                        <div class="brand-logo"><img src="https://logo.clearbit.com/nike.com" alt="Nike" onerror="this.parentElement.innerHTML='<span>Nike</span>'"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Recently Added Products -->
-        <section class="new-arrivals-section">
-            <div class="container">
-                <div class="section-header-flex">
-                    <div>
-                        <h2 class="section-title" style="text-align: left; margin-bottom: 8px;">✨ Just Arrived</h2>
-                        <p style="color: var(--text-medium);">Fresh products added this week</p>
-                    </div>
-                    <a href="/shop.html?sort=newest" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
-                </div>
-                
-                <div class="new-arrivals-grid">
-                    <div class="arrival-card animate-in">
-                        <span class="new-badge">NEW</span>
-                        <div class="arrival-image">
-                            <img src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?auto=format&fit=crop&w=400&q=80" alt="New Product">
-                        </div>
-                        <div class="arrival-content">
-                            <h4>Premium Running Shoes</h4>
-                            <p class="arrival-price">₹6,499</p>
-                            <span class="arrival-date">Added 2 days ago</span>
-                        </div>
-                    </div>
-                    <div class="arrival-card animate-in" style="animation-delay: 0.1s">
-                        <span class="new-badge">NEW</span>
-                        <div class="arrival-image">
-                            <img src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=400&q=80" alt="New Product">
-                        </div>
-                        <div class="arrival-content">
-                            <h4>Luxury Skincare Set</h4>
-                            <p class="arrival-price">₹2,999</p>
-                            <span class="arrival-date">Added 3 days ago</span>
-                        </div>
-                    </div>
-                    <div class="arrival-card animate-in" style="animation-delay: 0.2s">
-                        <span class="new-badge">NEW</span>
-                        <div class="arrival-image">
-                            <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80" alt="New Product">
-                        </div>
-                        <div class="arrival-content">
-                            <h4>MacBook Air M3</h4>
-                            <p class="arrival-price">₹1,14,999</p>
-                            <span class="arrival-date">Added 1 day ago</span>
-                        </div>
-                    </div>
-                    <div class="arrival-card animate-in" style="animation-delay: 0.3s">
-                        <span class="new-badge">NEW</span>
-                        <div class="arrival-image">
-                            <img src="https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?auto=format&fit=crop&w=400&q=80" alt="New Product">
-                        </div>
-                        <div class="arrival-content">
-                            <h4>Designer Sunglasses</h4>
-                            <p class="arrival-price">₹3,499</p>
-                            <span class="arrival-date">Added today</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <!-- ═══ MARQUEE ═══ -->
+    <div class="marquee-section">
+        <div class="marquee-track">
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-top">TOP SELLER</span><span class="marquee-text">Priya Sharma — Top service provider. Book now!</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-hot">BESTSELLER</span><span class="marquee-text">Rajesh Mehta — 500+ Home services with 4.8★</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-new">NEW</span><span class="marquee-text">Anjali Verma — Fashion consulting services available!</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-trend">TRENDING</span><span class="marquee-text">Suresh Kumar — Electronics repair, 24hr guarantee</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-top">TOP SELLER</span><span class="marquee-text">Priya Sharma — Top service provider. Book now!</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-hot">BESTSELLER</span><span class="marquee-text">Rajesh Mehta — 500+ Home services with 4.8★</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-new">NEW</span><span class="marquee-text">Anjali Verma — Fashion consulting services available!</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-trend">TRENDING</span><span class="marquee-text">Suresh Kumar — Electronics repair, 24hr guarantee</span></div>
+        </div>
+    </div>
 
-        <!-- Newsletter Section -->
-        <section class="newsletter-section">
-            <div class="container">
-                <div class="newsletter-content">
-                    <div class="newsletter-text">
-                        <h2><i class="fas fa-envelope-open-text"></i> Get Exclusive Deals</h2>
-                        <p>Subscribe to our newsletter and get <strong>₹200 off</strong> on your first order!</p>
-                    </div>
-                    <form class="newsletter-form" onsubmit="handleNewsletterSubmit(event)">
-                        <div class="newsletter-input-group">
-                            <input type="email" placeholder="Enter your email address" required id="newsletterEmail">
-                            <button type="submit">
-                                <span>Subscribe</span>
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                        <p class="newsletter-disclaimer">We respect your privacy. Unsubscribe anytime.</p>
-                    </form>
+    <!-- ═══ FEATURES ═══ -->
+    <section class="section" id="shop">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-gem"></i> Why 69Shop</div>
+                <h2>Built for <span class="text-gradient">Modern Commerce</span></h2>
+                <p>The perfect platform for both buyers and sellers with our premium marketplace ecosystem</p>
+            </div>
+            <div class="features-grid stagger">
+                <div class="glass-card feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h3>Trust & Safety</h3>
+                    <p>Verified sellers, secure transactions, and buyer protection for complete peace of mind.</p>
+                </div>
+                <div class="glass-card feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-truck-fast"></i></div>
+                    <h3>Fast Delivery</h3>
+                    <p>Nationwide shipping with reliable partners and real-time tracking for all your orders.</p>
+                </div>
+                <div class="glass-card feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                    <h3>24/7 Support</h3>
+                    <p>Round-the-clock customer support to assist you with any queries or concerns.</p>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- App Download CTA -->
-        <section class="app-download-section">
-            <div class="container">
-                <div class="app-content">
-                    <div class="app-text">
-                        <span class="coming-soon-badge">Coming Soon</span>
-                        <h2>Shop on the Go!</h2>
-                        <p>Download our mobile app for an even better shopping experience with exclusive app-only deals.</p>
-                        <div class="app-features">
-                            <div class="app-feature"><i class="fas fa-check-circle"></i> Faster checkout</div>
-                            <div class="app-feature"><i class="fas fa-check-circle"></i> Push notifications for deals</div>
-                            <div class="app-feature"><i class="fas fa-check-circle"></i> Track orders in real-time</div>
+    <!-- ═══ CATEGORIES ═══ -->
+    <section class="section" style="background: var(--surface-subtle);">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-th-large"></i> Browse</div>
+                <h2>Shop by <span class="text-gradient">Category</span></h2>
+                <p>Explore our wide range of categories and find exactly what you're looking for</p>
+            </div>
+            <div class="categories-grid stagger">
+                <a href="/shop.html?category=Electronics" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=600&q=80" alt="Electronics">
+                    <div class="category-info"><i class="fas fa-laptop"></i><h3>Electronics</h3><span>500+ Products</span></div>
+                </a>
+                <a href="/shop.html?category=Fashion" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=600&q=80" alt="Fashion">
+                    <div class="category-info"><i class="fas fa-tshirt"></i><h3>Fashion</h3><span>300+ Products</span></div>
+                </a>
+                <a href="/shop.html?category=Mobiles" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80" alt="Mobiles">
+                    <div class="category-info"><i class="fas fa-mobile-alt"></i><h3>Mobiles</h3><span>150+ Products</span></div>
+                </a>
+                <a href="/shop.html?category=Home" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1484101403633-562f891dc89a?auto=format&fit=crop&w=600&q=80" alt="Home & Living">
+                    <div class="category-info"><i class="fas fa-home"></i><h3>Home & Living</h3><span>200+ Products</span></div>
+                </a>
+                <a href="/shop.html?category=Beauty" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80" alt="Beauty">
+                    <div class="category-info"><i class="fas fa-spa"></i><h3>Beauty</h3><span>180+ Products</span></div>
+                </a>
+                <a href="/shop.html?category=Sports" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1461896836934-d7a3e4508d5d?auto=format&fit=crop&w=600&q=80" alt="Sports">
+                    <div class="category-info"><i class="fas fa-running"></i><h3>Sports</h3><span>120+ Products</span></div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ HOW IT WORKS ═══ -->
+    <section class="section" id="sell" style="background: var(--surface-subtle);">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-store"></i> For Sellers</div>
+                <h2>Start Selling in <span class="text-gradient">3 Easy Steps</span></h2>
+                <p>Join thousands of successful sellers on India's fastest growing marketplace</p>
+            </div>
+            <div class="steps-grid stagger">
+                <div class="step-card reveal"><div class="step-number">1</div><h3>Create Your Store</h3><p>Sign up and set up your personalized storefront in minutes. No technical skills required.</p></div>
+                <div class="step-card reveal"><div class="step-number">2</div><h3>List Your Products</h3><p>Add products with detailed descriptions, high-quality images, and competitive pricing.</p></div>
+                <div class="step-card reveal"><div class="step-number">3</div><h3>Start Earning</h3><p>Get discovered by millions of buyers, manage orders, and grow your business with our tools.</p></div>
+            </div>
+            <div class="text-center mt-8">
+                <a href="/seller-login.html" class="btn btn-primary btn-lg"><i class="fas fa-rocket"></i> Start Your Selling Journey</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ GALLERY ═══ -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-eye"></i> Discover</div>
+                <h2>Explore Our <span class="text-gradient">Marketplace</span></h2>
+                <p>Quality products and trusted service providers from our community</p>
+            </div>
+            <div class="gallery-grid">
+                <div class="glass-card reveal" style="padding: var(--space-8);">
+                    <div class="gallery-column-header">
+                        <div class="icon-circle"><i class="fas fa-shopping-bag"></i></div>
+                        <div><h3 style="margin-bottom:0">Featured Products</h3><p>Quality products from verified sellers</p></div>
+                    </div>
+                    <div class="mini-products stagger">
+                        <div class="mini-product">
+                            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Headphones">
+                            <div class="mini-product-body"><h4>Premium Wireless Headphones</h4><div class="price">₹4,299</div><div class="seller"><i class="fas fa-store"></i> Urban Style Co.</div></div>
                         </div>
-                        <div class="app-buttons">
-                            <a href="#" class="app-btn disabled" title="Coming Soon">
-                                <i class="fab fa-apple"></i>
-                                <div>
-                                    <span>Download on the</span>
-                                    <strong>App Store</strong>
-                                </div>
-                            </a>
-                            <a href="#" class="app-btn disabled" title="Coming Soon">
-                                <i class="fab fa-google-play"></i>
-                                <div>
-                                    <span>Get it on</span>
-                                    <strong>Google Play</strong>
-                                </div>
-                            </a>
+                        <div class="mini-product">
+                            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Handbag">
+                            <div class="mini-product-body"><h4>Designer Leather Handbag</h4><div class="price">₹8,499</div><div class="seller"><i class="fas fa-store"></i> Luxury Fashion Hub</div></div>
+                        </div>
+                        <div class="mini-product">
+                            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Smart Watch">
+                            <div class="mini-product-body"><h4>Smart Watch Pro</h4><div class="price">₹12,999</div><div class="seller"><i class="fas fa-store"></i> Tech Gadgets Pro</div></div>
+                        </div>
+                        <div class="mini-product">
+                            <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Camera">
+                            <div class="mini-product-body"><h4>Professional Camera</h4><div class="price">₹24,999</div><div class="seller"><i class="fas fa-store"></i> Photo Masters</div></div>
                         </div>
                     </div>
-                    <div class="app-mockup">
-                        <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=400&q=80" alt="Mobile App">
+                    <div class="text-center mt-6">
+                        <a href="/shop.html" class="btn btn-secondary" onclick="handleShopClick(event)"><i class="fas fa-arrow-right"></i> View All Products</a>
+                    </div>
+                </div>
+                <div class="glass-card reveal" style="padding: var(--space-8);">
+                    <div class="gallery-column-header">
+                        <div class="icon-circle"><i class="fas fa-user-tie"></i></div>
+                        <div><h3 style="margin-bottom:0">Top Providers</h3><p>Trusted professionals for your needs</p></div>
+                    </div>
+                    <div class="providers-list stagger">
+                        <div class="provider-row">
+                            <div class="provider-avatar"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Rajesh Mehta"></div>
+                            <div class="provider-info"><h4>Rajesh Mehta</h4><div class="category">Home Services</div><div class="provider-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i> <span>4.8</span></div><div class="provider-location"><i class="fas fa-map-marker-alt"></i> Mumbai</div></div>
+                        </div>
+                        <div class="provider-row">
+                            <div class="provider-avatar"><img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Priya Sharma"></div>
+                            <div class="provider-info"><h4>Priya Sharma</h4><div class="category">Beauty & Wellness</div><div class="provider-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> <span>5.0</span></div><div class="provider-location"><i class="fas fa-map-marker-alt"></i> Delhi</div></div>
+                        </div>
+                        <div class="provider-row">
+                            <div class="provider-avatar"><img src="https://images.unsplash.com/photo-1551836026-d5c2c49b63c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Anjali Verma"></div>
+                            <div class="provider-info"><h4>Anjali Verma</h4><div class="category">Education & Tutoring</div><div class="provider-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> <span>5.0</span></div><div class="provider-location"><i class="fas fa-map-marker-alt"></i> Bangalore</div></div>
+                        </div>
+                        <div class="provider-row">
+                            <div class="provider-avatar"><img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Suresh Kumar"></div>
+                            <div class="provider-info"><h4>Suresh Kumar</h4><div class="category">Electronics Repair</div><div class="provider-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i> <span>4.2</span></div><div class="provider-location"><i class="fas fa-map-marker-alt"></i> Chennai</div></div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-6">
+                        <a href="/services.html" class="btn btn-secondary"><i class="fas fa-briefcase"></i> Browse Services</a>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
+
+    <!-- ═══ TESTIMONIALS ═══ -->
+    <section class="section" id="about" style="background: var(--surface-subtle);">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-quote-left"></i> Reviews</div>
+                <h2>Success <span class="text-gradient">Stories</span></h2>
+                <p>Hear from our community of satisfied buyers and successful sellers</p>
+            </div>
+            <div class="testimonials-grid stagger">
+                <div class="glass-card testimonial-card reveal">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"69Shop.in transformed my small home business. Within 6 months, I went from 10 orders a week to over 100! The platform is amazing."</p>
+                    <div class="testimonial-author"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Rajesh Mehta"><div><h4>Rajesh Mehta</h4><p>Handicraft Seller, Mumbai</p></div></div>
+                </div>
+                <div class="glass-card testimonial-card reveal">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+                    <p class="testimonial-text">"As a buyer, I love the quality and transparency. The return policy is fair and customer service actually solves problems!"</p>
+                    <div class="testimonial-author"><img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Priya Sharma"><div><h4>Priya Sharma</h4><p>Regular Buyer, Delhi</p></div></div>
+                </div>
+                <div class="glass-card testimonial-card reveal">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"The analytics dashboard helped me understand customers. I increased profits by 45% in just 3 months!"</p>
+                    <div class="testimonial-author"><img src="https://images.unsplash.com/photo-1551836026-d5c2c49b63c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Anjali Verma"><div><h4>Anjali Verma</h4><p>Fashion Boutique, Bangalore</p></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ CTA ═══ -->
+    <section class="section cta-section">
+        <div class="container">
+            <div class="cta-inner reveal">
+                <h2>Ready to Join India's<br><span class="text-gradient">Premium Marketplace?</span></h2>
+                <p>Whether you want to shop quality products or start your selling journey, 69Shop.in is the perfect platform.</p>
+                <div class="cta-buttons" id="ctaAuthButtons">
+                    <a href="/shop.html" class="btn btn-primary btn-lg" onclick="handleShopClick(event)"><i class="fas fa-shopping-bag"></i> Explore Products</a>
+                    <a href="/seller-login.html" class="btn btn-secondary btn-lg"><i class="fas fa-briefcase"></i> Become a Seller</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ BRANDS ═══ -->
+    <section class="section-sm">
+        <div class="container">
+            <div class="section-header reveal" style="margin-bottom: var(--space-6);">
+                <h2 style="font-size: 1.2rem; color: var(--text-tertiary); font-weight: 500;">Trusted by leading brands</h2>
+            </div>
+            <div class="brands-track-wrapper">
+                <div class="brands-track">
+                    <div class="brand-item"><img src="https://logo.clearbit.com/apple.com" alt="Apple" onerror="this.parentElement.innerHTML='<span>Apple</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/samsung.com" alt="Samsung" onerror="this.parentElement.innerHTML='<span>Samsung</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/sony.com" alt="Sony" onerror="this.parentElement.innerHTML='<span>Sony</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/nike.com" alt="Nike" onerror="this.parentElement.innerHTML='<span>Nike</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/adidas.com" alt="Adidas" onerror="this.parentElement.innerHTML='<span>Adidas</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/boat-lifestyle.com" alt="boAt" onerror="this.parentElement.innerHTML='<span>boAt</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/oneplus.com" alt="OnePlus" onerror="this.parentElement.innerHTML='<span>OnePlus</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/xiaomi.com" alt="Xiaomi" onerror="this.parentElement.innerHTML='<span>Xiaomi</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/apple.com" alt="Apple" onerror="this.parentElement.innerHTML='<span>Apple</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/samsung.com" alt="Samsung" onerror="this.parentElement.innerHTML='<span>Samsung</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/sony.com" alt="Sony" onerror="this.parentElement.innerHTML='<span>Sony</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/nike.com" alt="Nike" onerror="this.parentElement.innerHTML='<span>Nike</span>'"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ NEW ARRIVALS ═══ -->
+    <section class="section" style="background: var(--surface-subtle);">
+        <div class="container">
+            <div class="trending-header reveal">
+                <div>
+                    <div class="section-label"><i class="fas fa-gem"></i> Fresh Drops</div>
+                    <h2>Just <span class="text-gradient">Arrived</span></h2>
+                    <p class="text-secondary" style="margin-top:4px;">Fresh products added this week</p>
+                </div>
+                <a href="/shop.html?sort=newest" class="btn btn-ghost">View All <i class="fas fa-arrow-right" style="margin-left:6px;"></i></a>
+            </div>
+            <div class="arrivals-grid stagger">
+                <div class="glass-card arrival-card reveal">
+                    <div class="new-tag"><span class="badge badge-new">NEW</span></div>
+                    <img src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?auto=format&fit=crop&w=400&q=80" alt="Running Shoes">
+                    <div class="arrival-body"><h4>Premium Running Shoes</h4><div class="price">₹6,499</div><div class="date">Added 2 days ago</div></div>
+                </div>
+                <div class="glass-card arrival-card reveal">
+                    <div class="new-tag"><span class="badge badge-new">NEW</span></div>
+                    <img src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=400&q=80" alt="Skincare">
+                    <div class="arrival-body"><h4>Luxury Skincare Set</h4><div class="price">₹2,999</div><div class="date">Added 3 days ago</div></div>
+                </div>
+                <div class="glass-card arrival-card reveal">
+                    <div class="new-tag"><span class="badge badge-new">NEW</span></div>
+                    <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80" alt="MacBook">
+                    <div class="arrival-body"><h4>MacBook Air M3</h4><div class="price">₹1,14,999</div><div class="date">Added 1 day ago</div></div>
+                </div>
+                <div class="glass-card arrival-card reveal">
+                    <div class="new-tag"><span class="badge badge-new">NEW</span></div>
+                    <img src="https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?auto=format&fit=crop&w=400&q=80" alt="Sunglasses">
+                    <div class="arrival-body"><h4>Designer Sunglasses</h4><div class="price">₹3,499</div><div class="date">Added today</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ NEWSLETTER ═══ -->
+    <section class="section newsletter-section">
+        <div class="container">
+            <div class="newsletter-inner reveal">
+                <div class="newsletter-text">
+                    <h3><i class="fas fa-envelope-open-text" style="margin-right:8px; color: var(--accent-primary);"></i> Get Exclusive Deals</h3>
+                    <p>Subscribe and get <strong style="color: var(--accent-primary);">₹200 off</strong> on your first order!</p>
+                </div>
+                <form class="newsletter-form" onsubmit="handleNewsletterSubmit(event)">
+                    <div class="newsletter-input-row">
+                        <label for="newsletterEmail" class="sr-only">Email address</label>
+                        <input type="email" placeholder="Enter your email address" required id="newsletterEmail">
+                        <button type="submit" class="btn btn-primary"><span>Subscribe</span> <i class="fas fa-paper-plane"></i></button>
+                    </div>
+                    <p class="newsletter-disclaimer">We respect your privacy. Unsubscribe anytime.</p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ APP DOWNLOAD ═══ -->
+    <section class="section">
+        <div class="container">
+            <div class="app-section-inner">
+                <div class="reveal">
+                    <span class="badge badge-new" style="margin-bottom:16px; display:inline-flex;">COMING SOON</span>
+                    <h2>Shop on the <span class="text-gradient">Go!</span></h2>
+                    <p class="text-secondary" style="margin-top:8px;">Download our mobile app for exclusive app-only deals.</p>
+                    <div class="app-features-list">
+                        <div class="app-feature"><i class="fas fa-check-circle"></i> Faster checkout</div>
+                        <div class="app-feature"><i class="fas fa-check-circle"></i> Push notifications for deals</div>
+                        <div class="app-feature"><i class="fas fa-check-circle"></i> Track orders in real-time</div>
+                    </div>
+                    <div class="app-buttons">
+                        <a href="#" class="app-btn" title="Coming Soon" onclick="showNotification('📱 App Store version coming soon! Stay tuned.', 'info'); return false;"><i class="fab fa-apple"></i><div><span>Download on the</span><br><strong>App Store</strong></div></a>
+                        <a href="#" class="app-btn" title="Coming Soon" onclick="showNotification('📱 Google Play version coming soon! Stay tuned.', 'info'); return false;"><i class="fab fa-google-play"></i><div><span>Get it on</span><br><strong>Google Play</strong></div></a>
+                    </div>
+                </div>
+                <div class="app-mockup reveal">
+                    <div class="app-mockup-img"><img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=400&q=80" alt="Mobile App"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ CONTACT ═══ -->
+    <section class="section" id="contact" style="background: var(--surface-subtle);">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-envelope"></i> Reach Out</div>
+                <h2>Get in <span class="text-gradient">Touch</span></h2>
+                <p>Have questions or need assistance? Our team is here to help.</p>
+            </div>
+            <div class="contact-grid stagger">
+                <div class="glass-card contact-card reveal">
+                    <div class="icon-circle"><i class="fas fa-envelope"></i></div>
+                    <h3>Email Support</h3><p>support@69shop.in</p><p class="highlight">Response: 24 hours</p>
+                </div>
+                <div class="glass-card contact-card reveal">
+                    <div class="icon-circle"><i class="fas fa-phone"></i></div>
+                    <h3>Phone Support</h3><p>+91 98765 43210</p><p class="highlight">Mon-Sat: 9AM - 7PM</p>
+                </div>
+                <div class="glass-card contact-card reveal">
+                    <div class="icon-circle"><i class="fas fa-map-marker-alt"></i></div>
+                    <h3>Visit Us</h3><p>69Shop.in Headquarters</p><p class="highlight">Mumbai, India</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
+    <footer class="site-footer">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
+            <div class="footer-grid">
+                <div class="footer-brand">
                     <div class="footer-logo">69Shop.in</div>
-                    <p class="footer-description">
-                        India's premium marketplace connecting buyers with quality products and helping sellers grow their businesses. Join our community today!
-                    </p>
+                    <p>India's premium marketplace connecting buyers with quality products and helping sellers grow. Join our community today!</p>
                     <div class="social-links">
-                        <a href="https://www.instagram.com/69shopin" target="_blank" rel="noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.facebook.com/69shopin" target="_blank" rel="noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://twitter.com/69shopin" target="_blank" rel="noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="https://www.linkedin.com/company/69shopin" target="_blank" rel="noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="https://www.youtube.com/@69shopin" target="_blank" rel="noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.instagram.com/69shop.in" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" onclick="showNotification('Facebook page coming soon!', 'info'); return false;" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" onclick="showNotification('Twitter/X page coming soon!', 'info'); return false;" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+                        <a href="#" onclick="showNotification('LinkedIn page coming soon!', 'info'); return false;" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" onclick="showNotification('YouTube channel coming soon!', 'info'); return false;" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
-                
                 <div class="footer-column">
-                    <h3 class="footer-heading">Quick Links</h3>
-                    <ul class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
                         <li><a href="/" onclick="handleHomeClick(event)"><i class="fas fa-home"></i> Home</a></li>
-                        <li><a href="#shop"><i class="fas fa-store"></i> Shop</a></li>
-                        <li><a href="#sell"><i class="fas fa-briefcase"></i> Sell on 69Shop</a></li>
+                        <li><a href="/shop.html"><i class="fas fa-store"></i> Shop</a></li>
+                        <li><a href="/seller-login.html"><i class="fas fa-briefcase"></i> Sell on 69Shop</a></li>
                         <li><a href="#about"><i class="fas fa-info-circle"></i> About Us</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-column">
-                    <h3 class="footer-heading">For Sellers</h3>
-                    <ul class="footer-links">
-                        <li><a href="#sell"><i class="fas fa-rocket"></i> Start Selling</a></li>
-                        <li><a href="/seller-dashboard.html"><i class="fas fa-chart-line"></i> Seller Dashboard</a></li>
-                        <li><a href="/profile.html?section=help"><i class="fas fa-graduation-cap"></i> Seller Education</a></li>
-                        <li><a href="/services.html#distributors"><i class="fas fa-handshake"></i> Partner Program</a></li>
+                    <h4>For Sellers</h4>
+                    <ul>
+                        <li><a href="/seller-login.html"><i class="fas fa-rocket"></i> Start Selling</a></li>
+                        <li><a href="/seller-dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                        <li><a href="/profile.html?section=help"><i class="fas fa-graduation-cap"></i> Education</a></li>
+                        <li><a href="/services.html#distributors"><i class="fas fa-handshake"></i> Partners</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-column">
-                    <h3 class="footer-heading">Support</h3>
-                    <ul class="footer-links">
+                    <h4>Support</h4>
+                    <ul>
                         <li><a href="#contact"><i class="fas fa-question-circle"></i> Help Center</a></li>
                         <li><a href="/docs/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
                         <li><a href="/docs/terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
@@ -914,538 +1062,172 @@
                     </ul>
                 </div>
             </div>
-            
-            <div class="copyright">
-                &copy; 2026 69Shop.in - India's Premium Marketplace. All rights reserved.
-            </div>
+            <div class="footer-bottom">&copy; 2026 69Shop.in — India's Premium Marketplace. All rights reserved.</div>
         </div>
     </footer>
 
-    <!-- JavaScript -->
-    <script>
-        // Firebase Configuration (graceful fallback when missing)
-        let auth = null;
-        let firebaseReady = false;
-        let currentUser = null;
+    <!-- ═══ MOBILE BOTTOM NAV ═══ -->
+    <nav class="mobile-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+        <div class="mobile-nav-items">
+            <a href="/" class="mobile-nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
+            <a href="/shop.html" class="mobile-nav-item"><i class="fas fa-store"></i><span>Shop</span></a>
+            <a href="/services.html" class="mobile-nav-item"><i class="fas fa-concierge-bell"></i><span>Services</span></a>
+            <a href="javascript:void(0)" onclick="if(typeof CartDrawer!=='undefined')CartDrawer.toggle()" class="mobile-nav-item"><i class="fas fa-shopping-cart"></i><span>Cart</span></a>
+            <a href="/shop-login.html" class="mobile-nav-item"><i class="fas fa-user"></i><span>Account</span></a>
+        </div>
+    </nav>
 
-        function initializeFirebase() {
-            try {
-                const firebaseConfig = window.firebaseConfig;
-                if (!firebaseConfig || !firebaseConfig.apiKey) {
-                    console.warn('Firebase configuration missing on landing page. Rendering logged-out UI.');
-                    return;
-                }
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                }
+    <!-- ═══ JAVASCRIPT ═══ -->
+    <script>
+    (function() {
+        'use strict';
+
+        let auth = null, firebaseReady = false, currentUser = null;
+
+        try {
+            const cfg = window.firebaseConfig;
+            if (cfg && cfg.apiKey) {
+                if (!firebase.apps.length) firebase.initializeApp(cfg);
                 auth = firebase.auth();
                 firebaseReady = true;
-            } catch (error) {
-                console.warn('Unable to initialize Firebase. Rendering logged-out UI.', error);
             }
-        }
+        } catch (e) { console.warn('Firebase init failed:', e); }
 
-        initializeFirebase();
-
-        // Mobile Menu Toggle
-        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-        const mainNav = document.getElementById('mainNav');
-        const menuOverlay = document.getElementById('menuOverlay');
-
-        // Check Authentication State
         function checkAuthState() {
-            if (!firebaseReady || !auth) {
-                currentUser = null;
-                updateUIForAuthState(null, true);
-                updateAllShopButtons(null);
-                return;
-            }
-
-            auth.onAuthStateChanged((user) => {
-                currentUser = user;
-                updateUIForAuthState(user);
-                updateAllShopButtons(user);
-                console.log('Auth state changed:', user ? 'Logged in' : 'Logged out');
-            });
+            if (!firebaseReady || !auth) { currentUser = null; updateUI(null); return; }
+            auth.onAuthStateChanged(user => { currentUser = user; updateUI(user); });
         }
 
-        // Update UI based on authentication state
-        function updateUIForAuthState(user) {
-            const authButtons = document.getElementById('authButtons');
-            
+        function updateUI(user) {
+            const authBtns = document.getElementById('authButtons');
+            const heroBtns = document.getElementById('heroAuthButtons');
+            const ctaBtns = document.getElementById('ctaAuthButtons');
+
             if (user) {
-                // User is logged in - SHOW USER PROFILE
-                const userEmail = user.email;
-                const userName = user.displayName || user.email.split('@')[0];
-                const firstLetter = userName.charAt(0).toUpperCase();
-                
-                // Update header auth buttons - USER PROFILE VERSION
-                authButtons.innerHTML = `
-                    <div class="user-info">
-                        <div class="user-avatar" title="${userName}">${firstLetter}</div>
-                        <span>Hi, <span class="user-email">${userName}</span></span>
-                    </div>
-                    <button class="btn-logout" onclick="logoutUser()" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
-                    <a href="/shop.html" class="btn-primary" onclick="goToShop()">
-                        <i class="fas fa-store"></i>
-                        Continue Shopping
-                    </a>
-                `;
-                
-                console.log('User profile displayed for:', user.email);
+                const name = user.displayName || user.email.split('@')[0];
+                const initial = name.charAt(0).toUpperCase();
+
+                if (authBtns) authBtns.innerHTML = `
+                    <div class="nav-user"><div class="nav-avatar">${initial}</div><span class="nav-user-name">Hi, <strong>${name}</strong></span></div>
+                    <button class="btn btn-ghost" onclick="logoutUser()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+                    <a href="/shop.html" class="btn btn-primary"><i class="fas fa-store"></i> Continue Shopping</a>`;
+
+                if (heroBtns) heroBtns.innerHTML = `
+                    <a href="/shop.html" class="btn btn-primary btn-lg"><i class="fas fa-store"></i> Continue Shopping</a>
+                    <a href="/seller-login.html" class="btn btn-secondary btn-lg"><i class="fas fa-rocket"></i> Start Selling</a>`;
+
+                if (ctaBtns) ctaBtns.innerHTML = `
+                    <a href="/shop.html" class="btn btn-primary btn-lg"><i class="fas fa-store"></i> Continue Shopping</a>
+                    <a href="/seller-login.html" class="btn btn-secondary btn-lg"><i class="fas fa-briefcase"></i> Become a Seller</a>`;
             } else {
-                // User is not logged in - SHOW LOGIN BUTTONS
-                authButtons.innerHTML = `
-                    <button class="btn-login" onclick="goToShopLogin()">
-                        <i class="fas fa-user"></i>
-                        Login / Sign Up
-                    </button>
-                    <a href="/shop-login.html" class="btn-primary" onclick="goToShopLogin()">
-                        <i class="fas fa-shopping-cart"></i>
-                        Start Shopping
-                    </a>
-                `;
-                
-                console.log('Login buttons displayed');
+                if (authBtns) authBtns.innerHTML = `
+                    <a href="/shop-login.html" class="btn btn-ghost">Login</a>
+                    <a href="/shop-login.html" class="btn btn-primary"><i class="fas fa-shopping-bag"></i> Start Shopping</a>`;
+
+                if (heroBtns) heroBtns.innerHTML = `
+                    <a href="/shop-login.html" class="btn btn-primary btn-lg"><i class="fas fa-shopping-bag"></i> Shop Now</a>
+                    <a href="/seller-login.html" class="btn btn-secondary btn-lg"><i class="fas fa-rocket"></i> Start Selling</a>`;
+
+                if (ctaBtns) ctaBtns.innerHTML = `
+                    <a href="/shop-login.html" class="btn btn-primary btn-lg"><i class="fas fa-shopping-bag"></i> Explore Products</a>
+                    <a href="/seller-login.html" class="btn btn-secondary btn-lg"><i class="fas fa-briefcase"></i> Become a Seller</a>`;
             }
         }
 
-        // Update all shop buttons on the page
-        function updateAllShopButtons(user) {
-            const shopButtons = document.querySelectorAll('[onclick*="handleShopClick"], [onclick*="goToShop"]');
-            
-            shopButtons.forEach(button => {
-                const targetHref = user ? '/shop.html' : '/shop-login.html';
-                if (button.tagName === 'A') {
-                    button.setAttribute('href', targetHref);
-                } else {
-                    button.setAttribute('data-target-href', targetHref);
-                }
+        window.handleLogoClick = function(e) { if (currentUser && e) { e.preventDefault(); window.location.href = '/shop.html'; } };
+        window.handleHomeClick = function(e) { if (currentUser && e) { e.preventDefault(); window.location.href = '/shop.html'; } };
+        window.handleShopClick = function(e) { if (e) e.preventDefault(); window.location.href = currentUser ? '/shop.html' : '/shop-login.html'; };
 
-                if (user) {
-                    // User is logged in - update text to "Continue Shopping"
-                    if (button.textContent.includes('Shop Now') || 
-                        button.textContent.includes('Explore Products') ||
-                        button.textContent.includes('View All Products')) {
-                        button.innerHTML = '<i class="fas fa-store"></i> Continue Shopping';
-                    }
-                } else {
-                    // User is not logged in - update text to "Shop Now"
-                    if (button.textContent.includes('Continue Shopping')) {
-                        button.innerHTML = '<i class="fas fa-shopping-cart"></i> Shop Now';
-                    }
-                }
-            });
-            
-            // Update hero buttons
-            const heroAuthButtons = document.getElementById('heroAuthButtons');
-            if (heroAuthButtons) {
-                if (user) {
-                    heroAuthButtons.innerHTML = `
-                        <a href="/shop.html" class="btn-primary" onclick="goToShop()">
-                            <i class="fas fa-store"></i>
-                            Continue Shopping
-                        </a>
-                        <a href="#sell" class="btn-secondary">
-                            <i class="fas fa-briefcase"></i>
-                            Start Selling
-                        </a>
-                    `;
-                } else {
-                    heroAuthButtons.innerHTML = `
-                        <a href="/shop-login.html" class="btn-primary" onclick="goToShopLogin()">
-                            <i class="fas fa-shopping-cart"></i>
-                            Shop Now
-                        </a>
-                        <a href="#sell" class="btn-secondary">
-                            <i class="fas fa-briefcase"></i>
-                            Start Selling
-                        </a>
-                    `;
-                }
-            }
-            
-            // Update CTA buttons
-            const ctaAuthButtons = document.getElementById('ctaAuthButtons');
-            if (ctaAuthButtons) {
-                if (user) {
-                    ctaAuthButtons.innerHTML = `
-                        <a href="/shop.html" class="btn-dark" onclick="goToShop()">
-                            <i class="fas fa-store"></i>
-                            Continue Shopping
-                        </a>
-                        <a href="#contact" class="btn-primary">
-                            <i class="fas fa-briefcase"></i>
-                            Become a Seller
-                        </a>
-                    `;
-                } else {
-                    ctaAuthButtons.innerHTML = `
-                        <a href="/shop-login.html" class="btn-dark" onclick="goToShopLogin()">
-                            <i class="fas fa-shopping-cart"></i>
-                            Explore Products
-                        </a>
-                        <a href="#contact" class="btn-primary">
-                            <i class="fas fa-briefcase"></i>
-                            Become a Seller
-                        </a>
-                    `;
-                }
-            }
-        }
-
-        // Handle Logo Click
-        function handleLogoClick(event) {
-            if (currentUser && event) {
-                event.preventDefault();
-                window.location.href = '/shop.html';
-            }
-        }
-
-        // Handle Home navigation so logged-in users skip the marketing page
-        function handleHomeClick(event) {
-            if (currentUser && event) {
-                event.preventDefault();
-                window.location.href = '/shop.html';
-            }
-        }
-
-        // Handle Shop Click
-        function handleShopClick(event) {
-            event.preventDefault();
-            goToShop();
-        }
-
-        // Go to Shop page
-        function goToShop() {
-            if (currentUser) {
-                // User is logged in, go directly to shop
-                console.log('Going to shop page (logged in)');
-                window.location.href = '/shop.html';
-            } else {
-                // User is not logged in, go to login
-                console.log('Going to login page (not logged in)');
-                window.location.href = '/shop-login.html';
-            }
-        }
-
-        // Go to Shop Login page
-        function goToShopLogin() {
-            if (currentUser) {
-                console.log('Already authenticated, routing to shop');
-                window.location.href = '/shop.html';
-                return;
-            }
-            console.log('Going to login page');
-            window.location.href = '/shop-login.html';
-        }
-
-        // Logout User
-        function logoutUser() {
-            if (!firebaseReady || !auth) {
-                showNotification('Login service is unavailable. Please refresh and try again.', 'error');
-                return;
-            }
+        window.logoutUser = function() {
+            if (!firebaseReady || !auth) return;
             if (confirm('Are you sure you want to logout?')) {
-                auth.signOut().then(() => {
-                    console.log('User logged out successfully');
-                    // Update UI immediately
-                    currentUser = null;
-                    updateUIForAuthState(null);
-                    updateAllShopButtons(null);
-                    
-                }).catch((error) => {
-                    console.error('Logout error:', error);
-                    showNotification('Error logging out. Please try again.', 'error');
-                });
+                auth.signOut().then(() => { currentUser = null; updateUI(null); })
+                    .catch(() => showNotification('Error logging out. Please try again.', 'error'));
             }
-        }
-
-        // Mobile Menu Functions
-        mobileMenuToggle.addEventListener('click', () => {
-            mainNav.classList.toggle('active');
-            menuOverlay.classList.toggle('active');
-            document.body.style.overflow = mainNav.classList.contains('active') ? 'hidden' : '';
-            
-            // Change icon based on menu state
-            const icon = mobileMenuToggle.querySelector('i');
-            if (mainNav.classList.contains('active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        });
-
-        menuOverlay.addEventListener('click', () => {
-            mainNav.classList.remove('active');
-            menuOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-            mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-            mobileMenuToggle.querySelector('i').classList.add('fa-bars');
-        });
-
-        // Close mobile menu when clicking on links
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                mainNav.classList.remove('active');
-                menuOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-                mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-                mobileMenuToggle.querySelector('i').classList.add('fa-bars');
-            });
-        });
-
-        // Header scroll effect
-        const header = document.querySelector('.header');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                const href = this.getAttribute('href');
-                if (href === '#' || href.startsWith('#!')) return;
-                
-                const targetElement = document.querySelector(href);
-                if (targetElement) {
-                    e.preventDefault();
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-
-        // Animation on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
         };
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animationPlayState = 'running';
-                    entry.target.classList.add('animate-in');
-                }
+        // Header scroll
+        const nav = document.getElementById('mainNav');
+        window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 50); });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href === '#') return;
+                const target = document.querySelector(href);
+                if (target) { e.preventDefault(); window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' }); }
             });
-        }, observerOptions);
-
-        // Observe elements for animation
-        document.addEventListener('DOMContentLoaded', () => {
-            // Check auth state on page load
-            checkAuthState();
-            
-            // Setup animations
-            document.querySelectorAll('.animate-in').forEach(el => {
-                el.style.animationPlayState = 'paused';
-                observer.observe(el);
-            });
-
-            // Ad banner marquee setup
-            const adBanner = document.querySelector('.ad-banner');
-            const adTrack = document.querySelector('.ad-banner-track');
-
-            if (adBanner && adTrack) {
-                const initAdBanner = () => {
-                    if (adTrack.dataset.marqueeReady === 'true') return;
-                    const bannerItems = Array.from(adTrack.children);
-                    if (!bannerItems.length) return;
-
-                    const fragment = document.createDocumentFragment();
-                    bannerItems.forEach(item => {
-                        fragment.appendChild(item.cloneNode(true));
-                    });
-                    adTrack.appendChild(fragment);
-
-                    const totalWidth = bannerItems.reduce((sum, item) => {
-                        return sum + item.getBoundingClientRect().width;
-                    }, 0);
-                    const duration = Math.min(50, Math.max(18, totalWidth / 22));
-                    adTrack.style.animation = `scrollBanner ${duration.toFixed(2)}s linear infinite`;
-                    adTrack.style.animationPlayState = 'running';
-                    adTrack.dataset.marqueeReady = 'true';
-                };
-
-                initAdBanner();
-                window.addEventListener('load', initAdBanner);
-
-                adBanner.addEventListener('mouseenter', () => {
-                    adTrack.style.animationPlayState = 'paused';
-                });
-
-                adBanner.addEventListener('mouseleave', () => {
-                    adTrack.style.animationPlayState = 'running';
-                });
-            }
-
-            // Update active nav link on scroll
-            const updateActiveNavLink = () => {
-                const sections = document.querySelectorAll('section[id]');
-                const navLinks = document.querySelectorAll('.nav-links a');
-                
-                let current = '';
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    const sectionHeight = section.clientHeight;
-                    if (window.scrollY >= (sectionTop - 100)) {
-                        current = section.getAttribute('id');
-                    }
-                });
-
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    const href = link.getAttribute('href');
-                    if (href === `#${current}` || 
-                       (current === '' && href === '#') ||
-                       (current === 'shop' && href === '#shop') ||
-                       (current === 'sell' && href === '#sell')) {
-                        link.classList.add('active');
-                    }
-                });
-            };
-
-            window.addEventListener('scroll', updateActiveNavLink);
-            updateActiveNavLink(); // Initial call
         });
 
-        // Notification function
-        function showNotification(message, type = 'info') {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
-                <span>${message}</span>
-                <button onclick="this.parentElement.remove()">&times;</button>
-            `;
-            
-            // Add styles
-            notification.style.cssText = `
-                position: fixed;
-                top: 100px;
-                right: 20px;
-                background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#F44336' : '#2196F3'};
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 9999;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                animation: slideIn 0.3s ease;
-                max-width: 400px;
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // Add CSS for animation
-            if (!document.querySelector('#notification-styles')) {
-                const style = document.createElement('style');
-                style.id = 'notification-styles';
-                style.textContent = `
-                    @keyframes slideIn {
-                        from { transform: translateX(100%); opacity: 0; }
-                        to { transform: translateX(0); opacity: 1; }
-                    }
-                    @keyframes slideOut {
-                        from { transform: translateX(0); opacity: 1; }
-                        to { transform: translateX(100%); opacity: 0; }
-                    }
-                    .notification button {
-                        background: none;
-                        border: none;
-                        color: white;
-                        font-size: 20px;
-                        cursor: pointer;
-                        margin-left: 10px;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-            
-            // Auto remove after 5 seconds
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.style.animation = 'slideOut 0.3s ease';
-                    setTimeout(() => {
-                        if (notification.parentElement) {
-                            notification.parentElement.removeChild(notification);
-                        }
-                    }, 300);
-                }
-            }, 5000);
-        }
-        
-        // ===== COUNTER ANIMATION =====
+        // Intersection Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('active'); observer.unobserve(entry.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+        document.querySelectorAll('.reveal, .stagger').forEach(el => observer.observe(el));
+
+        // Counters
         function animateCounters() {
-            const counters = document.querySelectorAll('.stat-number');
-            
-            counters.forEach(counter => {
+            document.querySelectorAll('.hero-stat-value').forEach(counter => {
                 const target = parseFloat(counter.dataset.target);
                 const isDecimal = counter.dataset.decimal === 'true';
-                const duration = 2000;
-                const increment = target / (duration / 16);
+                const duration = 2000, increment = target / (duration / 16);
                 let current = 0;
-                
-                const updateCounter = () => {
+                const tick = () => {
                     current += increment;
-                    if (current < target) {
-                        counter.textContent = isDecimal ? current.toFixed(1) : Math.floor(current).toLocaleString();
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        counter.textContent = isDecimal ? target.toFixed(1) : target.toLocaleString() + '+';
-                    }
+                    if (current < target) { counter.textContent = isDecimal ? current.toFixed(1) : Math.floor(current).toLocaleString(); requestAnimationFrame(tick); }
+                    else { counter.textContent = isDecimal ? target.toFixed(1) : target.toLocaleString() + '+'; }
                 };
-                
-                updateCounter();
+                tick();
             });
         }
-        
-        // Trigger counter animation when stats section is visible
+
         const statsObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    animateCounters();
-                    statsObserver.unobserve(entry.target);
-                }
-            });
+            entries.forEach(entry => { if (entry.isIntersecting) { animateCounters(); statsObserver.unobserve(entry.target); } });
         }, { threshold: 0.5 });
-        
-        const statsSection = document.querySelector('.stats-section');
-        if (statsSection) statsObserver.observe(statsSection);
-        
-        // ===== NEWSLETTER FORM =====
-        function handleNewsletterSubmit(event) {
-            event.preventDefault();
+        const heroStats = document.querySelector('.hero-stats');
+        if (heroStats) statsObserver.observe(heroStats);
+
+        // Newsletter
+        window.handleNewsletterSubmit = function(e) {
+            e.preventDefault();
             const email = document.getElementById('newsletterEmail').value;
-            
             if (!email) return;
-            
-            // Show success message
             showNotification('🎉 Thanks for subscribing! Check your email for ₹200 off coupon.', 'success');
             document.getElementById('newsletterEmail').value = '';
-            
-            // In production, send to backend/Firebase
-            console.log('Newsletter subscription:', email);
+        };
+
+        // Notifications
+        window.showNotification = function(message, type = 'info') {
+            const n = document.createElement('div');
+            n.className = `notification notification-${type}`;
+            n.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle'}"></i><span>${message}</span><button onclick="this.parentElement.remove()">&times;</button>`;
+            document.body.appendChild(n);
+            setTimeout(() => { if (n.parentElement) n.remove(); }, 5000);
+        };
+
+        // Mobile toggle
+        const toggle = document.getElementById('mobileMenuToggle');
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                const icon = toggle.querySelector('i');
+                icon.classList.contains('fa-bars') ? icon.classList.replace('fa-bars', 'fa-times') : icon.classList.replace('fa-times', 'fa-bars');
+            });
         }
-        
-        window.handleNewsletterSubmit = handleNewsletterSubmit;
+
+        document.addEventListener('DOMContentLoaded', checkAuthState);
+    })();
     </script>
-    
-    <!-- Home Page Lead Generation -->
     <script src="./js/home-lead-gen.js"></script>
+
+    <!-- Cart Drawer -->
+    <div id="cart-drawer"></div>
+    <script src="js/components/cart-drawer.js"></script>
+    <script>
+        if (typeof CartDrawer !== 'undefined') {
+            CartDrawer.init({ containerId: 'cart-drawer' });
+        }
+    </script>
 </body>
 </html>

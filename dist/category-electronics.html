@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Electronics & Gadgets - 69Shop.in</title>
-    <meta name="description" content="Shop the latest electronics on 69Shop.in - Mobiles, Laptops, Headphones, TVs, Cameras and more">
+    <meta name="description" content="Shop electronics on 69Shop.in - Smartphones, Laptops, Audio, Cameras and more">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="products-data.js"></script>
     
@@ -30,6 +31,10 @@
     <link rel="stylesheet" href="assets/css/elegant-shop.css">
     <link rel="stylesheet" href="assets/css/shop-animations.css">
     <link rel="stylesheet" href="assets/css/category-page.css">
+    <link rel="stylesheet" href="assets/css/premium-shop.css">
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <!-- Header -->
@@ -63,7 +68,12 @@
     <!-- Category Navigation -->
     <nav class="category-nav">
         <div class="container">
-            <div class="category-nav-inner">
+            <button class="mobile-category-toggle" id="mobileCategoryToggle">
+                <i class="fas fa-laptop"></i>
+                <span>Electronics</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="category-nav-inner" id="categoryNavInner">
                 <a href="/shop.html" class="category-nav-item"><i class="fas fa-store"></i> All</a>
                 <a href="/category-electronics.html" class="category-nav-item active"><i class="fas fa-laptop"></i> Electronics</a>
                 <a href="/category-fashion.html" class="category-nav-item"><i class="fas fa-tshirt"></i> Fashion</a>
@@ -86,11 +96,11 @@
             <div class="category-hero-content">
                 <span class="category-badge"><i class="fas fa-bolt"></i> Latest Tech</span>
                 <h1>Electronics & Gadgets</h1>
-                <p>Discover cutting-edge technology from top brands. Smartphones, laptops, audio gear, gaming consoles, and more at unbeatable prices.</p>
+                <p>Explore cutting-edge technology - from smartphones and laptops to smart home devices and audio equipment.</p>
                 <div class="category-hero-stats">
                     <div class="stat-item"><span class="stat-value" id="productCount">0</span><span class="stat-label">Products</span></div>
                     <div class="stat-item"><span class="stat-value">100+</span><span class="stat-label">Brands</span></div>
-                    <div class="stat-item"><span class="stat-value">35%</span><span class="stat-label">Off Select Items</span></div>
+                    <div class="stat-item"><span class="stat-value">30%</span><span class="stat-label">Off Top Picks</span></div>
                 </div>
             </div>
         </div>
@@ -102,11 +112,21 @@
         <section class="category-section trending-section">
             <div class="container">
                 <div class="section-header">
-                    <div class="section-title-wrap">
-                        <span class="section-icon"><i class="fas fa-fire"></i></span>
-                        <h2>Trending in Electronics</h2>
+                    <div class="section-header-left">
+                        <div class="section-title-wrap">
+                            <span class="section-icon"><i class="fas fa-fire"></i></span>
+                            <h2>Trending Electronics</h2>
+                            <span class="hot-badge">HOT</span>
+                        </div>
+                        <p class="section-subtitle">Best sellers this week</p>
                     </div>
-                    <p class="section-subtitle">Top-rated gadgets everyone's buying</p>
+                    <div class="section-header-right">
+                        <a href="/shop.html?category=electronics" class="section-view-all">View All <i class="fas fa-arrow-right"></i></a>
+                        <div class="section-nav-arrows">
+                            <button class="section-nav-btn" onclick="scrollTrending(-1)" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+                            <button class="section-nav-btn" onclick="scrollTrending(1)" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="trending-carousel" id="trendingCarousel"></div>
             </div>
@@ -115,7 +135,11 @@
         <!-- Filter Bar -->
         <div class="category-filter-bar">
             <div class="container">
-                <div class="filter-bar-inner">
+                <button class="mobile-filter-toggle" id="mobileFilterToggle">
+                    <span><i class="fas fa-filter"></i> Filters & Sorting</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="filter-bar-inner" id="filterBarInner">
                     <div class="filter-group">
                         <label>Sort by:</label>
                         <select id="sortSelect" onchange="CategoryPage.sortProducts(this.value)">
@@ -131,17 +155,17 @@
                         <select id="priceFilter" onchange="CategoryPage.filterByPrice(this.value)">
                             <option value="all">All Prices</option>
                             <option value="0-5000">Under ₹5,000</option>
-                            <option value="5000-15000">₹5,000 - ₹15,000</option>
-                            <option value="15000-50000">₹15,000 - ₹50,000</option>
+                            <option value="5000-20000">₹5,000 - ₹20,000</option>
+                            <option value="20000-50000">₹20,000 - ₹50,000</option>
                             <option value="50000+">Above ₹50,000</option>
                         </select>
                     </div>
                     <div class="filter-tags" id="subCategoryTags">
                         <button class="filter-tag active" data-subcategory="all">All</button>
-                        <button class="filter-tag" data-subcategory="mobile">Mobiles</button>
-                        <button class="filter-tag" data-subcategory="laptop">Laptops</button>
-                        <button class="filter-tag" data-subcategory="headphones">Audio</button>
-                        <button class="filter-tag" data-subcategory="camera">Cameras</button>
+                        <button class="filter-tag" data-subcategory="smartphones">Smartphones</button>
+                        <button class="filter-tag" data-subcategory="laptops">Laptops</button>
+                        <button class="filter-tag" data-subcategory="audio">Audio</button>
+                        <button class="filter-tag" data-subcategory="cameras">Cameras</button>
                     </div>
                 </div>
             </div>
@@ -179,12 +203,12 @@
                     </div>
                 </div>
                 <div class="brands-grid">
-                    <div class="brand-card"><div class="brand-logo">APPLE</div><span>Premium Devices</span></div>
-                    <div class="brand-card"><div class="brand-logo">SAMSUNG</div><span>Innovation Leader</span></div>
-                    <div class="brand-card"><div class="brand-logo">SONY</div><span>Audio Excellence</span></div>
-                    <div class="brand-card"><div class="brand-logo">DELL</div><span>Computing Power</span></div>
-                    <div class="brand-card"><div class="brand-logo">BOSE</div><span>Sound Mastery</span></div>
-                    <div class="brand-card"><div class="brand-logo">CANON</div><span>Photography</span></div>
+                    <div class="brand-card"><div class="brand-logo">APPLE</div><span>Premium Tech</span></div>
+                    <div class="brand-card"><div class="brand-logo">SAMSUNG</div><span>Innovation</span></div>
+                    <div class="brand-card"><div class="brand-logo">SONY</div><span>Entertainment</span></div>
+                    <div class="brand-card"><div class="brand-logo">ONEPLUS</div><span>Flagship Killer</span></div>
+                    <div class="brand-card"><div class="brand-logo">BOSE</div><span>Audio</span></div>
+                    <div class="brand-card"><div class="brand-logo">DELL</div><span>Computing</span></div>
                 </div>
             </div>
         </section>
@@ -192,17 +216,17 @@
         <!-- Promo Banner -->
         <section class="category-section promo-banner-section">
             <div class="container">
-                <div class="promo-banner electronics-promo">
+                <div class="promo-banner">
                     <div class="promo-content">
-                        <span class="promo-label"><i class="fas fa-microchip"></i> Tech Sale</span>
-                        <h3>Gadget Fest - Mega Deals on Electronics</h3>
-                        <p>Save up to 40% on smartphones, laptops, and accessories. Limited time offer!</p>
+                        <span class="promo-label"><i class="fas fa-bolt"></i> Flash Sale</span>
+                        <h3>Tech Week - Up to 40% Off!</h3>
+                        <p>Upgrade your tech with the latest gadgets at unbeatable prices. Limited time offer!</p>
                         <button class="promo-btn" onclick="document.getElementById('productsGrid').scrollIntoView({behavior: 'smooth'})">
-                            Explore Deals <i class="fas fa-arrow-right"></i>
+                            Shop Now <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
                     <div class="promo-image">
-                        <img src="https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=600&q=80" alt="Tech Gadgets">
+                        <img src="https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=600&q=80" alt="Electronics Sale">
                     </div>
                 </div>
             </div>
@@ -227,7 +251,6 @@
                 <li><a href="/profile.html?section=dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
                 <li><a href="/profile.html?section=orders"><i class="fas fa-shopping-bag"></i><span>My Orders</span></a></li>
                 <li><a href="/profile.html?section=wishlist"><i class="fas fa-heart"></i><span>Wishlist</span></a></li>
-                <li><a href="/profile.html?section=settings"><i class="fas fa-cog"></i><span>Settings</span></a></li>
             </ul>
             <div class="profile-actions"><button class="btn-login" id="loginBtn" onclick="window.location.href='/shop-login.html'"><i class="fas fa-sign-in-alt"></i> Sign In</button></div>
         </div>
@@ -245,7 +268,7 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
-                    <h4>Shop Categories</h4>
+                    <h4>Categories</h4>
                     <ul>
                         <li><a href="/category-electronics.html">Electronics</a></li>
                         <li><a href="/category-fashion.html">Fashion</a></li>
@@ -288,11 +311,85 @@
         </div>
     </footer>
 
+    <!-- Mobile Bottom Navigation -->
+    <nav class="category-mobile-nav" id="categoryMobileNav" aria-label="Mobile navigation">
+        <div class="category-mobile-nav-items">
+            <a href="/shop.html" class="category-mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/shop.html#search" class="category-mobile-nav-item" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="javascript:void(0)" onclick="if(typeof CartDrawer!=='undefined')CartDrawer.toggle()" class="category-mobile-nav-item" aria-label="Cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Cart</span>
+                <span class="nav-badge" id="mobileCartCount">0</span>
+            </a>
+            <a href="/profile.html" class="category-mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
+
     <script src="js/category-page.js"></script>
+    <script src="js/premium-features.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            CategoryPage.init('electronics', ['mobile', 'laptop', 'headphones', 'camera', 'tv', 'gaming']);
+            CategoryPage.init('electronics', ['smartphones', 'laptops', 'audio', 'cameras', 'accessories']);
+            window.addEventListener('scroll', function() {
+                const nav = document.querySelector('.category-nav');
+                const filterBar = document.querySelector('.category-filter-bar');
+                if (window.scrollY > 100) { nav?.classList.add('scrolled'); filterBar?.classList.add('scrolled'); }
+                else { nav?.classList.remove('scrolled'); filterBar?.classList.remove('scrolled'); }
+            });
+            
+            // Mobile category toggle
+            const categoryToggle = document.getElementById('mobileCategoryToggle');
+            const categoryNavInner = document.getElementById('categoryNavInner');
+            if (categoryToggle && categoryNavInner) {
+                categoryToggle.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    categoryNavInner.classList.toggle('expanded');
+                });
+            }
+            
+            // Mobile filter toggle
+            const filterToggle = document.getElementById('mobileFilterToggle');
+            const filterBarInner = document.getElementById('filterBarInner');
+            if (filterToggle && filterBarInner) {
+                filterToggle.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    filterBarInner.classList.toggle('expanded');
+                });
+            }
+
+            // Update mobile cart count
+            const updateMobileCartCount = () => {
+                try {
+                    const cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+                    const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+                    const badge = document.getElementById('mobileCartCount');
+                    if (badge) {
+                        badge.textContent = count;
+                        badge.style.display = count > 0 ? 'flex' : 'none';
+                    }
+                } catch (e) {}
+            };
+            updateMobileCartCount();
+            window.addEventListener('storage', updateMobileCartCount);
         });
+    </script>
+
+    <!-- Cart Drawer -->
+    <div id="cart-drawer"></div>
+    <script src="js/components/cart-drawer.js"></script>
+    <script>
+        if (typeof CartDrawer !== 'undefined') {
+            CartDrawer.init({ containerId: 'cart-drawer' });
+        }
     </script>
 </body>
 </html>

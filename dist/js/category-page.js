@@ -3,6 +3,18 @@
  * Handles product filtering, sorting, cart, and wishlist for category pages
  */
 
+// Global scroll function for trending carousel
+function scrollTrending(direction) {
+    const carousel = document.getElementById('trendingCarousel');
+    if (!carousel) return;
+    
+    const scrollAmount = 300;
+    carousel.scrollBy({
+        left: direction * scrollAmount,
+        behavior: 'smooth'
+    });
+}
+
 const CategoryPage = {
     category: '',
     subcategories: [],
@@ -52,29 +64,47 @@ const CategoryPage = {
             const stars = '★'.repeat(Math.floor(product.rating)) + '☆'.repeat(5 - Math.floor(product.rating));
             
             return `
-                <div class="product-card" data-product-id="${product.id}">
-                    <div class="product-image">
-                        <img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.src='/Logo/placeholder.png'">
-                        <div class="product-badges">
-                            <span class="product-badge badge-new">Trending</span>
+                <div class="product-card trending-product-card" data-product-id="${product.id}">
+                    <a href="/product.html?id=${product.id}" class="product-image-link">
+                        <div class="product-image">
+                            <img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.src='/Logo/placeholder.svg'">
+                            <div class="product-badges">
+                                <span class="product-badge badge-trending">TRENDING</span>
+                            </div>
+                            <div class="product-actions">
+                                <button class="product-action-btn ${inWishlist ? 'in-wishlist' : ''}" 
+                                        onclick="event.preventDefault(); event.stopPropagation(); CategoryPage.toggleWishlist('${product.id}')" 
+                                        aria-label="Add to wishlist">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="product-action-btn quick-view-btn" 
+                                        onclick="event.preventDefault(); event.stopPropagation(); CategoryPage.quickView('${product.id}')"
+                                        aria-label="Quick view">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="product-actions">
-                            <button class="product-action-btn ${inWishlist ? 'in-wishlist' : ''}" 
-                                    onclick="CategoryPage.toggleWishlist('${product.id}')" 
-                                    aria-label="Add to wishlist">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                        </div>
-                    </div>
+                    </a>
                     <div class="product-content">
                         <div class="product-brand">${product.brand || product.seller}</div>
-                        <h3 class="product-name">${product.name}</h3>
+                        <a href="/product.html?id=${product.id}" class="product-name-link">
+                            <h3 class="product-name">${product.name}</h3>
+                        </a>
                         <div class="product-rating">
                             <span class="rating-stars">${stars}</span>
                             <span class="rating-value">${product.rating}</span>
                         </div>
                         <div class="product-price">
                             <span class="price-current">₹${product.price.toLocaleString()}</span>
+                            ${product.originalPrice ? `<span class="price-original">₹${product.originalPrice.toLocaleString()}</span>` : ''}
+                        </div>
+                        <div class="product-cta">
+                            <button class="btn-add-cart" onclick="event.stopPropagation(); CategoryPage.addToCart('${product.id}')">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                            <a href="/product.html?id=${product.id}" class="btn-view-product">
+                                <i class="fas fa-eye"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -84,9 +114,14 @@ const CategoryPage = {
 
     /**
      * Load products for this category
+     * Also exposed globally as window.loadProducts for compatibility
      */
     loadProducts() {
         const allProducts = window.productsData || [];
+        // Expose globally for test compatibility
+        if (!window.loadProducts) {
+            window.loadProducts = () => this.loadProducts();
+        }
         
         // Filter by category
         this.products = allProducts.filter(p => {
@@ -156,7 +191,7 @@ const CategoryPage = {
         return `
             <div class="product-card" data-product-id="${product.id}">
                 <div class="product-image">
-                    <img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.src='/Logo/placeholder.png'">
+                    <img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.src='/Logo/placeholder.svg'">
                     <div class="product-badges">
                         ${discount >= 20 ? '<span class="product-badge badge-sale">Sale</span>' : ''}
                         ${product.tags?.includes('new') ? '<span class="product-badge badge-new">New</span>' : ''}
@@ -218,6 +253,7 @@ const CategoryPage = {
         const cartOverlay = document.getElementById('cartOverlay');
         const closeCart = document.getElementById('closeCart');
         const cartSidebar = document.getElementById('cartSidebar');
+        const checkoutBtn = document.getElementById('checkoutBtn');
 
         if (cartBtn) {
             cartBtn.addEventListener('click', () => {
@@ -238,6 +274,19 @@ const CategoryPage = {
             cartOverlay.addEventListener('click', () => {
                 cartSidebar?.classList.remove('active');
                 cartOverlay?.classList.remove('active');
+            });
+        }
+
+        // Checkout button - redirect to shop.html with cart open
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', () => {
+                if (this.cart.length === 0) {
+                    this.showNotification('Your cart is empty!', 'error');
+                    return;
+                }
+                // Save cart and redirect to shop for full checkout
+                this.saveCart();
+                window.location.href = '/shop.html?openCheckout=true';
             });
         }
 

@@ -3,20 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beauty - 69Shop.in</title>
-  <meta name="description" content="Shop skincare, haircare and cosmetics on 69Shop.in">
+    <meta name="theme-color" content="#FFFFFF">
+  <title>Appliances - 69Shop.in</title>
+  <meta name="description" content="Shop smart appliances on 69Shop.in">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/shop.css">
+  <link rel="stylesheet" href="assets/css/cart-sidebar.css">
+  <link rel="stylesheet" href="assets/css/premium-shop.css">
   <style>
     .category-hero {padding: 48px 0 16px;}
     .category-hero h1 {font-size: 1.9rem; margin: 0 0 8px;}
     .category-hero p {color: var(--text-medium); margin: 0;}
     .products-grid {margin-top: 16px;}
     .back-link {display: inline-flex; align-items: center; gap: 8px; color: var(--blue-primary); font-weight: 600; text-decoration: none;}
+    .header-right {display: flex; align-items: center; gap: 16px;}
+    .header-btn {background: none; border: none; font-size: 1.25rem; color: var(--text-dark); cursor: pointer; position: relative; padding: 8px;}
+    .header-btn:hover {color: var(--blue-primary);}
+    .cart-count-badge {position: absolute; top: 0; right: 0; background: var(--blue-primary); color: white; font-size: 0.7rem; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;}
+    .category-nav {background: var(--white); border-bottom: 1px solid var(--light-grey); padding: 12px 0; position: sticky; top: 70px; z-index: 100;}
+    .category-nav-list {display: flex; gap: 8px; overflow-x: auto; padding: 0 24px; list-style: none; margin: 0;}
+    .category-nav-list::-webkit-scrollbar {display: none;}
+    .category-nav-link {display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 20px; background: var(--light-grey); color: var(--text-dark); text-decoration: none; font-size: 0.85rem; font-weight: 500; white-space: nowrap; transition: all 0.2s;}
+    .category-nav-link:hover, .category-nav-link.active {background: var(--blue-primary); color: white;}
   </style>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
   <header class="header">
@@ -26,17 +47,39 @@
           <div class="logo-icon"><img src="/Logo/69shopc.png" alt="69Shop.in Logo" style="width:100%;height:100%;object-fit:contain;"></div>
           <div class="logo-text"><div class="site-name">69SHOP.IN</div><div class="tagline">Premium Marketplace</div></div>
         </a>
-        <a class="back-link" href="/shop.html"><i class="fas fa-arrow-left"></i> Back to shop</a>
+        <div class="header-right">
+          <a class="back-link" href="/shop.html"><i class="fas fa-arrow-left"></i> Back to shop</a>
+          <button class="header-btn" onclick="openCart()" title="View Cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count-badge" id="cartCount">0</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
+
+  <!-- Category Navigation -->
+  <nav class="category-nav">
+    <ul class="category-nav-list">
+      <li><a href="/appliances.html" class="category-nav-link" data-cat="appliances"><i class="fas fa-tv"></i> Appliances</a></li>
+      <li><a href="/mobiles.html" class="category-nav-link" data-cat="mobiles"><i class="fas fa-mobile-alt"></i> Mobiles</a></li>
+      <li><a href="/headphones.html" class="category-nav-link" data-cat="headphones"><i class="fas fa-headphones"></i> Headphones</a></li>
+      <li><a href="/electronics.html" class="category-nav-link" data-cat="electronics"><i class="fas fa-laptop"></i> Electronics</a></li>
+      <li><a href="/fashion.html" class="category-nav-link" data-cat="fashion"><i class="fas fa-tshirt"></i> Fashion</a></li>
+      <li><a href="/beauty.html" class="category-nav-link" data-cat="beauty"><i class="fas fa-spa"></i> Beauty</a></li>
+      <li><a href="/sports.html" class="category-nav-link" data-cat="sports"><i class="fas fa-futbol"></i> Sports</a></li>
+      <li><a href="/grocery.html" class="category-nav-link" data-cat="groceries"><i class="fas fa-shopping-basket"></i> Grocery</a></li>
+      <li><a href="/books.html" class="category-nav-link" data-cat="books"><i class="fas fa-book"></i> Books</a></li>
+      <li><a href="/home-needs.html" class="category-nav-link" data-cat="home-needs"><i class="fas fa-home"></i> Home</a></li>
+    </ul>
+  </nav>
 
   <main class="main-content">
     <section class="shop-hero category-hero">
       <div class="container">
         <div class="shop-hero-content">
-          <h1>Beauty</h1>
-          <p>Skincare, haircare and cosmetics</p>
+          <h1 id="categoryTitle">Appliances</h1>
+          <p id="categorySubtitle">Smart home and kitchen essentials</p>
         </div>
       </div>
     </section>
@@ -44,13 +87,13 @@
     <div class="shop-container">
       <div class="shop-content" style="width:100%;">
         <div class="products-header">
-          <h2 class="section-title">Beauty Picks</h2>
+          <h2 class="section-title" id="sectionTitle">Appliances Picks</h2>
           <div class="product-count"><span id="productCount">0</span> products found</div>
         </div>
         <div class="container" style="padding: 0 24px 12px;">
           <div class="search-input-wrapper" style="display:flex;align-items:center;gap:10px;border:1px solid var(--border-subtle, #e5e5e5);padding:10px 12px;border-radius:var(--radius-md,8px);">
             <i class="fas fa-search" style="color: var(--text-light, #7a7a7a);"></i>
-            <input type="text" id="categorySearch" placeholder="Search in Beauty" style="width:100%;border:none;outline:none;font-size:0.95rem;">
+            <input type="text" id="categorySearch" placeholder="Search in Appliances" style="width:100%;border:none;outline:none;font-size:0.95rem;">
           </div>
         </div>
         <div class="products-grid" id="productsGrid"></div>
@@ -63,9 +106,53 @@
     </div>
   </main>
 
+  <!-- Cart Sidebar -->
+  <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+  <aside class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h2 class="cart-title"><i class="fas fa-shopping-cart"></i> Your Cart</h2>
+      <button class="close-cart" onclick="closeCart()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+      <button class="checkout-btn" onclick="goToCheckout()">
+        <i class="fas fa-lock"></i> Proceed to Checkout
+      </button>
+    </div>
+  </aside>
+
   <script src="products-data.js"></script>
   <script>
-    const category = 'beauty';
+    const params = new URLSearchParams(window.location.search);
+    const defaultCategory = 'beauty';
+    const category = params.get('category') || defaultCategory;
+    const meta = {
+      mobiles: {title:'Mobiles', subtitle:'Latest smartphones and budget picks'},
+      headphones: {title:'Headphones', subtitle:'ANC, over-ear, and sport buds'},
+      appliances: {title:'Appliances', subtitle:'Smart home and kitchen essentials'},
+      electronics: {title:'Electronics', subtitle:'Gadgets and tech accessories'},
+      fashion: {title:'Fashion', subtitle:'Trending clothing and accessories'},
+      beauty: {title:'Beauty', subtitle:'Skincare, makeup and wellness'},
+      sports: {title:'Sports', subtitle:'Athletic gear and equipment'},
+      groceries: {title:'Grocery', subtitle:'Fresh food and daily essentials'},
+      books: {title:'Books', subtitle:'Bestsellers and new releases'},
+      'home-needs': {title:'Home Needs', subtitle:'Lighting, comfort, and daily essentials'}
+    };
+    const {title, subtitle} = meta[category] || meta[defaultCategory];
+    document.title = `${title} - 69Shop.in`;
+    document.getElementById('categoryTitle').textContent = title;
+    document.getElementById('categorySubtitle').textContent = subtitle;
+    document.getElementById('sectionTitle').textContent = `${title} Picks`;
+
+    // Highlight active category in nav
+    document.querySelectorAll('.category-nav-link').forEach(link => {
+      if (link.dataset.cat === category) link.classList.add('active');
+    });
+
     const grid = document.getElementById('productsGrid');
     const empty = document.getElementById('emptyState');
     const count = document.getElementById('productCount');
@@ -74,40 +161,96 @@
     let searchTerm = '';
     let cart = [];
 
-    function loadCart() { try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch(e) { cart = []; } }
-    function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch(e) {} }
-    function toast(msg) {
+    function loadCart() {
+      try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch (e) { cart = []; }
+      updateCartDisplay();
+    }
+
+    function saveCart() {
+      try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {}
+      updateCartDisplay();
+    }
+
+    function updateCartDisplay() {
+      const countEl = document.getElementById('cartCount');
+      const itemsEl = document.getElementById('cartItems');
+      const totalEl = document.getElementById('cartTotal');
+      const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+      countEl.textContent = totalItems;
+      totalEl.textContent = `₹${totalPrice.toLocaleString('en-IN')}`;
+      if (cart.length === 0) {
+        itemsEl.innerHTML = '<div class="cart-empty"><i class="fas fa-shopping-cart"></i><p>Your cart is empty</p><a href="/shop.html">Continue Shopping</a></div>';
+        return;
+      }
+      itemsEl.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <div class="cart-item-image"><img src="${item.image || '/Logo/placeholder.svg'}" alt="${item.name}" onerror="this.src='/Logo/placeholder.svg'"></div>
+          <div class="cart-item-details">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">₹${item.price.toLocaleString('en-IN')}</div>
+            <div class="cart-item-actions">
+              <div class="quantity-control">
+                <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
+                <span class="quantity">${item.quantity || 1}</span>
+                <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+              </div>
+              <button class="remove-item" onclick="removeFromCart('${item.id}')"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateQuantity(productId, change) {
+      const item = cart.find(i => i.id === productId);
+      if (item) { item.quantity = Math.max(1, Math.min((item.quantity || 1) + change, item.maxQuantity || 50)); saveCart(); }
+    }
+
+    function removeFromCart(productId) { cart = cart.filter(i => i.id !== productId); saveCart(); toast('Item removed'); }
+    function openCart() { document.getElementById('cartSidebar').classList.add('active'); document.getElementById('cartOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeCart() { document.getElementById('cartSidebar').classList.remove('active'); document.getElementById('cartOverlay').classList.remove('active'); document.body.style.overflow = ''; }
+    function goToCheckout() { if (cart.length === 0) { toast('Cart is empty'); return; } closeCart(); window.location.href = '/shop.html?openCheckout=true'; }
+
+    function toast(message) {
       const el = document.createElement('div');
       el.style.cssText = 'position:fixed;top:90px;right:20px;background:var(--blue-primary,#0066ff);color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;transform:translateX(120%);transition:transform 0.25s ease;';
-      el.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+      el.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
       document.body.appendChild(el);
-      requestAnimationFrame(() => el.style.transform = 'translateX(0)');
+      requestAnimationFrame(() => { el.style.transform = 'translateX(0)'; });
       setTimeout(() => { el.style.transform = 'translateX(120%)'; setTimeout(() => el.remove(), 250); }, 1800);
     }
-    function addToCart(id) {
-      const p = getCatalog().find(x => x.id === id);
-      if (!p) return;
-      const existing = cart.find(x => x.id === id);
-      if (existing) existing.quantity = Math.min((existing.quantity||1)+1, p.stock||50);
-      else cart.push({id:p.id, name:p.name, price:p.price, image:p.image, quantity:1, maxQuantity:p.stock||50});
-      saveCart();
-      toast(`${p.name} added to cart`);
+
+    function addToCart(productId) {
+      const product = getCatalog().find(p => p.id === productId);
+      if (!product) return;
+      const existing = cart.find(item => item.id === productId);
+      if (existing) { existing.quantity = Math.min((existing.quantity || 1) + 1, product.stock || 50); }
+      else { cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1, maxQuantity: product.stock || 50 }); }
+      saveCart(); toast(`${product.name} added to cart`);
     }
+
     function getCatalog() {
-      const fallback = 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=400&q=80';
-      return (window.productsData||[]).filter(p => p.category === category).map((p,i) => ({
-        id: p.id||`p-${i+1}`, name: p.name||'Product', description: p.description||'', price: Number(p.price)||0,
-        category: p.category, image: p.image||fallback, seller: p.seller||'69Shop Seller', rating: Number(p.rating)||4.4, stock: p.stock||50
+      const fallbackImage = 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=400&q=80';
+      return (window.productsData || []).filter(p => p.category === category).map((p, idx) => ({
+        id: p.id || `p-${idx + 1}`, name: p.name || 'Product', description: p.description || 'Curated pick for this category.',
+        price: Number(p.price) || 0, category: p.category || category, image: p.image || fallbackImage,
+        seller: p.seller || '69Shop Seller', rating: Number(p.rating) || 4.4, stock: p.stock || 50
       }));
     }
+
     function render() {
-      const items = getCatalog().filter(p => !searchTerm || p.name.toLowerCase().includes(searchTerm.toLowerCase()) || (p.description||'').toLowerCase().includes(searchTerm.toLowerCase()));
+      const items = getCatalog().filter(p => {
+        if (!searchTerm) return true;
+        const term = searchTerm.toLowerCase();
+        return p.name.toLowerCase().includes(term) || (p.description || '').toLowerCase().includes(term);
+      });
       count.textContent = items.length;
       if (!items.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
       empty.style.display = 'none';
       grid.innerHTML = items.map(p => `
         <div class="product-card" data-id="${p.id}">
-          <div class="product-image"><img src="${p.image}" alt="${p.name}" loading="lazy"></div>
+          <div class="product-image"><img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.src='/Logo/placeholder.svg'"></div>
           <div class="product-content">
             <h3 class="product-name">${p.name}</h3>
             <p class="product-description">${p.description}</p>
@@ -117,13 +260,19 @@
             </div>
             <div class="product-actions">
               <button class="btn-add-to-cart" onclick="addToCart('${p.id}')"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
-              <button class="btn-wishlist" disabled><i class="fas fa-heart"></i></button>
+              <button class="btn-wishlist" onclick="window.location.href='/profile.html?section=wishlist'" title="View Wishlist"><i class="fas fa-heart"></i></button>
             </div>
           </div>
-        </div>`).join('');
+        </div>
+      `).join('');
     }
     loadCart(); render();
-    searchInput?.addEventListener('input', e => { searchTerm = e.target.value||''; render(); });
+    if (searchInput) { searchInput.addEventListener('input', (e) => { searchTerm = e.target.value || ''; render(); }); }
   </script>
+  <script src="js/premium-features.js"></script>
 </body>
 </html>
+
+
+
+

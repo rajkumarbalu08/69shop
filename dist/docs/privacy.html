@@ -3,20 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>69Shop.in Privacy Policy</title>
-    <link rel="stylesheet" href="../assets/css/home.css">
+    <title>Privacy Policy - 69Shop.in</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/design-system.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--surface-page, #FAFBFC); color: var(--text-primary, #111827); line-height: 1.7; }
+        .legal-header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 16px 24px; position: sticky; top: 0; z-index: 10; }
+        .legal-header-inner { max-width: 800px; margin: 0 auto; display: flex; align-items: center; gap: 16px; }
+        .legal-header a { color: var(--accent-primary, #2563EB); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+        .legal-header a:hover { text-decoration: underline; }
+        .legal-container { max-width: 800px; margin: 40px auto; padding: 0 24px 80px; }
+        .legal-container h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+        .legal-meta { color: var(--text-tertiary, #9CA3AF); font-size: 0.85rem; margin-bottom: 32px; }
+        .legal-container h2 { font-size: 1.25rem; font-weight: 600; margin: 32px 0 12px; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+        .legal-container h2:first-of-type { border-top: none; }
+        .legal-container p { margin-bottom: 12px; color: var(--text-secondary, #4B5563); }
+        .legal-container ul, .legal-container ol { margin: 12px 0 12px 24px; color: var(--text-secondary, #4B5563); }
+        .legal-container li { margin-bottom: 8px; }
+        .legal-container a { color: var(--accent-primary, #2563EB); }
+        .legal-container table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+        .legal-container th, .legal-container td { text-align: left; padding: 10px 12px; border: 1px solid #e5e7eb; }
+        .legal-container th { background: #f9fafb; font-weight: 600; }
+        .legal-toc { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; }
+        .legal-toc h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); }
+        .legal-toc ol { margin: 0; padding-left: 20px; }
+        .legal-toc li { margin-bottom: 6px; font-size: 0.9rem; }
+        .legal-toc a { text-decoration: none; }
+        .legal-toc a:hover { text-decoration: underline; }
+        @media (max-width: 600px) {
+            .legal-container h1 { font-size: 1.5rem; }
+            .legal-container { padding: 0 16px 60px; margin-top: 24px; }
+            .legal-container table { font-size: 0.8rem; }
+            .legal-container th, .legal-container td { padding: 8px; }
+        }
+    </style>
 </head>
-<body class="legal-page">
-    <main style="max-width: 960px; margin: 80px auto; padding: 0 24px;">
+<body>
+    <div class="legal-header">
+        <div class="legal-header-inner">
+            <a href="/">&larr; Back to 69Shop.in</a>
+        </div>
+    </div>
+    <main class="legal-container">
         <h1>Privacy Policy</h1>
-        <p>We are finalising the exhaustive privacy policy for 69Shop.in. Until the full legal copy goes live, please email <a href="mailto:support@69shop.in">support@69shop.in</a> for any questions about how we collect, store, and process your data.</p>
-        <p>Key points already enforced:</p>
+        <p class="legal-meta">Last updated: February 17, 2026 &bull; Effective from: February 17, 2026</p>
+
+        <nav class="legal-toc">
+            <h3>Contents</h3>
+            <ol>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#collection">Information We Collect</a></li>
+                <li><a href="#usage">How We Use Your Information</a></li>
+                <li><a href="#sharing">Information Sharing</a></li>
+                <li><a href="#storage">Data Storage and Security</a></li>
+                <li><a href="#cookies">Cookies and Local Storage</a></li>
+                <li><a href="#rights">Your Rights</a></li>
+                <li><a href="#retention">Data Retention</a></li>
+                <li><a href="#children">Children's Privacy</a></li>
+                <li><a href="#changes">Changes to This Policy</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+            </ol>
+        </nav>
+
+        <h2 id="overview">1. Overview</h2>
+        <p>69Shop.in ("we", "us", "our") respects your privacy and is committed to protecting your personal data. This Privacy Policy explains how we collect, use, store, and protect information when you use our multi-vendor e-commerce marketplace at 69shop.in and shop69-1.web.app (the "Platform").</p>
+        <p>By using the Platform, you consent to the practices described in this policy. We comply with applicable Indian data protection laws including the Information Technology Act, 2000, and the Digital Personal Data Protection Act, 2023.</p>
+
+        <h2 id="collection">2. Information We Collect</h2>
+        <p><strong>Information you provide directly:</strong></p>
         <ul>
-            <li>All passwords and authentication tokens are handled by Firebase Authentication.</li>
-            <li>Concierge forms sync to Firestore and are never sold to third parties.</li>
-            <li>You can request account deletion anytime via support.</li>
+            <li><strong>Account information:</strong> Name, email address, phone number, password (hashed by Firebase)</li>
+            <li><strong>Profile information:</strong> Display name, profile photo, delivery addresses</li>
+            <li><strong>Order information:</strong> Shipping address, payment method selection, order notes</li>
+            <li><strong>Communication:</strong> Messages sent through the buyer-seller chat system</li>
+            <li><strong>Reviews and ratings:</strong> Product reviews, star ratings, photos uploaded with reviews</li>
+            <li><strong>Support requests:</strong> Customer support tickets, enquiry forms</li>
         </ul>
-        <p>Last updated: 11 Jan 2026</p>
+        <p><strong>Information for sellers (KYC):</strong></p>
+        <ul>
+            <li>Business name and type</li>
+            <li>PAN number and GST registration number</li>
+            <li>Bank account details for payouts</li>
+            <li>Identity verification documents</li>
+        </ul>
+        <p><strong>Information collected automatically:</strong></p>
+        <ul>
+            <li>Browser type, device information, and operating system</li>
+            <li>Pages visited, products viewed, and search queries</li>
+            <li>Cart and wishlist activity</li>
+            <li>IP address and approximate location (for service area validation)</li>
+            <li>Session duration and interaction patterns</li>
+        </ul>
+
+        <h2 id="usage">3. How We Use Your Information</h2>
+        <table>
+            <thead>
+                <tr><th>Purpose</th><th>Data Used</th><th>Legal Basis</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Account creation and authentication</td><td>Email, password, name</td><td>Contract performance</td></tr>
+                <tr><td>Order processing and delivery</td><td>Address, phone, payment info</td><td>Contract performance</td></tr>
+                <tr><td>Customer support</td><td>Account details, order history</td><td>Legitimate interest</td></tr>
+                <tr><td>Product recommendations</td><td>Browsing history, search queries</td><td>Legitimate interest</td></tr>
+                <tr><td>Seller verification (KYC)</td><td>PAN, GST, bank details</td><td>Legal obligation</td></tr>
+                <tr><td>Communication (email, push notifications)</td><td>Email, device tokens</td><td>Consent</td></tr>
+                <tr><td>Analytics and improvement</td><td>Usage data, search analytics</td><td>Legitimate interest</td></tr>
+                <tr><td>Fraud prevention</td><td>IP address, device info, transaction patterns</td><td>Legitimate interest</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="sharing">4. Information Sharing</h2>
+        <p>We do not sell your personal data to third parties. We share information only in these situations:</p>
+        <ul>
+            <li><strong>With sellers:</strong> When you place an order, the seller receives your name, delivery address, and phone number to fulfil the order</li>
+            <li><strong>Payment processors:</strong> Razorpay processes your payment information securely. We do not store your card details</li>
+            <li><strong>Shipping partners:</strong> Name and delivery address are shared with logistics providers (Bluedart, Delhivery, DTDC) for shipment</li>
+            <li><strong>Service providers:</strong> Firebase (Google) for authentication, database, hosting, and cloud functions</li>
+            <li><strong>Email service:</strong> EmailJS and Gmail SMTP for transactional emails (order confirmations, status updates)</li>
+            <li><strong>Legal requirements:</strong> When required by law, court order, or government authority</li>
+        </ul>
+
+        <h2 id="storage">5. Data Storage and Security</h2>
+        <p>Your data is stored using the following infrastructure:</p>
+        <ul>
+            <li><strong>Database:</strong> Google Cloud Firestore (asia-south1 region, Mumbai, India)</li>
+            <li><strong>Authentication:</strong> Firebase Authentication (managed by Google, industry-standard encryption)</li>
+            <li><strong>File storage:</strong> Firebase Cloud Storage (profile photos, product images, KYC documents)</li>
+            <li><strong>Local storage:</strong> Cart data, wishlist, and preferences are stored in your browser's localStorage</li>
+        </ul>
+        <p><strong>Security measures we implement:</strong></p>
+        <ul>
+            <li>SSL/TLS encryption for all data in transit</li>
+            <li>Firebase Security Rules that enforce role-based access control</li>
+            <li>Passwords are never stored in plaintext (Firebase Auth uses bcrypt hashing)</li>
+            <li>Seller KYC documents are stored with restricted access permissions</li>
+            <li>Server-side validation on all Cloud Functions</li>
+            <li>Financial data (transactions, wallets) is writable only by Cloud Functions</li>
+        </ul>
+
+        <h2 id="cookies">6. Cookies and Local Storage</h2>
+        <p>We use browser localStorage (not traditional cookies) to store:</p>
+        <ul>
+            <li>Shopping cart contents</li>
+            <li>Wishlist items</li>
+            <li>Recently viewed products</li>
+            <li>User preferences (theme, notification settings)</li>
+            <li>Search history</li>
+            <li>Loyalty tier information</li>
+        </ul>
+        <p>Firebase Authentication uses session cookies for maintaining your login state. These are essential for the Platform to function and cannot be disabled while using the Platform.</p>
+        <p>You can clear your localStorage data at any time through your browser settings. This will reset your cart, wishlist, and preferences.</p>
+
+        <h2 id="rights">7. Your Rights</h2>
+        <p>Under applicable Indian data protection laws, you have the right to:</p>
+        <ul>
+            <li><strong>Access:</strong> Request a copy of the personal data we hold about you</li>
+            <li><strong>Correction:</strong> Request correction of inaccurate or incomplete data</li>
+            <li><strong>Deletion:</strong> Request deletion of your account and associated data</li>
+            <li><strong>Data portability:</strong> Request your data in a structured, machine-readable format</li>
+            <li><strong>Withdraw consent:</strong> Opt out of marketing communications and push notifications</li>
+            <li><strong>Grievance redressal:</strong> File a complaint about data handling practices</li>
+        </ul>
+        <p>To exercise any of these rights, email us at <a href="mailto:info@69shop.in">info@69shop.in</a> or <a href="mailto:support@69shop.in">support@69shop.in</a>. We will respond within 30 days.</p>
+
+        <h2 id="retention">8. Data Retention</h2>
+        <ul>
+            <li><strong>Active accounts:</strong> Data is retained as long as your account is active</li>
+            <li><strong>Deleted accounts:</strong> Personal data is deleted within 90 days of account deletion request. Order records are retained for 7 years for tax and legal compliance</li>
+            <li><strong>Seller KYC documents:</strong> Retained for the duration of the seller relationship and 5 years after account closure</li>
+            <li><strong>Chat messages:</strong> Retained for 2 years after the last message</li>
+            <li><strong>Analytics data:</strong> Anonymized and retained indefinitely for business insights</li>
+        </ul>
+
+        <h2 id="children">9. Children's Privacy</h2>
+        <p>The Platform is not intended for children under 18 years of age. We do not knowingly collect personal information from children under 18. If you believe a child has provided us with personal data, please contact us at <a href="mailto:info@69shop.in">info@69shop.in</a> and we will delete such information.</p>
+
+        <h2 id="changes">10. Changes to This Policy</h2>
+        <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated date. For material changes, we will notify registered users via email. Continued use of the Platform after changes are posted constitutes acceptance of the revised policy.</p>
+
+        <h2 id="contact">11. Contact Us</h2>
+        <p>For privacy-related questions or concerns:</p>
+        <ul>
+            <li>Privacy Officer email: <a href="mailto:info@69shop.in">info@69shop.in</a></li>
+            <li>General support: <a href="mailto:support@69shop.in">support@69shop.in</a></li>
+            <li>Website: <a href="https://69shop.in">https://69shop.in</a></li>
+        </ul>
     </main>
 </body>
 </html>

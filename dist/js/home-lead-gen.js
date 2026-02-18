@@ -241,9 +241,11 @@
                 .home-lead-popup {
                     background: #fff;
                     border-radius: 24px;
-                    max-width: 480px;
+                    max-width: 440px;
                     width: 100%;
-                    overflow: hidden;
+                    max-height: 85vh;
+                    overflow-y: auto;
+                    overflow-x: hidden;
                     transform: scale(0.85) translateY(40px);
                     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
                     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
@@ -281,7 +283,7 @@
                 /* Visual Section */
                 .popup-visual {
                     position: relative;
-                    padding: 50px 20px;
+                    padding: 32px 20px;
                     text-align: center;
                     overflow: hidden;
                 }
@@ -295,15 +297,15 @@
                 }
                 
                 .visual-icon {
-                    width: 100px;
-                    height: 100px;
+                    width: 72px;
+                    height: 72px;
                     background: rgba(255, 255, 255, 0.2);
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     margin: 0 auto;
-                    font-size: 2.5rem;
+                    font-size: 2rem;
                     color: white;
                     animation: pulse-icon 2s ease-in-out infinite;
                 }
@@ -369,7 +371,7 @@
                 
                 /* Body */
                 .popup-body {
-                    padding: 32px;
+                    padding: 24px 28px;
                     text-align: center;
                 }
                 
@@ -596,18 +598,26 @@
                 
                 /* Mobile */
                 @media (max-width: 540px) {
+                    .home-lead-overlay {
+                        padding: 12px;
+                    }
+                    
                     .home-lead-popup {
                         max-width: 100%;
-                        margin: 10px;
+                        max-height: 90vh;
                         border-radius: 20px;
                     }
                     
+                    .popup-visual {
+                        padding: 24px 16px;
+                    }
+                    
                     .popup-body {
-                        padding: 24px;
+                        padding: 20px 16px;
                     }
                     
                     .popup-body h2 {
-                        font-size: 1.4rem;
+                        font-size: 1.3rem;
                     }
                     
                     .input-row {
@@ -617,6 +627,11 @@
                     .trust-badges {
                         flex-wrap: wrap;
                         gap: 12px;
+                    }
+                    
+                    .seller-benefits li {
+                        font-size: 0.85rem;
+                        padding: 5px 0;
                     }
                 }
             `;

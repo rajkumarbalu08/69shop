@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>My Messages - 69Shop.in</title>
     <meta name="description" content="Chat with sellers on 69Shop.in">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="assets/css/negotiate.css">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     
     <style>
@@ -469,14 +471,35 @@
         @media (min-width: 769px) {
             .back-to-list { display: none; }
         }
+        
+        /* Small Mobile - 480px breakpoint */
+        @media (max-width: 480px) {
+            .header { padding: 12px 16px; }
+            .page-title { font-size: 1rem; }
+            .chat-input-box textarea { 
+                font-size: 16px; /* Prevent iOS zoom */
+                padding: 10px 14px;
+            }
+            .conversation-item { padding: 12px; }
+            .chat-messages { padding: 12px; }
+            .chat-input-area { padding: 12px 16px; }
+            .message { max-width: 85%; }
+            .message-text { padding: 10px 14px; font-size: 0.85rem; }
+            .user-avatar { width: 36px; height: 36px; }
+            .chat-send-btn { width: 44px; height: 44px; }
+        }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
+    <link rel="stylesheet" href="assets/css/mobile-enhancements.css">
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="header-left">
-                <a href="shop.html" class="back-link">
+                <a href="/shop.html" class="back-link">
                     <i class="fas fa-arrow-left"></i>
                     Back to Shop
                 </a>
@@ -497,6 +520,12 @@
                 <div class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" id="searchConversations" placeholder="Search conversations...">
+                </div>
+                <div class="negotiate-tab-filter" id="conversationTabs">
+                    <button class="negotiate-tab active" data-filter="all" onclick="filterConversations('all', this)">All</button>
+                    <button class="negotiate-tab" data-filter="negotiations" onclick="filterConversations('negotiations', this)">
+                        Negotiations <span class="tab-count" id="negotiationCount">0</span>
+                    </button>
                 </div>
             </div>
             <div class="conversations-list" id="conversationsList">
@@ -553,7 +582,7 @@
         <i class="fas fa-comments"></i>
         <h2>Sign in to view messages</h2>
         <p>Login to chat with sellers and track your conversations</p>
-        <a href="shop-login.html" class="login-btn">Sign In</a>
+        <a href="/shop-login.html" class="login-btn">Sign In</a>
     </div>
     
     <!-- Loading State -->
@@ -575,6 +604,8 @@
         let activeConversationId = null;
         let messagesUnsubscribe = null;
         let conversationsUnsubscribe = null;
+        let negotiationUnsubscribe = null;
+        let cachedNegotiationData = {};
         
         // Initialize Firebase
         try {
@@ -742,15 +773,34 @@
                 });
         }
         
+        let activeTabFilter = 'all';
+
+        function filterConversations(filter, btn) {
+            activeTabFilter = filter;
+            document.querySelectorAll('.negotiate-tab').forEach(t => t.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderConversations();
+        }
+
         function renderConversations() {
             const container = document.getElementById('conversationsList');
             const searchTerm = document.getElementById('searchConversations')?.value.toLowerCase() || '';
-            
-            const filtered = conversations.filter(c => 
+
+            let filtered = conversations.filter(c =>
                 c.sellerName?.toLowerCase().includes(searchTerm) ||
                 c.productName?.toLowerCase().includes(searchTerm) ||
                 c.lastMessage?.toLowerCase().includes(searchTerm)
             );
+
+            // Update negotiation count badge
+            const negCount = conversations.filter(c => c.type === 'negotiation').length;
+            const countEl = document.getElementById('negotiationCount');
+            if (countEl) countEl.textContent = negCount;
+
+            // Apply tab filter
+            if (activeTabFilter === 'negotiations') {
+                filtered = filtered.filter(c => c.type === 'negotiation');
+            }
             
             if (filtered.length === 0) {
                 container.innerHTML = `
@@ -830,6 +880,15 @@
                 document.getElementById('conversationsPanel').classList.add('hidden');
             }
             
+            // Load negotiation data if this conversation has one
+            if (conv.negotiationId && db) {
+                if (negotiationUnsubscribe) negotiationUnsubscribe();
+                negotiationUnsubscribe = db.collection('negotiations').doc(conv.negotiationId)
+                    .onSnapshot(doc => {
+                        if (doc.exists) cachedNegotiationData[conv.negotiationId] = { id: doc.id, ...doc.data() };
+                    });
+            }
+
             // Start listening to messages
             startMessagesListener(conversationId);
         }
@@ -871,29 +930,74 @@
             
             let lastDate = null;
             let html = '';
-            
-            messages.forEach(msg => {
+
+            // Find the LAST pending seller proposal so we only show action buttons on it
+            let lastSellerProposalIndex = -1;
+            messages.forEach((msg, i) => {
+                if (msg.messageType === 'price_proposal' && msg.negotiationData?.proposedBy === 'seller' && msg.negotiationData?.status === 'pending') {
+                    lastSellerProposalIndex = i;
+                }
+            });
+
+            messages.forEach((msg, msgIndex) => {
                 const msgDate = msg.createdAt?.toDate?.() || new Date();
                 const dateStr = msgDate.toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' });
-                
+
                 if (dateStr !== lastDate) {
                     html += `<div class="message-date-divider"><span>${dateStr}</span></div>`;
                     lastDate = dateStr;
                 }
-                
+
                 const isSent = msg.senderId === currentUser.uid;
                 const timeStr = msgDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
                 const initial = isSent ? 'You'.charAt(0) : (msg.senderName || 'S').charAt(0).toUpperCase();
-                
-                html += `
-                    <div class="message ${isSent ? 'sent' : 'received'}">
-                        <div class="message-avatar">${initial}</div>
-                        <div class="message-content">
-                            <div class="message-text">${escapeHtml(msg.text)}</div>
-                            <div class="message-time">${timeStr}</div>
+
+                // Handle structured negotiation messages
+                if (msg.messageType && msg.messageType !== 'text' && msg.negotiationData) {
+                    const nd = msg.negotiationData;
+                    let cardHtml = '';
+
+                    if (msg.messageType === 'price_proposal' && typeof NegotiationManager !== 'undefined') {
+                        cardHtml = NegotiationManager.renderProposalCard(nd, currentUser.uid);
+                        // Show action buttons ONLY on the LAST pending seller proposal, with full negotiation data
+                        if (nd.proposedBy === 'seller' && nd.status === 'pending' && msgIndex === lastSellerProposalIndex) {
+                            const conv = conversations.find(c => c.id === activeConversationId);
+                            const negData = conv?.negotiationId ? cachedNegotiationData[conv.negotiationId] : null;
+                            if (negData) {
+                                cardHtml += NegotiationManager.renderProposalActions(conv.negotiationId, negData, currentUser.uid);
+                            }
+                        }
+                    } else if (msg.messageType === 'deal_accepted' && typeof NegotiationManager !== 'undefined') {
+                        cardHtml = NegotiationManager.renderDealAcceptedCard(nd, currentUser.uid);
+                    } else if (msg.messageType === 'deal_rejected' && typeof NegotiationManager !== 'undefined') {
+                        cardHtml = NegotiationManager.renderDealRejectedCard(nd);
+                    } else if (msg.messageType === 'deal_expired' && typeof NegotiationManager !== 'undefined') {
+                        cardHtml = NegotiationManager.renderDealExpiredCard(nd);
+                    } else {
+                        // Fallback for structured messages without NegotiationManager
+                        cardHtml = `<div class="message-text">${escapeHtml(msg.text || 'Price proposal')}</div>`;
+                    }
+
+                    html += `
+                        <div class="message ${isSent ? 'sent' : 'received'}" style="max-width: 90%;">
+                            <div class="message-avatar">${initial}</div>
+                            <div class="message-content">
+                                ${cardHtml}
+                                <div class="message-time">${timeStr}</div>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    html += `
+                        <div class="message ${isSent ? 'sent' : 'received'}">
+                            <div class="message-avatar">${initial}</div>
+                            <div class="message-content">
+                                <div class="message-text">${escapeHtml(msg.text)}</div>
+                                <div class="message-time">${timeStr}</div>
+                            </div>
+                        </div>
+                    `;
+                }
             });
             
             container.innerHTML = html;
@@ -983,7 +1087,37 @@
         window.addEventListener('beforeunload', () => {
             if (messagesUnsubscribe) messagesUnsubscribe();
             if (conversationsUnsubscribe) conversationsUnsubscribe();
+            if (negotiationUnsubscribe) negotiationUnsubscribe();
         });
     </script>
+    <script src="js/negotiate.js"></script>
+    <script src="js/xss-sanitizer.js"></script>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+        <div class="mobile-nav-items">
+            <a href="/shop.html" class="mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/search.html" class="mobile-nav-item" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="/messages.html" class="mobile-nav-item active" aria-label="Messages">
+                <i class="fas fa-comment-dots"></i>
+                <span>Chat</span>
+            </a>
+            <a href="/services.html" class="mobile-nav-item" aria-label="Services">
+                <i class="fas fa-concierge-bell"></i>
+                <span>Services</span>
+            </a>
+            <a href="/profile.html" class="mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
 </body>
 </html>
+

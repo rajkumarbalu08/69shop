@@ -25,7 +25,7 @@ exports.updateOrderStatus = functions.https.onRequest(async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const validStatuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
+    const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
@@ -51,9 +51,11 @@ exports.updateOrderStatus = functions.https.onRequest(async (req, res) => {
     const statusHierarchy = {
       pending: 0,
       confirmed: 1,
-      shipped: 2,
-      delivered: 3,
-      cancelled: 4
+      processing: 2,
+      shipped: 3,
+      out_for_delivery: 4,
+      delivered: 5,
+      cancelled: 6
     };
 
     // Prevent backwards status transitions (except cancellations)
@@ -64,9 +66,10 @@ exports.updateOrderStatus = functions.https.onRequest(async (req, res) => {
     const updateData = {
       status,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      [`statusTimestamps.${status}`]: new Date().toISOString(),
       statusHistory: admin.firestore.FieldValue.arrayUnion({
         status,
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        timestamp: new Date().toISOString(),
         note: note || ''
       })
     };
@@ -84,7 +87,7 @@ exports.updateOrderStatus = functions.https.onRequest(async (req, res) => {
     // Create notification record
     await db.collection('orderNotifications').add({
       orderId,
-      customerId: orderData.customerId,
+      customerId: orderData.userId || orderData.customerId,
       status,
       notificationType: 'email',
       sentAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -117,11 +120,19 @@ exports.onOrderStatusUpdate = functions.firestore
     const messageTemplates = {
       confirmed: {
         title: 'Order Confirmed! 🎉',
-        body: `Your order #${orderId} has been confirmed. Expected delivery: ${new Date(after.estimatedDelivery?.toDate()).toLocaleDateString('en-IN')}`
+        body: `Your order #${orderId} has been confirmed.${after.estimatedDelivery ? ' Expected delivery: ' + new Date(after.estimatedDelivery?.toDate?.() || after.estimatedDelivery).toLocaleDateString('en-IN') : ''}`
+      },
+      processing: {
+        title: 'Order Being Processed 🔄',
+        body: `Your order #${orderId} is being prepared and will be shipped soon.`
       },
       shipped: {
         title: 'Order Shipped! 📦',
         body: `Your order #${orderId} is on its way. Tracking number: ${after.trackingNumber || 'N/A'}`
+      },
+      out_for_delivery: {
+        title: 'Out for Delivery! 🏍️',
+        body: `Your order #${orderId} is out for delivery and will arrive today.`
       },
       delivered: {
         title: 'Order Delivered! ✅',
@@ -140,7 +151,7 @@ exports.onOrderStatusUpdate = functions.firestore
       // Log notification event
       await db.collection('orderNotifications').add({
         orderId,
-        customerId: after.customerId,
+        customerId: after.userId || after.customerId,
         status: after.status,
         notificationType: 'email',
         sentAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -170,10 +181,10 @@ exports.onNewOrderPlaced = functions.firestore
         type: 'new_order',
         audience: `seller:${order.sellerId}`,
         sellerId: order.sellerId,
-        customerId: order.customerId,
+        customerId: order.userId || order.customerId,
         orderId: orderId,
         title: 'New Order Received!',
-        message: `Customer placed order for ₹${order.totalAmount}`,
+        message: `Customer placed order for ₹${order.total || order.totalAmount}`,
         read: false,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         link: `/seller-orders?order=${orderId}`

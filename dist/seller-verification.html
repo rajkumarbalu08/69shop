@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Seller Verification - 69Shop.in</title>
     <meta name="description" content="Complete your seller verification to start selling on 69Shop.in">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -10,10 +11,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="/js/seller-shell.js"></script>
     
@@ -25,10 +26,10 @@
             --medium-grey: #666666;
             --light-grey: #F8F8F8;
             --white: #FFFFFF;
-            --seller-primary: #7C3AED;
-            --seller-light: #EDE9FE;
-            --seller-dark: #5B21B6;
-            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --seller-primary: #2563EB;
+            --seller-light: #EFF6FF;
+            --seller-dark: #1D4ED8;
+            --seller-gradient: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
             --green: #22C55E;
             --green-light: #DCFCE7;
             --yellow: #F59E0B;
@@ -53,7 +54,7 @@
         }
         
         .header {
-            background: var(--seller-gradient);
+            background: #1A1A1A;
             padding: 16px 24px;
             color: white;
             display: flex;
@@ -289,7 +290,7 @@
         .form-group textarea:focus {
             outline: none;
             border-color: var(--seller-primary);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         
         .form-group textarea {
@@ -620,6 +621,9 @@
             }
         }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <!-- Header -->
@@ -641,6 +645,10 @@
             <div class="profile-status pending" data-seller-status>
                 <i class="fas fa-clock"></i>
                 <span>Verification Pending</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-left:8px;">
+                <span data-seller-name style="font-size:0.9rem;font-weight:600;color:#fff;"></span>
+                <div data-seller-avatar style="width:36px;height:36px;border-radius:50%;background:#374151;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:0.85rem;overflow:hidden;"></div>
             </div>
         </div>
     </div>
@@ -1030,7 +1038,8 @@
                     return;
                 }
                 currentUser = user;
-                document.getElementById('userEmail').textContent = user.email;
+                const userEmailEl = document.getElementById('userEmail');
+                if (userEmailEl) userEmailEl.textContent = user.email;
                 
                 // Fetch seller and verification data for proper status display
                 let sellerData = {}, verificationData = {};
@@ -1339,3 +1348,4 @@
     </script>
 </body>
 </html>
+

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
+    <title>Offline - 69Shop.in</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+        
+        .offline-container {
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        p {
+            color: #999;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .retry-btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #0066ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+        
+        .retry-btn:hover {
+            background: #0052cc;
+            transform: translateY(-2px);
+        }
+        
+        .cached-pages {
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 1px solid #333;
+        }
+        
+        .cached-pages h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .cached-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .cached-links a {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            color: #ccc;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .cached-links a:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255,100,100,0.2);
+            border-radius: 20px;
+            font-size: 13px;
+            color: #ff6b6b;
+            margin-bottom: 24px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
+    <link rel="stylesheet" href="assets/css/mobile-enhancements.css">
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📡</div>
+        
+        <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>No Internet Connection</span>
+        </div>
+        
+        <h1>You're Offline</h1>
+        <p>It looks like you've lost your internet connection. Check your network settings and try again.</p>
+        
+        <button class="retry-btn" onclick="window.location.reload()">
+            Try Again
+        </button>
+        
+        <div class="cached-pages">
+            <h3>Available Offline</h3>
+            <div class="cached-links">
+                <a href="/">Home</a>
+                <a href="/shop.html">Shop</a>
+                <a href="/profile.html">Profile</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Check when back online
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+        
+        // Update cached pages list dynamically
+        if ('caches' in window) {
+            caches.open('69shop-dynamic-v1').then(cache => {
+                cache.keys().then(keys => {
+                    const cachedLinks = document.querySelector('.cached-links');
+                    const uniquePages = new Set();
+                    
+                    keys.forEach(request => {
+                        const url = new URL(request.url);
+                        if (url.pathname.endsWith('.html')) {
+                            uniquePages.add(url.pathname);
+                        }
+                    });
+                    
+                    // Add dynamically cached pages
+                    uniquePages.forEach(page => {
+                        if (!cachedLinks.querySelector(`a[href="${page}"]`)) {
+                            const link = document.createElement('a');
+                            link.href = page;
+                            link.textContent = page.replace('.html', '').replace('/', '') || 'Home';
+                            cachedLinks.appendChild(link);
+                        }
+                    });
+                });
+            });
+        }
+    </script>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+        <div class="mobile-nav-items">
+            <a href="/shop.html" class="mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/search.html" class="mobile-nav-item" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="/services.html" class="mobile-nav-item" aria-label="Services">
+                <i class="fas fa-concierge-bell"></i>
+                <span>Services</span>
+            </a>
+            <a href="/messages.html" class="mobile-nav-item" aria-label="Messages">
+                <i class="fas fa-comment-dots"></i>
+                <span>Chat</span>
+            </a>
+            <a href="/profile.html" class="mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
+</body>
+</html>

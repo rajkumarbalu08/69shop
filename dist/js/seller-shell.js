@@ -4,6 +4,7 @@
     }
 
     const ORDER_BADGE_SELECTOR = '[data-orders-badge]';
+    const MESSAGES_BADGE_SELECTOR = '[data-messages-badge]';
     const NAME_SELECTOR = '[data-seller-name]';
     const AVATAR_SELECTOR = '[data-seller-avatar]';
     const STATUS_SELECTOR = '[data-seller-status]';
@@ -139,6 +140,36 @@
         });
     }
 
+    function updateMessagesBadge(count) {
+        document.querySelectorAll(MESSAGES_BADGE_SELECTOR).forEach((badge) => {
+            if (count > 0) {
+                const displayValue = count > ORDER_BADGE_MAX ? `${ORDER_BADGE_MAX}+` : count;
+                badge.textContent = displayValue;
+                badge.style.display = 'inline-flex';
+            } else {
+                badge.textContent = '';
+                badge.style.display = 'none';
+            }
+        });
+    }
+
+    async function countUnreadMessages(db, sellerId) {
+        try {
+            const snapshot = await db.collection('conversations')
+                .where('sellerId', '==', sellerId)
+                .get();
+            let unread = 0;
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                unread += (data.unreadSeller || 0);
+            });
+            return unread;
+        } catch (error) {
+            console.warn('SellerShell: unable to load unread messages', error);
+            return 0;
+        }
+    }
+
     function deriveStatusPayload(sellerData = {}, verificationData = {}) {
         const sellerStatus = normalizeStatus(sellerData.status || sellerData.verificationStatus);
         const verificationStatus = normalizeStatus(verificationData.status || verificationData.verificationStatus);
@@ -227,11 +258,15 @@
         let badgeCount = typeof pendingOrders === 'number' ? pendingOrders : await countPendingOrders(db, uid);
         updateOrdersBadge(badgeCount);
 
+        let unreadMessages = await countUnreadMessages(db, uid);
+        updateMessagesBadge(unreadMessages);
+
         state.sellerId = uid;
         state.sellerName = displayName;
         state.avatarInitial = avatarInitial;
         state.status = statusPayload;
         state.pendingOrders = badgeCount;
+        state.unreadMessages = unreadMessages;
         state.updatedAt = Date.now();
 
         return { ...state };
@@ -240,6 +275,7 @@
     global.SellerShell = {
         sync,
         updateOrdersBadge,
+        updateMessagesBadge,
         renderStatus,
         disableVerificationLink: toggleVerificationLink
     };

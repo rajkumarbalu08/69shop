@@ -586,10 +586,6 @@
                             <i class="fas fa-shopping-bag"></i>
                             <span class="cart-preview-badge" id="floatingCartCount">0</span>
                         </div>
-                        <div class="cart-preview-info">
-                            <span class="cart-preview-count" id="floatingCartItems">0 items</span>
-                            <span class="cart-preview-total" id="floatingCartTotal">₹0</span>
-                        </div>
                         <button class="cart-preview-btn" onclick="eliteShop.openCart()">
                             View Bag
                         </button>
@@ -1058,6 +1054,22 @@
     // Export to global
     global.eliteShop = eliteShop;
     global.pageEnhancements = pageEnhancements;
+    
+    // Expose cart functions globally for easier access
+    global.openCart = () => eliteShop.openCart();
+    global.closeCart = () => {
+        const cartSidebar = document.getElementById('cartSidebar');
+        const cartOverlay = document.getElementById('cartOverlay');
+        if (cartSidebar) cartSidebar.classList.remove('active');
+        if (cartOverlay) cartOverlay.classList.remove('active');
+    };
+    global.addToCart = (productId) => eliteShop.addToCart(productId);
+    global.updateCartCount = () => {
+        const cartCount = document.querySelector('.cart-count');
+        if (cartCount && eliteShop.state) {
+            cartCount.textContent = eliteShop.state.cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+    };
 
     // Auto-initialize when DOM is ready
     if (document.readyState === 'loading') {

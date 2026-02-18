@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Seller Hub Login - 69Shop.in</title>
     <meta name="description" content="Login to your 69Shop.in Seller Hub to manage products, orders, and services">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -10,9 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     
     <style>
@@ -23,9 +24,9 @@
             --medium-grey: #666666;
             --light-grey: #F8F8F8;
             --white: #FFFFFF;
-            --seller-primary: #7C3AED;
-            --seller-light: #EDE9FE;
-            --seller-dark: #5B21B6;
+            --seller-primary: #2563EB;
+            --seller-light: #EFF6FF;
+            --seller-dark: #1D4ED8;
             --green: #22C55E;
             --green-light: #DCFCE7;
             --red: #EF4444;
@@ -41,12 +42,13 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--seller-primary) 0%, var(--seller-dark) 100%);
+            background: linear-gradient(135deg, var(--seller-primary) 0%, var(--seller-dark) 100%) !important;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            color: #1A1A1A !important;
         }
         
         .login-container {
@@ -77,6 +79,8 @@
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 2px;
+            color: var(--white) !important;
+            -webkit-text-fill-color: white !important;
         }
         
         .seller-badge-text span {
@@ -85,6 +89,7 @@
             gap: 6px;
             font-size: 0.85rem;
             opacity: 0.9;
+            color: rgba(255,255,255,0.9) !important;
         }
         
         .seller-badge-text span i {
@@ -99,22 +104,22 @@
         }
         
         .login-header {
-            background: var(--light-grey);
+            background: #1A1A1A;
             padding: 24px;
             text-align: center;
-            border-bottom: 1px solid #E5E5E5;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .login-header h2 {
             font-family: 'Poppins', sans-serif;
             font-size: 1.25rem;
-            color: var(--primary-black);
+            color: #FFFFFF !important;
             margin-bottom: 6px;
         }
         
         .login-header p {
             font-size: 0.9rem;
-            color: var(--medium-grey);
+            color: rgba(255, 255, 255, 0.7) !important;
         }
         
         .login-tabs {
@@ -181,16 +186,18 @@
         .input-with-icon input {
             width: 100%;
             padding: 12px 14px 12px 42px;
-            border: 1px solid #E5E5E5;
-            border-radius: var(--radius-sm);
+            border: 1px solid #E5E5E5 !important;
+            border-radius: var(--radius-sm) !important;
             font-size: 0.95rem;
             transition: all 0.2s;
+            background: #FFFFFF !important;
+            color: #1A1A1A !important;
         }
         
         .input-with-icon input:focus {
             outline: none;
-            border-color: var(--seller-primary);
-            box-shadow: 0 0 0 3px var(--seller-light);
+            border-color: var(--seller-primary) !important;
+            box-shadow: 0 0 0 3px var(--seller-light) !important;
         }
         
         .seller-type-select {
@@ -332,7 +339,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.8) !important;
             text-decoration: none;
             font-size: 0.9rem;
             margin-top: 20px;
@@ -340,7 +347,7 @@
         }
         
         .back-to-shop:hover {
-            color: var(--white);
+            color: var(--white) !important;
         }
         
         .form-panel {
@@ -372,17 +379,210 @@
         .checkbox-group label a {
             color: var(--seller-primary);
         }
+        
+        /* ===== MOBILE RESPONSIVE STYLES ===== */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+            
+            .login-container {
+                margin: 0;
+            }
+            
+            .seller-badge {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+            
+            .seller-badge-text h1 {
+                font-size: 1.25rem;
+            }
+            
+            .login-header {
+                padding: 20px 16px;
+            }
+            
+            .login-header h2 {
+                font-size: 1.1rem;
+            }
+            
+            .login-body {
+                padding: 20px 16px;
+            }
+            
+            .form-input {
+                font-size: 16px; /* Prevents iOS zoom */
+                padding: 14px 16px;
+            }
+            
+            .btn {
+                padding: 14px;
+                min-height: 48px; /* Touch-friendly */
+            }
+            
+            .login-tabs {
+                flex-direction: column;
+            }
+            
+            .login-tab {
+                border-bottom: 1px solid #E5E5E5;
+            }
+            
+            .login-tab:last-child {
+                border-bottom: none;
+            }
+            
+            .login-tab.active::after {
+                display: none;
+            }
+            
+            .login-tab.active {
+                background: var(--seller-light);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            
+            .seller-badge-text h1 {
+                font-size: 1.1rem;
+            }
+            
+            .seller-badge img {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .login-header h2 {
+                font-size: 1rem;
+            }
+            
+            .login-header p {
+                font-size: 0.8rem;
+            }
+            
+            .checkbox-group label {
+                font-size: 0.8rem;
+            }
+            
+            .login-footer {
+                padding: 16px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
+    <style>
+    /* ── Premium Seller Login Overrides ── */
+    body {
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 40%, #1E1B4B 80%, #0F172A 100%) !important;
+        color: #F8FAFC !important;
+    }
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(circle at 20% 30%, rgba(37,99,235,0.12) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(124,58,237,0.08) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 0;
+    }
+    .login-container { position: relative; z-index: 1; }
+
+    .seller-badge-text h1 {
+        font-size: 1.65rem !important;
+        letter-spacing: -0.02em;
+    }
+
+    .login-card {
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    .login-header {
+        background: linear-gradient(135deg, #111827 0%, #1E293B 100%);
+        padding: 28px 24px;
+    }
+
+    .login-header h2 {
+        font-size: 1.3rem;
+    }
+
+    /* Trust Badges */
+    .trust-strip {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+    .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.55) !important;
+        font-weight: 500;
+    }
+    .trust-item i {
+        color: #22C55E !important;
+        font-size: 0.8rem;
+    }
+
+    /* Benefits strip below card */
+    .seller-benefits {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 24px;
+        text-align: center;
+    }
+    .benefit-item {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 16px 12px;
+    }
+    .benefit-item i {
+        font-size: 1.3rem;
+        color: #60A5FA !important;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .benefit-item h4 {
+        font-size: 0.8rem;
+        color: #FFFFFF !important;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    .benefit-item p {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.45) !important;
+        line-height: 1.4;
+    }
+
+    @media (max-width: 480px) {
+        .seller-benefits { grid-template-columns: 1fr; gap: 10px; }
+        .trust-strip { gap: 14px; }
+    }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="seller-badge">
+        <a href="/" class="seller-badge" style="text-decoration: none;">
             <img src="/Logo/69shopc.png" alt="69Shop.in">
             <div class="seller-badge-text">
                 <h1>69SHOP.IN</h1>
                 <span><i class="fas fa-store"></i> Seller Hub</span>
             </div>
-        </div>
+        </a>
         
         <div class="login-card">
             <div class="login-header">
@@ -502,6 +702,8 @@
                 <a href="/shop.html"><i class="fas fa-arrow-left"></i> Back to Shop</a>
                 &nbsp;•&nbsp;
                 <a href="/shop-login.html">Buyer Login</a>
+                &nbsp;•&nbsp;
+                <a href="/index.html">Home</a>
             </div>
         </div>
         
@@ -509,6 +711,32 @@
             <i class="fas fa-arrow-left"></i>
             Back to Shop
         </a>
+
+        <!-- Trust Badges -->
+        <div class="trust-strip">
+            <div class="trust-item"><i class="fas fa-shield-halved"></i> SSL Secured</div>
+            <div class="trust-item"><i class="fas fa-check-circle"></i> Verified Platform</div>
+            <div class="trust-item"><i class="fas fa-lock"></i> Data Protected</div>
+        </div>
+
+        <!-- Seller Benefits -->
+        <div class="seller-benefits">
+            <div class="benefit-item">
+                <i class="fas fa-rocket"></i>
+                <h4>Quick Setup</h4>
+                <p>Start selling in under 5 minutes</p>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-chart-line"></i>
+                <h4>Real-time Analytics</h4>
+                <p>Track sales &amp; performance live</p>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-headset"></i>
+                <h4>24/7 Support</h4>
+                <p>Dedicated seller success team</p>
+            </div>
+        </div>
     </div>
     
     <script>
@@ -579,14 +807,13 @@
                 // Check if user is a seller
                 const sellerDoc = await db.collection('sellers').doc(userCredential.user.uid).get();
                 if (!sellerDoc.exists) {
-                    // Create seller profile if doesn't exist
-                    await db.collection('sellers').doc(userCredential.user.uid).set({
-                        email: email,
-                        businessName: email.split('@')[0],
-                        sellerType: 'product',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        status: 'active'
-                    });
+                    // No seller profile exists — redirect to register tab
+                    showError('No seller account found. Please create a seller account first.');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In to Seller Hub';
+                    // Switch to register tab
+                    document.querySelector('.login-tab[data-tab="register"]').click();
+                    return;
                 }
                 
                 window.location.href = '/seller-dashboard.html';
@@ -656,12 +883,13 @@
                 // Check/create seller profile
                 const sellerDoc = await db.collection('sellers').doc(result.user.uid).get();
                 if (!sellerDoc.exists) {
+                    // Auto-create seller profile via Google sign-in with pending status
                     await db.collection('sellers').doc(result.user.uid).set({
                         email: result.user.email,
                         businessName: result.user.displayName || result.user.email.split('@')[0],
                         sellerType: 'product',
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        status: 'active'
+                        status: 'pending'
                     });
                 }
                 
@@ -688,3 +916,4 @@
     </script>
 </body>
 </html>
+

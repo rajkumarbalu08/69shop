@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Order Management - Seller Hub | 69Shop.in</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,19 +12,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/dashboard-notifications.css">
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="/js/notifications.js"></script>
     <script src="/js/seller-shell.js"></script>
+    <script src="/js/seller-header.js"></script>
 
     <style>
         :root {
-            --seller-primary: #7C3AED;
-            --seller-primary-dark: #6D28D9;
-            --seller-primary-light: #EDE9FE;
-            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --seller-primary: #2563EB;
+            --seller-primary-dark: #1D4ED8;
+            --seller-primary-light: #EFF6FF;
+            --seller-gradient: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
             --slate-900: #0F172A;
             --slate-800: #1E293B;
             --slate-700: #334155;
@@ -100,7 +102,7 @@
             z-index: 900;
             transition: var(--transition);
         }
-        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-800); }
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-700); }
         .sidebar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
         .brand-logo {
             width: 42px;
@@ -167,19 +169,6 @@
         }
         .profile-info { flex: 1; min-width: 0; }
         .profile-name { color: var(--white); font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .profile-email { color: var(--slate-400); font-size: 0.75rem; }
-
-        .profile-status {
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-top: 6px;
-            color: var(--slate-400);
-        }
-
-        .profile-status.verified { color: var(--success); }
-        .profile-status.pending { color: var(--warning); }
 
         .nav-badge {
             margin-left: auto;
@@ -215,8 +204,8 @@
         .seller-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
         .seller-header {
             height: var(--header-height);
-            background: var(--white);
-            border-bottom: 1px solid var(--slate-200);
+            background: #1A1A1A;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -226,15 +215,15 @@
             z-index: 800;
         }
         .header-left { display: flex; align-items: center; gap: 20px; }
-        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: #FFFFFF; }
         .header-right { display: flex; align-items: center; gap: 16px; }
         .header-btn {
             width: 42px;
             height: 42px;
             border-radius: 50%;
             border: none;
-            background: var(--slate-100);
-            color: var(--slate-600);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -252,7 +241,7 @@
             border: 2px solid var(--white);
             border-radius: 50%;
         }
-        .header-btn:hover { background: var(--slate-200); }
+        .header-btn:hover { background: rgba(255, 255, 255, 0.2); }
 
         .seller-content { padding: 32px; }
 
@@ -393,7 +382,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 16px 24px;
-            background: linear-gradient(135deg, var(--seller-primary) 0%, #5B21B6 100%);
+            background: linear-gradient(135deg, var(--seller-primary) 0%, #1D4ED8 100%);
             border-radius: var(--radius-md);
             margin-bottom: 16px;
             color: var(--white);
@@ -434,7 +423,7 @@
 
         /* Return/Refund Styles */
         .status-badge.returned { background: #FFEDD5; color: #C2410C; }
-        .status-badge.refunded { background: #EDE9FE; color: #6D28D9; }
+        .status-badge.refunded { background: #EFF6FF; color: #1D4ED8; }
         .status-badge.return_requested { background: #FEF3C7; color: #B45309; }
 
         /* Real-time indicator */
@@ -524,7 +513,7 @@
         }
         .order-card-compact:hover {
             border-color: var(--seller-primary);
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
         }
         .order-card-left {
             display: flex;
@@ -549,9 +538,9 @@
 
         /* New Order Animation */
         @keyframes new-order-glow {
-            0% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(124, 58, 237, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
         }
         .orders-table tr.new-order {
             animation: new-order-glow 2s ease-out;
@@ -894,6 +883,9 @@
             .page-header-actions { width: 100%; justify-content: flex-start; }
         }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay">
@@ -939,6 +931,7 @@
                     <a href="/seller-messages.html" class="nav-link">
                         <i class="fas fa-comments"></i>
                         <span>Messages</span>
+                        <span class="nav-badge" data-messages-badge></span>
                     </a>
                 </div>
                 <div class="nav-section">
@@ -974,14 +967,9 @@
             </nav>
             <div class="sidebar-footer">
                 <div class="seller-profile">
-                    <div class="profile-avatar" id="sidebarAvatar" data-seller-avatar>S</div>
+                    <div class="profile-avatar" id="sellerAvatar" data-seller-avatar>S</div>
                     <div class="profile-info">
-                        <div class="profile-name" id="sidebarName" data-seller-name>Loading...</div>
-                        <div class="profile-email" id="sidebarEmail">seller@69shop.in</div>
-                        <div class="profile-status pending" data-seller-status>
-                            <i class="fas fa-clock"></i>
-                            <span>Verification Pending</span>
-                        </div>
+                        <div class="profile-name" id="sellerName" data-seller-name>Seller</div>
                     </div>
                 </div>
                 <button class="btn-logout" onclick="handleLogout(event)">
@@ -993,61 +981,7 @@
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
         <main class="seller-main">
-            <header class="seller-header">
-                <div class="header-left">
-                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div>
-                        <h1 class="page-title">Orders</h1>
-                        <p>Track, process, and fulfill customer purchases in real time</p>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <div class="notification-wrapper">
-                        <button class="header-btn" id="notificationTrigger" title="Notifications">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
-                        </button>
-                        <div class="notification-panel" id="notificationPanel">
-                            <div class="notification-panel-header">
-                                <div>
-                                    <h3>Notifications</h3>
-                                    <p id="notificationSubtitle">Latest updates</p>
-                                </div>
-                                <div class="header-actions">
-                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
-                                        Mark all read
-                                    </button>
-                                    <button id="notificationRefresh" title="Refresh notifications">
-                                        <i class="fas fa-rotate-right"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="notification-list" id="notificationList">
-                                <div class="notification-empty">
-                                    <i class="fas fa-bell-slash"></i>
-                                    <p>No notifications yet</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dropdown-wrapper">
-                        <div class="seller-user-menu" onclick="toggleUserDropdown()">
-                            <div class="seller-user-avatar" id="userAvatar" data-seller-avatar>S</div>
-                            <div class="seller-user-info">
-                                <strong id="userName" data-seller-name>Loading...</strong>
-                            </div>
-                        </div>
-                        <div class="user-dropdown" id="userDropdown">
-                            <a href="/seller-settings.html"><i class="fas fa-cog"></i> Settings</a>
-                            <a href="/shop.html" target="_blank"><i class="fas fa-external-link-alt"></i> View Shop</a>
-                            <hr>
-                            <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <header class="seller-header" data-page-title="Orders" data-page-subtitle="Track, process, and fulfill customer purchases in real time"></header>
 
             <div class="seller-content">
                 <div class="page-header">
@@ -1242,6 +1176,10 @@
                     <label for="customCarrier">Carrier Name</label>
                     <input type="text" id="customCarrier" placeholder="Enter carrier name">
                 </div>
+                <div class="tracking-input-group">
+                    <label for="estimatedDelivery">Estimated Delivery Date</label>
+                    <input type="date" id="estimatedDelivery" style="padding: 12px; border: 2px solid var(--slate-200); border-radius: var(--radius-md); width: 100%; font-size: 0.95rem;">
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeTrackingModal()">Cancel</button>
@@ -1310,7 +1248,7 @@
         let newOrderIds = new Set(); // Track newly received orders
         let selectedOrders = new Set(); // Bulk selection
         let pendingReturnOrderId = null;
-        const STATUS_FLOW = { pending: 'processing', processing: 'shipped', shipped: 'delivered' };
+        const STATUS_FLOW = { confirmed: 'processing', pending: 'processing', processing: 'shipped', shipped: 'out_for_delivery', out_for_delivery: 'delivered' };
 
         try {
             const firebaseConfig = window.firebaseConfig;
@@ -1637,32 +1575,47 @@
 
         async function confirmShipment() {
             if (!pendingShipmentOrderId) return;
-            
+
             const trackingNumber = document.getElementById('trackingNumber').value.trim();
             const customCarrier = document.getElementById('customCarrier').value.trim();
-            
+            const estimatedDelivery = document.getElementById('estimatedDelivery').value;
+
             if (!trackingNumber) {
                 showToast('Please enter a tracking number', 'error');
                 return;
             }
-            
+
             const carrier = selectedCarrier === 'other' ? customCarrier : selectedCarrier;
-            
+
             if (!carrier) {
                 showToast('Please select or enter a carrier name', 'error');
                 return;
             }
-            
+
+            const trackingUrl = getCarrierTrackingUrl(carrier, trackingNumber);
+
             try {
-                await db.collection('orders').doc(pendingShipmentOrderId).update({
+                const updateData = {
                     status: 'shipped',
                     'statusTimestamps.shipped': new Date().toISOString(),
                     'tracking.carrier': carrier,
                     'tracking.number': trackingNumber,
                     'tracking.addedAt': new Date().toISOString(),
+                    'tracking.url': trackingUrl,
+                    statusHistory: firebase.firestore.FieldValue.arrayUnion({
+                        status: 'shipped',
+                        timestamp: new Date().toISOString(),
+                        updatedBy: currentUser ? currentUser.uid : 'seller'
+                    }),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
+                };
+
+                if (estimatedDelivery) {
+                    updateData['tracking.estimatedDelivery'] = estimatedDelivery;
+                }
+
+                await db.collection('orders').doc(pendingShipmentOrderId).update(updateData);
+
                 showToast(`Order shipped with tracking: ${trackingNumber}`);
                 closeTrackingModal();
                 // Real-time listener will handle the UI update
@@ -1829,7 +1782,16 @@
         }
 
         function formatStatus(status) {
-            return status.charAt(0).toUpperCase() + status.slice(1);
+            const labels = {
+                'out_for_delivery': 'Out for Delivery',
+                'pending': 'Pending',
+                'confirmed': 'Confirmed',
+                'processing': 'Processing',
+                'shipped': 'Shipped',
+                'delivered': 'Delivered',
+                'cancelled': 'Cancelled'
+            };
+            return labels[status] || status.charAt(0).toUpperCase() + status.slice(1);
         }
 
         function formatCarrierName(carrier) {
@@ -1840,6 +1802,16 @@
                 'ecom': 'Ecom Express'
             };
             return carriers[carrier] || carrier || 'Unknown';
+        }
+
+        function getCarrierTrackingUrl(carrier, trackingNumber) {
+            const urls = {
+                'delhivery': `https://www.delhivery.com/track/package/${trackingNumber}`,
+                'bluedart': `https://www.bluedart.com/tracking/${trackingNumber}`,
+                'dtdc': `https://www.dtdc.in/tracking/shipment-tracking.asp?strCnno=${trackingNumber}`,
+                'ecom': `https://ecomexpress.in/tracking/?awb_field=${trackingNumber}`
+            };
+            return urls[carrier] || '';
         }
 
         function getNextStatus(status) {
@@ -1865,11 +1837,23 @@
             if (!db) return;
             try {
                 const timestampField = `statusTimestamps.${status}`;
-                await db.collection('orders').doc(orderId).update({
+                const now = new Date().toISOString();
+                const updateData = {
                     status,
-                    [timestampField]: new Date().toISOString(),
+                    [timestampField]: now,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                // Append to statusHistory array for order-tracking timeline
+                updateData.statusHistory = firebase.firestore.FieldValue.arrayUnion({
+                    status: status,
+                    timestamp: now,
+                    updatedBy: currentUser ? currentUser.uid : 'seller'
                 });
+                // Set deliveredAt when marking as delivered
+                if (status === 'delivered') {
+                    updateData.deliveredAt = firebase.firestore.FieldValue.serverTimestamp();
+                }
+                await db.collection('orders').doc(orderId).update(updateData);
                 showToast(`Order ${orderId.slice(-6)} marked as ${formatStatus(status)}`);
                 await loadOrders();
             } catch (error) {
@@ -1880,14 +1864,17 @@
 
         function buildOrderTimeline(status, timestamps = {}) {
             const steps = [
-                { key: 'pending', label: 'Pending', icon: 'fa-clock' },
+                { key: 'confirmed', label: 'Confirmed', icon: 'fa-check-circle' },
                 { key: 'processing', label: 'Processing', icon: 'fa-cog' },
                 { key: 'shipped', label: 'Shipped', icon: 'fa-truck' },
-                { key: 'delivered', label: 'Delivered', icon: 'fa-check-circle' }
+                { key: 'out_for_delivery', label: 'Out for Delivery', icon: 'fa-motorcycle' },
+                { key: 'delivered', label: 'Delivered', icon: 'fa-check-double' }
             ];
-            const statusOrder = ['pending', 'processing', 'shipped', 'delivered'];
-            const currentIndex = statusOrder.indexOf(status.toLowerCase());
-            const isCancelled = status.toLowerCase() === 'cancelled';
+            const statusOrder = ['confirmed', 'processing', 'shipped', 'out_for_delivery', 'delivered'];
+            // Map 'pending' to 'confirmed' for backward compatibility
+            const normalizedStatus = (status || 'confirmed').toLowerCase() === 'pending' ? 'confirmed' : (status || 'confirmed').toLowerCase();
+            const currentIndex = statusOrder.indexOf(normalizedStatus);
+            const isCancelled = normalizedStatus === 'cancelled';
 
             // Calculate progress width
             let progressWidth = 0;
@@ -2402,3 +2389,4 @@
     </script>
 </body>
 </html>
+

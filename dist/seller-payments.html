@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Payments - Seller Hub | 69Shop.in</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,20 +14,21 @@
     <link rel="stylesheet" href="/assets/css/seller-header.css">
     
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="/js/notifications.js"></script>
     <script src="/js/seller-shell.js"></script>
-    
+    <script src="/js/seller-header.js"></script>
+
     <style>
         :root {
-            /* Seller Theme - Professional Purple */
-            --seller-primary: #7C3AED;
-            --seller-primary-dark: #6D28D9;
-            --seller-primary-light: #EDE9FE;
-            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            /* Seller Theme - Professional Blue */
+            --seller-primary: #2563EB;
+            --seller-primary-dark: #1D4ED8;
+            --seller-primary-light: #EFF6FF;
+            --seller-gradient: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
             
             /* Neutral Palette */
             --slate-900: #0F172A;
@@ -118,7 +120,7 @@
             z-index: 900;
             transition: var(--transition);
         }
-        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-800); }
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-700); }
         .sidebar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
         .brand-logo {
             width: 42px;
@@ -183,7 +185,7 @@
             align-items: center;
             justify-content: center;
         }
-        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-800); }
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--slate-700); }
         .seller-profile { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--slate-800); border-radius: var(--radius-md); margin-bottom: 12px; }
         .profile-avatar {
             width: 40px;
@@ -198,17 +200,6 @@
         }
         .profile-info { flex: 1; min-width: 0; }
         .profile-name { color: var(--white); font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .profile-email { color: var(--slate-400); font-size: 0.75rem; }
-        .profile-status {
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-top: 6px;
-            color: var(--slate-400);
-        }
-        .profile-status.verified { color: var(--success); }
-        .profile-status.pending { color: var(--warning); }
         .btn-logout {
             width: 100%;
             display: flex;
@@ -231,8 +222,8 @@
         .seller-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
         .seller-header {
             height: var(--header-height);
-            background: var(--white);
-            border-bottom: 1px solid var(--slate-200);
+            background: #1A1A1A;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -242,15 +233,15 @@
             z-index: 800;
         }
         .header-left { display: flex; align-items: center; gap: 20px; }
-        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: #FFFFFF; }
         .header-right { display: flex; align-items: center; gap: 16px; }
         .header-btn {
             width: 42px;
             height: 42px;
             border-radius: 50%;
             border: none;
-            background: var(--slate-100);
-            color: var(--slate-600);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -268,7 +259,7 @@
             border: 2px solid var(--white);
             border-radius: 50%;
         }
-        .header-btn:hover { background: var(--slate-200); }
+        .header-btn:hover { background: rgba(255, 255, 255, 0.2); }
 
         .seller-content { padding: 32px; }
 
@@ -545,7 +536,7 @@
         .form-input:focus {
             outline: none;
             border-color: var(--seller-primary);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         .form-hint { font-size: 0.8rem; color: var(--slate-500); margin-top: 6px; }
 
@@ -576,6 +567,9 @@
             .stats-grid { grid-template-columns: 1fr; }
         }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <!-- Loading Overlay -->
@@ -623,6 +617,7 @@
                     <a href="/seller-messages.html" class="nav-link">
                         <i class="fas fa-comments"></i>
                         <span>Messages</span>
+                        <span class="nav-badge" data-messages-badge></span>
                     </a>
                 </div>
                 <div class="nav-section">
@@ -658,14 +653,9 @@
             </nav>
             <div class="sidebar-footer">
                 <div class="seller-profile">
-                    <div class="profile-avatar" id="sidebarAvatar" data-seller-avatar>S</div>
+                    <div class="profile-avatar" id="sellerAvatar" data-seller-avatar>S</div>
                     <div class="profile-info">
-                        <div class="profile-name" id="sidebarName" data-seller-name>Loading...</div>
-                        <div class="profile-email" id="sidebarEmail">seller@69shop.in</div>
-                        <div class="profile-status pending" data-seller-status>
-                            <i class="fas fa-clock"></i>
-                            <span>Verification Pending</span>
-                        </div>
+                        <div class="profile-name" id="sellerName" data-seller-name>Seller</div>
                     </div>
                 </div>
                 <button class="btn-logout" onclick="handleLogout(event)">
@@ -678,61 +668,7 @@
 
         <!-- Main Content -->
         <main class="seller-main">
-            <header class="seller-header">
-                <div class="header-left">
-                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div>
-                        <h1 class="page-title">Payments</h1>
-                        <p style="color: var(--slate-500); font-size: 0.9rem;">Manage your earnings, bank accounts, and withdrawals</p>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <div class="notification-wrapper">
-                        <button class="header-btn" id="notificationTrigger" title="Notifications">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
-                        </button>
-                        <div class="notification-panel" id="notificationPanel">
-                            <div class="notification-panel-header">
-                                <div>
-                                    <h3>Notifications</h3>
-                                    <p id="notificationSubtitle">Latest updates</p>
-                                </div>
-                                <div class="header-actions">
-                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
-                                        Mark all read
-                                    </button>
-                                    <button id="notificationRefresh" title="Refresh notifications">
-                                        <i class="fas fa-rotate-right"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="notification-list" id="notificationList">
-                                <div class="notification-empty">
-                                    <i class="fas fa-bell-slash"></i>
-                                    <p>No notifications yet</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dropdown-wrapper">
-                        <div class="seller-user-menu" onclick="toggleUserDropdown()">
-                            <div class="seller-user-avatar" id="userAvatar" data-seller-avatar>S</div>
-                            <div class="seller-user-info">
-                                <strong id="userName" data-seller-name>Loading...</strong>
-                            </div>
-                        </div>
-                        <div class="user-dropdown" id="userDropdown">
-                            <a href="/seller-settings.html"><i class="fas fa-cog"></i> Settings</a>
-                            <a href="/shop.html" target="_blank"><i class="fas fa-external-link-alt"></i> View Shop</a>
-                            <hr>
-                            <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <header class="seller-header" data-page-title="Payments"></header>
 
             <div class="seller-content">
                 <!-- Stats Grid -->
@@ -989,19 +925,6 @@
         }
 
         // User Dropdown
-        function toggleUserDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            if (dropdown) dropdown.classList.toggle('active');
-        }
-
-        // Close dropdown on outside click
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('userDropdown');
-            const menu = document.querySelector('.seller-user-menu');
-            if (dropdown && menu && !menu.contains(e.target)) {
-                dropdown.classList.remove('active');
-            }
-        });
 
         // Logout
         function handleLogout(e) {
@@ -1509,3 +1432,4 @@
     </script>
 </body>
 </html>
+

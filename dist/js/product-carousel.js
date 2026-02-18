@@ -315,21 +315,31 @@
                     max-width: 1400px;
                     margin: 0 auto;
                     padding: 0 24px;
+                    position: relative;
+                    z-index: 5;
                 }
 
                 .carousel-header {
                     display: flex;
-                    align-items: center;
+                    align-items: flex-start;
                     justify-content: space-between;
                     margin-bottom: 32px;
                     flex-wrap: wrap;
-                    gap: 16px;
+                    gap: 20px;
+                    position: relative;
+                    z-index: 10;
+                }
+
+                .carousel-title-wrapper {
+                    flex: 1;
+                    min-width: 0;
                 }
 
                 .carousel-title {
                     display: flex;
                     align-items: center;
                     gap: 16px;
+                    flex-wrap: wrap;
                 }
 
                 .carousel-title h2 {
@@ -355,6 +365,9 @@
                     display: flex;
                     align-items: center;
                     gap: 12px;
+                    flex-shrink: 0;
+                    position: relative;
+                    z-index: 10;
                 }
 
                 .carousel-nav-btn {
@@ -703,23 +716,32 @@
             const featuredAccordion = document.getElementById('featuredAccordion');
             const insertPoint = offersSection || featuredAccordion;
 
-            // Create "Trending Now" section - insert in the middle of the page
+            // Create "Trending Now" section - insert in the middle of the page (Premium Dark Style)
             const trendingProducts = this.getRandomProducts(products, 8);
             this.insertCarouselSection({
                 id: 'trendingCarousel',
                 title: 'Trending Now',
-                badge: 'HOT',
+                subtitle: 'Most popular products loved by our customers',
+                badge: '🔥 HOT',
+                icon: 'fa-fire-flame-curved',
                 products: trendingProducts,
-                insertAfter: insertPoint || productsGrid.parentElement
+                insertAfter: insertPoint || productsGrid.parentElement,
+                style: 'premium-style',
+                showCountdown: true,
+                countdownHours: 6
             });
 
-            // Create "You May Also Like" section (at bottom)
+            // Create "You May Also Like" section (at bottom - Premium Light Style)
             const recommendedProducts = this.getRandomProducts(products, 8);
             this.insertCarouselSection({
                 id: 'recommendedCarousel',
                 title: 'You May Also Like',
+                subtitle: 'Handpicked recommendations just for you',
+                badge: '✨ FOR YOU',
+                icon: 'fa-sparkles',
                 products: recommendedProducts,
-                insertAfter: productsGrid.parentElement
+                insertAfter: productsGrid.parentElement,
+                style: 'premium-light'
             });
         },
 
@@ -732,19 +754,90 @@
         },
 
         /**
-         * Insert carousel section
+         * Generate countdown HTML
+         */
+        generateCountdownHTML(hours) {
+            const endTime = Date.now() + (hours * 60 * 60 * 1000);
+            const countdownId = 'countdown_' + Date.now();
+            
+            // Start countdown timer
+            setTimeout(() => this.startCountdown(countdownId, endTime), 100);
+            
+            return `
+                <div class="carousel-countdown" id="${countdownId}">
+                    <span class="countdown-label"><i class="fas fa-clock"></i> Ends in:</span>
+                    <div class="countdown-timer">
+                        <div class="countdown-block">
+                            <span class="countdown-value hours">00</span>
+                            <span class="countdown-unit">Hrs</span>
+                        </div>
+                        <div class="countdown-block">
+                            <span class="countdown-value minutes">00</span>
+                            <span class="countdown-unit">Min</span>
+                        </div>
+                        <div class="countdown-block">
+                            <span class="countdown-value seconds">00</span>
+                            <span class="countdown-unit">Sec</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+
+        /**
+         * Start countdown timer
+         */
+        startCountdown(containerId, endTime) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const update = () => {
+                const now = Date.now();
+                const diff = Math.max(0, endTime - now);
+                
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                const hoursEl = container.querySelector('.hours');
+                const minutesEl = container.querySelector('.minutes');
+                const secondsEl = container.querySelector('.seconds');
+
+                if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+                if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+                if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+
+                if (diff > 0) {
+                    requestAnimationFrame(() => setTimeout(update, 1000));
+                }
+            };
+
+            update();
+        },
+
+        /**
+         * Insert carousel section with premium styling
          */
         insertCarouselSection(config) {
             const section = document.createElement('section');
-            section.className = 'carousel-section';
+            section.className = `carousel-section ${config.style || ''}`;
             section.id = config.id + 'Section';
+
+            const countdownHTML = config.showCountdown ? this.generateCountdownHTML(config.countdownHours || 6) : '';
 
             section.innerHTML = `
                 <div class="carousel-container">
                     <div class="carousel-header">
-                        <div class="carousel-title">
-                            <h2>${config.title}</h2>
-                            ${config.badge ? `<span class="badge">${config.badge}</span>` : ''}
+                        <div class="carousel-title-wrapper">
+                            <div class="carousel-title">
+                                ${config.icon ? `<div class="section-icon"><i class="fas ${config.icon}"></i></div>` : ''}
+                                <div>
+                                    <h2>${config.title}</h2>
+                                    ${config.subtitle ? `<p class="section-subtitle">${config.subtitle}</p>` : ''}
+                                </div>
+                                ${config.badge ? `<span class="badge">${config.badge}</span>` : ''}
+                            </div>
+                            ${countdownHTML}
                         </div>
                         <div class="carousel-nav">
                             <a href="/shop.html" class="view-all-link">
@@ -760,7 +853,7 @@
                     </div>
                     <div class="carousel-wrapper">
                         <div class="carousel-track" id="${config.id}">
-                            ${config.products.map(product => this.createCardHTML(product)).join('')}
+                            ${config.products.map(product => this.createCardHTML(product, config.style)).join('')}
                         </div>
                     </div>
                     <div class="carousel-indicators" id="${config.id}Indicators"></div>
@@ -779,15 +872,16 @@
         },
 
         /**
-         * Create card HTML
+         * Create card HTML with optional premium styling
          */
-        createCardHTML(product) {
+        createCardHTML(product, style = '') {
             const discount = product.originalPrice 
                 ? Math.round((1 - product.price / product.originalPrice) * 100)
                 : 0;
 
             const rating = product.rating || (4 + Math.random()).toFixed(1);
             const reviews = product.reviews || Math.floor(Math.random() * 500) + 50;
+            const isPremiumDark = style === 'premium-style';
 
             return `
                 <div class="carousel-card" data-product-id="${product.id}">
@@ -797,6 +891,19 @@
                         <button class="carousel-card-wishlist" data-product-id="${product.id}">
                             <i class="far fa-heart"></i>
                         </button>
+                        ${isPremiumDark ? `
+                        <div class="carousel-card-overlay">
+                            <button class="overlay-btn quick-view-btn" data-product-id="${product.id}" title="Quick View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="overlay-btn add-to-cart" data-product-id="${product.id}" title="Add to Cart">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <a href="/product.html?id=${product.id}" class="overlay-btn" title="View Details">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                        ` : ''}
                     </div>
                     <div class="carousel-card-content">
                         <div class="carousel-card-category">${product.category || 'General'}</div>
@@ -1083,6 +1190,31 @@
                         window.SoundFX.play('wishlist');
                     }
                 });
+            });
+
+            // Card click handler - navigate to product page
+            track.querySelectorAll('.carousel-card').forEach(card => {
+                // Make card image and title clickable
+                const image = card.querySelector('.carousel-card-image img');
+                const title = card.querySelector('.carousel-card-title');
+                const productId = card.dataset.productId;
+                
+                const navigateToProduct = (e) => {
+                    // Don't navigate if clicking on buttons
+                    if (e.target.closest('button') || e.target.closest('a')) {
+                        return;
+                    }
+                    window.location.href = `/product.html?id=${productId}`;
+                };
+                
+                if (image) {
+                    image.style.cursor = 'pointer';
+                    image.addEventListener('click', navigateToProduct);
+                }
+                if (title) {
+                    title.style.cursor = 'pointer';
+                    title.addEventListener('click', navigateToProduct);
+                }
             });
 
             // Initial update

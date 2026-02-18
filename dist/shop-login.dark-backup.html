@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>69Shop.in — Buyer Login</title>
+    <meta name="description" content="Login or create your buyer account on 69Shop.in — India's premium marketplace">
+    <meta name="theme-color" content="#FFFFFF">
+    <link rel="icon" href="favicon.ico">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+
+    <style>
+    /* ═══ LOGIN PAGE STYLES ═══ */
+
+    body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    .login-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 100;
+        padding: var(--space-4) 0;
+        background: rgba(10, 10, 15, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .header-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 var(--space-6);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        text-decoration: none;
+    }
+
+    .logo-icon {
+        width: 40px;
+        height: 48px;
+    }
+
+    .logo-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .logo-text .site-name {
+        font-family: var(--font-heading);
+        font-size: 1.2rem;
+        font-weight: 700;
+        background: var(--gradient-brand);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .logo-text .tagline {
+        font-size: 0.65rem;
+        color: var(--text-tertiary);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .header-back {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.88rem;
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        transition: color var(--t-fast);
+    }
+
+    .header-back:hover {
+        color: var(--accent-hover);
+    }
+
+    /* ── AUTH LAYOUT ── */
+    .auth-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: calc(80px + var(--space-8)) var(--space-6) var(--space-8);
+        position: relative;
+    }
+
+    /* Background orbs */
+    .auth-bg-orb {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(140px);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .auth-bg-orb-1 {
+        width: 500px;
+        height: 500px;
+        background: rgba(99, 102, 241, 0.12);
+        top: -150px;
+        right: -100px;
+        animation: float 10s ease-in-out infinite;
+    }
+
+    .auth-bg-orb-2 {
+        width: 400px;
+        height: 400px;
+        background: rgba(139, 92, 246, 0.08);
+        bottom: -100px;
+        left: -100px;
+        animation: float 12s ease-in-out infinite reverse;
+    }
+
+    .auth-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-width: 960px;
+        width: 100%;
+        border-radius: var(--radius-2xl);
+        overflow: hidden;
+        background: var(--glass-bg);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-xl);
+        position: relative;
+        z-index: 1;
+        animation: fadeInUp 0.6s var(--ease-out) both;
+    }
+
+    /* ── LEFT PANEL ── */
+    .auth-left {
+        background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+        padding: var(--space-12);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-right: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-left::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.5;
+    }
+
+    .auth-left-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .auth-left h2 {
+        font-family: var(--font-heading);
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: var(--space-4);
+    }
+
+    .auth-left h2 .text-gradient {
+        display: inline;
+    }
+
+    .auth-left > .auth-left-content > p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.7;
+        margin-bottom: var(--space-8);
+    }
+
+    .benefits-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+
+    .benefits-list li {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .benefits-list li i {
+        color: var(--accent-emerald);
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .auth-right {
+        padding: var(--space-10);
+    }
+
+    /* Tabs */
+    .auth-tabs {
+        display: flex;
+        gap: var(--space-2);
+        padding: var(--space-1);
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: var(--radius-full);
+        margin-bottom: var(--space-8);
+    }
+
+    .auth-tab {
+        flex: 1;
+        padding: var(--space-3) var(--space-4);
+        background: transparent;
+        border: none;
+        border-radius: var(--radius-full);
+        color: var(--text-tertiary);
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--t-fast);
+    }
+
+    .auth-tab.active {
+        background: var(--gradient-brand);
+        color: white;
+        box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .auth-tab:not(.active):hover {
+        color: var(--text-secondary);
+    }
+
+    /* Messages */
+    .error-message,
+    .success-message {
+        display: none;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-md);
+        font-size: 0.85rem;
+        margin-bottom: var(--space-5);
+        animation: fadeInUp 0.3s var(--ease-out) both;
+    }
+
+    .error-message.active,
+    .success-message.active {
+        display: flex;
+    }
+
+    .error-message {
+        background: rgba(244, 63, 94, 0.1);
+        border: 1px solid rgba(244, 63, 94, 0.3);
+        color: var(--accent-rose);
+    }
+
+    .success-message {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: var(--accent-emerald);
+    }
+
+    /* Forms */
+    .auth-form {
+        display: none;
+    }
+
+    .auth-form.active {
+        display: block;
+        animation: fadeIn 0.3s var(--ease-out) both;
+    }
+
+    .form-group {
+        margin-bottom: var(--space-5);
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: var(--space-2);
+        letter-spacing: 0.02em;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: var(--space-3) var(--space-4);
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        color: var(--text-primary);
+        font-family: var(--font-body);
+        font-size: 0.92rem;
+        outline: none;
+        transition: all var(--t-fast);
+        box-sizing: border-box;
+    }
+
+    .form-input:focus {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .form-input::placeholder {
+        color: var(--text-tertiary);
+    }
+
+    .password-input {
+        position: relative;
+    }
+
+    .password-input .form-input {
+        padding-right: 48px;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-tertiary);
+        cursor: pointer;
+        padding: var(--space-1);
+        transition: color var(--t-fast);
+    }
+
+    .toggle-password:hover {
+        color: var(--accent-hover);
+    }
+
+    .forgot-password {
+        color: var(--accent-hover) !important;
+        font-size: 0.82rem;
+        text-decoration: none !important;
+        transition: opacity var(--t-fast);
+    }
+
+    .forgot-password:hover {
+        opacity: 0.8;
+    }
+
+    /* Password Strength */
+    .password-strength {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-full);
+        margin-top: var(--space-2);
+        overflow: hidden;
+    }
+
+    .password-strength-bar {
+        height: 100%;
+        width: 0;
+        border-radius: var(--radius-full);
+        transition: all var(--t-normal);
+    }
+
+    .password-strength-bar.strength-weak { background: var(--accent-rose); }
+    .password-strength-bar.strength-fair { background: var(--accent-amber); }
+    .password-strength-bar.strength-good { background: var(--accent-cyan); }
+    .password-strength-bar.strength-strong { background: var(--accent-emerald); }
+
+    .password-strength-text {
+        font-size: 0.72rem;
+        color: var(--text-tertiary);
+        margin-top: var(--space-1);
+    }
+
+    /* Buttons */
+    .btn-auth {
+        width: 100%;
+        padding: var(--space-4);
+        background: var(--gradient-brand);
+        border: none;
+        border-radius: var(--radius-md);
+        color: white;
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        transition: all var(--t-normal);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-auth:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 30px var(--accent-glow);
+    }
+
+    .btn-auth:active {
+        transform: translateY(0);
+    }
+
+    .btn-auth:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        margin: var(--space-6) 0;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--glass-border);
+    }
+
+    .divider span {
+        font-size: 0.78rem;
+        color: var(--text-tertiary);
+        white-space: nowrap;
+    }
+
+    .btn-google {
+        width: 100%;
+        padding: var(--space-3) var(--space-4);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        color: var(--text-primary);
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-3);
+        transition: all var(--t-fast);
+    }
+
+    .btn-google:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--glass-border-strong);
+    }
+
+    /* Terms */
+    .terms-checkbox {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-3);
+        margin-bottom: var(--space-5);
+    }
+
+    .terms-checkbox input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--accent-primary);
+        margin-top: 2px;
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+
+    .terms-checkbox label {
+        font-size: 0.78rem;
+        color: var(--text-tertiary);
+        line-height: 1.5;
+        cursor: pointer;
+    }
+
+    .terms-checkbox label a {
+        color: var(--accent-hover);
+        text-decoration: none;
+    }
+
+    .terms-checkbox label a:hover {
+        text-decoration: underline;
+    }
+
+    /* Footer */
+    .form-footer {
+        text-align: center;
+        margin-top: var(--space-5);
+        font-size: 0.85rem;
+        color: var(--text-tertiary);
+    }
+
+    .form-footer a {
+        color: var(--accent-hover);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .form-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .seller-link-footer {
+        margin-top: var(--space-4);
+        padding-top: var(--space-4);
+        border-top: 1px solid var(--glass-border);
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 768px) {
+        .auth-wrapper {
+            grid-template-columns: 1fr;
+            max-width: 480px;
+        }
+
+        .auth-left {
+            display: none;
+        }
+
+        .auth-right {
+            padding: var(--space-8) var(--space-6);
+        }
+
+        .auth-container {
+            padding: calc(70px + var(--space-6)) var(--space-4) var(--space-6);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .auth-right {
+            padding: var(--space-6) var(--space-4);
+        }
+
+        .auth-tabs {
+            margin-bottom: var(--space-6);
+        }
+    }
+    </style>
+</head>
+<body class="grain">
+
+    <!-- Background Orbs -->
+    <div class="auth-bg-orb auth-bg-orb-1"></div>
+    <div class="auth-bg-orb auth-bg-orb-2"></div>
+
+    <!-- ═══ HEADER ═══ -->
+    <header class="login-header">
+        <div class="header-inner">
+            <a href="/" class="logo" onclick="handleLogoRoute(event)">
+                <div class="logo-icon">
+                    <img src="/Logo/69shopc.png" alt="69Shop.in Logo">
+                </div>
+                <div class="logo-text">
+                    <div class="site-name">69SHOP.IN</div>
+                    <div class="tagline">Premium Marketplace</div>
+                </div>
+            </a>
+            <a href="/" class="header-back"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        </div>
+    </header>
+
+    <!-- ═══ AUTH ═══ -->
+    <main class="auth-container">
+        <div class="auth-wrapper">
+            <!-- Left Panel -->
+            <div class="auth-left">
+                <div class="auth-left-content">
+                    <h2>Join India's<br><span class="text-gradient">Premium Marketplace</span></h2>
+                    <p>Connect with thousands of buyers and sellers across India. Start your journey with 69Shop.in today!</p>
+
+                    <ul class="benefits-list">
+                        <li><i class="fas fa-check-circle"></i> Secure & Verified Accounts</li>
+                        <li><i class="fas fa-check-circle"></i> Professional Seller Tools</li>
+                        <li><i class="fas fa-check-circle"></i> 24/7 Customer Support</li>
+                        <li><i class="fas fa-check-circle"></i> Seller Dashboard Access</li>
+                        <li><i class="fas fa-check-circle"></i> Exclusive Member Deals</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="auth-right">
+                <!-- Tabs -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Login</button>
+                    <button class="auth-tab" data-tab="signup">Sign Up</button>
+                </div>
+
+                <!-- Messages -->
+                <div class="error-message" id="errorMessage">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText"></span>
+                </div>
+                <div class="success-message" id="successMessage">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="successText"></span>
+                </div>
+
+                <!-- Login Form -->
+                <form class="auth-form active" id="loginForm" aria-label="Login form">
+                    <div class="form-group">
+                        <label class="form-label" for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" name="email" class="form-input" placeholder="Enter your email" required autocomplete="email" aria-required="true">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="loginPassword">Password</label>
+                        <div class="password-input">
+                            <input type="password" id="loginPassword" name="password" class="form-input" placeholder="Enter your password" required autocomplete="current-password" aria-required="true">
+                            <button type="button" class="toggle-password" data-target="loginPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="text-align: right;">
+                        <a href="#" class="forgot-password" onclick="resetPassword()">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn-auth" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login to Account</span>
+                    </button>
+
+                    <div class="divider"><span>or continue with</span></div>
+
+                    <button type="button" class="btn-google" id="googleLoginBtn">
+                        <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                        </svg>
+                        <span>Sign in with Google</span>
+                    </button>
+
+                    <div class="form-footer">
+                        New to 69Shop.in? <a href="#" class="switch-to-signup">Create an account</a>
+                    </div>
+                </form>
+
+                <!-- Signup Form -->
+                <form class="auth-form" id="signupForm" aria-label="Signup form">
+                    <div class="form-group">
+                        <label class="form-label" for="signupName">Full Name</label>
+                        <input type="text" id="signupName" name="name" class="form-input" placeholder="Enter your full name" required autocomplete="name" aria-required="true">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="signupEmail">Email Address</label>
+                        <input type="email" id="signupEmail" name="email" class="form-input" placeholder="Enter your email" required autocomplete="email" aria-required="true">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="signupPhone">Phone Number</label>
+                        <input type="tel" id="signupPhone" name="phone" class="form-input" placeholder="Enter your phone number" required autocomplete="tel" aria-required="true">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="signupPassword">Password</label>
+                        <div class="password-input">
+                            <input type="password" id="signupPassword" name="password" class="form-input" placeholder="Create a strong password (min. 6 chars)" required autocomplete="new-password" aria-required="true">
+                            <button type="button" class="toggle-password" data-target="signupPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                        </div>
+                        <div class="password-strength-text" id="passwordStrengthText">Password strength: None</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
+                        <div class="password-input">
+                            <input type="password" id="signupConfirmPassword" name="confirmPassword" class="form-input" placeholder="Confirm your password" required autocomplete="new-password" aria-required="true">
+                            <button type="button" class="toggle-password" data-target="signupConfirmPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">
+                            I agree to the <a href="/docs/terms.html" target="_blank" rel="noreferrer">Terms of Service</a> and <a href="/docs/privacy.html" target="_blank" rel="noreferrer">Privacy Policy</a>. I confirm that I am at least 18 years old.
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-auth" id="signupBtn">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Create Account</span>
+                    </button>
+
+                    <div class="form-footer">
+                        Already have an account? <a href="#" class="switch-to-login">Login here</a>
+                    </div>
+
+                    <div class="form-footer seller-link-footer">
+                        <span>Want to sell? <a href="/seller-login.html">Register as Seller</a></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══ JAVASCRIPT ═══ -->
+    <script>
+        // =============================================
+        // FIREBASE INITIALIZATION
+        // =============================================
+        let auth = null;
+        let db = null;
+        let firebaseReady = false;
+
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Missing Firebase configuration. Copy firebase-config.sample.js to firebase-config.js and supply your project credentials.');
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            db = firebase.firestore();
+            firebaseReady = true;
+            console.log("Firebase initialized successfully!");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+        }
+
+        // =============================================
+        // PASSWORD STRENGTH CHECKER
+        // =============================================
+        class PasswordStrengthChecker {
+            static checkStrength(password) {
+                let score = 0;
+                if (password.length >= 8) score++;
+                if (password.length >= 12) score++;
+                if (/[A-Z]/.test(password)) score++;
+                if (/[0-9]/.test(password)) score++;
+                if (/[^A-Za-z0-9]/.test(password)) score++;
+                return score;
+            }
+            static getStrengthText(score) {
+                if (score <= 2) return {text: 'Weak', class: 'strength-weak', width: '25%'};
+                if (score === 3) return {text: 'Fair', class: 'strength-fair', width: '50%'};
+                if (score === 4) return {text: 'Good', class: 'strength-good', width: '75%'};
+                return {text: 'Strong', class: 'strength-strong', width: '100%'};
+            }
+        }
+
+        // =============================================
+        // DOM ELEMENTS
+        // =============================================
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const authForms = document.querySelectorAll('.auth-form');
+        const togglePasswordBtns = document.querySelectorAll('.toggle-password');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const successMessage = document.getElementById('successMessage');
+        const successText = document.getElementById('successText');
+        const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+        const passwordStrengthText = document.getElementById('passwordStrengthText');
+        const signupBtn = document.getElementById('signupBtn');
+        const switchToSignup = document.querySelector('.switch-to-signup');
+        const switchToLogin = document.querySelector('.switch-to-login');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupPasswordInput = document.getElementById('signupPassword');
+
+        // =============================================
+        // UI HELPERS
+        // =============================================
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+                authTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                authForms.forEach(form => {
+                    form.classList.remove('active');
+                    if (form.id === `${tabId}Form`) form.classList.add('active');
+                });
+                clearMessages();
+            });
+        });
+
+        togglePasswordBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = document.getElementById(btn.dataset.target);
+                const icon = btn.querySelector('i');
+                if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); }
+                else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
+            });
+        });
+
+        signupPasswordInput.addEventListener('input', function() {
+            const score = PasswordStrengthChecker.checkStrength(this.value);
+            const strength = PasswordStrengthChecker.getStrengthText(score);
+            passwordStrengthBar.className = 'password-strength-bar ' + strength.class;
+            passwordStrengthBar.style.width = strength.width;
+            passwordStrengthText.textContent = `Password strength: ${strength.text}`;
+        });
+
+        switchToSignup.addEventListener('click', (e) => { e.preventDefault(); document.querySelector('[data-tab="signup"]').click(); });
+        switchToLogin.addEventListener('click', (e) => { e.preventDefault(); document.querySelector('[data-tab="login"]').click(); });
+
+        function showError(message) { errorText.textContent = message; errorMessage.classList.add('active'); successMessage.classList.remove('active'); }
+        function showSuccess(message) { successText.textContent = message; successMessage.classList.add('active'); errorMessage.classList.remove('active'); }
+        function clearMessages() { errorMessage.classList.remove('active'); successMessage.classList.remove('active'); }
+
+        function showLoading(button) {
+            const span = button.querySelector('span');
+            const icon = button.querySelector('i');
+            if (span) span.textContent = 'Processing...';
+            button.disabled = true;
+            if (icon) icon.style.display = 'none';
+            const spinner = document.createElement('span');
+            spinner.className = 'loading-spinner';
+            button.appendChild(spinner);
+        }
+
+        function hideLoading(button, originalText, iconClass) {
+            const span = button.querySelector('span');
+            const spinner = button.querySelector('.loading-spinner');
+            const icon = button.querySelector('i');
+            if (span) span.textContent = originalText;
+            button.disabled = false;
+            if (spinner) spinner.remove();
+            if (icon) { icon.style.display = 'inline-block'; icon.className = iconClass; }
+        }
+
+        function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+        function isValidPhone(phone) { return /^[\d\s\+\-\(\)]{10,}$/.test(phone); }
+
+        function getFirebaseErrorMessage(errorCode) {
+            const messages = {
+                'auth/email-already-in-use': 'This email is already registered',
+                'auth/invalid-email': 'Invalid email address',
+                'auth/operation-not-allowed': 'Operation not allowed',
+                'auth/weak-password': 'Password is too weak (minimum 6 characters)',
+                'auth/user-disabled': 'This account has been disabled',
+                'auth/user-not-found': 'No account found with this email',
+                'auth/wrong-password': 'Incorrect password',
+                'auth/too-many-requests': 'Too many attempts. Try again later',
+                'auth/network-request-failed': 'Network error. Check your internet connection',
+                'auth/popup-closed-by-user': 'Sign-in was cancelled'
+            };
+            return messages[errorCode] || 'An error occurred. Please try again.';
+        }
+
+        // =============================================
+        // FIREBASE AUTH FUNCTIONS
+        // =============================================
+        async function firebaseLogin(email, password) {
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                let userData = {};
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) { userData = userDoc.data(); }
+                    else {
+                        await db.collection('users').doc(user.uid).set({
+                            name: user.displayName || email.split('@')[0], email: user.email,
+                            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(), accountType: 'buyer'
+                        });
+                        userData = { name: user.displayName || email.split('@')[0], email: user.email, accountType: 'buyer' };
+                    }
+                } catch (e) { userData = { name: user.displayName || email.split('@')[0], email: user.email }; }
+                try { await db.collection('users').doc(user.uid).update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() }); } catch(e){}
+                localStorage.setItem('69shop_current_user', JSON.stringify({
+                    uid: user.uid, email: user.email, name: userData.name || email.split('@')[0],
+                    phone: userData.phone || '', accountType: userData.accountType || 'buyer',
+                    photoURL: userData.photoURL || user.photoURL || ''
+                }));
+                return { success: true, user: { uid: user.uid, email: user.email, name: userData.name || email.split('@')[0] } };
+            } catch (error) { return { success: false, error: getFirebaseErrorMessage(error.code) }; }
+        }
+
+        async function firebaseRegister(userData) {
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(userData.email, userData.password);
+                const user = userCredential.user;
+                await user.updateProfile({ displayName: userData.name });
+                await db.collection('users').doc(user.uid).set({
+                    name: userData.name, email: userData.email, phone: userData.phone,
+                    accountType: userData.accountType, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(), isAdmin: false, photoURL: '', hasSeenWelcomeOffer: false
+                });
+                localStorage.setItem('69shop_current_user', JSON.stringify({
+                    uid: user.uid, email: user.email, name: userData.name,
+                    phone: userData.phone, accountType: userData.accountType, photoURL: ''
+                }));
+                return { success: true, user: { uid: user.uid, email: user.email, name: userData.name, phone: userData.phone, accountType: userData.accountType } };
+            } catch (error) { return { success: false, error: getFirebaseErrorMessage(error.code) }; }
+        }
+
+        async function firebasePasswordReset(email) {
+            try { await auth.sendPasswordResetEmail(email); return { success: true, message: 'Password reset email sent! Check your inbox.' }; }
+            catch (error) { return { success: false, error: getFirebaseErrorMessage(error.code) }; }
+        }
+
+        // =============================================
+        // FORM HANDLERS
+        // =============================================
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); clearMessages();
+            if (!firebaseReady || !auth || !db) { showError('Firebase is not configured. Please contact support.'); return; }
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const originalText = loginBtn.querySelector('span').textContent;
+            const iconClass = loginBtn.querySelector('i').className;
+            if (!email || !password) { showError('Please fill in all fields'); return; }
+            if (!isValidEmail(email)) { showError('Please enter a valid email address'); return; }
+            if (password.length < 6) { showError('Password must be at least 6 characters'); return; }
+            showLoading(loginBtn);
+            try {
+                const result = await firebaseLogin(email, password);
+                if (result.success) { window.location.href = '/shop.html'; return; }
+                else { showError(result.error); hideLoading(loginBtn, originalText, iconClass); }
+            } catch (error) { showError('An unexpected error occurred. Please try again.'); hideLoading(loginBtn, originalText, iconClass); }
+        });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); clearMessages();
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const phone = document.getElementById('signupPhone').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            const termsAccepted = document.getElementById('terms').checked;
+            const originalText = signupBtn.querySelector('span').textContent;
+            const iconClass = signupBtn.querySelector('i').className;
+            if (!name || !email || !phone || !password || !confirmPassword) { showError('Please fill in all fields'); return; }
+            if (!isValidEmail(email)) { showError('Please enter a valid email address'); return; }
+            if (!isValidPhone(phone)) { showError('Please enter a valid phone number (minimum 10 digits)'); return; }
+            if (password.length < 6) { showError('Password must be at least 6 characters long'); return; }
+            if (password !== confirmPassword) { showError('Passwords do not match'); return; }
+            if (!termsAccepted) { showError('Please accept the terms and conditions'); return; }
+            showLoading(signupBtn);
+            try {
+                const result = await firebaseRegister({ name, email, phone, password, accountType: 'buyer' });
+                if (result.success) { showSuccess(`Welcome ${name}! Account created successfully. Redirecting...`); setTimeout(() => { window.location.href = '/shop.html'; }, 1000); return; }
+                else { showError(result.error); hideLoading(signupBtn, originalText, iconClass); }
+            } catch (error) { showError('An unexpected error occurred. Please try again.'); hideLoading(signupBtn, originalText, iconClass); }
+        });
+
+        async function resetPassword() {
+            const email = document.getElementById('loginEmail').value.trim() || prompt('Please enter your email address to reset password:');
+            if (!email) return;
+            if (!isValidEmail(email)) { showError('Please enter a valid email address'); return; }
+            try { const result = await firebasePasswordReset(email); if (result.success) alert(result.message); else showError(result.error); }
+            catch (error) { showError('Failed to send reset email. Please try again.'); }
+        }
+
+        // =============================================
+        // GOOGLE SIGN-IN
+        // =============================================
+        document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+            clearMessages();
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (!userDoc.exists) {
+                    await db.collection('users').doc(user.uid).set({
+                        name: user.displayName || user.email.split('@')[0], email: user.email,
+                        phone: user.phoneNumber || '', accountType: 'buyer',
+                        photoURL: user.photoURL || '', createdAt: firebase.firestore.FieldValue.serverTimestamp(), authProvider: 'google'
+                    });
+                }
+                const userData = userDoc.exists ? userDoc.data() : { accountType: 'buyer' };
+                localStorage.setItem('69shop_current_user', JSON.stringify({
+                    uid: user.uid, email: user.email, name: user.displayName || user.email.split('@')[0],
+                    accountType: userData.accountType || 'buyer', photoURL: user.photoURL || ''
+                }));
+                showSuccess('Login successful! Redirecting...');
+                setTimeout(() => { window.location.href = '/shop.html'; }, 1000);
+            } catch (error) {
+                if (error.code !== 'auth/popup-closed-by-user') showError(error.message || 'Failed to sign in with Google');
+            }
+        });
+
+        // =============================================
+        // PAGE INIT
+        // =============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!firebaseReady || !auth) return;
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    try {
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        if (userDoc.exists) {
+                            const userData = userDoc.data();
+                            localStorage.setItem('69shop_current_user', JSON.stringify({
+                                uid: user.uid, email: user.email, name: userData.name || user.displayName || user.email.split('@')[0],
+                                phone: userData.phone || '', accountType: userData.accountType || 'buyer',
+                                photoURL: userData.photoURL || user.photoURL || ''
+                            }));
+                        }
+                    } catch (e) {}
+                    setTimeout(() => { window.location.href = '/shop.html'; }, 1000);
+                }
+            });
+            try { await db.collection('test').limit(1).get(); } catch(e) {}
+        });
+
+        // =============================================
+        // GLOBAL
+        // =============================================
+        window.resetPassword = resetPassword;
+        window.handleLogoRoute = function(event) {
+            if (!event) return;
+            if (firebaseReady && auth && auth.currentUser) { event.preventDefault(); window.location.href = '/shop.html'; }
+        };
+    </script>
+</body>
+</html>

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Groceries & Essentials - 69Shop.in</title>
     <meta name="description" content="Shop fresh groceries on 69Shop.in - Fruits, Vegetables, Dairy, Snacks and Daily Essentials">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -10,9 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="products-data.js"></script>
     
@@ -30,6 +31,10 @@
     <link rel="stylesheet" href="assets/css/elegant-shop.css">
     <link rel="stylesheet" href="assets/css/shop-animations.css">
     <link rel="stylesheet" href="assets/css/category-page.css">
+    <link rel="stylesheet" href="assets/css/premium-shop.css">
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <!-- Header -->
@@ -63,7 +68,12 @@
     <!-- Category Navigation -->
     <nav class="category-nav">
         <div class="container">
-            <div class="category-nav-inner">
+            <button class="mobile-category-toggle" id="mobileCategoryToggle">
+                <i class="fas fa-shopping-basket"></i>
+                <span>Groceries</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="category-nav-inner" id="categoryNavInner">
                 <a href="/shop.html" class="category-nav-item"><i class="fas fa-store"></i> All</a>
                 <a href="/category-electronics.html" class="category-nav-item"><i class="fas fa-laptop"></i> Electronics</a>
                 <a href="/category-fashion.html" class="category-nav-item"><i class="fas fa-tshirt"></i> Fashion</a>
@@ -102,11 +112,21 @@
         <section class="category-section trending-section">
             <div class="container">
                 <div class="section-header">
-                    <div class="section-title-wrap">
-                        <span class="section-icon"><i class="fas fa-fire"></i></span>
-                        <h2>Trending in Groceries</h2>
+                    <div class="section-header-left">
+                        <div class="section-title-wrap">
+                            <span class="section-icon"><i class="fas fa-fire"></i></span>
+                            <h2>Trending in Groceries</h2>
+                            <span class="hot-badge">HOT</span>
+                        </div>
+                        <p class="section-subtitle">Best-selling daily essentials</p>
                     </div>
-                    <p class="section-subtitle">Best-selling daily essentials</p>
+                    <div class="section-header-right">
+                        <a href="/shop.html?category=groceries" class="section-view-all">View All <i class="fas fa-arrow-right"></i></a>
+                        <div class="section-nav-arrows">
+                            <button class="section-nav-btn" onclick="scrollTrending(-1)" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+                            <button class="section-nav-btn" onclick="scrollTrending(1)" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="trending-carousel" id="trendingCarousel"></div>
             </div>
@@ -115,7 +135,11 @@
         <!-- Filter Bar -->
         <div class="category-filter-bar">
             <div class="container">
-                <div class="filter-bar-inner">
+                <button class="mobile-filter-toggle" id="mobileFilterToggle">
+                    <span><i class="fas fa-filter"></i> Filters & Sorting</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="filter-bar-inner" id="filterBarInner">
                     <div class="filter-group">
                         <label>Sort by:</label>
                         <select id="sortSelect" onchange="CategoryPage.sortProducts(this.value)">
@@ -227,7 +251,6 @@
                 <li><a href="/profile.html?section=dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
                 <li><a href="/profile.html?section=orders"><i class="fas fa-shopping-bag"></i><span>My Orders</span></a></li>
                 <li><a href="/profile.html?section=wishlist"><i class="fas fa-heart"></i><span>Wishlist</span></a></li>
-                <li><a href="/profile.html?section=settings"><i class="fas fa-cog"></i><span>Settings</span></a></li>
             </ul>
             <div class="profile-actions"><button class="btn-login" id="loginBtn" onclick="window.location.href='/shop-login.html'"><i class="fas fa-sign-in-alt"></i> Sign In</button></div>
         </div>
@@ -288,11 +311,94 @@
         </div>
     </footer>
 
+    <!-- Mobile Bottom Navigation -->
+    <nav class="category-mobile-nav" id="categoryMobileNav" aria-label="Mobile navigation">
+        <div class="category-mobile-nav-items">
+            <a href="/shop.html" class="category-mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/shop.html#search" class="category-mobile-nav-item" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="javascript:void(0)" onclick="if(typeof CartDrawer!=='undefined')CartDrawer.toggle()" class="category-mobile-nav-item" aria-label="Cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Cart</span>
+                <span class="nav-badge" id="mobileCartCount">0</span>
+            </a>
+            <a href="/profile.html" class="category-mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
+
     <script src="js/category-page.js"></script>
+    <script src="js/premium-features.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            CategoryPage.init('groceries', ['fruits', 'vegetables', 'dairy', 'snacks', 'beverages']);
+            CategoryPage.init('grocery', ['fruits', 'vegetables', 'dairy', 'snacks', 'beverages']);
+
+            // Add scroll effect to nav
+            window.addEventListener('scroll', function() {
+                const nav = document.querySelector('.category-nav');
+                const filterBar = document.querySelector('.category-filter-bar');
+                if (window.scrollY > 100) { nav?.classList.add('scrolled'); filterBar?.classList.add('scrolled'); }
+                else { nav?.classList.remove('scrolled'); filterBar?.classList.remove('scrolled'); }
+            });
+
+            // Mobile category toggle
+            const categoryToggle = document.getElementById('mobileCategoryToggle');
+            const categoryNavInner = document.getElementById('categoryNavInner');
+            if (categoryToggle && categoryNavInner) {
+                categoryToggle.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    categoryNavInner.classList.toggle('expanded');
+                });
+            }
+            
+            // Mobile filter toggle
+            const filterToggle = document.getElementById('mobileFilterToggle');
+            const filterBarInner = document.getElementById('filterBarInner');
+            if (filterToggle && filterBarInner) {
+                filterToggle.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    filterBarInner.classList.toggle('expanded');
+                });
+            }
+
+            // Update mobile cart count
+            const updateMobileCartCount = () => {
+                try {
+                    const cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+                    const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+                    const badge = document.getElementById('mobileCartCount');
+                    if (badge) {
+                        badge.textContent = count;
+                        badge.style.display = count > 0 ? 'flex' : 'none';
+                    }
+                } catch (e) {}
+            };
+            updateMobileCartCount();
+            window.addEventListener('storage', updateMobileCartCount);
         });
+    </script>
+
+    <!-- Cart Drawer -->
+    <div id="cart-drawer"></div>
+    <script src="js/components/cart-drawer.js"></script>
+    <script>
+        if (typeof CartDrawer !== 'undefined') {
+            CartDrawer.init({ containerId: 'cart-drawer' });
+        }
     </script>
 </body>
 </html>
+
+
+
+
+
+
+

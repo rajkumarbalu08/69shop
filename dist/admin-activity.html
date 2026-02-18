@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Admin Activity Log | 69Shop.in</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,9 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/dashboard-notifications.css">
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="/js/notifications.js"></script>
     <script src="/js/admin-shell.js"></script>
@@ -228,8 +229,8 @@
         .admin-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
         .admin-header {
             height: var(--header-height);
-            background: var(--white);
-            border-bottom: 1px solid var(--slate-200);
+            background: #1A1A1A;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -239,14 +240,14 @@
             z-index: 100;
         }
         .header-left { display: flex; align-items: center; gap: 20px; }
-        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); }
-        .page-subtitle { font-size: 0.85rem; color: var(--slate-500); margin-top: 6px; }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: #FFFFFF; }
+        .page-subtitle { font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin-top: 6px; }
         .breadcrumb {
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 0.85rem;
-            color: var(--slate-500);
+            color: rgba(255, 255, 255, 0.5);
             margin-top: 4px;
         }
         .breadcrumb a { color: var(--admin-primary); text-decoration: none; }
@@ -254,11 +255,11 @@
         .header-right { display: flex; align-items: center; gap: 16px; }
         .header-btn {
             width: 42px; height: 42px; border-radius: 50%;
-            border: none; background: var(--slate-100); color: var(--slate-600);
+            border: none; background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: var(--transition);
         }
-        .header-btn:hover { background: var(--slate-200); color: var(--slate-900); }
+        .header-btn:hover { background: rgba(255, 255, 255, 0.2); color: #FFFFFF; }
         #menuToggle { display: none; }
 
         .admin-content { padding: 32px; }
@@ -486,6 +487,9 @@
             .activity-icon { width: 40px; height: 40px; }
         }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay">
@@ -692,15 +696,24 @@
         const LEAD_ADMIN_EMAIL = 'rajkumarbalu81@gmail.com';
         const ACTION_LIMIT = 300;
 
-        const firebaseConfig = window.firebaseConfig;
-        if (!firebaseConfig || !firebaseConfig.apiKey) {
-            throw new Error('Missing Firebase configuration.');
+        let auth = null;
+        let db = null;
+        let firebaseReady = false;
+
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Missing Firebase configuration.');
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            db = firebase.firestore();
+            firebaseReady = true;
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
         }
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = firebase.auth();
-        const db = firebase.firestore();
 
         let adminShell = null;
         let notificationFeed = null;
@@ -1097,3 +1110,4 @@
 
 </body>
 </html>
+

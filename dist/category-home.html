@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Home & Living - 69Shop.in</title>
-    <meta name="description" content="Transform your space with 69Shop.in - Furniture, Decor, Kitchen, Bedding and Home Essentials">
+    <meta name="description" content="Shop home products on 69Shop.in - Furniture, Decor, Kitchen, and more">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="products-data.js"></script>
     
@@ -30,6 +31,10 @@
     <link rel="stylesheet" href="assets/css/elegant-shop.css">
     <link rel="stylesheet" href="assets/css/shop-animations.css">
     <link rel="stylesheet" href="assets/css/category-page.css">
+    <link rel="stylesheet" href="assets/css/premium-shop.css">
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <!-- Header -->
@@ -63,7 +68,12 @@
     <!-- Category Navigation -->
     <nav class="category-nav">
         <div class="container">
-            <div class="category-nav-inner">
+            <button class="mobile-category-toggle" id="mobileCategoryToggle">
+                <i class="fas fa-couch"></i>
+                <span>Home & Living</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="category-nav-inner" id="categoryNavInner">
                 <a href="/shop.html" class="category-nav-item"><i class="fas fa-store"></i> All</a>
                 <a href="/category-electronics.html" class="category-nav-item"><i class="fas fa-laptop"></i> Electronics</a>
                 <a href="/category-fashion.html" class="category-nav-item"><i class="fas fa-tshirt"></i> Fashion</a>
@@ -84,13 +94,13 @@
         <div class="category-hero-overlay"></div>
         <div class="container">
             <div class="category-hero-content">
-                <span class="category-badge"><i class="fas fa-home"></i> Home Essentials</span>
+                <span class="category-badge"><i class="fas fa-home"></i> Home Makeover</span>
                 <h1>Home & Living</h1>
-                <p>Create your dream space with our curated collection of furniture, decor, kitchen essentials, and home organization solutions.</p>
+                <p>Transform your space with furniture, decor, and kitchen essentials. Create the home of your dreams.</p>
                 <div class="category-hero-stats">
                     <div class="stat-item"><span class="stat-value" id="productCount">0</span><span class="stat-label">Products</span></div>
                     <div class="stat-item"><span class="stat-value">80+</span><span class="stat-label">Brands</span></div>
-                    <div class="stat-item"><span class="stat-value">45%</span><span class="stat-label">Off Select Items</span></div>
+                    <div class="stat-item"><span class="stat-value">35%</span><span class="stat-label">Off Furniture</span></div>
                 </div>
             </div>
         </div>
@@ -102,11 +112,21 @@
         <section class="category-section trending-section">
             <div class="container">
                 <div class="section-header">
-                    <div class="section-title-wrap">
-                        <span class="section-icon"><i class="fas fa-fire"></i></span>
-                        <h2>Trending in Home</h2>
+                    <div class="section-header-left">
+                        <div class="section-title-wrap">
+                            <span class="section-icon"><i class="fas fa-fire"></i></span>
+                            <h2>Trending in Home</h2>
+                            <span class="hot-badge">HOT</span>
+                        </div>
+                        <p class="section-subtitle">Most loved this week</p>
                     </div>
-                    <p class="section-subtitle">Bestselling home essentials</p>
+                    <div class="section-header-right">
+                        <a href="/shop.html?category=home" class="section-view-all">View All <i class="fas fa-arrow-right"></i></a>
+                        <div class="section-nav-arrows">
+                            <button class="section-nav-btn" onclick="scrollTrending(-1)" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+                            <button class="section-nav-btn" onclick="scrollTrending(1)" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="trending-carousel" id="trendingCarousel"></div>
             </div>
@@ -115,7 +135,11 @@
         <!-- Filter Bar -->
         <div class="category-filter-bar">
             <div class="container">
-                <div class="filter-bar-inner">
+                <button class="mobile-filter-toggle" id="mobileFilterToggle">
+                    <span><i class="fas fa-filter"></i> Filters & Sorting</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="filter-bar-inner" id="filterBarInner">
                     <div class="filter-group">
                         <label>Sort by:</label>
                         <select id="sortSelect" onchange="CategoryPage.sortProducts(this.value)">
@@ -131,9 +155,9 @@
                         <select id="priceFilter" onchange="CategoryPage.filterByPrice(this.value)">
                             <option value="all">All Prices</option>
                             <option value="0-2000">Under ₹2,000</option>
-                            <option value="2000-5000">₹2,000 - ₹5,000</option>
-                            <option value="5000-15000">₹5,000 - ₹15,000</option>
-                            <option value="15000+">Above ₹15,000</option>
+                            <option value="2000-10000">₹2,000 - ₹10,000</option>
+                            <option value="10000-30000">₹10,000 - ₹30,000</option>
+                            <option value="30000+">Above ₹30,000</option>
                         </select>
                     </div>
                     <div class="filter-tags" id="subCategoryTags">
@@ -179,12 +203,12 @@
                     </div>
                 </div>
                 <div class="brands-grid">
-                    <div class="brand-card"><div class="brand-logo">IKEA</div><span>Modern Living</span></div>
-                    <div class="brand-card"><div class="brand-logo">SPACES</div><span>Luxury Bedding</span></div>
-                    <div class="brand-card"><div class="brand-logo">URBAN LADDER</div><span>Furniture</span></div>
-                    <div class="brand-card"><div class="brand-logo">PEPPERFRY</div><span>Home Decor</span></div>
-                    <div class="brand-card"><div class="brand-logo">PHILIPS</div><span>Lighting</span></div>
-                    <div class="brand-card"><div class="brand-logo">PRESTIGE</div><span>Kitchenware</span></div>
+                    <div class="brand-card"><div class="brand-logo">IKEA</div><span>Modern Design</span></div>
+                    <div class="brand-card"><div class="brand-logo">PEPPERFRY</div><span>Furniture</span></div>
+                    <div class="brand-card"><div class="brand-logo">HOME CENTRE</div><span>Home Decor</span></div>
+                    <div class="brand-card"><div class="brand-logo">PRESTIGE</div><span>Kitchen</span></div>
+                    <div class="brand-card"><div class="brand-logo">SPACES</div><span>Bedding</span></div>
+                    <div class="brand-card"><div class="brand-logo">NILKAMAL</div><span>Furniture</span></div>
                 </div>
             </div>
         </section>
@@ -192,17 +216,17 @@
         <!-- Promo Banner -->
         <section class="category-section promo-banner-section">
             <div class="container">
-                <div class="promo-banner home-promo">
+                <div class="promo-banner">
                     <div class="promo-content">
-                        <span class="promo-label"><i class="fas fa-couch"></i> Home Makeover</span>
-                        <h3>Transform Your Space - Home Decor Sale</h3>
-                        <p>Get up to 50% off on furniture, lighting, and home accessories. Free delivery on orders above ₹5,000!</p>
+                        <span class="promo-label"><i class="fas fa-home"></i> Home Fest</span>
+                        <h3>Home Makeover Sale - Up to 50% Off!</h3>
+                        <p>Transform your living space with exclusive deals on furniture and decor.</p>
                         <button class="promo-btn" onclick="document.getElementById('productsGrid').scrollIntoView({behavior: 'smooth'})">
-                            Shop Collection <i class="fas fa-arrow-right"></i>
+                            Shop Now <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
                     <div class="promo-image">
-                        <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80" alt="Home Collection">
+                        <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80" alt="Home Sale">
                     </div>
                 </div>
             </div>
@@ -227,7 +251,6 @@
                 <li><a href="/profile.html?section=dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
                 <li><a href="/profile.html?section=orders"><i class="fas fa-shopping-bag"></i><span>My Orders</span></a></li>
                 <li><a href="/profile.html?section=wishlist"><i class="fas fa-heart"></i><span>Wishlist</span></a></li>
-                <li><a href="/profile.html?section=settings"><i class="fas fa-cog"></i><span>Settings</span></a></li>
             </ul>
             <div class="profile-actions"><button class="btn-login" id="loginBtn" onclick="window.location.href='/shop-login.html'"><i class="fas fa-sign-in-alt"></i> Sign In</button></div>
         </div>
@@ -244,55 +267,102 @@
     <footer class="site-footer">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-col">
-                    <h4>Shop Categories</h4>
-                    <ul>
-                        <li><a href="/category-electronics.html">Electronics</a></li>
-                        <li><a href="/category-fashion.html">Fashion</a></li>
-                        <li><a href="/category-home.html">Home & Living</a></li>
-                        <li><a href="/category-beauty.html">Beauty</a></li>
-                        <li><a href="/category-sports.html">Sports & Fitness</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Customer Service</h4>
-                    <ul>
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">Track Order</a></li>
-                        <li><a href="#">Returns & Refunds</a></li>
-                        <li><a href="#">FAQs</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>About 69Shop</h4>
-                    <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Press</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Connect With Us</h4>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
+                <div class="footer-col"><h4>Categories</h4><ul><li><a href="/category-electronics.html">Electronics</a></li><li><a href="/category-fashion.html">Fashion</a></li><li><a href="/category-home.html">Home & Living</a></li><li><a href="/category-beauty.html">Beauty</a></li><li><a href="/category-sports.html">Sports & Fitness</a></li></ul></div>
+                <div class="footer-col"><h4>Customer Service</h4><ul><li><a href="/#contact">Contact Us</a></li><li><a href="/profile.html?section=orders">Track Order</a></li><li><a href="/docs/returns.html">Returns & Refunds</a></li><li><a href="/profile.html?section=help">FAQs</a></li></ul></div>
+                <div class="footer-col"><h4>About 69Shop</h4><ul><li><a href="/#about">About Us</a></li><li><a href="/#sell">Careers</a></li><li><a href="/services.html">Blog</a></li><li><a href="/#contact">Press</a></li></ul></div>
+                <div class="footer-col"><h4>Connect With Us</h4><div class="social-links"><a href="#" onclick="alert('Facebook page coming soon!'); return false;" title="Facebook - Coming Soon"><i class="fab fa-facebook-f"></i></a><a href="https://www.instagram.com/69shop.in" target="_blank" rel="noopener noreferrer" title="Instagram"><i class="fab fa-instagram"></i></a><a href="#" onclick="alert('Twitter/X page coming soon!'); return false;" title="Twitter - Coming Soon"><i class="fab fa-x-twitter"></i></a><a href="#" onclick="alert('YouTube channel coming soon!'); return false;" title="YouTube - Coming Soon"><i class="fab fa-youtube"></i></a></div></div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 69Shop.in. All rights reserved.</p>
-            </div>
+            <div class="footer-bottom"><p>&copy; 2026 69Shop.in. All rights reserved.</p></div>
         </div>
     </footer>
 
+    <!-- Mobile Bottom Navigation -->
+    <nav class="category-mobile-nav" id="categoryMobileNav" aria-label="Mobile navigation">
+        <div class="category-mobile-nav-items">
+            <a href="/shop.html" class="category-mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/shop.html#search" class="category-mobile-nav-item" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="javascript:void(0)" onclick="if(typeof CartDrawer!=='undefined')CartDrawer.toggle()" class="category-mobile-nav-item" aria-label="Cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Cart</span>
+                <span class="nav-badge" id="mobileCartCount">0</span>
+            </a>
+            <a href="/profile.html" class="category-mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
+
     <script src="js/category-page.js"></script>
+    <script src="js/loyalty-rewards.js"></script>
+    <script src="js/premium-features.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            CategoryPage.init('home', ['furniture', 'decor', 'kitchen', 'bedding', 'lighting']);
+            CategoryPage.init('home-needs', ['furniture', 'decor', 'kitchen', 'bedding', 'lighting']);
+            window.addEventListener('scroll', function() {
+                const nav = document.querySelector('.category-nav');
+                const filterBar = document.querySelector('.category-filter-bar');
+                if (window.scrollY > 100) { nav?.classList.add('scrolled'); filterBar?.classList.add('scrolled'); }
+                else { nav?.classList.remove('scrolled'); filterBar?.classList.remove('scrolled'); }
+            });
+
+            // Mobile category toggle
+            const categoryToggle = document.getElementById('mobileCategoryToggle');
+            const categoryNavInner = document.getElementById('categoryNavInner');
+            if (categoryToggle && categoryNavInner) {
+                categoryToggle.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    categoryNavInner.classList.toggle('expanded');
+                });
+            }
+            
+            // Mobile filter toggle
+            const filterToggle = document.getElementById('mobileFilterToggle');
+            const filterBarInner = document.getElementById('filterBarInner');
+            if (filterToggle && filterBarInner) {
+                filterToggle.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    filterBarInner.classList.toggle('expanded');
+                });
+            }
+
+            // Update mobile cart count
+            const updateMobileCartCount = () => {
+                try {
+                    const cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+                    const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+                    const badge = document.getElementById('mobileCartCount');
+                    if (badge) {
+                        badge.textContent = count;
+                        badge.style.display = count > 0 ? 'flex' : 'none';
+                    }
+                } catch (e) {}
+            };
+            updateMobileCartCount();
+            window.addEventListener('storage', updateMobileCartCount);
         });
+    </script>
+
+    <!-- Cart Drawer -->
+    <div id="cart-drawer"></div>
+    <script src="js/components/cart-drawer.js"></script>
+    <script>
+        if (typeof CartDrawer !== 'undefined') {
+            CartDrawer.init({ containerId: 'cart-drawer' });
+        }
     </script>
 </body>
 </html>
+
+
+
+
+
+
+

@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Store — 69Shop.in</title>
+    <meta name="description" content="Shop exclusive products from your favorite brands on 69Shop.in">
+    <meta name="theme-color" content="#0F172A">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/home.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    <script src="products-data.js"></script>
+
+    <script>
+        let auth = null, db = null, firebaseReady = false;
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (firebaseConfig && firebaseConfig.apiKey) {
+                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+                firebaseReady = true;
+            }
+        } catch (e) { console.warn('Firebase init failed:', e); }
+    </script>
+
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
+
+    <style>
+    /* ═══ BRAND STORE — IMMERSIVE EXPERIENCE ═══ */
+    :root {
+        --store-accent: #2563EB;
+        --store-dark: #0F172A;
+        --store-surface: #FFFFFF;
+        --store-bg: #F8FAFC;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--store-bg);
+        color: #1E293B;
+        min-height: 100vh;
+    }
+
+    /* ── Store Hero Banner ── */
+    .store-hero {
+        position: relative;
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 40%, #0F172A 100%);
+        padding: 0;
+        overflow: hidden;
+        margin-top: 56px;
+    }
+    .store-hero-bg {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        opacity: 0.2;
+        filter: blur(2px);
+    }
+    .store-hero::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 120px;
+        background: linear-gradient(transparent, var(--store-bg));
+        z-index: 1;
+    }
+    .store-hero-inner {
+        position: relative;
+        z-index: 2;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 60px 24px 80px;
+        display: flex;
+        align-items: flex-end;
+        gap: 32px;
+    }
+    .store-logo-large {
+        width: 120px;
+        height: 120px;
+        border-radius: 24px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--store-accent);
+        flex-shrink: 0;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        border: 4px solid rgba(255,255,255,0.15);
+    }
+    .store-logo-large img {
+        width: 80%;
+        height: 80%;
+        object-fit: contain;
+    }
+    .store-hero-info {
+        flex: 1;
+        color: #fff;
+    }
+    .store-hero-info h1 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #fff !important;
+        -webkit-text-fill-color: #fff !important;
+        margin-bottom: 8px;
+        line-height: 1.2;
+    }
+    .store-hero-info .store-tagline {
+        font-size: 1.05rem;
+        color: rgba(255,255,255,0.7) !important;
+        margin-bottom: 16px;
+        max-width: 600px;
+    }
+    .store-hero-meta {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+    .store-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(255,255,255,0.8) !important;
+        font-size: 0.9rem;
+    }
+    .store-meta-item i {
+        color: #FBBF24 !important;
+        font-size: 0.85rem;
+    }
+    .store-meta-item strong {
+        color: #fff !important;
+        font-weight: 600;
+    }
+    .store-hero-badges {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+    .store-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(255,255,255,0.12);
+        color: #fff !important;
+        backdrop-filter: blur(8px);
+    }
+    .store-badge.verified {
+        background: rgba(16,185,129,0.2);
+        color: #34D399 !important;
+    }
+    .store-badge.premium {
+        background: rgba(251,191,36,0.2);
+        color: #FBBF24 !important;
+    }
+
+    /* ── Action Bar ── */
+    .store-action-bar {
+        position: relative;
+        z-index: 3;
+        max-width: 1280px;
+        margin: -36px auto 0;
+        padding: 0 24px;
+    }
+    .store-action-inner {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .store-search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        min-width: 200px;
+        background: #F1F5F9;
+        border-radius: 10px;
+        padding: 10px 16px;
+    }
+    .store-search i { color: #94A3B8; }
+    .store-search input {
+        border: 0;
+        background: transparent;
+        outline: none;
+        font-size: 0.9rem;
+        width: 100%;
+        color: #1E293B;
+    }
+    .store-sort {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .store-sort select {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #E2E8F0;
+        font-size: 0.85rem;
+        background: #fff;
+        cursor: pointer;
+        color: #334155;
+    }
+    .store-product-count {
+        font-size: 0.9rem;
+        color: #64748B;
+        white-space: nowrap;
+    }
+    .store-product-count strong {
+        color: #1E293B;
+    }
+    .store-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 18px;
+        border-radius: 10px;
+        background: var(--store-accent);
+        color: #fff !important;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+    .store-back-btn:hover { background: #1D4ED8; }
+
+    /* ── Products Grid ── */
+    .store-main {
+        max-width: 1280px;
+        margin: 32px auto;
+        padding: 0 24px;
+    }
+    .store-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 24px;
+    }
+
+    /* ── Product Card — Virtual Store Style ── */
+    .vs-product-card {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        transition: transform 0.25s, box-shadow 0.25s;
+        position: relative;
+        cursor: pointer;
+    }
+    .vs-product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 36px rgba(0,0,0,0.1);
+    }
+    .vs-card-img {
+        position: relative;
+        padding-top: 100%;
+        background: #F8FAFC;
+        overflow: hidden;
+    }
+    .vs-card-img img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 16px;
+        transition: transform 0.3s;
+    }
+    .vs-product-card:hover .vs-card-img img {
+        transform: scale(1.06);
+    }
+    .vs-card-badges {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        z-index: 2;
+    }
+    .vs-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .vs-badge.discount {
+        background: #DC2626;
+        color: #fff;
+    }
+    .vs-badge.new {
+        background: #059669;
+        color: #fff;
+    }
+    .vs-card-actions {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        opacity: 0;
+        transform: translateX(10px);
+        transition: opacity 0.25s, transform 0.25s;
+        z-index: 2;
+    }
+    .vs-product-card:hover .vs-card-actions {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    .vs-action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 0;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        color: #475569;
+        transition: background 0.2s, color 0.2s;
+    }
+    .vs-action-btn:hover { background: var(--store-accent); color: #fff; }
+    .vs-action-btn.wishlisted { color: #EF4444; }
+
+    .vs-card-body {
+        padding: 16px 20px 20px;
+    }
+    .vs-card-category {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--store-accent);
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+    .vs-card-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1E293B;
+        line-height: 1.4;
+        margin-bottom: 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .vs-card-rating {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        color: #64748B;
+        margin-bottom: 10px;
+    }
+    .vs-card-rating .stars { color: #FBBF24; }
+    .vs-card-pricing {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+    .vs-price-now {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0F172A;
+    }
+    .vs-price-was {
+        font-size: 0.85rem;
+        color: #94A3B8;
+        text-decoration: line-through;
+    }
+    .vs-price-off {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #059669;
+    }
+    .vs-card-footer {
+        display: flex;
+        gap: 8px;
+    }
+    .vs-add-cart {
+        flex: 1;
+        padding: 10px 16px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--store-accent);
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: background 0.2s, transform 0.1s;
+    }
+    .vs-add-cart:hover { background: #1D4ED8; }
+    .vs-add-cart:active { transform: scale(0.97); }
+    .vs-buy-now {
+        padding: 10px 16px;
+        border: 1.5px solid #E2E8F0;
+        border-radius: 10px;
+        background: transparent;
+        color: #334155;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+    }
+    .vs-buy-now:hover { border-color: var(--store-accent); color: var(--store-accent); background: #EFF6FF; }
+
+    /* ── Empty State ── */
+    .store-empty {
+        text-align: center;
+        padding: 80px 24px;
+        color: #94A3B8;
+    }
+    .store-empty i { font-size: 3rem; margin-bottom: 16px; color: #CBD5E1; }
+    .store-empty h3 { font-size: 1.3rem; color: #475569; margin-bottom: 8px; }
+
+    /* ── Store Categories Sidebar ── */
+    .store-categories-strip {
+        max-width: 1280px;
+        margin: 24px auto 0;
+        padding: 0 24px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .store-cat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: #fff;
+        border: 1.5px solid #E2E8F0;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: #475569;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .store-cat-chip:hover, .store-cat-chip.active {
+        background: var(--store-accent);
+        color: #fff;
+        border-color: var(--store-accent);
+    }
+    .store-cat-chip .chip-count {
+        background: rgba(0,0,0,0.08);
+        padding: 1px 7px;
+        border-radius: 10px;
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+    .store-cat-chip.active .chip-count,
+    .store-cat-chip:hover .chip-count {
+        background: rgba(255,255,255,0.25);
+    }
+
+    /* ── Footer mini ── */
+    .store-footer {
+        margin-top: 64px;
+        padding: 32px 24px;
+        text-align: center;
+        color: #94A3B8;
+        font-size: 0.82rem;
+        border-top: 1px solid #E2E8F0;
+    }
+    .store-footer a { color: var(--store-accent); text-decoration: none; font-weight: 500; }
+
+    /* ── Toast ── */
+    .store-toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: #0F172A;
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-size: 0.88rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 9999;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        animation: toastIn 0.3s ease;
+    }
+    @keyframes toastIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+        .store-hero { margin-top: 56px; }
+        .store-hero-inner {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 40px 20px 60px;
+            gap: 20px;
+        }
+        .store-logo-large { width: 80px; height: 80px; font-size: 1.8rem; border-radius: 18px; }
+        .store-hero-info h1 { font-size: 1.6rem; }
+        .store-hero-info .store-tagline { font-size: 0.9rem; }
+        .store-hero-meta { gap: 12px; }
+        .store-action-inner { flex-direction: column; gap: 12px; }
+        .store-search { min-width: unset; }
+        .store-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .vs-card-body { padding: 12px 14px 16px; }
+        .vs-card-title { font-size: 0.82rem; }
+        .vs-price-now { font-size: 1rem; }
+        .vs-card-footer { flex-direction: column; }
+        .store-categories-strip { padding: 0 16px; gap: 6px; }
+
+        .store-main { padding: 0 16px; }
+    }
+
+    /* ── Mobile Bottom Nav ── */
+    .mobile-bottom-nav {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        z-index: 1001;
+        padding: 8px 0;
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+    .mobile-bottom-nav .mobile-nav-items {
+        display: flex;
+        justify-content: space-around;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .mobile-bottom-nav .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        text-decoration: none;
+        color: #94A3B8;
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 12px;
+        transition: color 0.2s;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+    .mobile-bottom-nav .mobile-nav-item i { font-size: 1.1rem; }
+    .mobile-bottom-nav .mobile-nav-item.active { color: var(--store-accent, #0066ff); }
+    @media (max-width: 768px) {
+        .mobile-bottom-nav { display: block; }
+        .store-footer { padding-bottom: 80px; }
+    }
+    </style>
+</head>
+<body>
+
+    <!-- Shared Header (rendered by shared-header.js) -->
+    <header class="header" id="storeHeader"></header>
+    <script src="assets/js/shared-header.js"></script>
+
+    <!-- ═══ STORE HERO ═══ -->
+    <section class="store-hero" id="storeHero">
+        <div class="store-hero-bg" id="storeBg"></div>
+        <div class="store-hero-inner">
+            <div class="store-logo-large" id="storeLogo"></div>
+            <div class="store-hero-info">
+                <h1 id="storeName">Loading Store...</h1>
+                <p class="store-tagline" id="storeTagline"></p>
+                <div class="store-hero-meta" id="storeMeta"></div>
+                <div class="store-hero-badges" id="storeBadges"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ ACTION BAR ═══ -->
+    <div class="store-action-bar">
+        <div class="store-action-inner">
+            <div class="store-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search in this store..." id="storeSearchInput" oninput="filterStoreProducts()">
+            </div>
+            <div class="store-product-count" id="storeCount"></div>
+            <div class="store-sort">
+                <select id="storeSortSelect" onchange="sortStoreProducts()">
+                    <option value="popular">Popular</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Top Rated</option>
+                    <option value="discount">Biggest Discount</option>
+                </select>
+            </div>
+            <a href="/shop.html" class="store-back-btn"><i class="fas fa-arrow-left"></i> Back to Mall</a>
+        </div>
+    </div>
+
+    <!-- ═══ CATEGORY CHIPS ═══ -->
+    <div class="store-categories-strip" id="storeCategoryStrip"></div>
+
+    <!-- ═══ PRODUCTS ═══ -->
+    <section class="store-main">
+        <div class="store-grid" id="storeGrid"></div>
+        <div class="store-empty" id="storeEmpty" style="display:none;">
+            <i class="fas fa-store-slash"></i>
+            <h3>No products found</h3>
+            <p>Try adjusting your search or filters</p>
+        </div>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <div class="store-footer">
+        <p>Part of the <a href="/">69Shop.in</a> Marketplace · <a href="/shop.html">Explore More Brands</a></p>
+    </div>
+
+    <!-- Mobile Bottom Nav -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+        <div class="mobile-nav-items">
+            <a href="/" class="mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/shop.html" class="mobile-nav-item" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="/profile.html?section=cart" class="mobile-nav-item" aria-label="Cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Cart</span>
+            </a>
+            <a href="/profile.html?section=wishlist" class="mobile-nav-item" aria-label="Wishlist">
+                <i class="fas fa-heart"></i>
+                <span>Wishlist</span>
+            </a>
+            <a href="/profile.html" class="mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ═══ STORE ENGINE ═══ -->
+    <script>
+    (function() {
+        'use strict';
+
+        // ── Brand Store Registry (metadata for each outlet) ──
+        const STORE_DATA = {
+            'Apple Authorised': {
+                tagline: 'Think Different — iPhone, iPad, Mac, Watch & more',
+                logo: 'A', logoBg: '#000', bannerImg: 'https://images.unsplash.com/photo-1491933382434-500287f9b54b?auto=format&fit=crop&w=1600&q=80',
+                badges: ['premium', 'verified'], category: 'Electronics · Smartphones · Laptops'
+            },
+            'Samsung Exclusive': {
+                tagline: 'Do what you can\'t — Galaxy smartphones, TVs, appliances & wearables',
+                logo: 'S', logoBg: '#1428A0', bannerImg: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=1600&q=80',
+                badges: ['premium', 'verified'], category: 'Electronics · Mobiles · Appliances'
+            },
+            'Sony Center': {
+                tagline: 'Be Moved — Audio, cameras, PlayStation & professional equipment',
+                logo: 'S', logoBg: '#000', bannerImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=1600&q=80',
+                badges: ['verified'], category: 'Audio · Cameras · Gaming'
+            },
+            'OnePlus Store': {
+                tagline: 'Never Settle — Flagship smartphones, earbuds & accessories',
+                logo: '1+', logoBg: '#EB0028', bannerImg: 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?auto=format&fit=crop&w=1600&q=80',
+                badges: ['premium'], category: 'Smartphones · Audio · Wearables'
+            },
+            'Dyson India': {
+                tagline: 'Engineered for better living — Hair care, purifiers & vacuums',
+                logo: 'D', logoBg: '#6B21A8', bannerImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=1600&q=80',
+                badges: ['premium'], category: 'Beauty · Home Appliances'
+            },
+            'Nike Official': {
+                tagline: 'Just Do It — Athletic footwear, apparel & equipment',
+                logo: 'N', logoBg: '#111', bannerImg: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1600&q=80',
+                badges: ['premium', 'verified'], category: 'Shoes · Sports · Fashion'
+            },
+            "Levi's Store": {
+                tagline: 'Quality never goes out of style — Iconic denim & casual wear',
+                logo: 'L', logoBg: '#C8102E', bannerImg: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=1600&q=80',
+                badges: ['verified'], category: 'Denim · Casuals · Accessories'
+            },
+            'H&M India': {
+                tagline: 'Fashion and quality at the best price — Trendy clothing & essentials',
+                logo: 'H', logoBg: '#E4002B', bannerImg: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80',
+                badges: ['verified'], category: 'Fashion · Trends · Essentials'
+            },
+            'Forest Essentials': {
+                tagline: 'Luxurious Ayurveda — Premium skincare rooted in ancient wisdom',
+                logo: 'FE', logoBg: '#2D5016', bannerImg: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1600&q=80',
+                badges: ['premium'], category: 'Luxury Ayurveda · Skincare'
+            },
+            'Raymond Ready': {
+                tagline: 'The Complete Man — Fine fabrics, suits & formal wear',
+                logo: 'R', logoBg: '#1B1464', bannerImg: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1600&q=80',
+                badges: ['verified'], category: 'Formal · Suits · Fabrics'
+            },
+            'Fossil Store': {
+                tagline: 'Modern vintage style — Watches, bags & accessories',
+                logo: 'F', logoBg: '#1C1C1C', bannerImg: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1600&q=80',
+                badges: ['verified'], category: 'Watches · Bags · Accessories'
+            },
+            'MAC Cosmetics': {
+                tagline: 'All Ages, All Races, All Genders — Professional makeup artistry',
+                logo: 'M', logoBg: '#000', bannerImg: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1600&q=80',
+                badges: ['premium'], category: 'Makeup · Lipstick · Foundation'
+            },
+            'IKEA': {
+                tagline: 'Creating a better everyday life — Furniture, décor & home solutions',
+                logo: 'I', logoBg: '#0058A3', bannerImg: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1600&q=80',
+                badges: ['premium'], category: 'Furniture · Home · Kitchen'
+            },
+            'Urban Ladder': {
+                tagline: 'Beautiful homes start here — Sofas, tables & contemporary décor',
+                logo: 'UL', logoBg: '#FF6F00', bannerImg: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1600&q=80',
+                badges: ['verified'], category: 'Sofas · Tables · Decor'
+            },
+            'Amul Store': {
+                tagline: 'The Taste of India — Dairy, beverages & everyday essentials',
+                logo: 'A', logoBg: '#E31937', bannerImg: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=1600&q=80',
+                badges: ['verified'], category: 'Dairy · Beverages · Snacks'
+            },
+            'Decathlon': {
+                tagline: 'Sport for all — Affordable sports gear, outdoor & fitness equipment',
+                logo: 'D', logoBg: '#0082C3', bannerImg: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80',
+                badges: ['verified'], category: 'Sports · Outdoor · Fitness'
+            },
+            'Nykaa': {
+                tagline: 'Unlock your beauty — Skincare, makeup & wellness products',
+                logo: 'N', logoBg: '#FC2779', bannerImg: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1600&q=80',
+                badges: ['verified'], category: 'Beauty · Skincare · Wellness'
+            }
+        };
+
+        // ── State ──
+        let allStoreProducts = [];
+        let filteredProducts = [];
+        let selectedCategory = 'all';
+        let currentStoreName = '';
+        let wishlist = new Set(JSON.parse(localStorage.getItem('69shop_wishlist') || '[]'));
+        let cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+
+        // ── Get store name from URL ──
+        const params = new URLSearchParams(window.location.search);
+        const sellerUid = params.get('seller');
+        currentStoreName = params.get('brand') || '';
+
+        if (sellerUid) {
+            // Dynamic Firestore seller store
+            initFirestoreStore(sellerUid);
+        } else if (currentStoreName) {
+            initStore();
+        } else {
+            document.getElementById('storeName').textContent = 'Store Not Found';
+            document.getElementById('storeTagline').textContent = 'Please visit our mall to browse brand stores.';
+            document.getElementById('storeEmpty').style.display = 'block';
+        }
+
+        // ── Dynamic Firestore Seller Store ──
+        async function initFirestoreStore(sellerId) {
+            if (!firebaseReady || !db) {
+                document.getElementById('storeName').textContent = 'Store Unavailable';
+                document.getElementById('storeTagline').textContent = 'Unable to load store. Please try again later.';
+                document.getElementById('storeEmpty').style.display = 'block';
+                return;
+            }
+
+            try {
+                // Load seller profile
+                const sellerDoc = await db.collection('sellers').doc(sellerId).get();
+                if (!sellerDoc.exists) {
+                    document.getElementById('storeName').textContent = 'Store Not Found';
+                    document.getElementById('storeTagline').textContent = 'This seller store does not exist.';
+                    document.getElementById('storeEmpty').style.display = 'block';
+                    return;
+                }
+
+                const seller = sellerDoc.data();
+                const storeName = seller.businessName || seller.storeName || seller.displayName || 'Seller Store';
+                currentStoreName = storeName;
+                document.title = storeName + ' — 69Shop.in';
+
+                // Check verification
+                const isVerified = seller.verified === true || seller.status === 'approved' || seller.verificationStatus === 'approved';
+
+                // Render hero
+                const logoBg = seller.brandColor || '#2563EB';
+                const logoInitial = storeName.charAt(0).toUpperCase();
+                document.getElementById('storeBg').style.backgroundImage = seller.bannerImage
+                    ? 'url(' + seller.bannerImage + ')'
+                    : 'url(https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80)';
+                document.getElementById('storeLogo').innerHTML = seller.logoUrl
+                    ? '<img src="' + seller.logoUrl + '" alt="' + storeName + '" style="width:80%;height:80%;object-fit:contain;">'
+                    : '<span style="background:' + logoBg + ';color:#fff;font-size:inherit;width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:inherit;">' + logoInitial + '</span>';
+                document.getElementById('storeName').textContent = storeName;
+                document.getElementById('storeTagline').textContent = seller.tagline || seller.description || 'Explore products from ' + storeName;
+
+                // Load seller's products from Firestore
+                const productsSnap = await db.collection('products')
+                    .where('sellerId', '==', sellerId)
+                    .where('status', '==', 'active')
+                    .get();
+
+                allStoreProducts = productsSnap.docs.map(function(doc) {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        name: data.name || data.title || 'Product',
+                        price: data.price || 0,
+                        originalPrice: data.originalPrice || null,
+                        image: data.images?.[0] || data.image || '/Logo/placeholder.svg',
+                        category: data.category || 'General',
+                        rating: data.rating || 0,
+                        reviews: data.reviews || 0,
+                        description: data.description || '',
+                        tags: data.tags || [],
+                        seller: storeName,
+                        sellerId: sellerId,
+                        brand: data.brand || '',
+                        stock: data.stock ?? 0
+                    };
+                });
+
+                // Filter out of stock
+                allStoreProducts = allStoreProducts.filter(function(p) { return p.stock > 0; });
+
+                // Meta stats
+                const avgRating = allStoreProducts.length > 0
+                    ? (allStoreProducts.reduce(function(s, p) { return s + (p.rating || 0); }, 0) / allStoreProducts.length).toFixed(1)
+                    : '0';
+                const categoryText = seller.category || seller.businessCategory || [...new Set(allStoreProducts.map(function(p) { return p.category; }))].slice(0, 3).join(' · ') || 'All Products';
+                document.getElementById('storeMeta').innerHTML =
+                    '<span class="store-meta-item"><i class="fas fa-star"></i> <strong>' + avgRating + '</strong> Rating</span>' +
+                    '<span class="store-meta-item"><i class="fas fa-box"></i> <strong>' + allStoreProducts.length + '</strong> Products</span>' +
+                    '<span class="store-meta-item"><i class="fas fa-tag"></i> ' + categoryText + '</span>';
+
+                // Badges
+                const badgesHtml = [];
+                if (isVerified) badgesHtml.push('<span class="store-badge verified"><i class="fas fa-check-circle"></i> Verified Seller</span>');
+                if (seller.premium) badgesHtml.push('<span class="store-badge premium"><i class="fas fa-crown"></i> Premium Partner</span>');
+                document.getElementById('storeBadges').innerHTML = badgesHtml.join('');
+
+                // Category chips
+                renderCategoryChips();
+
+                // Initial render
+                filteredProducts = allStoreProducts.slice();
+                renderProducts();
+
+            } catch (error) {
+                console.error('Failed to load seller store:', error);
+                document.getElementById('storeName').textContent = 'Error Loading Store';
+                document.getElementById('storeTagline').textContent = 'Something went wrong. Please try again.';
+                document.getElementById('storeEmpty').style.display = 'block';
+            }
+        }
+
+        function initStore() {
+            // Get store metadata
+            const storeInfo = STORE_DATA[currentStoreName] || {
+                tagline: 'Explore exclusive products from ' + currentStoreName,
+                logo: currentStoreName.charAt(0).toUpperCase(),
+                logoBg: '#2563EB',
+                bannerImg: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80',
+                badges: ['verified'],
+                category: 'All Products'
+            };
+
+            // Set page title
+            document.title = currentStoreName + ' — 69Shop.in';
+
+            // Render hero
+            document.getElementById('storeBg').style.backgroundImage = 'url(' + storeInfo.bannerImg + ')';
+            document.getElementById('storeLogo').innerHTML = '<span class="logo-initial" style="background:' + storeInfo.logoBg + ';color:#fff;font-size:inherit;width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:inherit;">' + storeInfo.logo + '</span>';
+            document.getElementById('storeName').textContent = currentStoreName;
+            document.getElementById('storeTagline').textContent = storeInfo.tagline;
+
+            // Load products
+            allStoreProducts = (window.productsData || []).filter(function(p) {
+                return p.seller === currentStoreName || p.brand === currentStoreName ||
+                       (p.seller && p.seller.toLowerCase().includes(currentStoreName.toLowerCase())) ||
+                       (p.brand && p.brand.toLowerCase().includes(currentStoreName.split(' ')[0].toLowerCase()));
+            });
+
+            // Meta stats
+            const avgRating = allStoreProducts.length > 0
+                ? (allStoreProducts.reduce((s, p) => s + (p.rating || 0), 0) / allStoreProducts.length).toFixed(1)
+                : '4.5';
+            document.getElementById('storeMeta').innerHTML =
+                '<span class="store-meta-item"><i class="fas fa-star"></i> <strong>' + avgRating + '</strong> Rating</span>' +
+                '<span class="store-meta-item"><i class="fas fa-box"></i> <strong>' + allStoreProducts.length + '</strong> Products</span>' +
+                '<span class="store-meta-item"><i class="fas fa-tag"></i> ' + storeInfo.category + '</span>';
+
+            // Badges
+            document.getElementById('storeBadges').innerHTML = storeInfo.badges.map(function(b) {
+                if (b === 'premium') return '<span class="store-badge premium"><i class="fas fa-crown"></i> Premium Partner</span>';
+                if (b === 'verified') return '<span class="store-badge verified"><i class="fas fa-check-circle"></i> Verified Seller</span>';
+                return '';
+            }).join('');
+
+            // Category chips
+            renderCategoryChips();
+
+            // Initial render
+            filteredProducts = allStoreProducts.slice();
+            renderProducts();
+        }
+
+        function renderCategoryChips() {
+            const cats = {};
+            allStoreProducts.forEach(function(p) {
+                const cat = p.category || 'other';
+                cats[cat] = (cats[cat] || 0) + 1;
+            });
+            const strip = document.getElementById('storeCategoryStrip');
+            let html = '<button class="store-cat-chip active" onclick="filterByCategory(\'all\')">All <span class="chip-count">' + allStoreProducts.length + '</span></button>';
+            Object.keys(cats).sort().forEach(function(cat) {
+                html += '<button class="store-cat-chip" onclick="filterByCategory(\'' + cat + '\')">' +
+                    cat.charAt(0).toUpperCase() + cat.slice(1).replace(/-/g, ' ') +
+                    ' <span class="chip-count">' + cats[cat] + '</span></button>';
+            });
+            strip.innerHTML = html;
+        }
+
+        window.filterByCategory = function(cat) {
+            selectedCategory = cat;
+            // Update chip UI
+            document.querySelectorAll('.store-cat-chip').forEach(function(chip) {
+                chip.classList.toggle('active', chip.textContent.toLowerCase().includes(cat === 'all' ? 'all' : cat));
+            });
+            // Re-filter with current chips
+            document.querySelectorAll('.store-cat-chip').forEach(function(c, i) {
+                c.classList.remove('active');
+                if (i === 0 && cat === 'all') c.classList.add('active');
+                else if (cat !== 'all' && c.textContent.toLowerCase().includes(cat.replace(/-/g, ' '))) c.classList.add('active');
+            });
+            filterStoreProducts();
+        };
+
+        window.filterStoreProducts = function() {
+            const query = (document.getElementById('storeSearchInput').value || '').toLowerCase();
+            filteredProducts = allStoreProducts.filter(function(p) {
+                const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
+                const matchSearch = !query ||
+                    p.name.toLowerCase().includes(query) ||
+                    (p.description || '').toLowerCase().includes(query) ||
+                    (p.tags || []).some(function(t) { return t.toLowerCase().includes(query); });
+                return matchCat && matchSearch;
+            });
+            sortStoreProducts();
+        };
+
+        window.sortStoreProducts = function() {
+            const sort = document.getElementById('storeSortSelect').value;
+            filteredProducts.sort(function(a, b) {
+                if (sort === 'price-low') return (a.price || 0) - (b.price || 0);
+                if (sort === 'price-high') return (b.price || 0) - (a.price || 0);
+                if (sort === 'rating') return (b.rating || 0) - (a.rating || 0);
+                if (sort === 'discount') {
+                    const dA = a.originalPrice ? ((a.originalPrice - a.price) / a.originalPrice) : 0;
+                    const dB = b.originalPrice ? ((b.originalPrice - b.price) / b.originalPrice) : 0;
+                    return dB - dA;
+                }
+                return (b.rating || 0) - (a.rating || 0); // popular = rating
+            });
+            renderProducts();
+        };
+
+        function renderProducts() {
+            const grid = document.getElementById('storeGrid');
+            const empty = document.getElementById('storeEmpty');
+            const countEl = document.getElementById('storeCount');
+
+            countEl.innerHTML = '<strong>' + filteredProducts.length + '</strong> product' + (filteredProducts.length !== 1 ? 's' : '');
+
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+
+            grid.innerHTML = filteredProducts.map(function(p) {
+                const discount = p.originalPrice ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
+                const isWishlisted = wishlist.has(p.id);
+                const stars = '★'.repeat(Math.floor(p.rating || 0)) + (p.rating % 1 >= 0.5 ? '½' : '');
+
+                return '<div class="vs-product-card" onclick="goToProduct(\'' + p.id + '\')">' +
+                    '<div class="vs-card-img">' +
+                        '<img src="' + (p.image || '/Logo/placeholder.svg') + '" alt="' + p.name + '" loading="lazy" onerror="this.src=\'/Logo/placeholder.svg\'">' +
+                        '<div class="vs-card-badges">' +
+                            (discount > 15 ? '<span class="vs-badge discount">-' + discount + '%</span>' : '') +
+                        '</div>' +
+                        '<div class="vs-card-actions">' +
+                            '<button class="vs-action-btn ' + (isWishlisted ? 'wishlisted' : '') + '" onclick="event.stopPropagation(); toggleWishlist(\'' + p.id + '\')" title="Wishlist"><i class="fa' + (isWishlisted ? 's' : 'r') + ' fa-heart"></i></button>' +
+                            '<button class="vs-action-btn" onclick="event.stopPropagation(); goToProduct(\'' + p.id + '\')" title="View Details"><i class="fas fa-eye"></i></button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="vs-card-body">' +
+                        '<div class="vs-card-category">' + (p.category || 'General') + '</div>' +
+                        '<div class="vs-card-title">' + p.name + '</div>' +
+                        '<div class="vs-card-rating"><span class="stars">' + stars + '</span> ' + (p.rating || 0) + '</div>' +
+                        '<div class="vs-card-pricing">' +
+                            '<span class="vs-price-now">₹' + (p.price || 0).toLocaleString() + '</span>' +
+                            (p.originalPrice ? '<span class="vs-price-was">₹' + p.originalPrice.toLocaleString() + '</span>' : '') +
+                            (discount > 0 ? '<span class="vs-price-off">' + discount + '% off</span>' : '') +
+                        '</div>' +
+                        '<div class="vs-card-footer">' +
+                            '<button class="vs-add-cart" onclick="event.stopPropagation(); addToCart(\'' + p.id + '\')"><i class="fas fa-shopping-bag"></i> Add to Cart</button>' +
+                            '<button class="vs-buy-now" onclick="event.stopPropagation(); goToProduct(\'' + p.id + '\')">View</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        // ── Actions ──
+        window.goToProduct = function(id) {
+            window.location.href = '/product.html?id=' + id;
+        };
+
+        window.toggleWishlist = function(id) {
+            if (wishlist.has(id)) {
+                wishlist.delete(id);
+                showToast('Removed from wishlist');
+            } else {
+                wishlist.add(id);
+                showToast('Added to wishlist ❤️');
+            }
+            localStorage.setItem('69shop_wishlist', JSON.stringify([...wishlist]));
+            renderProducts();
+        };
+
+        window.addToCart = function(id) {
+            const product = allStoreProducts.find(function(p) { return p.id === id; });
+            if (!product) return;
+            const existing = cart.find(function(c) { return c.id === id; });
+            if (existing) {
+                existing.quantity = (existing.quantity || 1) + 1;
+            } else {
+                cart.push({ id: id, name: product.name, price: product.price, image: product.image, quantity: 1, seller: product.seller, sellerId: product.sellerId || product.uid || '69shop-platform' });
+            }
+            localStorage.setItem('69shop_cart', JSON.stringify(cart));
+            showToast('Added to cart! 🛒');
+        };
+
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'store-toast';
+            t.innerHTML = '<i class="fas fa-check-circle" style="color:#34D399;"></i> ' + msg;
+            document.body.appendChild(t);
+            setTimeout(function() { if (t.parentElement) t.remove(); }, 3000);
+        }
+
+        // ── Auth-aware header is handled by shared-header.js ──
+
+    })();
+    </script>
+</body>
+</html>

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Track Your Order - 69Shop.in</title>
     <meta name="description" content="Track your order status on 69Shop.in - India's premium marketplace">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,9 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     
     <style>
@@ -751,9 +752,72 @@
                 justify-content: center;
             }
         }
+        
+        /* Small Mobile - 480px breakpoint */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 16px;
+            }
+            
+            .page-title h1 {
+                font-size: 1.4rem;
+            }
+            
+            .page-title p {
+                font-size: 0.85rem;
+            }
+            
+            .tracking-search-card {
+                padding: 16px;
+            }
+            
+            input, select {
+                font-size: 16px; /* Prevent iOS zoom */
+                padding: 14px 16px;
+            }
+            
+            .btn-track {
+                padding: 14px;
+                min-height: 48px; /* Touch-friendly */
+            }
+            
+            .timeline {
+                padding-left: 30px;
+            }
+            
+            .timeline-icon {
+                left: -30px;
+                width: 24px;
+                height: 24px;
+                font-size: 0.7rem;
+            }
+            
+            .timeline-content h4 {
+                font-size: 0.9rem;
+            }
+            
+            .detail-card {
+                padding: 16px;
+            }
+            
+            .order-item {
+                flex-direction: column;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
+    <link rel="stylesheet" href="assets/css/mobile-enhancements.css">
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <!-- Header -->
     <header class="header">
         <div class="container">
@@ -775,9 +839,10 @@
             </div>
         </div>
     </header>
+    <script src="assets/js/shared-header.js"></script>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" id="main-content">
         <div class="container">
             <div class="page-title">
                 <h1><i class="fas fa-truck"></i> Track Your Order</h1>
@@ -813,13 +878,13 @@
             </div>
 
             <!-- Loading -->
-            <div class="loading-spinner" id="loadingSpinner">
-                <div class="spinner"></div>
+            <div class="loading-spinner" id="loadingSpinner" role="status" aria-live="polite">
+                <div class="spinner" aria-hidden="true"></div>
                 <p>Looking up your order...</p>
             </div>
 
             <!-- Error State -->
-            <div class="error-state" id="errorState">
+            <div class="error-state" id="errorState" role="alert">
                 <div class="error-icon">
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
@@ -831,7 +896,7 @@
             </div>
 
             <!-- Order Result -->
-            <div class="order-result" id="orderResult">
+            <div class="order-result" id="orderResult" aria-live="polite">
                 <!-- Order Header -->
                 <div class="order-header-card">
                     <div class="order-header">
@@ -917,8 +982,8 @@
                     <a href="/shop.html">Shop</a>
                     <a href="/services.html">Services</a>
                     <a href="/profile.html">My Account</a>
-                    <a href="/terms.html">Terms</a>
-                    <a href="/privacy.html">Privacy</a>
+                    <a href="/docs/terms.html">Terms</a>
+                    <a href="/docs/privacy.html">Privacy</a>
                 </div>
                 <p class="copyright">&copy; 2026 69Shop.in. All rights reserved.</p>
             </div>
@@ -1074,7 +1139,14 @@
             const timeline = document.getElementById('orderTimeline');
             const currentStatus = order.status || 'pending';
             const currentStep = ORDER_STATUSES[currentStatus]?.step || 1;
-            const statusHistory = order.statusHistory || [];
+            let statusHistory = order.statusHistory || [];
+
+            // Fallback: build statusHistory from statusTimestamps map if array is empty
+            if (statusHistory.length === 0 && order.statusTimestamps) {
+                statusHistory = Object.entries(order.statusTimestamps)
+                    .map(([status, timestamp]) => ({ status, timestamp }))
+                    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            }
 
             let html = '';
 
@@ -1372,5 +1444,33 @@
             }
         });
     </script>
+    <script src="js/xss-sanitizer.js"></script>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+        <div class="mobile-nav-items">
+            <a href="/shop.html" class="mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/search.html" class="mobile-nav-item" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="/order-tracking.html" class="mobile-nav-item active" aria-label="Track Order">
+                <i class="fas fa-shipping-fast"></i>
+                <span>Track</span>
+            </a>
+            <a href="/messages.html" class="mobile-nav-item" aria-label="Messages">
+                <i class="fas fa-comment-dots"></i>
+                <span>Chat</span>
+            </a>
+            <a href="/profile.html" class="mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
 </body>
 </html>
+

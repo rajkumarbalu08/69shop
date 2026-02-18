@@ -68,14 +68,20 @@
         if (existing) {
             existing.quantity = (existing.quantity || 1) + quantity;
         } else {
-            cart.push({
+            const item = {
                 id: product.id,
                 name: product.name,
                 price: product.price,
                 image: product.image || product.images?.[0],
                 quantity: quantity,
                 seller: product.seller?.name || product.sellerName || 'Unknown'
-            });
+            };
+            if (product.isNegotiated) {
+                item.isNegotiated = true;
+                item.originalPrice = product.originalPrice || product.price;
+                item.negotiationId = product.negotiationId || null;
+            }
+            cart.push(item);
         }
         
         saveCart(cart);
@@ -119,14 +125,47 @@
 
     function renderCartItems() {
         const itemsContainer = document.getElementById('cartItemsList');
+        const subtotalEl = document.getElementById('cartSubtotalAmount');
         const totalEl = document.getElementById('cartTotalAmount');
         const checkoutBtn = document.getElementById('cartCheckoutBtn');
         const emptyState = document.getElementById('cartEmptyState');
+        const loyaltyWidget = document.getElementById('loyaltyWidget');
+        const loyaltyDiscountRow = document.getElementById('loyaltyDiscountRow');
+        const loyaltyDiscountAmount = document.getElementById('loyaltyDiscountAmount');
         
         if (!itemsContainer) return;
         
         const cart = getCart();
-        const total = getTotal();
+        const subtotal = getTotal();
+        
+        // Calculate loyalty discount
+        let loyaltyDiscount = 0;
+        if (global.LoyaltyRewards) {
+            loyaltyDiscount = global.LoyaltyRewards.calculateDiscount(subtotal);
+        }
+        const total = subtotal - loyaltyDiscount;
+        
+        // Update loyalty widget
+        if (loyaltyWidget && global.LoyaltyRewards && cart.length > 0) {
+            loyaltyWidget.innerHTML = global.LoyaltyRewards.renderCartWidget();
+            loyaltyWidget.style.display = 'block';
+        } else if (loyaltyWidget) {
+            loyaltyWidget.style.display = 'none';
+        }
+        
+        // Update loyalty discount row
+        if (loyaltyDiscountRow && loyaltyDiscount > 0) {
+            loyaltyDiscountRow.style.display = 'flex';
+            if (loyaltyDiscountAmount) {
+                loyaltyDiscountAmount.textContent = `-₹${loyaltyDiscount.toLocaleString('en-IN')}`;
+            }
+        } else if (loyaltyDiscountRow) {
+            loyaltyDiscountRow.style.display = 'none';
+        }
+        
+        // Update totals
+        if (subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+        if (totalEl) totalEl.textContent = `₹${total.toLocaleString('en-IN')}`;
         
         if (cart.length === 0) {
             itemsContainer.style.display = 'none';
@@ -137,17 +176,24 @@
             if (emptyState) emptyState.style.display = 'none';
             if (checkoutBtn) checkoutBtn.disabled = total < options.minOrderValue;
             
-            itemsContainer.innerHTML = cart.map(item => `
-                <div class="cart-item" data-product-id="${item.id}">
+            itemsContainer.innerHTML = cart.map(item => {
+                const negotiatedBadge = item.isNegotiated ? `<span class="cart-negotiated-badge"><i class="fas fa-handshake"></i> Negotiated</span>` : '';
+                const priceHtml = item.isNegotiated && item.originalPrice && item.originalPrice !== item.price
+                    ? `<span class="cart-original-price">₹${item.originalPrice?.toLocaleString('en-IN') || 0}</span> ₹${item.price?.toLocaleString('en-IN') || 0}`
+                    : `₹${item.price?.toLocaleString('en-IN') || 0}`;
+                const negotiatedClass = item.isNegotiated ? ' cart-item-negotiated' : '';
+
+                return `
+                <div class="cart-item${negotiatedClass}" data-product-id="${item.id}">
                     <div class="cart-item-image">
-                        <img src="${item.image || 'https://via.placeholder.com/80x80?text=Product'}" 
+                        <img src="${item.image || 'https://via.placeholder.com/80x80?text=Product'}"
                              alt="${item.name}"
                              onerror="this.src='https://via.placeholder.com/80x80?text=Product'">
                     </div>
                     <div class="cart-item-details">
                         <h4 class="cart-item-name">${item.name}</h4>
-                        <p class="cart-item-seller">by ${item.seller}</p>
-                        <p class="cart-item-price">₹${item.price?.toLocaleString('en-IN') || 0}</p>
+                        <p class="cart-item-seller">by ${item.seller} ${negotiatedBadge}</p>
+                        <p class="cart-item-price">${priceHtml}</p>
                     </div>
                     <div class="cart-item-actions">
                         <div class="quantity-controls">
@@ -164,7 +210,7 @@
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
             
             // Setup event listeners
             itemsContainer.querySelectorAll('.qty-btn').forEach(btn => {
@@ -259,9 +305,18 @@
             <div class="cart-items" id="cartItemsList"></div>
             
             <div class="cart-footer">
+                <div id="loyaltyWidget"></div>
                 <div class="cart-summary">
                     <div class="summary-row">
                         <span>Subtotal</span>
+                        <span id="cartSubtotalAmount">₹0</span>
+                    </div>
+                    <div class="summary-row loyalty-discount-row" id="loyaltyDiscountRow" style="display: none;">
+                        <span><i class="fas fa-tag" style="color: #10b981;"></i> Loyalty Discount</span>
+                        <span id="loyaltyDiscountAmount" style="color: #10b981;">-₹0</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span>Total</span>
                         <span id="cartTotalAmount">₹0</span>
                     </div>
                     <p class="shipping-note">

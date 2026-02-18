@@ -853,3 +853,55 @@
         height: 80px;
     }
 }
+
+/* Small Mobile - 480px breakpoint */
+@media (max-width: 480px) {
+    .product-card {
+        border-radius: 12px;
+    }
+    
+    .product-image {
+        height: 150px;
+    }
+    
+    .product-content {
+        padding: 12px;
+    }
+    
+    .product-title,
+    .product-name {
+        font-size: 0.85rem;
+        -webkit-line-clamp: 1;
+    }
+    
+    .product-price {
+        font-size: 1rem;
+    }
+    
+    .product-badge {
+        padding: 6px 10px;
+        font-size: 0.65rem;
+        top: 10px;
+        left: 10px;
+    }
+    
+    .btn-add-to-cart {
+        padding: 10px 14px;
+        font-size: 0.8rem;
+    }
+    
+    .accordion-products {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .accordion-trigger {
+        padding: 16px;
+    }
+    
+    .accordion-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}

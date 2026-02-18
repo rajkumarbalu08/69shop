@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beauty & Personal Care - 69Shop.in</title>
-    <meta name="description" content="Discover beauty essentials on 69Shop.in - Skincare, Makeup, Haircare, Fragrances and more">
+    <meta name="theme-color" content="#FFFFFF">
+    <title>Beauty & Care - 69Shop.in</title>
+    <meta name="description" content="Shop beauty products on 69Shop.in - Skincare, Makeup, Haircare, and more">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="products-data.js"></script>
     
@@ -30,6 +31,10 @@
     <link rel="stylesheet" href="assets/css/elegant-shop.css">
     <link rel="stylesheet" href="assets/css/shop-animations.css">
     <link rel="stylesheet" href="assets/css/category-page.css">
+    <link rel="stylesheet" href="assets/css/premium-shop.css">
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <!-- Header -->
@@ -63,7 +68,12 @@
     <!-- Category Navigation -->
     <nav class="category-nav">
         <div class="container">
-            <div class="category-nav-inner">
+            <button class="mobile-category-toggle" id="mobileCategoryToggle">
+                <i class="fas fa-spa"></i>
+                <span>Beauty</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="category-nav-inner" id="categoryNavInner">
                 <a href="/shop.html" class="category-nav-item"><i class="fas fa-store"></i> All</a>
                 <a href="/category-electronics.html" class="category-nav-item"><i class="fas fa-laptop"></i> Electronics</a>
                 <a href="/category-fashion.html" class="category-nav-item"><i class="fas fa-tshirt"></i> Fashion</a>
@@ -84,13 +94,13 @@
         <div class="category-hero-overlay"></div>
         <div class="container">
             <div class="category-hero-content">
-                <span class="category-badge"><i class="fas fa-sparkles"></i> Glow Up</span>
-                <h1>Beauty & Personal Care</h1>
-                <p>Enhance your natural beauty with premium skincare, makeup, haircare, and wellness products from trusted brands.</p>
+                <span class="category-badge"><i class="fas fa-spa"></i> Glow Up</span>
+                <h1>Beauty & Care</h1>
+                <p>Discover premium skincare, makeup, and wellness products from top brands. Look and feel your best.</p>
                 <div class="category-hero-stats">
                     <div class="stat-item"><span class="stat-value" id="productCount">0</span><span class="stat-label">Products</span></div>
                     <div class="stat-item"><span class="stat-value">60+</span><span class="stat-label">Brands</span></div>
-                    <div class="stat-item"><span class="stat-value">30%</span><span class="stat-label">Off Select Items</span></div>
+                    <div class="stat-item"><span class="stat-value">45%</span><span class="stat-label">Off Skincare</span></div>
                 </div>
             </div>
         </div>
@@ -102,11 +112,21 @@
         <section class="category-section trending-section">
             <div class="container">
                 <div class="section-header">
-                    <div class="section-title-wrap">
-                        <span class="section-icon"><i class="fas fa-fire"></i></span>
-                        <h2>Trending in Beauty</h2>
+                    <div class="section-header-left">
+                        <div class="section-title-wrap">
+                            <span class="section-icon"><i class="fas fa-fire"></i></span>
+                            <h2>Trending in Beauty</h2>
+                            <span class="hot-badge">HOT</span>
+                        </div>
+                        <p class="section-subtitle">Most loved this week</p>
                     </div>
-                    <p class="section-subtitle">Must-have beauty products</p>
+                    <div class="section-header-right">
+                        <a href="/shop.html?category=beauty" class="section-view-all">View All <i class="fas fa-arrow-right"></i></a>
+                        <div class="section-nav-arrows">
+                            <button class="section-nav-btn" onclick="scrollTrending(-1)" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+                            <button class="section-nav-btn" onclick="scrollTrending(1)" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="trending-carousel" id="trendingCarousel"></div>
             </div>
@@ -115,7 +135,11 @@
         <!-- Filter Bar -->
         <div class="category-filter-bar">
             <div class="container">
-                <div class="filter-bar-inner">
+                <button class="mobile-filter-toggle" id="mobileFilterToggle">
+                    <span><i class="fas fa-filter"></i> Filters & Sorting</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="filter-bar-inner" id="filterBarInner">
                     <div class="filter-group">
                         <label>Sort by:</label>
                         <select id="sortSelect" onchange="CategoryPage.sortProducts(this.value)">
@@ -132,8 +156,8 @@
                             <option value="all">All Prices</option>
                             <option value="0-500">Under ₹500</option>
                             <option value="500-1500">₹500 - ₹1,500</option>
-                            <option value="1500-5000">₹1,500 - ₹5,000</option>
-                            <option value="5000+">Above ₹5,000</option>
+                            <option value="1500-3000">₹1,500 - ₹3,000</option>
+                            <option value="3000+">Above ₹3,000</option>
                         </select>
                     </div>
                     <div class="filter-tags" id="subCategoryTags">
@@ -141,7 +165,7 @@
                         <button class="filter-tag" data-subcategory="skincare">Skincare</button>
                         <button class="filter-tag" data-subcategory="makeup">Makeup</button>
                         <button class="filter-tag" data-subcategory="haircare">Haircare</button>
-                        <button class="filter-tag" data-subcategory="fragrance">Fragrances</button>
+                        <button class="filter-tag" data-subcategory="fragrances">Fragrances</button>
                     </div>
                 </div>
             </div>
@@ -179,12 +203,12 @@
                     </div>
                 </div>
                 <div class="brands-grid">
-                    <div class="brand-card"><div class="brand-logo">L'ORÉAL</div><span>Premium Beauty</span></div>
+                    <div class="brand-card"><div class="brand-logo">L'ORÉAL</div><span>Global Beauty</span></div>
                     <div class="brand-card"><div class="brand-logo">MAYBELLINE</div><span>Makeup</span></div>
-                    <div class="brand-card"><div class="brand-logo">NIVEA</div><span>Skincare</span></div>
-                    <div class="brand-card"><div class="brand-logo">DOVE</div><span>Personal Care</span></div>
-                    <div class="brand-card"><div class="brand-logo">MAC</div><span>Professional</span></div>
-                    <div class="brand-card"><div class="brand-logo">DIOR</div><span>Luxury</span></div>
+                    <div class="brand-card"><div class="brand-logo">LAKME</div><span>Indian Beauty</span></div>
+                    <div class="brand-card"><div class="brand-logo">NYKAA</div><span>Skincare</span></div>
+                    <div class="brand-card"><div class="brand-logo">NIVEA</div><span>Care</span></div>
+                    <div class="brand-card"><div class="brand-logo">FOREST ESS.</div><span>Natural</span></div>
                 </div>
             </div>
         </section>
@@ -192,17 +216,17 @@
         <!-- Promo Banner -->
         <section class="category-section promo-banner-section">
             <div class="container">
-                <div class="promo-banner beauty-promo">
+                <div class="promo-banner">
                     <div class="promo-content">
-                        <span class="promo-label"><i class="fas fa-heart"></i> Self Care Week</span>
-                        <h3>Pamper Yourself - Beauty Essentials Sale</h3>
-                        <p>Get up to 40% off on skincare, makeup, and wellness products. Use code GLOW40 at checkout!</p>
+                        <span class="promo-label"><i class="fas fa-spa"></i> Beauty Week</span>
+                        <h3>Glow Up Sale - Up to 50% Off!</h3>
+                        <p>Get your skincare and makeup essentials at amazing prices. Free gift on orders above ₹999!</p>
                         <button class="promo-btn" onclick="document.getElementById('productsGrid').scrollIntoView({behavior: 'smooth'})">
-                            Shop Beauty <i class="fas fa-arrow-right"></i>
+                            Shop Now <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
                     <div class="promo-image">
-                        <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80" alt="Beauty Products">
+                        <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80" alt="Beauty Sale">
                     </div>
                 </div>
             </div>
@@ -227,7 +251,6 @@
                 <li><a href="/profile.html?section=dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
                 <li><a href="/profile.html?section=orders"><i class="fas fa-shopping-bag"></i><span>My Orders</span></a></li>
                 <li><a href="/profile.html?section=wishlist"><i class="fas fa-heart"></i><span>Wishlist</span></a></li>
-                <li><a href="/profile.html?section=settings"><i class="fas fa-cog"></i><span>Settings</span></a></li>
             </ul>
             <div class="profile-actions"><button class="btn-login" id="loginBtn" onclick="window.location.href='/shop-login.html'"><i class="fas fa-sign-in-alt"></i> Sign In</button></div>
         </div>
@@ -244,55 +267,101 @@
     <footer class="site-footer">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-col">
-                    <h4>Shop Categories</h4>
-                    <ul>
-                        <li><a href="/category-electronics.html">Electronics</a></li>
-                        <li><a href="/category-fashion.html">Fashion</a></li>
-                        <li><a href="/category-home.html">Home & Living</a></li>
-                        <li><a href="/category-beauty.html">Beauty</a></li>
-                        <li><a href="/category-sports.html">Sports & Fitness</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Customer Service</h4>
-                    <ul>
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">Track Order</a></li>
-                        <li><a href="#">Returns & Refunds</a></li>
-                        <li><a href="#">FAQs</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>About 69Shop</h4>
-                    <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Press</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Connect With Us</h4>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
+                <div class="footer-col"><h4>Categories</h4><ul><li><a href="/category-electronics.html">Electronics</a></li><li><a href="/category-fashion.html">Fashion</a></li><li><a href="/category-home.html">Home & Living</a></li><li><a href="/category-beauty.html">Beauty</a></li><li><a href="/category-sports.html">Sports & Fitness</a></li></ul></div>
+                <div class="footer-col"><h4>Customer Service</h4><ul><li><a href="/#contact">Contact Us</a></li><li><a href="/profile.html?section=orders">Track Order</a></li><li><a href="/docs/returns.html">Returns & Refunds</a></li><li><a href="/profile.html?section=help">FAQs</a></li></ul></div>
+                <div class="footer-col"><h4>About 69Shop</h4><ul><li><a href="/#about">About Us</a></li><li><a href="/#sell">Careers</a></li><li><a href="/services.html">Blog</a></li><li><a href="/#contact">Press</a></li></ul></div>
+                <div class="footer-col"><h4>Connect With Us</h4><div class="social-links"><a href="#" onclick="alert('Facebook page coming soon!'); return false;" title="Facebook - Coming Soon"><i class="fab fa-facebook-f"></i></a><a href="https://www.instagram.com/69shop.in" target="_blank" rel="noopener noreferrer" title="Instagram"><i class="fab fa-instagram"></i></a><a href="#" onclick="alert('Twitter/X page coming soon!'); return false;" title="Twitter - Coming Soon"><i class="fab fa-x-twitter"></i></a><a href="#" onclick="alert('YouTube channel coming soon!'); return false;" title="YouTube - Coming Soon"><i class="fab fa-youtube"></i></a></div></div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 69Shop.in. All rights reserved.</p>
-            </div>
+            <div class="footer-bottom"><p>&copy; 2026 69Shop.in. All rights reserved.</p></div>
         </div>
     </footer>
 
+    <!-- Mobile Bottom Navigation -->
+    <nav class="category-mobile-nav" id="categoryMobileNav" aria-label="Mobile navigation">
+        <div class="category-mobile-nav-items">
+            <a href="/shop.html" class="category-mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/shop.html#search" class="category-mobile-nav-item" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="javascript:void(0)" onclick="if(typeof CartDrawer!=='undefined')CartDrawer.toggle()" class="category-mobile-nav-item" aria-label="Cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Cart</span>
+                <span class="nav-badge" id="mobileCartCount">0</span>
+            </a>
+            <a href="/profile.html" class="category-mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
+
     <script src="js/category-page.js"></script>
+    <script src="js/premium-features.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            CategoryPage.init('beauty', ['skincare', 'makeup', 'haircare', 'fragrance', 'wellness']);
+            CategoryPage.init('beauty', ['skincare', 'makeup', 'haircare', 'fragrances', 'wellness']);
+            window.addEventListener('scroll', function() {
+                const nav = document.querySelector('.category-nav');
+                const filterBar = document.querySelector('.category-filter-bar');
+                if (window.scrollY > 100) { nav?.classList.add('scrolled'); filterBar?.classList.add('scrolled'); }
+                else { nav?.classList.remove('scrolled'); filterBar?.classList.remove('scrolled'); }
+            });
+
+            // Mobile category toggle
+            const categoryToggle = document.getElementById('mobileCategoryToggle');
+            const categoryNavInner = document.getElementById('categoryNavInner');
+            if (categoryToggle && categoryNavInner) {
+                categoryToggle.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    categoryNavInner.classList.toggle('expanded');
+                });
+            }
+            
+            // Mobile filter toggle
+            const filterToggle = document.getElementById('mobileFilterToggle');
+            const filterBarInner = document.getElementById('filterBarInner');
+            if (filterToggle && filterBarInner) {
+                filterToggle.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    filterBarInner.classList.toggle('expanded');
+                });
+            }
+
+            // Update mobile cart count
+            const updateMobileCartCount = () => {
+                try {
+                    const cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+                    const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+                    const badge = document.getElementById('mobileCartCount');
+                    if (badge) {
+                        badge.textContent = count;
+                        badge.style.display = count > 0 ? 'flex' : 'none';
+                    }
+                } catch (e) {}
+            };
+            updateMobileCartCount();
+            window.addEventListener('storage', updateMobileCartCount);
         });
+    </script>
+
+    <!-- Cart Drawer -->
+    <div id="cart-drawer"></div>
+    <script src="js/components/cart-drawer.js"></script>
+    <script>
+        if (typeof CartDrawer !== 'undefined') {
+            CartDrawer.init({ containerId: 'cart-drawer' });
+        }
     </script>
 </body>
 </html>
+
+
+
+
+
+
+

@@ -607,6 +607,55 @@
     }
 }
 
+/* Small Mobile - 480px breakpoint */
+@media (max-width: 480px) {
+    .modern-filter-bar {
+        padding: 10px 12px;
+    }
+    
+    .filter-bar-content {
+        gap: 8px;
+    }
+    
+    .filter-dropdown-trigger {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+        gap: 6px;
+    }
+    
+    .filter-chip {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+    
+    .filter-dropdown-menu {
+        width: 280px;
+        max-width: calc(100vw - 32px);
+        left: 0;
+        right: auto;
+    }
+    
+    .filter-options-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filters-modal-header {
+        padding: 16px;
+    }
+    
+    .filters-modal-body {
+        padding: 16px;
+    }
+    
+    .filters-modal-footer {
+        padding: 16px;
+    }
+    
+    .view-toggle-group {
+        display: none;
+    }
+}
+
 /* ===== QUICK VIEW BUTTONS ===== */
 
 .view-toggle-group {

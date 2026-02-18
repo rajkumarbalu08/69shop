@@ -32,11 +32,11 @@
                         </p>
                         ${options.showSocials ? `
                         <div class="footer-socials">
-                            <a href="https://www.instagram.com/69shopin" target="_blank" rel="noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                            <a href="https://www.facebook.com/69shopin" target="_blank" rel="noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                            <a href="https://twitter.com/69shopin" target="_blank" rel="noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                            <a href="https://www.linkedin.com/company/69shopin" target="_blank" rel="noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                            <a href="https://www.youtube.com/@69shopin" target="_blank" rel="noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                            <a href="https://www.instagram.com/69shop.in" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="#" onclick="if(window.showToast)showToast('Facebook page coming soon!','info');return false;" aria-label="Follow us on Facebook" title="Facebook - Coming Soon"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" onclick="if(window.showToast)showToast('Twitter/X page coming soon!','info');return false;" aria-label="Follow us on Twitter" title="Twitter - Coming Soon"><i class="fab fa-x-twitter"></i></a>
+                            <a href="#" onclick="if(window.showToast)showToast('LinkedIn page coming soon!','info');return false;" aria-label="Follow us on LinkedIn" title="LinkedIn - Coming Soon"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" onclick="if(window.showToast)showToast('YouTube channel coming soon!','info');return false;" aria-label="Subscribe on YouTube" title="YouTube - Coming Soon"><i class="fab fa-youtube"></i></a>
                         </div>
                         ` : ''}
                     </div>
@@ -77,6 +77,7 @@
                             <li><a href="/docs/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
                             <li><a href="/docs/terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
                             <li><a href="/docs/shipping.html"><i class="fas fa-truck"></i> Shipping Policy</a></li>
+                            <li><a href="/docs/refund.html"><i class="fas fa-undo"></i> Returns & Refunds</a></li>
                         </ul>
                     </div>
                     ` : ''}

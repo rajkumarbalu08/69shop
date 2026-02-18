@@ -3,21 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>69Shop.in Terms of Service</title>
-    <link rel="stylesheet" href="../assets/css/home.css">
+    <title>Terms of Service - 69Shop.in</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/design-system.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--surface-page, #FAFBFC); color: var(--text-primary, #111827); line-height: 1.7; }
+        .legal-header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 16px 24px; position: sticky; top: 0; z-index: 10; }
+        .legal-header-inner { max-width: 800px; margin: 0 auto; display: flex; align-items: center; gap: 16px; }
+        .legal-header a { color: var(--accent-primary, #2563EB); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+        .legal-header a:hover { text-decoration: underline; }
+        .legal-container { max-width: 800px; margin: 40px auto; padding: 0 24px 80px; }
+        .legal-container h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+        .legal-meta { color: var(--text-tertiary, #9CA3AF); font-size: 0.85rem; margin-bottom: 32px; }
+        .legal-container h2 { font-size: 1.25rem; font-weight: 600; margin: 32px 0 12px; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+        .legal-container h2:first-of-type { border-top: none; }
+        .legal-container p { margin-bottom: 12px; color: var(--text-secondary, #4B5563); }
+        .legal-container ul, .legal-container ol { margin: 12px 0 12px 24px; color: var(--text-secondary, #4B5563); }
+        .legal-container li { margin-bottom: 8px; }
+        .legal-container a { color: var(--accent-primary, #2563EB); }
+        .legal-toc { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; }
+        .legal-toc h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); }
+        .legal-toc ol { margin: 0; padding-left: 20px; }
+        .legal-toc li { margin-bottom: 6px; font-size: 0.9rem; }
+        .legal-toc a { text-decoration: none; }
+        .legal-toc a:hover { text-decoration: underline; }
+        @media (max-width: 600px) {
+            .legal-container h1 { font-size: 1.5rem; }
+            .legal-container { padding: 0 16px 60px; margin-top: 24px; }
+        }
+    </style>
 </head>
-<body class="legal-page">
-    <main style="max-width: 960px; margin: 80px auto; padding: 0 24px;">
+<body>
+    <div class="legal-header">
+        <div class="legal-header-inner">
+            <a href="/">&larr; Back to 69Shop.in</a>
+        </div>
+    </div>
+    <main class="legal-container">
         <h1>Terms of Service</h1>
-        <p>These short-form terms summarise the commitments already in force while the extended legal document is prepared.</p>
+        <p class="legal-meta">Last updated: February 17, 2026 &bull; Effective from: February 17, 2026</p>
+
+        <nav class="legal-toc">
+            <h3>Contents</h3>
+            <ol>
+                <li><a href="#acceptance">Acceptance of Terms</a></li>
+                <li><a href="#eligibility">Eligibility</a></li>
+                <li><a href="#accounts">User Accounts</a></li>
+                <li><a href="#marketplace">Marketplace Services</a></li>
+                <li><a href="#orders">Orders and Payments</a></li>
+                <li><a href="#seller-terms">Seller Terms</a></li>
+                <li><a href="#prohibited">Prohibited Activities</a></li>
+                <li><a href="#ip">Intellectual Property</a></li>
+                <li><a href="#liability">Limitation of Liability</a></li>
+                <li><a href="#termination">Account Termination</a></li>
+                <li><a href="#disputes">Dispute Resolution</a></li>
+                <li><a href="#changes">Changes to Terms</a></li>
+                <li><a href="#contact">Contact Information</a></li>
+            </ol>
+        </nav>
+
+        <h2 id="acceptance">1. Acceptance of Terms</h2>
+        <p>By accessing or using 69Shop.in (the "Platform"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you must not use the Platform. These Terms constitute a legally binding agreement between you and 69Shop.in, operated under the laws of India.</p>
+
+        <h2 id="eligibility">2. Eligibility</h2>
+        <p>To use the Platform, you must:</p>
+        <ul>
+            <li>Be at least 18 years of age or have parental/guardian consent</li>
+            <li>Be capable of forming a legally binding contract under Indian law</li>
+            <li>Not be barred from using the Platform under any applicable law</li>
+            <li>Provide accurate and complete registration information</li>
+        </ul>
+
+        <h2 id="accounts">3. User Accounts</h2>
+        <p>When you create an account on the Platform:</p>
+        <ul>
+            <li>You are responsible for maintaining the confidentiality of your login credentials</li>
+            <li>You are responsible for all activities that occur under your account</li>
+            <li>You must immediately notify us of any unauthorized use of your account at <a href="mailto:support@69shop.in">support@69shop.in</a></li>
+            <li>We reserve the right to suspend or terminate accounts that violate these Terms</li>
+            <li>One person may not maintain more than one buyer account</li>
+        </ul>
+        <p>Authentication is managed through Firebase Authentication. Passwords are never stored in plaintext and are handled by Google's security infrastructure.</p>
+
+        <h2 id="marketplace">4. Marketplace Services</h2>
+        <p>69Shop.in is a multi-vendor marketplace that connects buyers with independent sellers. We provide:</p>
+        <ul>
+            <li><strong>Product listings</strong> created by verified sellers</li>
+            <li><strong>Secure checkout</strong> with multiple payment options</li>
+            <li><strong>Order management</strong> including tracking and delivery coordination</li>
+            <li><strong>Communication tools</strong> for buyer-seller messaging</li>
+            <li><strong>Service booking</strong> for local service providers</li>
+        </ul>
+        <p>69Shop.in acts as an intermediary platform. We do not own, manufacture, store, or ship the products listed by sellers. Each seller is independently responsible for their product quality, descriptions, pricing, and fulfilment.</p>
+
+        <h2 id="orders">5. Orders and Payments</h2>
+        <p><strong>Pricing:</strong> All prices are listed in Indian Rupees (INR) and are inclusive of applicable taxes unless stated otherwise. Sellers set their own prices.</p>
+        <p><strong>Payment Methods:</strong> We accept Cash on Delivery (COD) and online payments through Razorpay (UPI, debit/credit cards, net banking) once payment gateway integration is fully active.</p>
+        <p><strong>Order Confirmation:</strong> An order is confirmed only after successful payment processing or acceptance of COD terms. We reserve the right to cancel orders due to pricing errors, stock unavailability, or suspected fraudulent activity.</p>
+        <p><strong>Cancellation:</strong> Orders may be cancelled before shipment. Once shipped, the return/refund policy applies. See our <a href="/docs/refund.html">Returns & Refund Policy</a> for details.</p>
+
+        <h2 id="seller-terms">6. Seller Terms</h2>
+        <p>Sellers on 69Shop.in must:</p>
+        <ul>
+            <li>Complete KYC verification (PAN, GST, bank account details) before listing products</li>
+            <li>Provide accurate product descriptions, images, and pricing</li>
+            <li>Fulfil orders within the committed timeframe (1-2 business days processing)</li>
+            <li>Comply with all applicable Indian laws and regulations including the Consumer Protection (E-Commerce) Rules, 2020</li>
+            <li>Maintain product quality standards and respond to customer queries promptly</li>
+        </ul>
+        <p>69Shop.in charges a category-based commission on each sale (5%-15%). Commission details are provided in the seller dashboard and the <a href="/docs/seller-agreement.html">Seller Agreement</a>.</p>
+
+        <h2 id="prohibited">7. Prohibited Activities</h2>
+        <p>You agree not to:</p>
+        <ul>
+            <li>Use the Platform for any unlawful purpose</li>
+            <li>Post false, misleading, or fraudulent content</li>
+            <li>Interfere with the security or proper operation of the Platform</li>
+            <li>Scrape, crawl, or use automated means to access the Platform without permission</li>
+            <li>List counterfeit, stolen, or prohibited goods</li>
+            <li>Manipulate reviews, ratings, or search rankings</li>
+            <li>Circumvent the Platform to complete transactions outside 69Shop.in</li>
+            <li>Harass, abuse, or threaten other users</li>
+        </ul>
+
+        <h2 id="ip">8. Intellectual Property</h2>
+        <p>The Platform's design, code, logos, and branding are the intellectual property of 69Shop.in. Sellers retain ownership of their product content (images, descriptions) but grant 69Shop.in a non-exclusive license to display this content on the Platform for the purpose of facilitating sales.</p>
+
+        <h2 id="liability">9. Limitation of Liability</h2>
+        <p>To the maximum extent permitted by law:</p>
+        <ul>
+            <li>69Shop.in is not liable for the quality, safety, or legality of products listed by sellers</li>
+            <li>We are not liable for any indirect, incidental, or consequential damages arising from use of the Platform</li>
+            <li>Our total aggregate liability shall not exceed the amount paid by you for the specific transaction in question</li>
+            <li>We do not guarantee uninterrupted or error-free operation of the Platform</li>
+        </ul>
+
+        <h2 id="termination">10. Account Termination</h2>
+        <p>We may suspend or terminate your account if:</p>
+        <ul>
+            <li>You violate these Terms</li>
+            <li>Your account has been inactive for more than 12 months</li>
+            <li>We detect fraudulent or suspicious activity</li>
+            <li>Required by law or regulatory authority</li>
+        </ul>
+        <p>You may delete your account at any time by contacting <a href="mailto:support@69shop.in">support@69shop.in</a>. Pending orders and financial obligations survive account termination.</p>
+
+        <h2 id="disputes">11. Dispute Resolution</h2>
+        <p>In case of disputes:</p>
         <ol>
-            <li>Marketplace usage requires a verified Firebase account.</li>
-            <li>Checkout, concierge, and seller tooling are offered on a best-effort basis; disputes funnel through support@69shop.in.</li>
-            <li>Services and digital assets are non-transferable unless expressly stated.</li>
-            <li>We reserve the right to suspend accounts that breach seller or buyer etiquette.</li>
+            <li>Contact our support team at <a href="mailto:support@69shop.in">support@69shop.in</a> for resolution</li>
+            <li>If unresolved, the matter shall be referred to arbitration under the Arbitration and Conciliation Act, 1996</li>
+            <li>The arbitration shall be conducted in English, seated in India</li>
+            <li>These Terms are governed by the laws of India, and courts in India shall have exclusive jurisdiction</li>
         </ol>
-        <p>Email <a href="mailto:legal@69shop.in">legal@69shop.in</a> if you need bespoke contracts or NDAs.</p>
-        <p>Last updated: 11 Jan 2026</p>
+
+        <h2 id="changes">12. Changes to Terms</h2>
+        <p>We reserve the right to modify these Terms at any time. Changes will be posted on this page with an updated "Last updated" date. Continued use of the Platform after changes constitutes acceptance of the revised Terms. For material changes, we will notify registered users via email.</p>
+
+        <h2 id="contact">13. Contact Information</h2>
+        <p>For questions about these Terms of Service:</p>
+        <ul>
+            <li>Email: <a href="mailto:info@69shop.in">info@69shop.in</a></li>
+            <li>Support: <a href="mailto:support@69shop.in">support@69shop.in</a></li>
+            <li>Website: <a href="https://69shop.in">https://69shop.in</a></li>
+        </ul>
     </main>
 </body>
 </html>

@@ -1,0 +1,643 @@
+/* ===================================================
+   69SHOP.IN — Bundle Deals Styles
+   "Buy Together & Save" component styling
+   =================================================== */
+
+/* ── Section Header ── */
+.bundle-section-header {
+    margin-bottom: 24px;
+}
+.bundle-section-header h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 4px;
+}
+.bundle-section-header h3 i {
+    color: #2563EB;
+}
+.bundle-section-header p {
+    font-size: 0.9rem;
+    color: #6B7280;
+    margin: 0;
+}
+
+/* ── Bundle Deal Card ── */
+.bundle-deal-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #E5E7EB;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+.bundle-deal-card:hover {
+    border-color: #2563EB;
+    box-shadow: 0 8px 30px rgba(37, 99, 235, 0.1);
+}
+
+/* ── Header ── */
+.bundle-deal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #EFF6FF, #F0F9FF);
+    border-bottom: 1px solid #DBEAFE;
+}
+.bundle-deal-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1E40AF;
+}
+.bundle-deal-label i {
+    font-size: 1rem;
+}
+.bundle-savings-badge {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+/* ── Products Row ── */
+.bundle-products-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.bundle-products-row::-webkit-scrollbar { display: none; }
+
+.bundle-product {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+    text-align: center;
+}
+.bundle-product.current {
+    position: relative;
+}
+.bundle-product-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #E5E7EB;
+    position: relative;
+    background: #F9FAFB;
+}
+.bundle-product.current .bundle-product-img {
+    border-color: #2563EB;
+}
+.bundle-product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.bundle-current-badge {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    background: #2563EB;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 2px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.bundle-product-info h5 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.bundle-product-price {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+.bundle-original {
+    text-decoration: line-through;
+    color: #9CA3AF;
+    font-weight: 400;
+    font-size: 0.75rem;
+    margin-right: 4px;
+}
+
+/* ── Plus Separator ── */
+.bundle-plus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #F3F4F6;
+    color: #6B7280;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    margin: 0 8px;
+}
+
+/* ── Footer / Pricing ── */
+.bundle-deal-footer {
+    padding: 16px 20px;
+    background: #F9FAFB;
+    border-top: 1px solid #E5E7EB;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+.bundle-pricing {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.bundle-total-original .label,
+.bundle-total-deal .label {
+    font-size: 0.78rem;
+    color: #6B7280;
+    margin-right: 6px;
+}
+.bundle-total-original .price.struck {
+    text-decoration: line-through;
+    color: #9CA3AF;
+    font-size: 0.9rem;
+}
+.bundle-total-deal .price {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111827;
+}
+.bundle-you-save {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #059669;
+    margin-top: 2px;
+}
+
+/* ── Add Button ── */
+.bundle-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+.bundle-add-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+.bundle-add-btn:active {
+    transform: scale(0.97);
+}
+
+/* ── Grid Layout (Shop Page) ── */
+.bundle-deals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+/* ── List Layout (Product Page) ── */
+.bundle-deals-list .bundle-deal-card {
+    margin-bottom: 16px;
+}
+
+/* ── Toast Fallback ── */
+.bundle-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 14px 24px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+.bundle-toast.show { opacity: 1; transform: translateY(0); }
+.bundle-toast.success { background: #10B981; color: #fff; }
+.bundle-toast.error { background: #EF4444; color: #fff; }
+
+/* ── Seller Bundle Management ── */
+.bundle-manage-section {
+    margin-top: 32px;
+}
+.bundle-manage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.bundle-manage-header h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #111827;
+}
+.btn-create-bundle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-create-bundle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* ── Bundle Form Modal ── */
+.bundle-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+.bundle-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.bundle-modal {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    animation: bundleSlideUp 0.3s ease;
+    margin: 20px;
+}
+@keyframes bundleSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.bundle-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #E5E7EB;
+}
+.bundle-modal-header h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+.bundle-modal-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #F3F4F6;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6B7280;
+    transition: all 0.2s;
+}
+.bundle-modal-close:hover {
+    background: #E5E7EB;
+}
+.bundle-modal-body {
+    padding: 24px;
+}
+.bundle-form-group {
+    margin-bottom: 20px;
+}
+.bundle-form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+}
+.bundle-form-group input,
+.bundle-form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+.bundle-form-group input:focus,
+.bundle-form-group textarea:focus {
+    outline: none;
+    border-color: #2563EB;
+}
+
+/* Product Picker */
+.bundle-product-picker {
+    border: 1px solid #D1D5DB;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.bundle-picker-search {
+    padding: 10px 14px;
+    border-bottom: 1px solid #E5E7EB;
+    display: flex;
+    gap: 8px;
+}
+.bundle-picker-search input {
+    flex: 1;
+    border: none;
+    font-size: 0.9rem;
+    padding: 0;
+}
+.bundle-picker-search input:focus { outline: none; }
+.bundle-picker-results {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 8px;
+}
+.bundle-picker-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.bundle-picker-item:hover { background: #F3F4F6; }
+.bundle-picker-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+.bundle-picker-item .item-name {
+    flex: 1;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+.bundle-picker-item .item-price {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2563EB;
+}
+
+/* Selected Products */
+.bundle-selected-products {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+.bundle-selected-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #1E40AF;
+}
+.bundle-selected-chip img {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+.bundle-chip-remove {
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.8rem;
+}
+.bundle-chip-remove:hover { color: #EF4444; }
+
+/* Pricing Row */
+.bundle-pricing-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+}
+.bundle-pricing-row .bundle-form-group {
+    flex: 1;
+}
+.bundle-calc-savings {
+    padding: 10px 16px;
+    background: #D1FAE5;
+    border-radius: 8px;
+    color: #065F46;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 8px;
+}
+
+.bundle-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #E5E7EB;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+.btn-bundle-cancel {
+    padding: 10px 20px;
+    background: #F3F4F6;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: #374151;
+}
+.btn-bundle-save {
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-bundle-save:hover {
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+.btn-bundle-save:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ── Seller Bundle List ── */
+.seller-bundle-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+.seller-bundle-card:hover {
+    border-color: #BFDBFE;
+}
+.seller-bundle-products {
+    display: flex;
+    gap: -8px;
+}
+.seller-bundle-products img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid #fff;
+    object-fit: cover;
+    margin-left: -8px;
+}
+.seller-bundle-products img:first-child {
+    margin-left: 0;
+}
+.seller-bundle-info {
+    flex: 1;
+}
+.seller-bundle-info h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 4px;
+}
+.seller-bundle-info p {
+    font-size: 0.82rem;
+    color: #6B7280;
+    margin: 0;
+}
+.seller-bundle-actions {
+    display: flex;
+    gap: 8px;
+}
+.seller-bundle-actions button {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid #E5E7EB;
+    background: #fff;
+    color: #6B7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+.seller-bundle-actions button:hover {
+    border-color: #2563EB;
+    color: #2563EB;
+}
+.seller-bundle-actions button.delete:hover {
+    border-color: #EF4444;
+    color: #EF4444;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .bundle-deal-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .bundle-add-btn {
+        justify-content: center;
+    }
+    .bundle-deals-grid {
+        grid-template-columns: 1fr;
+    }
+    .bundle-products-row {
+        padding: 16px;
+    }
+    .bundle-product {
+        min-width: 100px;
+    }
+    .bundle-product-img {
+        width: 64px;
+        height: 64px;
+    }
+    .bundle-pricing-row {
+        flex-direction: column;
+    }
+}
+@media (max-width: 480px) {
+    .bundle-deal-header {
+        padding: 10px 14px;
+    }
+    .bundle-deal-footer {
+        padding: 14px;
+    }
+    .bundle-product {
+        min-width: 85px;
+    }
+    .bundle-product-img {
+        width: 56px;
+        height: 56px;
+    }
+    .bundle-product-info h5 {
+        font-size: 0.72rem;
+        max-width: 85px;
+    }
+}

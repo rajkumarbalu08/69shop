@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0F172A">
     <title>Book A Service | 69Shop.in</title>
     <meta name="description" content="Work with curated handmade jewellery artists, saree pre-pleating experts, bakers, distributors, photographers and more on 69Shop.in.">
 
@@ -22,6 +23,10 @@
     <!-- Styles -->
     <link rel="stylesheet" href="assets/css/home.css">
     <link rel="stylesheet" href="assets/css/services.css">
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
+    <link rel="stylesheet" href="assets/css/mobile-enhancements.css">
 </head>
 <body class="services-page">
     <!-- Header -->
@@ -55,6 +60,7 @@
         </div>
         <div class="menu-overlay" id="menuOverlay"></div>
     </header>
+    <script src="assets/js/shared-header.js"></script>
 
     <main class="main-content">
         <!-- Hero -->
@@ -77,13 +83,13 @@
                             <span><i class="fas fa-phone"></i> Concierge Support</span>
                         </div>
                         <div class="hero-buttons">
-                            <a href="#directory" class="btn-dark" data-auth-cta="catalog">
-                                <i class="fas fa-layer-group"></i>
-                                Browse Categories
+                            <a href="/book-service.html" class="btn-dark" data-auth-cta="catalog">
+                                <i class="fas fa-calendar-plus"></i>
+                                Book a Service
                             </a>
-                            <a href="#contact" class="btn-primary" data-auth-cta="planner">
-                                <i class="fas fa-calendar-check"></i>
-                                Talk to a Planner
+                            <a href="/my-bookings.html" class="btn-primary" data-auth-cta="planner">
+                                <i class="fas fa-list-check"></i>
+                                My Bookings
                             </a>
                         </div>
                         <div class="hero-metrics">
@@ -315,6 +321,18 @@
                             <i class="fas fa-comments"></i>
                             Request concierge callback
                         </a>
+                        <div class="provider-select-inline" data-service-key="jewellery">
+                            <select class="provider-picker" onchange="updateMessageButton(this, 'jewellery')">
+                                <option value="" disabled selected>Choose a provider to message</option>
+                                <option value="meera-coimbatore" data-name="Meera Krishnan">Meera Krishnan • Coimbatore (Bridal specialist)</option>
+                                <option value="anand-chennai" data-name="Anand Gems">Anand Gems • Chennai (Temple jewellery)</option>
+                                <option value="lakshmi-madurai" data-name="Lakshmi Designs">Lakshmi Designs • Madurai (Custom couture)</option>
+                            </select>
+                            <button class="btn-message-provider" id="msgBtn-jewellery" disabled onclick="openServiceMessage('Handmade Jewellery', this.dataset.providerName)">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Select a provider first</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="service-form">
                         <h3>Book jewellery expert</h3>
@@ -374,10 +392,18 @@
                             <li><i class="fas fa-check-circle"></i> Multi-city pickup + delivery network.</li>
                             <li><i class="fas fa-check-circle"></i> Onsite draping teams for mehendi / sangeet.</li>
                         </ul>
-                        <a href="shop.html#promotionSection" class="btn-secondary">
-                            <i class="fas fa-tshirt"></i>
-                            View textile offers
-                        </a>
+                        <div class="provider-select-inline" data-service-key="pleating">
+                            <select class="provider-picker" onchange="updateMessageButton(this, 'pleating')">
+                                <option value="" disabled selected>Choose a provider to message</option>
+                                <option value="priya-tirupur" data-name="Priya Ravi">Priya Ravi • Tirupur (Express pleat hub)</option>
+                                <option value="raji-chennai" data-name="Raji Kumar">Raji Kumar • Chennai (Heritage couture atelier)</option>
+                                <option value="ramani-madurai" data-name="Ramani Selvam">Ramani Selvam • Madurai (Temple wedding drapes)</option>
+                            </select>
+                            <button class="btn-message-provider" id="msgBtn-pleating" disabled onclick="openServiceMessage('Saree Pre-Pleating', this.dataset.providerName)">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Select a provider first</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="service-form">
                         <h3>Reserve pleating slot</h3>
@@ -457,10 +483,22 @@
                             <li><i class="fas fa-check-circle"></i> QC, packing, and nationwide courier booking.</li>
                             <li><i class="fas fa-check-circle"></i> Carbon-neutral & plastic-free options.</li>
                         </ul>
-                        <a href="shop.html" class="btn-secondary">
+                        <a href="/shop.html" class="btn-secondary">
                             <i class="fas fa-store"></i>
                             Shop ready hampers
                         </a>
+                        <div class="provider-select-inline" data-service-key="gifts">
+                            <select class="provider-picker" onchange="updateMessageButton(this, 'gifts')">
+                                <option value="" disabled selected>Choose a provider to message</option>
+                                <option value="divya-chennai" data-name="Divya Crafts">Divya Crafts • Chennai (Eco hampers)</option>
+                                <option value="sneha-bangalore" data-name="Sneha Studios">Sneha Studios • Bangalore (Corporate gifting)</option>
+                                <option value="kavitha-coimbatore" data-name="Kavitha Artisan">Kavitha Artisan • Coimbatore (Festival specials)</option>
+                            </select>
+                            <button class="btn-message-provider" id="msgBtn-gifts" disabled onclick="openServiceMessage('Handmade Gifts', this.dataset.providerName)">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Select a provider first</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="service-form">
                         <h3>Customise hamper brief</h3>
@@ -520,10 +558,18 @@
                             <li><i class="fas fa-check-circle"></i> Custom flavours, allergen labeling.</li>
                             <li><i class="fas fa-check-circle"></i> Shelf-life tested packaging.</li>
                         </ul>
-                        <a href="shop.html#promotionSection" class="btn-secondary">
-                            <i class="fas fa-cookie-bite"></i>
-                            View seasonal menus
-                        </a>
+                        <div class="provider-select-inline" data-service-key="bakery">
+                            <select class="provider-picker" onchange="updateMessageButton(this, 'bakery')">
+                                <option value="" disabled selected>Choose a provider to message</option>
+                                <option value="preethi-chennai" data-name="Preethi Bakes">Preethi Bakes • Chennai (Premium cookies)</option>
+                                <option value="arun-bangalore" data-name="Arun Patisserie">Arun Patisserie • Bangalore (French desserts)</option>
+                                <option value="sudha-coimbatore" data-name="Sudha Kitchen">Sudha Kitchen • Coimbatore (Traditional sweets)</option>
+                            </select>
+                            <button class="btn-message-provider" id="msgBtn-bakery" disabled onclick="openServiceMessage('Bakery & Cookies', this.dataset.providerName)">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Select a provider first</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="service-form">
                         <h3>Plan dessert collaboration</h3>
@@ -583,10 +629,22 @@
                             <li><i class="fas fa-check-circle"></i> Digital inventory dashboards.</li>
                             <li><i class="fas fa-check-circle"></i> Retailer training & launch events.</li>
                         </ul>
-                        <a href="profile.html?section=dashboard" class="btn-secondary">
+                        <a href="/profile.html?section=dashboard" class="btn-secondary">
                             <i class="fas fa-chart-line"></i>
                             Review growth toolkit
                         </a>
+                        <div class="provider-select-inline" data-service-key="distribution">
+                            <select class="provider-picker" onchange="updateMessageButton(this, 'distribution')">
+                                <option value="" disabled selected>Choose a provider to message</option>
+                                <option value="vijay-chennai" data-name="Vijay Distributors">Vijay Distributors • Chennai (Metro coverage)</option>
+                                <option value="karthik-bangalore" data-name="Karthik Logistics">Karthik Logistics • Bangalore (Pan-South)</option>
+                                <option value="senthil-madurai" data-name="Senthil Wholesale">Senthil Wholesale • Madurai (Tier-2 cities)</option>
+                            </select>
+                            <button class="btn-message-provider" id="msgBtn-distribution" disabled onclick="openServiceMessage('Distribution', this.dataset.providerName)">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Select a provider first</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="service-form">
                         <h3>Discuss distribution</h3>
@@ -647,10 +705,18 @@
                             </li>
                             <li><i class="fas fa-check-circle"></i> Add-on reels & BTS content packages.</li>
                         </ul>
-                        <a href="shop.html#promotionSection" class="btn-secondary">
-                            <i class="fas fa-video"></i>
-                            Explore creative promos
-                        </a>
+                        <div class="provider-select-inline" data-service-key="photography">
+                            <select class="provider-picker" onchange="updateMessageButton(this, 'photography')">
+                                <option value="" disabled selected>Choose a provider to message</option>
+                                <option value="ravi-chennai" data-name="Ravi Studios">Ravi Studios • Chennai (Wedding + lifestyle)</option>
+                                <option value="deepa-bangalore" data-name="Deepa Clicks">Deepa Clicks • Bangalore (Product catalogs)</option>
+                                <option value="arjun-coimbatore" data-name="Arjun Photography">Arjun Photography • Coimbatore (Social media)</option>
+                            </select>
+                            <button class="btn-message-provider" id="msgBtn-photography" disabled onclick="openServiceMessage('Photography', this.dataset.providerName)">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Select a provider first</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="service-form">
                         <h3>Schedule a shoot</h3>
@@ -779,6 +845,307 @@
         </div>
     </div>
 
+    <!-- Service Provider Messaging Modal -->
+    <div class="service-message-overlay" id="serviceMessageOverlay">
+        <div class="service-message-modal">
+            <div class="service-message-header">
+                <div>
+                    <h3 id="messageModalTitle">Message Provider</h3>
+                    <p id="messageModalSubtitle" class="service-message-subtitle">Send a direct message to the service team</p>
+                </div>
+                <button class="service-message-close-btn" onclick="closeServiceMessage()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="service-message-body">
+                <div class="service-message-thread" id="messageThread">
+                    <div class="message-empty-state">
+                        <i class="fas fa-comments"></i>
+                        <p>Start a conversation with the provider</p>
+                    </div>
+                </div>
+                <form class="service-message-form" id="serviceMessageForm" onsubmit="sendServiceProviderMessage(event)">
+                    <div class="message-input-wrapper">
+                        <textarea id="serviceMessageInput" placeholder="Type your message..." rows="2" required></textarea>
+                        <button type="submit" class="message-send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Provider Select Inline Component */
+        .provider-select-inline {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+            padding: 18px;
+            background: rgba(37, 99, 235, 0.04);
+            border: 1.5px solid rgba(37, 99, 235, 0.12);
+            border-radius: 16px;
+        }
+        .provider-select-inline .provider-picker {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            font-size: 0.92rem;
+            font-family: 'Inter', sans-serif;
+            color: #1E293B;
+            background: #FFFFFF;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+        }
+        .provider-select-inline .provider-picker:focus {
+            outline: none;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .provider-select-inline .btn-message-provider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            padding: 13px 22px;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.92rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: #CBD5E1;
+            color: #64748B;
+        }
+        .provider-select-inline .btn-message-provider:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .provider-select-inline .btn-message-provider.provider-selected {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+        }
+        .provider-select-inline .btn-message-provider.provider-selected:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+        @media (max-width: 640px) {
+            .provider-select-inline {
+                padding: 14px;
+            }
+            .provider-select-inline .provider-picker {
+                font-size: 0.85rem;
+                padding: 10px 14px;
+            }
+            .provider-select-inline .btn-message-provider {
+                font-size: 0.85rem;
+                padding: 11px 16px;
+            }
+        }
+
+        /* Service Provider Messaging Modal */
+        .service-message-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .service-message-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .service-message-modal {
+            background: #FFFFFF;
+            border-radius: 24px;
+            max-width: 520px;
+            width: 92%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.92) translateY(16px);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .service-message-overlay.show .service-message-modal {
+            transform: scale(1) translateY(0);
+        }
+        .service-message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 24px 28px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .service-message-header h3 {
+            font-size: 1.15rem;
+            color: #0F172A;
+            margin: 0 0 4px;
+        }
+        .service-message-subtitle {
+            font-size: 0.82rem;
+            color: #94A3B8 !important;
+            margin: 0;
+        }
+        .service-message-close-btn {
+            background: #F1F5F9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #64748B;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        .service-message-close-btn:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+        }
+        .service-message-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+        }
+        .service-message-thread {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 28px;
+            min-height: 200px;
+            max-height: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .message-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 180px;
+            color: #CBD5E1;
+            gap: 12px;
+        }
+        .message-empty-state i {
+            font-size: 2.5rem;
+            color: #E2E8F0 !important;
+        }
+        .message-empty-state p {
+            font-size: 0.88rem;
+            color: #94A3B8 !important;
+        }
+        .message-bubble {
+            max-width: 82%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.92rem;
+            line-height: 1.55;
+            animation: fadeInUp 0.25s ease;
+        }
+        .message-bubble.sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: #FFFFFF;
+            border-bottom-right-radius: 4px;
+        }
+        .message-bubble.received {
+            align-self: flex-start;
+            background: #F1F5F9;
+            color: #1E293B;
+            border-bottom-left-radius: 4px;
+        }
+        .message-bubble .message-time {
+            font-size: 0.68rem;
+            margin-top: 6px;
+            display: block;
+        }
+        .message-bubble.sent .message-time {
+            color: rgba(255,255,255,0.6) !important;
+            text-align: right;
+        }
+        .message-bubble.received .message-time {
+            color: #94A3B8 !important;
+        }
+        .service-message-form {
+            padding: 16px 28px 24px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+        .message-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .message-input-wrapper textarea {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 14px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            resize: none;
+            background: #F8FAFC;
+            color: #1E293B;
+            transition: border-color 0.2s ease;
+        }
+        .message-input-wrapper textarea:focus {
+            outline: none;
+            border-color: #2563EB;
+        }
+        .message-send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: #FFFFFF;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .message-send-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+        @media (max-width: 480px) {
+            .service-message-modal {
+                width: 96%;
+                border-radius: 20px;
+            }
+            .service-message-header,
+            .service-message-thread,
+            .service-message-form {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+        }
+    </style>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -787,10 +1154,10 @@
                     <div class="footer-logo">69Shop.in</div>
                     <p class="footer-description">India's premium marketplace for products, services, and curated business collaborations.</p>
                     <div class="social-links">
-                        <a href="https://www.instagram.com/69shopin" target="_blank" rel="noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.facebook.com/69shopin" target="_blank" rel="noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://twitter.com/69shopin" target="_blank" rel="noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="https://www.linkedin.com/company/69shopin" target="_blank" rel="noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/69shop.in" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" onclick="alert('Facebook page coming soon!'); return false;" aria-label="Follow us on Facebook" title="Facebook - Coming Soon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" onclick="alert('Twitter/X page coming soon!'); return false;" aria-label="Follow us on Twitter" title="Twitter - Coming Soon"><i class="fab fa-x-twitter"></i></a>
+                        <a href="#" onclick="alert('LinkedIn page coming soon!'); return false;" aria-label="Follow us on LinkedIn" title="LinkedIn - Coming Soon"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
                 <div class="footer-column">
@@ -798,7 +1165,7 @@
                     <ul class="footer-links">
                         <li><a href="/" onclick="handleHomeClick(event)"><i class="fas fa-home"></i> Home</a></li>
                         <li><a href="/shop.html" onclick="goToShop(event)"><i class="fas fa-store"></i> Shop</a></li>
-                        <li><a href="services.html"><i class="fas fa-handshake"></i> Services</a></li>
+                        <li><a href="/services.html"><i class="fas fa-handshake"></i> Services</a></li>
                         <li><a href="/#sell"><i class="fas fa-rocket"></i> Sell</a></li>
                     </ul>
                 </div>
@@ -828,22 +1195,32 @@
 
     <!-- Scripts -->
     <script>
-        const firebaseConfig = window.firebaseConfig;
-        if (!firebaseConfig || !firebaseConfig.apiKey) {
-            throw new Error('Missing Firebase configuration. Create dist/firebase-config.js from the sample before using services.html.');
-        }
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        let auth = null;
+        let db = null;
+        let firebaseReady = false;
         const callableRegion = 'asia-south1';
         let cloudFunctions = null;
+
         try {
-            cloudFunctions = firebase.app().functions(callableRegion);
+            const firebaseConfig = window.firebaseConfig;
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Missing Firebase configuration. Create dist/firebase-config.js from the sample before using services.html.');
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            db = firebase.firestore();
+            firebaseReady = true;
+            try {
+                cloudFunctions = firebase.app().functions(callableRegion);
+            } catch (fnError) {
+                console.warn('Unable to initialize Firebase Functions', fnError);
+            }
         } catch (error) {
-            console.warn('Unable to initialize Firebase Functions', error);
+            console.error('Firebase initialization error:', error);
         }
+
         let sendServiceEmailCallable = null;
         let currentUser = null;
 
@@ -900,7 +1277,7 @@
                         btn.setAttribute('href', '#contact');
                     } else {
                         btn.innerHTML = '<i class="fas fa-user-lock"></i> Login to talk to planner';
-                        btn.setAttribute('href', 'shop-login.html');
+                        btn.setAttribute('href', '/shop-login.html');
                     }
                 } else if (intent === 'catalog') {
                     if (user) {
@@ -1272,11 +1649,170 @@
             }
         });
 
+        // ── Dynamic Provider Select → Message Button ──────
+        function updateMessageButton(selectEl, serviceKey) {
+            const btn = document.getElementById('msgBtn-' + serviceKey);
+            if (!btn) return;
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            const providerName = selectedOption.dataset.name || '';
+            if (providerName) {
+                btn.disabled = false;
+                btn.dataset.providerName = providerName;
+                btn.querySelector('span').textContent = 'Message to ' + providerName;
+                btn.classList.add('provider-selected');
+            } else {
+                btn.disabled = true;
+                btn.dataset.providerName = '';
+                btn.querySelector('span').textContent = 'Select a provider first';
+                btn.classList.remove('provider-selected');
+            }
+        }
+
+        // ── Service Provider Messaging ──────────────────────
+        let activeMessageService = '';
+        let activeMessageProvider = '';
+        let messageUnsubscribe = null;
+
+        function openServiceMessage(service, provider) {
+            if (!currentUser) {
+                showNotification('Please log in to message a service provider.', 'error');
+                setTimeout(() => { window.location.href = '/shop-login.html'; }, 1500);
+                return;
+            }
+            activeMessageService = service;
+            activeMessageProvider = provider;
+            document.getElementById('messageModalTitle').textContent = `Message ${provider}`;
+            document.getElementById('messageModalSubtitle').textContent = `${service} — Direct conversation`;
+            document.getElementById('serviceMessageOverlay').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            loadServiceMessages();
+        }
+
+        function closeServiceMessage() {
+            document.getElementById('serviceMessageOverlay').classList.remove('show');
+            document.body.style.overflow = '';
+            if (messageUnsubscribe) {
+                messageUnsubscribe();
+                messageUnsubscribe = null;
+            }
+            activeMessageService = '';
+            activeMessageProvider = '';
+        }
+
+        // Close on overlay click
+        document.getElementById('serviceMessageOverlay')?.addEventListener('click', (e) => {
+            if (e.target.id === 'serviceMessageOverlay') closeServiceMessage();
+        });
+
+        function loadServiceMessages() {
+            const thread = document.getElementById('messageThread');
+            if (!db || !currentUser) {
+                thread.innerHTML = '<div class="message-empty-state"><i class="fas fa-lock"></i><p>Log in to view messages</p></div>';
+                return;
+            }
+            const serviceSlug = activeMessageService.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const providerSlug = activeMessageProvider.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const conversationId = `svc_${currentUser.uid}_${serviceSlug}_${providerSlug}`;
+            if (messageUnsubscribe) messageUnsubscribe();
+            messageUnsubscribe = db.collection('service_messages')
+                .doc(conversationId)
+                .collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot(snapshot => {
+                    if (snapshot.empty) {
+                        thread.innerHTML = '<div class="message-empty-state"><i class="fas fa-comments"></i><p>Start a conversation with the provider</p></div>';
+                        return;
+                    }
+                    thread.innerHTML = '';
+                    snapshot.forEach(doc => {
+                        const msg = doc.data();
+                        const bubble = document.createElement('div');
+                        bubble.className = `message-bubble ${msg.senderUid === currentUser.uid ? 'sent' : 'received'}`;
+                        const time = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '';
+                        bubble.innerHTML = `${escapeHtml(msg.text)}<span class="message-time">${time}</span>`;
+                        thread.appendChild(bubble);
+                    });
+                    thread.scrollTop = thread.scrollHeight;
+                }, err => {
+                    console.error('Message listener error:', err);
+                    thread.innerHTML = '<div class="message-empty-state"><i class="fas fa-exclamation-triangle"></i><p>Unable to load messages</p></div>';
+                });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function sendServiceProviderMessage(event) {
+            event.preventDefault();
+            const input = document.getElementById('serviceMessageInput');
+            const text = input.value.trim();
+            if (!text || !currentUser || !db) return;
+            input.value = '';
+
+            const serviceSlug = activeMessageService.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const providerSlug = activeMessageProvider.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const conversationId = `svc_${currentUser.uid}_${serviceSlug}_${providerSlug}`;
+            try {
+                const convRef = db.collection('service_messages').doc(conversationId);
+                await convRef.set({
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    userName: currentUser.displayName || currentUser.email.split('@')[0],
+                    service: activeMessageService,
+                    provider: activeMessageProvider,
+                    lastMessage: text,
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                await convRef.collection('messages').add({
+                    text: text,
+                    senderUid: currentUser.uid,
+                    senderName: currentUser.displayName || currentUser.email.split('@')[0],
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (err) {
+                console.error('Send message error:', err);
+                showNotification('Unable to send message. Please try again.', 'error');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             checkAuthState();
             setupProviderSelector();
             setupBookingForms();
         });
     </script>
+    <script src="js/xss-sanitizer.js"></script>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+        <div class="mobile-nav-items">
+            <a href="/shop.html" class="mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/search.html" class="mobile-nav-item" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="/services.html" class="mobile-nav-item active" aria-label="Services">
+                <i class="fas fa-concierge-bell"></i>
+                <span>Services</span>
+            </a>
+            <a href="/messages.html" class="mobile-nav-item" aria-label="Messages">
+                <i class="fas fa-comment-dots"></i>
+                <span>Chat</span>
+            </a>
+            <a href="/profile.html" class="mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
 </body>
 </html>
+

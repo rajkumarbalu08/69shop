@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
+    <title>Search Results - 69Shop.in</title>
+    <meta name="description" content="Search products on 69Shop.in - Find exactly what you're looking for">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    <script src="products-data.js"></script>
+    
+    <script>
+        let auth = null, db = null, firebaseReady = false;
+        try {
+            const cfg = window.firebaseConfig;
+            if (cfg && cfg.apiKey) { if (!firebase.apps.length) firebase.initializeApp(cfg); auth = firebase.auth(); db = firebase.firestore(); firebaseReady = true; }
+        } catch (e) { console.warn('Firebase init error:', e); }
+        window.firebaseReady = firebaseReady;
+    </script>
+
+    <link rel="stylesheet" href="assets/css/shop.css">
+    <link rel="stylesheet" href="assets/css/elite-shop.css">
+    <link rel="stylesheet" href="assets/css/elegant-shop.css">
+    <link rel="stylesheet" href="assets/css/category-page.css">
+    <link rel="stylesheet" href="assets/css/premium-shop.css">
+    
+    <style>
+        :root {
+            --blue-primary: #0066ff;
+            --primary-black: #1A1A1A;
+            --secondary-black: #2D2D2D;
+            --dark-grey: #404040;
+            --medium-grey: #666666;
+            --light-grey: #F8F8F8;
+            --white: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light-grey);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 16px 0;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+        }
+        
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .site-name {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--primary-black);
+        }
+        
+        .tagline {
+            font-size: 0.75rem;
+            color: var(--medium-grey);
+        }
+        
+        /* Search Hero */
+        .search-hero {
+            background: linear-gradient(135deg, #0066ff 0%, #00a3ff 50%, #00d4ff 100%);
+            padding: 60px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .search-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .search-hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+        
+        .search-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+        
+        .search-hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .search-hero h1 .highlight {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 16px;
+            border-radius: 8px;
+        }
+        
+        .search-hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 24px;
+        }
+        
+        .search-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        /* Live Search Bar in Hero */
+        .hero-search-bar {
+            max-width: 600px;
+            margin: 30px auto 0;
+            position: relative;
+        }
+        
+        .hero-search-bar input {
+            width: 100%;
+            padding: 16px 24px 16px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .hero-search-bar input:focus {
+            outline: none;
+        }
+        
+        .hero-search-bar i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--medium-grey);
+            font-size: 1.1rem;
+        }
+        
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-top: 8px;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .search-suggestions.active {
+            display: block;
+        }
+        
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .suggestion-item:hover {
+            background: var(--light-grey);
+        }
+        
+        .suggestion-item img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        .suggestion-item .info {
+            flex: 1;
+        }
+        
+        .suggestion-item .name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .suggestion-item .meta {
+            font-size: 0.8rem;
+            color: var(--medium-grey);
+        }
+        
+        .suggestion-item .price {
+            font-weight: 600;
+            color: var(--blue-primary);
+        }
+        
+        /* Filter Bar */
+        .filter-bar {
+            background: white;
+            padding: 16px 0;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 80px;
+            z-index: 100;
+        }
+        
+        .filter-bar-inner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-group label {
+            font-size: 0.85rem;
+            color: var(--medium-grey);
+        }
+        
+        .filter-group select {
+            padding: 10px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .filter-tags {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tag {
+            padding: 8px 16px;
+            background: var(--light-grey);
+            border: 1px solid #e5e7eb;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-tag:hover,
+        .filter-tag.active {
+            background: var(--blue-primary);
+            color: white;
+            border-color: var(--blue-primary);
+        }
+        
+        .results-count {
+            margin-left: auto;
+            font-size: 0.9rem;
+            color: var(--medium-grey);
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 40px 0;
+        }
+        
+        /* Related Brands Section */
+        .related-brands {
+            margin-bottom: 40px;
+        }
+        
+        .related-brands h3 {
+            font-size: 1rem;
+            color: var(--medium-grey);
+            margin-bottom: 16px;
+        }
+        
+        .brands-list {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .brand-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--primary-black);
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .brand-chip:hover {
+            border-color: var(--blue-primary);
+            color: var(--blue-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,102,255,0.15);
+        }
+        
+        .brand-chip.active {
+            background: var(--blue-primary);
+            color: white;
+            border-color: var(--blue-primary);
+        }
+        
+        .brand-chip img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+        
+        .product-image {
+            position: relative;
+            height: 220px;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.08);
+        }
+        
+        .product-badges {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-discount {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .badge-new {
+            background: #10b981;
+            color: white;
+        }
+        
+        .badge-brand {
+            background: var(--blue-primary);
+            color: white;
+        }
+        
+        .product-actions {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover .product-actions {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: var(--blue-primary);
+            color: white;
+        }
+        
+        .action-btn.wishlisted {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .product-content {
+            padding: 16px;
+        }
+        
+        .product-brand {
+            font-size: 0.75rem;
+            color: var(--blue-primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .product-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--primary-black);
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+        
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        
+        .stars {
+            color: #fbbf24;
+            font-size: 0.8rem;
+        }
+        
+        .rating-count {
+            font-size: 0.8rem;
+            color: var(--medium-grey);
+        }
+        
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .current-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-black);
+        }
+        
+        .original-price {
+            font-size: 0.9rem;
+            color: var(--medium-grey);
+            text-decoration: line-through;
+        }
+        
+        .discount-percent {
+            font-size: 0.8rem;
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-black);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .add-to-cart-btn:hover {
+            background: var(--blue-primary);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        
+        .empty-state-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        
+        .empty-state-icon i {
+            font-size: 48px;
+            color: var(--blue-primary);
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: var(--primary-black);
+            margin-bottom: 12px;
+        }
+        
+        .empty-state p {
+            color: var(--medium-grey);
+            margin-bottom: 24px;
+        }
+        
+        .empty-state .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--blue-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        /* Popular Searches */
+        .popular-searches {
+            margin-top: 32px;
+        }
+        
+        .popular-searches h4 {
+            font-size: 0.9rem;
+            color: var(--medium-grey);
+            margin-bottom: 12px;
+        }
+        
+        .popular-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .popular-tag {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            color: var(--primary-black);
+            transition: all 0.2s;
+        }
+        
+        .popular-tag:hover {
+            border-color: var(--blue-primary);
+            color: var(--blue-primary);
+        }
+        
+        /* Loading State */
+        .loading-state {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+        
+        .skeleton-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .skeleton-image {
+            height: 220px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        .skeleton-content {
+            padding: 16px;
+        }
+        
+        .skeleton-line {
+            height: 16px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        
+        .skeleton-line.short { width: 60%; }
+        .skeleton-line.medium { width: 80%; }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--primary-black);
+            color: white;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .footer-logo {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-wrap: wrap;
+            }
+            
+            .search-hero {
+                padding: 40px 0;
+            }
+            
+            .search-hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .search-stats {
+                gap: 24px;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .filter-bar-inner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-tags {
+                width: 100%;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 8px;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .filter-tag {
+                flex-shrink: 0;
+            }
+            
+            .results-count {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px;
+            }
+            
+            .product-image {
+                height: 160px;
+            }
+            
+            .product-content {
+                padding: 12px;
+            }
+            
+            .product-name {
+                font-size: 0.85rem;
+            }
+            
+            .current-price {
+                font-size: 1.1rem;
+            }
+            
+            .add-to-cart-btn {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+            
+            .add-to-cart-btn span {
+                display: none;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 16px;
+            }
+            
+            .products-grid {
+                gap: 10px;
+            }
+            
+            .product-image {
+                height: 130px;
+            }
+            
+            .product-actions {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            
+            .action-btn {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .hero-search-bar input {
+                padding: 14px 20px 14px 45px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
+    <link rel="stylesheet" href="assets/css/mobile-enhancements.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon"><img src="/Logo/69shopc.png" alt="69Shop.in Logo"></div>
+                    <div class="logo-text">
+                        <div class="site-name">69SHOP.IN</div>
+                        <div class="tagline">Premium Marketplace</div>
+                    </div>
+                </a>
+                <div class="header-actions">
+                    <a href="/shop.html" class="btn-primary" style="padding: 10px 20px; background: var(--blue-primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500;">
+                        <i class="fas fa-store"></i> All Products
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Hero -->
+    <section class="search-hero">
+        <div class="container">
+            <div class="search-hero-content">
+                <span class="search-type-badge" id="searchTypeBadge">
+                    <i class="fas fa-search"></i>
+                    <span>Search Results</span>
+                </span>
+                <h1 id="searchTitle">Searching for "<span class="highlight" id="searchQuery">...</span>"</h1>
+                <p id="searchSubtitle">Finding the best matches for you</p>
+                
+                <div class="search-stats" id="searchStats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="resultCount">0</span>
+                        <span class="stat-label">Products Found</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="brandCount">0</span>
+                        <span class="stat-label">Brands</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="categoryCount">0</span>
+                        <span class="stat-label">Categories</span>
+                    </div>
+                </div>
+                
+                <!-- Live Search Bar -->
+                <div class="hero-search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="liveSearchInput" placeholder="Search for products, brands, categories..." autocomplete="off">
+                    <div class="search-suggestions" id="searchSuggestions"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="container">
+            <div class="filter-bar-inner">
+                <div class="filter-group">
+                    <label>Sort by:</label>
+                    <select id="sortSelect" onchange="DynamicSearch.sortProducts(this.value)">
+                        <option value="relevance">Most Relevant</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="rating">Highest Rated</option>
+                        <option value="newest">Newest First</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Price:</label>
+                    <select id="priceFilter" onchange="DynamicSearch.filterByPrice(this.value)">
+                        <option value="all">All Prices</option>
+                        <option value="0-1000">Under ₹1,000</option>
+                        <option value="1000-5000">₹1,000 - ₹5,000</option>
+                        <option value="5000-10000">₹5,000 - ₹10,000</option>
+                        <option value="10000+">Above ₹10,000</option>
+                    </select>
+                </div>
+                <div class="filter-tags" id="categoryTags"></div>
+                <span class="results-count"><span id="filteredCount">0</span> results</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Related Brands -->
+            <div class="related-brands" id="relatedBrands" style="display: none;">
+                <h3>Related Brands</h3>
+                <div class="brands-list" id="brandsList"></div>
+            </div>
+            
+            <!-- Loading State -->
+            <div class="loading-state" id="loadingState">
+                <div class="skeleton-card"><div class="skeleton-image"></div><div class="skeleton-content"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton-image"></div><div class="skeleton-content"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton-image"></div><div class="skeleton-content"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton-image"></div><div class="skeleton-content"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div></div></div>
+            </div>
+            
+            <!-- Products Grid -->
+            <div class="products-grid" id="productsGrid" style="display: none;"></div>
+            
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-state-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>No products found</h3>
+                <p>We couldn't find any products matching "<span id="emptyQuery"></span>"</p>
+                <a href="/shop.html" class="btn-primary">
+                    <i class="fas fa-store"></i> Browse All Products
+                </a>
+                <div class="popular-searches">
+                    <h4>Popular searches:</h4>
+                    <div class="popular-tags">
+                        <a href="?q=Nike" class="popular-tag">Nike</a>
+                        <a href="?q=Samsung" class="popular-tag">Samsung</a>
+                        <a href="?q=iPhone" class="popular-tag">iPhone</a>
+                        <a href="?q=Watch" class="popular-tag">Watch</a>
+                        <a href="?q=Shoes" class="popular-tag">Shoes</a>
+                        <a href="?brand=Puma" class="popular-tag">Puma</a>
+                        <a href="?category=Electronics" class="popular-tag">Electronics</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">69SHOP.IN</div>
+                <div class="footer-links">
+                    <a href="/shop.html">Shop</a>
+                    <a href="/services.html">Services</a>
+                    <a href="/docs/terms.html">Terms</a>
+                    <a href="/docs/privacy.html">Privacy</a>
+                </div>
+                <div class="footer-copy">© 2026 69Shop.in. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // =============================================
+        // DYNAMIC SEARCH PAGE - SPA Style
+        // =============================================
+        
+        const DynamicSearch = {
+            products: [],
+            filteredProducts: [],
+            allProducts: [],
+            searchQuery: '',
+            searchType: 'query', // 'query', 'brand', 'category', 'seller'
+            currentSort: 'relevance',
+            currentPriceFilter: 'all',
+            currentCategoryFilter: 'all',
+            wishlist: new Set(),
+            cart: [],
+            
+            async init() {
+                // Parse URL parameters
+                const params = new URLSearchParams(window.location.search);
+                const query = params.get('q') || params.get('query') || '';
+                const brand = params.get('brand') || '';
+                const category = params.get('category') || '';
+                const seller = params.get('seller') || '';
+                
+                // Determine search type and query
+                if (brand) {
+                    this.searchQuery = brand;
+                    this.searchType = 'brand';
+                } else if (category) {
+                    this.searchQuery = category;
+                    this.searchType = 'category';
+                } else if (seller) {
+                    this.searchQuery = seller;
+                    this.searchType = 'seller';
+                } else {
+                    this.searchQuery = query;
+                    this.searchType = 'query';
+                }
+                
+                // Update page title
+                document.title = this.searchQuery ? `${this.searchQuery} - 69Shop.in` : 'Search - 69Shop.in';
+                
+                // Load cart and wishlist
+                this.loadCartFromStorage();
+                this.loadWishlistFromStorage();
+                
+                // Load products
+                await this.loadProducts();
+                
+                // Perform search
+                this.search();
+                
+                // Setup event listeners
+                this.setupEventListeners();
+                
+                // Update UI
+                this.updateSearchHero();
+            },
+            
+            async loadProducts() {
+                try {
+                    // Try to get products from window.productsData (loaded from products-data.js)
+                    if (window.productsData && window.productsData.length > 0) {
+                        this.allProducts = window.productsData;
+                    }
+                    
+                    // Also try Firestore
+                    if (window.firebaseReady && db) {
+                        try {
+                            const snapshot = await db.collection('products').limit(200).get();
+                            const firestoreProducts = snapshot.docs.map(doc => ({
+                                id: doc.id,
+                                ...doc.data()
+                            }));
+                            
+                            // Merge products, preferring Firestore
+                            const productMap = new Map();
+                            this.allProducts.forEach(p => productMap.set(p.id, p));
+                            firestoreProducts.forEach(p => productMap.set(p.id, p));
+                            this.allProducts = Array.from(productMap.values());
+                        } catch (e) {
+                            console.log('Firestore products not available:', e);
+                        }
+                    }
+                    
+                    console.log('Loaded', this.allProducts.length, 'products');
+                } catch (error) {
+                    console.error('Error loading products:', error);
+                }
+            },
+            
+            search() {
+                const query = this.searchQuery.toLowerCase().trim();
+                
+                if (!query) {
+                    this.filteredProducts = [...this.allProducts];
+                } else {
+                    // Search based on type
+                    this.filteredProducts = this.allProducts.filter(product => {
+                        const name = (product.name || '').toLowerCase();
+                        const brand = (product.brand || '').toLowerCase();
+                        const category = (product.category || '').toLowerCase();
+                        const seller = (product.seller || product.sellerName || '').toLowerCase();
+                        const description = (product.description || '').toLowerCase();
+                        const tags = (product.tags || []).join(' ').toLowerCase();
+                        
+                        switch (this.searchType) {
+                            case 'brand':
+                                return brand.includes(query) || name.includes(query);
+                            case 'category':
+                                return category.includes(query);
+                            case 'seller':
+                                return seller.includes(query);
+                            default:
+                                // General search - check all fields
+                                return name.includes(query) ||
+                                       brand.includes(query) ||
+                                       category.includes(query) ||
+                                       seller.includes(query) ||
+                                       description.includes(query) ||
+                                       tags.includes(query);
+                        }
+                    });
+                }
+                
+                // Store for filtering
+                this.products = [...this.filteredProducts];
+                
+                // Apply current filters
+                this.applyFilters();
+                
+                // Update category filter tags
+                this.updateCategoryTags();
+                
+                // Update related brands
+                this.updateRelatedBrands();
+            },
+            
+            applyFilters() {
+                let filtered = [...this.products];
+                
+                // Apply price filter
+                if (this.currentPriceFilter !== 'all') {
+                    const [min, max] = this.currentPriceFilter.split('-').map(v => v === '+' ? Infinity : parseInt(v));
+                    filtered = filtered.filter(p => {
+                        const price = p.price || 0;
+                        if (max === undefined) {
+                            return price >= min;
+                        }
+                        return price >= min && price <= (max || Infinity);
+                    });
+                }
+                
+                // Apply category filter
+                if (this.currentCategoryFilter !== 'all') {
+                    filtered = filtered.filter(p => 
+                        (p.category || '').toLowerCase() === this.currentCategoryFilter.toLowerCase()
+                    );
+                }
+                
+                // Apply sorting
+                filtered = this.sortProducts(this.currentSort, filtered);
+                
+                this.filteredProducts = filtered;
+                this.render();
+            },
+            
+            sortProducts(sortBy, products = null) {
+                const arr = products || [...this.filteredProducts];
+                this.currentSort = sortBy;
+                
+                switch (sortBy) {
+                    case 'price-low':
+                        arr.sort((a, b) => (a.price || 0) - (b.price || 0));
+                        break;
+                    case 'price-high':
+                        arr.sort((a, b) => (b.price || 0) - (a.price || 0));
+                        break;
+                    case 'rating':
+                        arr.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+                        break;
+                    case 'newest':
+                        arr.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                        break;
+                    case 'relevance':
+                    default:
+                        // Keep original order (already sorted by relevance from search)
+                        break;
+                }
+                
+                if (!products) {
+                    this.filteredProducts = arr;
+                    this.render();
+                }
+                return arr;
+            },
+            
+            filterByPrice(value) {
+                this.currentPriceFilter = value;
+                this.applyFilters();
+            },
+            
+            filterByCategory(category) {
+                this.currentCategoryFilter = category;
+                
+                // Update active state
+                document.querySelectorAll('.filter-tag').forEach(tag => {
+                    tag.classList.toggle('active', tag.dataset.category === category);
+                });
+                
+                this.applyFilters();
+            },
+            
+            updateSearchHero() {
+                const typeBadge = document.getElementById('searchTypeBadge');
+                const titleEl = document.getElementById('searchTitle');
+                const queryEl = document.getElementById('searchQuery');
+                const subtitleEl = document.getElementById('searchSubtitle');
+                const searchInput = document.getElementById('liveSearchInput');
+                
+                // Update search input
+                if (searchInput) {
+                    searchInput.value = this.searchQuery;
+                }
+                
+                // Update badge and title based on search type
+                const icons = {
+                    'brand': 'fa-tag',
+                    'category': 'fa-folder',
+                    'seller': 'fa-store',
+                    'query': 'fa-search'
+                };
+                
+                const labels = {
+                    'brand': 'Brand',
+                    'category': 'Category',
+                    'seller': 'Seller',
+                    'query': 'Search'
+                };
+                
+                if (typeBadge) {
+                    typeBadge.innerHTML = `<i class="fas ${icons[this.searchType]}"></i> <span>${labels[this.searchType]} Results</span>`;
+                }
+                
+                if (queryEl) {
+                    queryEl.textContent = this.searchQuery || 'All Products';
+                }
+                
+                if (subtitleEl) {
+                    if (this.searchType === 'brand') {
+                        subtitleEl.textContent = `Explore all products from ${this.searchQuery}`;
+                    } else if (this.searchType === 'category') {
+                        subtitleEl.textContent = `Browse ${this.searchQuery} collection`;
+                    } else if (this.searchType === 'seller') {
+                        subtitleEl.textContent = `Products from ${this.searchQuery}`;
+                    } else {
+                        subtitleEl.textContent = 'Finding the best matches for you';
+                    }
+                }
+            },
+            
+            updateCategoryTags() {
+                const container = document.getElementById('categoryTags');
+                if (!container) return;
+                
+                // Get unique categories from results
+                const categories = [...new Set(this.products.map(p => p.category).filter(Boolean))];
+                
+                let html = `<button class="filter-tag ${this.currentCategoryFilter === 'all' ? 'active' : ''}" 
+                    data-category="all" onclick="DynamicSearch.filterByCategory('all')">All</button>`;
+                
+                categories.slice(0, 6).forEach(cat => {
+                    html += `<button class="filter-tag ${this.currentCategoryFilter === cat ? 'active' : ''}" 
+                        data-category="${cat}" onclick="DynamicSearch.filterByCategory('${cat}')">${cat}</button>`;
+                });
+                
+                container.innerHTML = html;
+            },
+            
+            updateRelatedBrands() {
+                const container = document.getElementById('relatedBrands');
+                const list = document.getElementById('brandsList');
+                if (!container || !list) return;
+                
+                // Get unique brands from results
+                const brands = [...new Set(this.products.map(p => p.brand).filter(Boolean))];
+                
+                if (brands.length <= 1) {
+                    container.style.display = 'none';
+                    return;
+                }
+                
+                container.style.display = 'block';
+                
+                let html = '';
+                brands.slice(0, 8).forEach(brand => {
+                    const isActive = this.searchType === 'brand' && this.searchQuery.toLowerCase() === brand.toLowerCase();
+                    html += `<a href="?brand=${encodeURIComponent(brand)}" class="brand-chip ${isActive ? 'active' : ''}">
+                        <i class="fas fa-tag"></i> ${brand}
+                    </a>`;
+                });
+                
+                list.innerHTML = html;
+            },
+            
+            render() {
+                const loading = document.getElementById('loadingState');
+                const grid = document.getElementById('productsGrid');
+                const empty = document.getElementById('emptyState');
+                const countEl = document.getElementById('filteredCount');
+                const resultCountEl = document.getElementById('resultCount');
+                const brandCountEl = document.getElementById('brandCount');
+                const categoryCountEl = document.getElementById('categoryCount');
+                const emptyQueryEl = document.getElementById('emptyQuery');
+                
+                // Hide loading
+                if (loading) loading.style.display = 'none';
+                
+                // Update counts
+                const uniqueBrands = new Set(this.filteredProducts.map(p => p.brand).filter(Boolean)).size;
+                const uniqueCategories = new Set(this.filteredProducts.map(p => p.category).filter(Boolean)).size;
+                
+                if (countEl) countEl.textContent = this.filteredProducts.length;
+                if (resultCountEl) resultCountEl.textContent = this.filteredProducts.length;
+                if (brandCountEl) brandCountEl.textContent = uniqueBrands;
+                if (categoryCountEl) categoryCountEl.textContent = uniqueCategories;
+                
+                if (this.filteredProducts.length === 0) {
+                    if (grid) grid.style.display = 'none';
+                    if (empty) {
+                        empty.style.display = 'block';
+                        if (emptyQueryEl) emptyQueryEl.textContent = this.searchQuery;
+                    }
+                    return;
+                }
+                
+                if (empty) empty.style.display = 'none';
+                if (grid) {
+                    grid.style.display = 'grid';
+                    grid.innerHTML = this.filteredProducts.map(p => this.renderProductCard(p)).join('');
+                }
+            },
+            
+            renderProductCard(product) {
+                const image = product.images?.[0] || product.image || '/Logo/placeholder.svg';
+                const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+                const isWishlisted = this.wishlist.has(product.id);
+                const stars = '★'.repeat(Math.round(product.rating || 0)) + '☆'.repeat(5 - Math.round(product.rating || 0));
+                
+                return `
+                    <div class="product-card" data-id="${product.id}">
+                        <div class="product-image">
+                            <a href="/product.html?id=${product.id}">
+                                <img src="${image}" alt="${product.name}" loading="lazy" onerror="this.src='/Logo/placeholder.svg'">
+                            </a>
+                            <div class="product-badges">
+                                ${discount > 0 ? `<span class="badge badge-discount">-${discount}%</span>` : ''}
+                                ${product.isNew ? '<span class="badge badge-new">NEW</span>' : ''}
+                                ${product.brand ? `<span class="badge badge-brand">${product.brand}</span>` : ''}
+                            </div>
+                            <div class="product-actions">
+                                <button class="action-btn ${isWishlisted ? 'wishlisted' : ''}" onclick="DynamicSearch.toggleWishlist('${product.id}')" title="Add to wishlist">
+                                    <i class="fa${isWishlisted ? 's' : 'r'} fa-heart"></i>
+                                </button>
+                                <button class="action-btn" onclick="DynamicSearch.quickView('${product.id}')" title="Quick view">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-content">
+                            ${product.brand ? `<div class="product-brand">${product.brand}</div>` : ''}
+                            <a href="/product.html?id=${product.id}" style="text-decoration: none; color: inherit;">
+                                <h3 class="product-name">${product.name}</h3>
+                            </a>
+                            <div class="product-rating">
+                                <span class="stars">${stars}</span>
+                                <span class="rating-count">(${product.reviewCount || 0})</span>
+                            </div>
+                            <div class="product-price">
+                                <span class="current-price">₹${(product.price || 0).toLocaleString('en-IN')}</span>
+                                ${product.originalPrice ? `<span class="original-price">₹${product.originalPrice.toLocaleString('en-IN')}</span>` : ''}
+                                ${discount > 0 ? `<span class="discount-percent">${discount}% off</span>` : ''}
+                            </div>
+                            <button class="add-to-cart-btn" onclick="DynamicSearch.addToCart('${product.id}')">
+                                <i class="fas fa-shopping-bag"></i>
+                                <span>Add to Cart</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            },
+            
+            // Cart & Wishlist Methods
+            loadCartFromStorage() {
+                try {
+                    this.cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+                } catch (e) {
+                    this.cart = [];
+                }
+            },
+            
+            loadWishlistFromStorage() {
+                try {
+                    const arr = JSON.parse(localStorage.getItem('69shop_wishlist') || '[]');
+                    this.wishlist = new Set(arr.map(i => typeof i === 'object' ? i.id : i));
+                } catch (e) {
+                    this.wishlist = new Set();
+                }
+            },
+            
+            addToCart(productId) {
+                const product = this.allProducts.find(p => p.id === productId);
+                if (!product) return;
+                
+                const existing = this.cart.find(item => item.id === productId);
+                if (existing) {
+                    existing.quantity++;
+                } else {
+                    this.cart.push({
+                        id: productId,
+                        name: product.name,
+                        price: product.price,
+                        image: product.images?.[0] || product.image,
+                        quantity: 1
+                    });
+                }
+                
+                localStorage.setItem('69shop_cart', JSON.stringify(this.cart));
+                this.showNotification(`${product.name} added to cart!`);
+            },
+            
+            toggleWishlist(productId) {
+                if (this.wishlist.has(productId)) {
+                    this.wishlist.delete(productId);
+                    this.showNotification('Removed from wishlist');
+                } else {
+                    this.wishlist.add(productId);
+                    this.showNotification('Added to wishlist!');
+                }
+                
+                localStorage.setItem('69shop_wishlist', JSON.stringify([...this.wishlist]));
+                
+                // Update button
+                const btn = document.querySelector(`.product-card[data-id="${productId}"] .action-btn`);
+                if (btn) {
+                    btn.classList.toggle('wishlisted', this.wishlist.has(productId));
+                    btn.innerHTML = `<i class="fa${this.wishlist.has(productId) ? 's' : 'r'} fa-heart"></i>`;
+                }
+            },
+            
+            quickView(productId) {
+                // Redirect to product page for now
+                window.location.href = `/product.html?id=${productId}`;
+            },
+            
+            showNotification(message) {
+                const existing = document.querySelector('.search-notification');
+                if (existing) existing.remove();
+                
+                const notification = document.createElement('div');
+                notification.className = 'search-notification';
+                notification.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #1A1A1A;
+                    color: white;
+                    padding: 14px 28px;
+                    border-radius: 10px;
+                    font-size: 0.9rem;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                    z-index: 10000;
+                    animation: slideUp 0.3s ease-out;
+                `;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideUp 0.3s ease-out reverse';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            },
+            
+            setupEventListeners() {
+                const searchInput = document.getElementById('liveSearchInput');
+                const suggestions = document.getElementById('searchSuggestions');
+                
+                if (searchInput) {
+                    let debounceTimer;
+                    
+                    searchInput.addEventListener('input', (e) => {
+                        clearTimeout(debounceTimer);
+                        const query = e.target.value.trim();
+                        
+                        debounceTimer = setTimeout(() => {
+                            if (query.length >= 2) {
+                                this.showSuggestions(query);
+                            } else {
+                                suggestions.classList.remove('active');
+                            }
+                        }, 300);
+                    });
+                    
+                    searchInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            const query = e.target.value.trim();
+                            if (query) {
+                                window.location.href = `?q=${encodeURIComponent(query)}`;
+                            }
+                        }
+                    });
+                    
+                    // Close suggestions on click outside
+                    document.addEventListener('click', (e) => {
+                        if (!e.target.closest('.hero-search-bar')) {
+                            suggestions.classList.remove('active');
+                        }
+                    });
+                }
+            },
+            
+            showSuggestions(query) {
+                const suggestions = document.getElementById('searchSuggestions');
+                if (!suggestions) return;
+                
+                const q = query.toLowerCase();
+                const matches = this.allProducts.filter(p => {
+                    const name = (p.name || '').toLowerCase();
+                    const brand = (p.brand || '').toLowerCase();
+                    const category = (p.category || '').toLowerCase();
+                    return name.includes(q) || brand.includes(q) || category.includes(q);
+                }).slice(0, 6);
+                
+                if (matches.length === 0) {
+                    suggestions.classList.remove('active');
+                    return;
+                }
+                
+                suggestions.innerHTML = matches.map(p => `
+                    <a href="?q=${encodeURIComponent(p.name)}" class="suggestion-item">
+                        <img src="${p.images?.[0] || p.image || '/Logo/placeholder.svg'}" alt="${p.name}" onerror="this.src='/Logo/placeholder.svg'">
+                        <div class="info">
+                            <div class="name">${p.name}</div>
+                            <div class="meta">${p.brand || ''} ${p.category ? '• ' + p.category : ''}</div>
+                        </div>
+                        <div class="price">₹${(p.price || 0).toLocaleString('en-IN')}</div>
+                    </a>
+                `).join('');
+                
+                suggestions.classList.add('active');
+            }
+        };
+        
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideUp {
+                from { transform: translateX(-50%) translateY(50px); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            DynamicSearch.init();
+        });
+        
+        // Make DynamicSearch available globally
+        window.DynamicSearch = DynamicSearch;
+    </script>
+    <script src="js/xss-sanitizer.js"></script>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+        <div class="mobile-nav-items">
+            <a href="/shop.html" class="mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/search.html" class="mobile-nav-item active" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="/services.html" class="mobile-nav-item" aria-label="Services">
+                <i class="fas fa-concierge-bell"></i>
+                <span>Services</span>
+            </a>
+            <a href="/messages.html" class="mobile-nav-item" aria-label="Messages">
+                <i class="fas fa-comment-dots"></i>
+                <span>Chat</span>
+            </a>
+            <a href="/profile.html" class="mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
+</body>
+</html>

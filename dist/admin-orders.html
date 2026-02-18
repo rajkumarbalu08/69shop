@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Orders Management - Admin | 69Shop.in</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,10 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/dashboard-notifications.css">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="/js/notifications.js"></script>
     <script src="/js/admin-shell.js"></script>
@@ -197,8 +198,8 @@
         
         .admin-header {
             height: var(--header-height);
-            background: var(--white);
-            border-bottom: 1px solid var(--slate-200);
+            background: #1A1A1A;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -214,16 +215,17 @@
         .header-search input {
             width: 260px;
             padding: 10px 16px 10px 42px;
-            border: 1px solid var(--slate-200);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 24px;
-            background: var(--slate-50);
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
             font-size: 0.9rem;
             transition: var(--transition);
         }
         .header-search input:focus {
             outline: none;
             border-color: var(--admin-primary);
-            background: var(--white);
+            background: rgba(255, 255, 255, 0.15);
             box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
         }
         .header-search i {
@@ -231,28 +233,28 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--slate-400);
+            color: rgba(255, 255, 255, 0.5);
         }
-        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); }
-        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--slate-500); }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: #FFFFFF; }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: rgba(255, 255, 255, 0.5); }
         .breadcrumb a { color: var(--admin-primary); text-decoration: none; }
         
         .header-btn {
             width: 42px;
             height: 42px;
             border: none;
-            background: var(--slate-100);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: var(--slate-600);
+            color: rgba(255, 255, 255, 0.7);
             transition: var(--transition);
             position: relative;
         }
         
-        .header-btn:hover { background: var(--slate-200); }
+        .header-btn:hover { background: rgba(255, 255, 255, 0.2); }
         
         .admin-content { padding: 32px; }
         
@@ -482,6 +484,9 @@
             .orders-table { display: block; overflow-x: auto; }
         }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay">
@@ -734,15 +739,24 @@
     <script>
         const LEAD_ADMIN_EMAIL = 'rajkumarbalu81@gmail.com';
         
-        const firebaseConfig = window.firebaseConfig;
-        if (!firebaseConfig || !firebaseConfig.apiKey) {
-            throw new Error('Missing Firebase configuration');
+        let auth = null;
+        let db = null;
+        let firebaseReady = false;
+
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Missing Firebase configuration');
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            db = firebase.firestore();
+            firebaseReady = true;
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
         }
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = firebase.auth();
-        const db = firebase.firestore();
         let adminShell = null;
         
         let allOrders = [];
@@ -1150,3 +1164,4 @@
     </script>
 </body>
 </html>
+

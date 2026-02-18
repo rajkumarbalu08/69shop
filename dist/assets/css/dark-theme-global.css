@@ -1,0 +1,1767 @@
+/* ═══════════════════════════════════════════════════════════════
+   69Shop.in — Universal Light Luxury Theme
+   Applied to ALL pages with inline styles.
+   Spacious · Borderless · Subtle Shadows · Solid Backgrounds
+   Breathes luxury through whitespace and restraint.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── BASE ── */
+html, body {
+    background: #FAFBFC !important;
+    color: #111827 !important;
+}
+
+/* Disable any grain overlays */
+.grain::after,
+body::before,
+body::after {
+    display: none !important;
+}
+
+/* ── COMMON HEADER ── */
+.header,
+header,
+.main-header,
+.admin-header,
+.seller-header,
+.dashboard-header {
+    background: rgba(17, 24, 39, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-bottom: none !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ── SHARED HEADER (post-login static header) ── */
+.shared-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(17, 24, 39, 0.97) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border-bottom: none !important;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.06), 0 4px 20px rgba(0,0,0,0.2) !important;
+}
+
+.shared-header .header-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.shared-header .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.shared-header .logo-icon {
+    width: 42px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shared-header .shared-nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.shared-header .shared-nav .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+}
+
+.shared-header .shared-nav .nav-links li a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    color: rgba(255,255,255,0.65) !important;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.shared-header .shared-nav .nav-links li a:hover {
+    color: #FFFFFF !important;
+    background: rgba(255,255,255,0.08) !important;
+}
+
+.shared-header .shared-nav .nav-links li a.active {
+    color: #FFFFFF !important;
+    background: rgba(37,99,235,0.25) !important;
+}
+
+.shared-header .shared-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.shared-header .header-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    color: rgba(255,255,255,0.6) !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    text-decoration: none;
+}
+
+.shared-header .header-icon-btn:hover {
+    color: #FFFFFF !important;
+    background: rgba(255,255,255,0.1) !important;
+}
+
+.shared-header .header-logout-btn:hover {
+    color: #FCA5A5 !important;
+    background: rgba(239,68,68,0.15) !important;
+}
+
+.shared-header .header-user-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px 4px 4px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: rgba(255,255,255,0.8) !important;
+    transition: all 0.2s ease;
+}
+
+.shared-header .header-user-btn:hover {
+    background: rgba(255,255,255,0.08) !important;
+    color: #FFFFFF !important;
+}
+
+.shared-header .header-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563EB, #7C3AED) !important;
+    color: #FFFFFF !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.shared-header .header-user-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.8) !important;
+}
+
+/* Shared header — text overrides (don't let scoped selectors affect it) */
+.shared-header h1, .shared-header h2, .shared-header h3,
+.shared-header h4, .shared-header h5, .shared-header h6 {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+.shared-header p, .shared-header span, .shared-header label {
+    color: rgba(255,255,255,0.8) !important;
+}
+
+/* Shared header mobile */
+@media (max-width: 768px) {
+    .shared-header .header-content { padding: 8px 16px; gap: 12px; }
+    .shared-header .shared-nav { display: none; }
+    .shared-header .header-user-name { display: none; }
+    .shared-header .header-user-btn { display: none; }
+    .shared-header .header-logout-btn { display: none; }
+    .shared-header .header-icon-btn { width: 34px; height: 34px; font-size: 0.88rem; }
+    .shared-header .logo-icon { width: 34px; height: 42px; }
+    .shared-header .logo-text .site-name { font-size: 1rem; }
+    .shared-header .logo-text .tagline { font-size: 0.72rem; }
+    .shared-header .header-hamburger { display: flex; }
+}
+
+/* ── Guest Header Buttons ── */
+.shared-header .header-guest-login {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255,255,255,0.9) !important;
+    font-size: 0.88rem;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.shared-header .header-guest-login:hover {
+    background: rgba(255,255,255,0.1);
+}
+.shared-header .header-login-label {
+    font-weight: 500;
+    color: rgba(255,255,255,0.9) !important;
+}
+.shared-header .header-guest-signup-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    background: #2563EB;
+    color: #fff !important;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+}
+.shared-header .header-guest-signup-btn:hover {
+    background: #1D4ED8;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .shared-header .header-login-label { display: none; }
+    .shared-header .header-guest-signup-btn { display: none; }
+    .shared-header .header-guest-login { font-size: 1rem; padding: 6px; }
+}
+
+/* ── Shared Header — Hamburger Button ── */
+.shared-header .header-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 38px;
+    height: 38px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+.shared-header .header-hamburger:hover { background: rgba(255,255,255,0.1); }
+.shared-header .header-hamburger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+.shared-header .header-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.shared-header .header-hamburger.open span:nth-child(2) { opacity: 0; }
+.shared-header .header-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── Shared Header — Mobile Drawer Overlay ── */
+.shared-mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.shared-mobile-overlay.open {
+    display: block;
+    opacity: 1;
+}
+
+/* ── Shared Header — Mobile Drawer ── */
+.shared-mobile-drawer {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 280px;
+    max-width: 85vw;
+    height: 100vh;
+    height: 100dvh;
+    background: #111827;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -8px 0 30px rgba(0,0,0,0.4);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.shared-mobile-drawer.open { right: 0; }
+
+.mobile-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.mobile-drawer-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    flex: 1;
+    min-width: 0;
+}
+.mobile-drawer-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563EB, #7C3AED);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.mobile-drawer-user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.mobile-drawer-user-info strong {
+    color: #fff !important;
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mobile-drawer-user-info span {
+    color: rgba(255,255,255,0.5) !important;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mobile-drawer-close {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    border-radius: 10px;
+    color: rgba(255,255,255,0.6);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+.mobile-drawer-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+.mobile-drawer-nav {
+    flex: 1;
+    padding: 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.mobile-drawer-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 16px;
+    color: rgba(255,255,255,0.7) !important;
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+.mobile-drawer-link i {
+    width: 20px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.45) !important;
+}
+.mobile-drawer-link:hover,
+.mobile-drawer-link.active {
+    background: rgba(255,255,255,0.08) !important;
+    color: #fff !important;
+}
+.mobile-drawer-link.active {
+    background: rgba(37,99,235,0.2) !important;
+}
+.mobile-drawer-link.active i { color: #60A5FA !important; }
+
+.mobile-drawer-footer {
+    padding: 16px 12px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+.mobile-drawer-logout {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 13px 16px;
+    background: rgba(239,68,68,0.1);
+    border: none;
+    border-radius: 10px;
+    color: #FCA5A5 !important;
+    font-size: 0.92rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.mobile-drawer-logout:hover { background: rgba(239,68,68,0.2); color: #fff !important; }
+
+/* ── Shared Header Cart Count Badge ── */
+.shared-cart-link {
+    position: relative;
+}
+.shared-cart-count {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: var(--blue-primary, #0066ff);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0 4px;
+    pointer-events: none;
+}
+.mobile-nav-item .shared-cart-count {
+    position: absolute;
+    top: 2px;
+    right: 50%;
+    transform: translateX(14px);
+    min-width: 14px;
+    height: 14px;
+    font-size: 0.6rem;
+}
+
+/* ── Shared Header Search Bar ── */
+.shared-search-container {
+    flex: 1;
+    max-width: 380px;
+    margin: 0 12px;
+}
+.shared-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.shared-search-icon {
+    position: absolute;
+    left: 12px;
+    color: rgba(255,255,255,0.45);
+    font-size: 0.82rem;
+    pointer-events: none;
+    z-index: 1;
+}
+.shared-search-input {
+    width: 100%;
+    padding: 8px 14px 8px 34px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    color: #FFFFFF;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.shared-search-input::placeholder {
+    color: rgba(255,255,255,0.35);
+    font-size: 0.82rem;
+}
+.shared-search-input:focus {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(37,99,235,0.5);
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+}
+.shared-header .shared-search-toggle {
+    display: none;
+}
+@media (max-width: 768px) {
+    .shared-search-container {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-width: 100%;
+        margin: 0;
+        padding: 8px 16px 12px;
+        background: var(--primary-black, #1A1A1A);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        z-index: 999;
+    }
+    .shared-search-container.active {
+        display: block;
+    }
+    .shared-header .shared-search-toggle {
+        display: flex;
+    }
+}
+
+/* ── Shared Mobile Bottom Nav ── */
+.shared-mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #FFFFFF;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    z-index: 1001;
+    padding: 8px 0;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+.shared-mobile-bottom-nav .mobile-nav-items {
+    display: flex;
+    justify-content: space-around;
+    max-width: 500px;
+    margin: 0 auto;
+}
+.shared-mobile-bottom-nav .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-decoration: none;
+    color: #94A3B8;
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 12px;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.shared-mobile-bottom-nav .mobile-nav-item i {
+    font-size: 1.1rem;
+}
+.shared-mobile-bottom-nav .mobile-nav-item.active {
+    color: #0066ff;
+}
+@media (max-width: 768px) {
+    .shared-mobile-bottom-nav { display: block; }
+}
+
+/* Logo */
+.site-name,
+.logo-name,
+.brand-name {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    background: none !important;
+}
+
+.tagline,
+.logo-tagline {
+    color: rgba(255,255,255,0.5) !important;
+}
+
+/* Nav links on dark header */
+.header .nav-links a,
+.header .main-nav a,
+.nav-links a {
+    color: rgba(255,255,255,0.7) !important;
+}
+.header .nav-links a:hover,
+.header .main-nav a:hover {
+    color: #FFFFFF !important;
+    background: rgba(255,255,255,0.1) !important;
+}
+.header .nav-links a.active {
+    color: #FFFFFF !important;
+    background: rgba(37,99,235,0.3) !important;
+}
+
+/* Header buttons for dark bg */
+.header .btn-login,
+.header .btn-logout {
+    color: rgba(255,255,255,0.8) !important;
+    border-color: rgba(255,255,255,0.2) !important;
+}
+.header .mobile-menu-toggle {
+    color: #FFFFFF !important;
+}
+
+/* User info in header */
+.header .user-info span,
+.header .user-email {
+    color: rgba(255,255,255,0.7) !important;
+}
+.header .user-avatar {
+    background: linear-gradient(135deg, #2563EB, #7C3AED) !important;
+    color: white !important;
+}
+
+/* ── TEXT ──
+   Scoped to main content containers so dark-bg sections
+   (headers, sidebars, footers, overlays, hero banners)
+   are never touched — no exceptions needed.                 */
+main h1, main h2, main h3, main h4, main h5, main h6,
+.main-content h1, .main-content h2, .main-content h3,
+.main-content h4, .main-content h5, .main-content h6,
+.content-area h1, .content-area h2, .content-area h3,
+.content-area h4, .content-area h5, .content-area h6,
+.dashboard-content h1, .dashboard-content h2, .dashboard-content h3,
+.dashboard-content h4, .dashboard-content h5, .dashboard-content h6,
+.page-content h1, .page-content h2, .page-content h3,
+.page-content h4, .page-content h5, .page-content h6,
+.category-page-wrapper h1, .category-page-wrapper h2, .category-page-wrapper h3,
+.category-page-wrapper h4, .category-page-wrapper h5, .category-page-wrapper h6,
+.login-container h1, .login-container h2, .login-container h3,
+.login-container h4, .login-container h5, .login-container h6 {
+    color: #111827;
+}
+
+main p, main span, main label, main li,
+.main-content p, .main-content span, .main-content label, .main-content li,
+.content-area p, .content-area span, .content-area label, .content-area li,
+.dashboard-content p, .dashboard-content span, .dashboard-content label, .dashboard-content li,
+.page-content p, .page-content span, .page-content label, .page-content li,
+.category-page-wrapper p, .category-page-wrapper span,
+.category-page-wrapper label, .category-page-wrapper li,
+.login-container p, .login-container span,
+.login-container label, .login-container li {
+    color: #4B5563;
+}
+
+/* Category hero overlay — white text (inside .category-page-wrapper) */
+.category-hero h1, .category-hero h2, .category-hero h3 {
+    color: #FFFFFF;
+    -webkit-text-fill-color: #FFFFFF;
+}
+.category-hero p, .category-hero span, .category-hero li,
+.category-hero .stat-value, .category-hero .stat-label,
+.category-hero .category-badge {
+    color: inherit;
+}
+
+/* Service card white text on dark overlays — inherits from parent container */
+.service-card .service-name, .service-card h3 { color: #111827; }
+.service-card .service-desc, .service-card p   { color: #6B7280; }
+
+/* ── DARK-BG SECTION EXCEPTIONS ──
+   Restore white/light text for sections that use dark backgrounds
+   but sit inside <main> or other scoped containers              */
+
+/* Services page: "How concierge booking works" */
+.service-steps h1, .service-steps h2, .service-steps h3,
+.service-steps h4, .service-steps h5, .service-steps h6 {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+.service-steps p, .service-steps span,
+.service-steps label, .service-steps li {
+    color: rgba(255, 255, 255, 0.55) !important;
+}
+.service-steps .step-number {
+    color: #FFFFFF !important;
+}
+
+/* Services page: "Need help deciding the right service?" CTA */
+.contact-panel h1, .contact-panel h2, .contact-panel h3,
+.contact-panel h4, .contact-panel h5, .contact-panel h6 {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+.contact-panel p, .contact-panel span,
+.contact-panel label, .contact-panel li {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+.contact-panel a {
+    color: #FFFFFF !important;
+}
+
+/* Contact panel buttons — restore styled appearance */
+.contact-actions .btn-outline {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #FFFFFF !important;
+}
+.contact-actions .btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    color: #FFFFFF !important;
+}
+.contact-actions .btn-dark {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+}
+.contact-actions .btn-dark:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+}
+
+/* Book-service page: form header (blue gradient bg inside <main>) */
+.form-header h1, .form-header h2, .form-header h3,
+.form-header h4, .form-header h5, .form-header h6 {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+.form-header p, .form-header span,
+.form-header label, .form-header li {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Tables */
+td, th { color: #4B5563; }
+
+/* Services page .btn-secondary — preserve blue outline styling */
+.services-page .btn-secondary {
+    background: transparent !important;
+    color: #2563EB !important;
+    border: 1.5px solid rgba(37, 99, 235, 0.2) !important;
+}
+.services-page .btn-secondary:hover {
+    background: rgba(37, 99, 235, 0.06) !important;
+    border-color: rgba(37, 99, 235, 0.35) !important;
+    color: #2563EB !important;
+}
+
+a {
+    color: #2563EB;
+}
+
+a:hover {
+    color: #1D4ED8;
+}
+
+/* Footer links stay light colored */
+footer a, .site-footer a, .footer a {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+footer a:hover, .site-footer a:hover, .footer a:hover {
+    color: white !important;
+}
+
+/* ── BUTTONS ── */
+.btn-primary,
+.btn-auth,
+.btn-main,
+.submit-btn,
+button[type="submit"]:not(.toggle-password):not(.close-profile):not(.mobile-menu-toggle):not(.mobile-toggle) {
+    background: #2563EB !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2) !important;
+}
+
+.btn-primary:hover,
+.btn-auth:hover,
+.btn-main:hover,
+.submit-btn:hover {
+    background: #1D4ED8 !important;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25) !important;
+}
+
+.btn-secondary,
+.btn-outline {
+    background: #F3F4F6 !important;
+    border: none !important;
+    color: #374151 !important;
+}
+
+.btn-secondary:hover,
+.btn-outline:hover {
+    background: #E5E7EB !important;
+    color: #111827 !important;
+}
+
+/* ── FORM INPUTS ── */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="search"],
+input[type="url"],
+textarea,
+select,
+.form-input,
+.input-field {
+    background: #F3F4F6 !important;
+    border: none !important;
+    color: #111827 !important;
+    border-radius: 10px !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.form-input:focus {
+    background: #FFFFFF !important;
+    border: none !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08) !important;
+    outline: none !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #9CA3AF !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: #2563EB !important;
+}
+
+/* ── CARDS / CONTAINERS ── */
+.card,
+.glass-card,
+.panel,
+.content-card,
+.stat-card,
+.info-card,
+.feature-card,
+.service-card,
+.booking-card,
+.order-card,
+.message-card,
+.notification-card {
+    background: #FFFFFF !important;
+    border: none !important;
+    border-radius: 16px !important;
+    color: #111827 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.card:hover,
+.glass-card:hover,
+.service-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── SIDEBARS ── */
+.sidebar,
+.admin-sidebar,
+.seller-sidebar,
+.dashboard-sidebar,
+.filter-sidebar {
+    background: #FFFFFF !important;
+    border-right: none !important;
+    box-shadow: 1px 0 0 rgba(0, 0, 0, 0.04) !important;
+    color: #4B5563 !important;
+}
+
+.sidebar a,
+.admin-sidebar a,
+.seller-sidebar a,
+.dashboard-sidebar a {
+    color: #6B7280 !important;
+}
+
+.sidebar a:hover,
+.sidebar a.active,
+.admin-sidebar a:hover,
+.admin-sidebar a.active,
+.seller-sidebar a:hover,
+.seller-sidebar a.active,
+.dashboard-sidebar a:hover,
+.dashboard-sidebar a.active {
+    background: #EFF6FF !important;
+    color: #2563EB !important;
+}
+
+.sidebar a i,
+.admin-sidebar a i,
+.seller-sidebar a i {
+    color: #9CA3AF !important;
+}
+
+.sidebar a:hover i,
+.sidebar a.active i {
+    color: #2563EB !important;
+}
+
+/* ── MODALS / OVERLAYS ── */
+.modal,
+.modal-content,
+.popup,
+.dialog {
+    background: #FFFFFF !important;
+    border: none !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12) !important;
+    color: #111827 !important;
+    border-radius: 20px !important;
+}
+
+.modal-overlay,
+.overlay,
+.backdrop {
+    background: rgba(0, 0, 0, 0.25) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+/* ── TABLES ── */
+table {
+    color: #111827 !important;
+}
+
+th {
+    background: #F9FAFB !important;
+    color: #6B7280 !important;
+    border-bottom: 1px solid #F3F4F6 !important;
+    font-weight: 600 !important;
+}
+
+td {
+    border-bottom: 1px solid #F9FAFB !important;
+    color: #4B5563 !important;
+}
+
+tr:hover td {
+    background: #FAFBFC !important;
+}
+
+/* ── TABS ── */
+.tab,
+.tab-btn,
+.nav-tab,
+.auth-tab {
+    color: #9CA3AF !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.tab.active,
+.tab-btn.active,
+.nav-tab.active,
+.auth-tab.active {
+    background: #2563EB !important;
+    color: white !important;
+    border-radius: 999px !important;
+}
+
+/* ── BADGES / TAGS ── */
+.badge,
+.tag,
+.status-badge,
+.label {
+    border-radius: 999px !important;
+    border: none !important;
+}
+
+.badge-primary,
+.tag-primary {
+    background: #EFF6FF !important;
+    color: #2563EB !important;
+}
+
+.badge-success,
+.status-active,
+.status-approved {
+    background: #ECFDF5 !important;
+    color: #059669 !important;
+}
+
+.badge-danger,
+.status-rejected,
+.status-cancelled {
+    background: #FEF2F2 !important;
+    color: #E11D48 !important;
+}
+
+.badge-warning,
+.status-pending {
+    background: #FFFBEB !important;
+    color: #D97706 !important;
+}
+
+/* ── DIVIDERS ── */
+hr,
+.divider,
+.separator {
+    border-color: #F3F4F6 !important;
+    background-color: #F3F4F6 !important;
+}
+
+/* ── AVATARS ── */
+.avatar,
+.user-avatar,
+.profile-avatar,
+.profile-avatar-large {
+    background: linear-gradient(135deg, #2563EB, #7C3AED) !important;
+    color: white !important;
+}
+
+/* ── ALERTS ── */
+.alert-success,
+.success-message {
+    background: #ECFDF5 !important;
+    border: none !important;
+    color: #059669 !important;
+}
+
+.alert-error,
+.error-message,
+.alert-danger {
+    background: #FEF2F2 !important;
+    border: none !important;
+    color: #E11D48 !important;
+}
+
+.alert-warning {
+    background: #FFFBEB !important;
+    border: none !important;
+    color: #D97706 !important;
+}
+
+.alert-info {
+    background: #EFF6FF !important;
+    border: none !important;
+    color: #2563EB !important;
+}
+
+/* ── FOOTER ── */
+footer,
+.footer,
+.site-footer {
+    background: #111827 !important;
+    border-top: none !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+footer h4,
+.footer h4 {
+    color: white !important;
+}
+
+footer a,
+.footer a {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+footer a:hover,
+.footer a:hover {
+    color: white !important;
+}
+
+/* ── LOADING ── */
+.spinner,
+.loading-spinner {
+    border-color: #E5E7EB !important;
+    border-top-color: #2563EB !important;
+}
+
+/* ── SCROLL BAR ── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}
+
+/* ── MAIN CONTENT AREAS ── */
+main,
+.main-content,
+.content-area,
+.dashboard-content,
+.page-content {
+    background: transparent !important;
+}
+
+/* ── TOAST / NOTIFICATION ── */
+.toast,
+.notification-toast,
+.snackbar {
+    background: #FFFFFF !important;
+    border: none !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1) !important;
+    color: #111827 !important;
+    border-radius: 12px !important;
+}
+
+/* ── DROPDOWNS ── */
+.dropdown,
+.dropdown-menu,
+.menu-dropdown {
+    background: #FFFFFF !important;
+    border: none !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px !important;
+}
+
+.dropdown a,
+.dropdown-menu a,
+.dropdown-item {
+    color: #4B5563 !important;
+}
+
+.dropdown a:hover,
+.dropdown-menu a:hover,
+.dropdown-item:hover {
+    background: #F3F4F6 !important;
+    color: #2563EB !important;
+}
+
+/* ── MOBILE ── */
+.mobile-menu,
+.mobile-sidebar,
+.mobile-nav,
+.mobile-bottom-nav {
+    background: #FFFFFF !important;
+    border-top: none !important;
+    box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+.mobile-menu a,
+.mobile-sidebar a {
+    color: #6B7280 !important;
+}
+
+.mobile-menu a.active,
+.mobile-sidebar a.active {
+    color: #2563EB !important;
+}
+
+/* ── HIDE MOBILE HAMBURGER ICON ──
+   Pages with bottom navigation don't need top hamburger menu.
+   This hides all mobile menu toggle variants on mobile. */
+@media (max-width: 768px) {
+    .mobile-toggle,
+    .mobile-menu-toggle,
+    .profile-mobile-menu-toggle {
+        display: none !important;
+    }
+}
+
+/* ── BREADCRUMBS ── */
+.breadcrumb,
+.breadcrumbs {
+    color: #9CA3AF !important;
+}
+
+.breadcrumb a,
+.breadcrumbs a {
+    color: #2563EB !important;
+}
+
+/* ── PRICING ── */
+.price,
+.current-price,
+.sale-price {
+    color: #111827 !important;
+}
+
+.original-price,
+.old-price {
+    color: #9CA3AF !important;
+}
+
+/* ── PAGINATION ── */
+.pagination button,
+.pagination a,
+.page-btn {
+    background: #FFFFFF !important;
+    border: none !important;
+    color: #4B5563 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.pagination button.active,
+.pagination a.active,
+.page-btn.active {
+    background: #2563EB !important;
+    color: white !important;
+}
+
+/* ── CHARTS / STATS (ADMIN/SELLER) ── */
+.stat-value,
+.stat-number {
+    color: #111827 !important;
+    font-weight: 700 !important;
+}
+
+.stat-label {
+    color: #9CA3AF !important;
+}
+
+.stat-icon {
+    background: #EFF6FF !important;
+    color: #2563EB !important;
+}
+
+/* ── PROGRESS BARS ── */
+.progress-bar,
+.progress {
+    background: #F3F4F6 !important;
+    border-radius: 8px !important;
+}
+
+.progress-fill,
+.progress-bar-fill {
+    background: linear-gradient(90deg, #2563EB, #7C3AED) !important;
+}
+
+/* ── CHECKBOX LABELS ── */
+.terms-checkbox label,
+.form-check-label {
+    color: #6B7280 !important;
+}
+
+.terms-checkbox label a,
+.form-check-label a {
+    color: #2563EB !important;
+}
+
+/* ── EMPTY STATE ── */
+.empty-state,
+.no-results {
+    color: #9CA3AF !important;
+}
+
+.empty-state i,
+.no-results i {
+    color: #D1D5DB !important;
+}
+
+/* ── SERVICE PAGE ── */
+.service-header,
+.service-hero {
+    background: linear-gradient(135deg, #FAFBFC, #EFF6FF) !important;
+}
+
+.service-card .service-name,
+.service-card h3 {
+    color: #111827 !important;
+}
+
+.service-card .service-desc,
+.service-card p {
+    color: #6B7280 !important;
+}
+
+.service-card .service-price {
+    color: #111827 !important;
+    font-weight: 700 !important;
+}
+
+.service-category-tag {
+    background: #EFF6FF !important;
+    color: #2563EB !important;
+    border: none !important;
+}
+
+/* ── PROFILE PAGE ── */
+.profile-container,
+.profile-main {
+    background: transparent !important;
+}
+
+.profile-section {
+    background: #FFFFFF !important;
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.profile-menu a {
+    color: #6B7280 !important;
+}
+
+.profile-menu a:hover,
+.profile-menu a.active {
+    background: #EFF6FF !important;
+    color: #2563EB !important;
+}
+
+/* ── ORDER TRACKING ── */
+.tracking-step.completed {
+    color: #059669 !important;
+}
+
+.tracking-step.active {
+    color: #2563EB !important;
+}
+
+.tracking-line.completed {
+    background: #059669 !important;
+}
+
+.tracking-line.active {
+    background: linear-gradient(90deg, #059669, #2563EB) !important;
+}
+
+/* ── MESSAGES PAGE ── */
+.message-list,
+.chat-list {
+    border-right: 1px solid #F3F4F6 !important;
+}
+
+.message-item,
+.chat-item {
+    border-bottom: 1px solid #F9FAFB !important;
+}
+
+.message-item:hover,
+.chat-item:hover {
+    background: #FAFBFC !important;
+}
+
+.message-item.active,
+.chat-item.active {
+    background: #EFF6FF !important;
+    border-left: 3px solid #2563EB !important;
+}
+
+/* ══════════════════════════════════════════════════════
+   SELLER PAGES — Dark Sidebar & Header Text Exceptions
+   ══════════════════════════════════════════════════════ */
+
+/* ── SELLER SIDEBAR: Restore dark background ── */
+.seller-sidebar {
+    background: #0F172A !important;
+    color: #94A3B8 !important;
+    border-right: none !important;
+    box-shadow: none !important;
+}
+
+/* Sidebar headings, text, links → inherit from parent (light on dark) */
+.seller-sidebar h1,
+.seller-sidebar h2,
+.seller-sidebar h3,
+.seller-sidebar h4,
+.seller-sidebar h5,
+.seller-sidebar h6 {
+    color: inherit !important;
+    -webkit-text-fill-color: inherit !important;
+}
+
+.seller-sidebar p,
+.seller-sidebar span,
+.seller-sidebar label,
+.seller-sidebar li {
+    color: inherit !important;
+}
+
+.seller-sidebar a,
+.seller-sidebar .nav-link {
+    color: #94A3B8 !important;
+}
+
+.seller-sidebar a i,
+.seller-sidebar .nav-link i {
+    color: #64748B !important;
+}
+
+.seller-sidebar .nav-link:hover,
+.seller-sidebar .nav-link:hover span,
+.seller-sidebar .nav-link:hover i {
+    background: #1E293B !important;
+    color: #FFFFFF !important;
+}
+
+.seller-sidebar .nav-link.active,
+.seller-sidebar .nav-link.active span,
+.seller-sidebar .nav-link.active i {
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+    color: #FFFFFF !important;
+}
+
+.seller-sidebar .brand-name {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+/* Sidebar brand/logo — no hover bg change */
+.seller-sidebar .sidebar-brand,
+.seller-sidebar .sidebar-brand:hover,
+.seller-sidebar a.sidebar-brand,
+.seller-sidebar a.sidebar-brand:hover {
+    background: transparent !important;
+    color: inherit !important;
+}
+
+.seller-sidebar .brand-badge,
+.seller-sidebar .brand-badge span {
+    color: #2563EB !important;
+    background: #EFF6FF !important;
+}
+
+.seller-sidebar .nav-section-title {
+    color: #64748B !important;
+}
+
+.seller-sidebar .profile-name {
+    color: #FFFFFF !important;
+}
+
+.seller-sidebar .profile-email,
+.seller-sidebar .profile-status {
+    color: #94A3B8 !important;
+}
+
+.seller-sidebar .profile-status.verified {
+    color: #10B981 !important;
+}
+
+.seller-sidebar .profile-status.verified span {
+    color: #10B981 !important;
+}
+
+.seller-sidebar .profile-status.pending {
+    color: #F59E0B !important;
+}
+
+.seller-sidebar .profile-status.pending span {
+    color: #F59E0B !important;
+}
+
+.seller-sidebar .btn-logout {
+    color: #94A3B8 !important;
+    border-color: #334155 !important;
+}
+
+.seller-sidebar .btn-logout:hover {
+    background: #EF4444 !important;
+    border-color: #EF4444 !important;
+    color: #FFFFFF !important;
+}
+
+.seller-sidebar .sidebar-footer span,
+.seller-sidebar .sidebar-footer p {
+    color: #64748B !important;
+}
+
+/* ── SELLER HEADER: White text on dark background ── */
+.seller-header h1,
+.seller-header h2,
+.seller-header h3,
+.seller-header .page-title {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+.seller-header p,
+.seller-header span,
+.seller-header label {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.seller-header .header-btn {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.seller-header .header-btn:hover {
+    color: #FFFFFF !important;
+}
+
+.seller-header .btn-add-product,
+.seller-header .btn-add-product span {
+    color: #FFFFFF !important;
+}
+
+/* Seller header user info */
+.seller-user-info strong {
+    color: #FFFFFF !important;
+}
+
+.seller-user-info span {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.seller-user-avatar {
+    color: #FFFFFF !important;
+    background: rgba(37, 99, 235, 0.5) !important;
+}
+
+/* ── Seller user dropdown — dark text on white bg ── */
+.user-dropdown {
+    background: #FFFFFF !important;
+}
+
+.user-dropdown a,
+.user-dropdown a span {
+    color: #334155 !important;
+}
+
+.user-dropdown a i {
+    color: #64748B !important;
+}
+
+.user-dropdown a:hover,
+.user-dropdown a:hover span {
+    background: #F8FAFC !important;
+    color: #2563EB !important;
+}
+
+.user-dropdown a:hover i {
+    color: #2563EB !important;
+}
+
+.user-dropdown .logout,
+.user-dropdown .logout span {
+    color: #EF4444 !important;
+}
+
+.user-dropdown .logout i {
+    color: #EF4444 !important;
+}
+
+.user-dropdown .logout:hover {
+    background: #FEE2E2 !important;
+}
+
+.user-dropdown hr {
+    border-color: #F1F5F9 !important;
+}
+
+/* ── SELLER LOGIN PAGE ── */
+.login-header h2 {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+.login-header p {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.seller-badge-text span {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* ── SELLER WELCOME BANNER (gradient bg) ── */
+.welcome-banner h2,
+.welcome-banner h3,
+.welcome-banner p,
+.welcome-banner span {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+.welcome-banner .welcome-subtitle {
+    color: rgba(255, 255, 255, 0.85) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* ── SELLER NOTIFICATION PANEL ── */
+.notification-panel-header h3,
+.notification-panel-header span {
+    color: inherit !important;
+}
+
+/* ── ADMIN SIDEBAR: Same dark treatment ── */
+.admin-sidebar {
+    background: #0F172A !important;
+    color: #94A3B8 !important;
+    border-right: none !important;
+    box-shadow: none !important;
+}
+
+.admin-sidebar h1,
+.admin-sidebar h2,
+.admin-sidebar h3,
+.admin-sidebar h4,
+.admin-sidebar h5,
+.admin-sidebar h6 {
+    color: inherit !important;
+    -webkit-text-fill-color: inherit !important;
+}
+
+.admin-sidebar p,
+.admin-sidebar span,
+.admin-sidebar label,
+.admin-sidebar li {
+    color: inherit !important;
+}
+
+.admin-sidebar a {
+    color: #94A3B8 !important;
+}
+
+.admin-sidebar a i {
+    color: #64748B !important;
+}
+
+.admin-sidebar a:hover,
+.admin-sidebar a:hover i {
+    background: #1E293B !important;
+    color: #FFFFFF !important;
+}
+
+.admin-sidebar a.active,
+.admin-sidebar a.active i {
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+    color: #FFFFFF !important;
+}
+
+.admin-sidebar .brand-name {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+/* Admin sidebar brand/logo — no hover bg change */
+.admin-sidebar .sidebar-brand,
+.admin-sidebar .sidebar-brand:hover,
+.admin-sidebar a.sidebar-brand,
+.admin-sidebar a.sidebar-brand:hover {
+    background: transparent !important;
+    color: inherit !important;
+}
+
+.admin-sidebar .profile-name {
+    color: #FFFFFF !important;
+}
+
+.admin-sidebar .profile-email,
+.admin-sidebar .nav-section-title {
+    color: #64748B !important;
+}
+
+.admin-sidebar .btn-logout {
+    color: #94A3B8 !important;
+}
+
+/* ── ADMIN HEADER: White text on dark background ── */
+.admin-header h1,
+.admin-header h2,
+.admin-header h3,
+.admin-header .page-title {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+.admin-header p,
+.admin-header span,
+.admin-header label {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.admin-header .header-btn {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ── DASHBOARD SIDEBAR ── */
+.dashboard-sidebar {
+    background: #0F172A !important;
+    color: #94A3B8 !important;
+}
+
+.dashboard-sidebar h1, .dashboard-sidebar h2, .dashboard-sidebar h3,
+.dashboard-sidebar h4, .dashboard-sidebar h5, .dashboard-sidebar h6 {
+    color: inherit !important;
+}
+
+.dashboard-sidebar p, .dashboard-sidebar span,
+.dashboard-sidebar label, .dashboard-sidebar li {
+    color: inherit !important;
+}
+
+.dashboard-sidebar a {
+    color: #94A3B8 !important;
+}
+
+.dashboard-sidebar a:hover,
+.dashboard-sidebar a.active {
+    background: #1E293B !important;
+    color: #FFFFFF !important;
+}
+
+/* ── MOBILE SIDEBAR OVERLAY ── */
+.seller-sidebar .mobile-close,
+.admin-sidebar .mobile-close {
+    color: #94A3B8 !important;
+}
+
+/* ── GENERIC .header — white text on dark bg ── */
+.header h1,
+.header h2,
+.header h3,
+.header h4,
+.header h5,
+.header h6 {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+.header p,
+.header span,
+.header label,
+.header strong {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.header .profile-status {
+    color: white !important;
+}
+
+.header .profile-status span {
+    color: inherit !important;
+}
+
+.header .profile-status.verified,
+.header .profile-status.verified span {
+    color: #D1FAE5 !important;
+}
+
+.header .profile-status.pending,
+.header .profile-status.pending span {
+    color: #FEF3C7 !important;
+}
+
+/* ── SELLER VERIFICATION PAGE ── */
+.verification-card .card-header h1 {
+    color: var(--primary-black, #1A1A1A) !important;
+    -webkit-text-fill-color: var(--primary-black, #1A1A1A) !important;
+}
+
+.verification-card .card-header p {
+    color: var(--medium-grey, #666666) !important;
+}
+
+.progress-steps .step-number {
+    color: inherit !important;
+}
+
+.progress-steps .step-label {
+    color: #4B5563 !important;
+}
+
+.progress-steps .step.active .step-number {
+    color: #FFFFFF !important;
+}
+
+.progress-steps .step.completed .step-number {
+    color: #FFFFFF !important;
+}

@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "shop69-1"
-  }
+  },
+  "targets": {
+    "shop69-1": {
+      "hosting": {
+        "shop69-1": [
+          "shop69-1"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

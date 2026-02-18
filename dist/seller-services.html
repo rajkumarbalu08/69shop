@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Manage Services - Seller Hub | 69Shop.in</title>
     <meta name="description" content="Manage your service offerings, pricing, and availability on 69Shop.in">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -10,22 +11,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/dashboard-notifications.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <link rel="stylesheet" href="/assets/css/seller-header.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="/js/notifications.js"></script>
     <script src="/js/seller-shell.js"></script>
-    
+    <script src="/js/seller-header.js"></script>
+
     <style>
         :root {
-            --seller-primary: #7C3AED;
-            --seller-primary-dark: #6D28D9;
-            --seller-primary-light: #EDE9FE;
-            --seller-light: #F6F0FF;
-            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --seller-primary: #2563EB;
+            --seller-primary-dark: #1D4ED8;
+            --seller-primary-light: #EFF6FF;
+            --seller-light: #EFF6FF;
+            --seller-gradient: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
             --primary-black: #1A1A1A;
             --secondary-black: #2D2D2D;
             --dark-grey: #404040;
@@ -123,7 +126,7 @@
             flex-direction: column;
             transition: var(--transition);
         }
-        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-800); }
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-700); }
         .sidebar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
         .brand-logo {
             width: 42px;
@@ -174,7 +177,7 @@
             position: relative;
         }
         .nav-link:hover { background: var(--slate-800); color: var(--white); }
-        .nav-link.active { background: var(--seller-gradient); color: var(--white); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3); }
+        .nav-link.active { background: var(--seller-gradient); color: var(--white); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
         .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
         .nav-badge {
             margin-left: auto;
@@ -212,16 +215,6 @@
         }
         .profile-info { flex: 1; min-width: 0; }
         .profile-name { color: var(--white); font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .profile-status {
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-top: 6px;
-        }
-        .profile-status.verified { color: var(--success); }
-        .profile-status.pending { color: var(--warning); }
-        .profile-email { color: var(--slate-400); font-size: 0.75rem; }
         .btn-logout {
             width: 100%;
             display: flex;
@@ -242,8 +235,8 @@
         .seller-main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
         .seller-header {
             height: var(--header-height);
-            background: var(--white);
-            border-bottom: 1px solid var(--slate-200);
+            background: #1A1A1A;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -253,15 +246,15 @@
             z-index: 100;
         }
         .header-left { display: flex; align-items: center; gap: 20px; }
-        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600; color: #FFFFFF; }
         .header-right { display: flex; align-items: center; gap: 16px; }
         .header-btn {
             width: 42px;
             height: 42px;
             border-radius: 50%;
             border: none;
-            background: var(--slate-100);
-            color: var(--slate-600);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -269,7 +262,7 @@
             position: relative;
             transition: var(--transition);
         }
-        .header-btn:hover { background: var(--slate-200); }
+        .header-btn:hover { background: rgba(255, 255, 255, 0.2); }
         .header-btn .notification-dot {
             position: absolute;
             top: 8px;
@@ -1051,6 +1044,9 @@
             .page-header-actions { width: 100%; justify-content: flex-start; }
         }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay">
@@ -1095,6 +1091,7 @@
                     <a href="/seller-messages.html" class="nav-link">
                         <i class="fas fa-comments"></i>
                         <span>Messages</span>
+                        <span class="nav-badge" data-messages-badge></span>
                     </a>
                 </div>
                 <div class="nav-section">
@@ -1130,14 +1127,9 @@
             </nav>
             <div class="sidebar-footer">
                 <div class="seller-profile">
-                    <div class="profile-avatar" id="sidebarAvatar" data-seller-avatar>S</div>
+                    <div class="profile-avatar" id="sellerAvatar" data-seller-avatar>S</div>
                     <div class="profile-info">
-                        <div class="profile-name" id="sidebarName" data-seller-name>Loading...</div>
-                        <div class="profile-status pending" data-seller-status>
-                            <i class="fas fa-clock"></i>
-                            <span>Verification Pending</span>
-                        </div>
-                        <div class="profile-email" id="sidebarEmail">seller@69shop.in</div>
+                        <div class="profile-name" id="sellerName" data-seller-name>Seller</div>
                     </div>
                 </div>
                 <button class="btn-logout" onclick="handleLogout(event)">
@@ -1148,61 +1140,7 @@
         </aside>
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
         <main class="seller-main">
-            <header class="seller-header">
-                <div class="header-left">
-                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div>
-                        <h1 class="page-title">Service Manager</h1>
-                        <p style="color: var(--slate-500); font-size: 0.9rem;">Configure your service offerings, pricing, and delivery options</p>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <div class="notification-wrapper">
-                        <button class="header-btn" id="notificationTrigger" title="Notifications">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
-                        </button>
-                        <div class="notification-panel" id="notificationPanel">
-                            <div class="notification-panel-header">
-                                <div>
-                                    <h3>Notifications</h3>
-                                    <p id="notificationSubtitle">Latest updates</p>
-                                </div>
-                                <div class="header-actions">
-                                    <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
-                                        Mark all read
-                                    </button>
-                                    <button id="notificationRefresh" title="Refresh notifications">
-                                        <i class="fas fa-rotate-right"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="notification-list" id="notificationList">
-                                <div class="notification-empty">
-                                    <i class="fas fa-bell-slash"></i>
-                                    <p>No notifications yet</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dropdown-wrapper">
-                        <div class="seller-user-menu" onclick="toggleUserDropdown()">
-                            <div class="seller-user-avatar" id="userAvatar" data-seller-avatar>S</div>
-                            <div class="seller-user-info">
-                                <strong id="userName" data-seller-name>Loading...</strong>
-                            </div>
-                        </div>
-                        <div class="user-dropdown" id="userDropdown">
-                            <a href="/seller-settings.html"><i class="fas fa-cog"></i> Settings</a>
-                            <a href="/shop.html"><i class="fas fa-external-link-alt"></i> View Shop</a>
-                            <hr>
-                            <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <header class="seller-header" data-page-title="Service Manager" data-page-subtitle="Configure your service offerings, pricing, and delivery options" data-page-action-label="Add Service" data-page-action-onclick="openAddServiceModal()"></header>
             <div class="seller-content">
                 <div class="page-header">
                     <div class="page-header-left">
@@ -1637,6 +1575,7 @@
     <script>
         let auth = null;
         let db = null;
+        let firebaseReady = false;
         let currentUser = null;
         let serviceData = { categories: {} };
         let sellerProfileData = {};
@@ -1655,15 +1594,20 @@
         let sellerSupportTickets = [];
         let sellerTicketFilter = 'open';
 
-        const firebaseConfig = window.firebaseConfig;
-        if (!firebaseConfig || !firebaseConfig.apiKey) {
-            throw new Error('Missing Firebase configuration');
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Missing Firebase configuration');
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            db = firebase.firestore();
+            firebaseReady = true;
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
         }
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        auth = firebase.auth();
-        db = firebase.firestore();
 
         function hideLoading() {
             const overlay = document.getElementById('loadingOverlay');
@@ -1679,18 +1623,6 @@
             if (sidebarEmail) sidebarEmail.textContent = email;
         }
 
-        function toggleUserDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            if (dropdown) dropdown.classList.toggle('show');
-        }
-
-        document.addEventListener('click', (event) => {
-            const dropdown = document.getElementById('userDropdown');
-            if (!dropdown) return;
-            if (!event.target.closest('.dropdown-wrapper')) {
-                dropdown.classList.remove('show');
-            }
-        });
 
         async function handleLogout(event) {
             if (event) event.preventDefault();
@@ -2599,7 +2531,7 @@
             const colors = {
                 success: 'var(--success, #10B981)',
                 error: 'var(--danger, #EF4444)',
-                info: 'var(--seller-primary, #7C3AED)'
+                info: 'var(--seller-primary, #2563EB)'
             };
             const container = document.createElement('div');
             container.style.cssText = `position:fixed;top:80px;right:20px;background:${colors[type] || colors.info};color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;transform:translateX(120%);transition:transform 0.25s ease;display:flex;align-items:center;gap:8px;`;
@@ -2637,3 +2569,4 @@
     </script>
 </body>
 </html>
+

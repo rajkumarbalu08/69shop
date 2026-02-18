@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Admin Login - 69Shop.in</title>
     <meta name="description" content="Admin portal for 69Shop.in management">
     <meta name="robots" content="noindex, nofollow">
@@ -11,9 +12,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     
     <style>
@@ -298,7 +299,85 @@
             color: var(--admin-primary);
             margin-top: 2px;
         }
+        
+        /* ===== MOBILE RESPONSIVE STYLES ===== */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+            
+            .login-container {
+                margin: 0;
+            }
+            
+            .login-header {
+                padding: 24px 20px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.25rem;
+            }
+            
+            .login-header img {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .login-body {
+                padding: 24px 20px;
+            }
+            
+            .form-input {
+                font-size: 16px; /* Prevents iOS zoom */
+                padding: 14px 16px;
+            }
+            
+            .btn-login, .btn-google {
+                padding: 14px;
+                min-height: 48px; /* Touch-friendly */
+            }
+            
+            .admin-badge {
+                font-size: 0.7rem;
+                padding: 5px 10px;
+            }
+            
+            .security-note {
+                padding: 12px;
+                font-size: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            
+            .login-header {
+                padding: 20px 16px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.1rem;
+            }
+            
+            .login-header p {
+                font-size: 0.8rem;
+            }
+            
+            .login-body {
+                padding: 20px 16px;
+            }
+            
+            .login-footer {
+                padding: 16px;
+                font-size: 0.85rem;
+            }
+        }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <div class="login-container">
@@ -326,7 +405,7 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label class="form-label" for="email">Admin Email</label>
-                    <input type="email" id="email" class="form-input" placeholder="admin@69shop.in" required>
+                    <input type="email" id="email" class="form-input" placeholder="info@69shop.in" required>
                 </div>
                 
                 <div class="form-group">
@@ -363,20 +442,41 @@
         
         <div class="login-footer">
             <a href="/index.html"><i class="fas fa-arrow-left"></i> Back to Main Site</a>
+            &nbsp;•&nbsp;
+            <a href="/shop-login.html">Buyer Login</a>
+            &nbsp;•&nbsp;
+            <a href="/seller-login.html">Seller Login</a>
         </div>
     </div>
 
     <script>
-        // Initialize Firebase
-        const firebaseConfig = window.firebaseConfig;
-        if (!firebaseConfig || !firebaseConfig.apiKey) {
-            throw new Error('Missing Firebase configuration');
+        // Initialize Firebase (graceful fallback)
+        let auth = null;
+        let db = null;
+        let firebaseReady = false;
+
+        try {
+            const firebaseConfig = window.firebaseConfig;
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Missing Firebase configuration. Copy firebase-config.sample.js to firebase-config.js and supply your project credentials.');
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            db = firebase.firestore();
+            firebaseReady = true;
+            console.log('Firebase initialized successfully for Admin Login');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+            // Show a user-friendly message instead of crashing
+            document.addEventListener('DOMContentLoaded', () => {
+                const body = document.querySelector('.login-body');
+                if (body) {
+                    body.innerHTML = '<div class="alert error show" style="display:flex"><i class="fas fa-exclamation-circle"></i><span>Firebase is not configured. Please contact the administrator.</span></div>';
+                }
+            });
         }
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = firebase.auth();
-        const db = firebase.firestore();
 
         function normalizeEmail(email) {
             return (email || '').trim().toLowerCase();
@@ -402,14 +502,16 @@
         }
 
         // Check if already logged in as admin
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const isAdmin = await checkAdminStatus(user.email);
-                if (isAdmin) {
-                    window.location.href = '/admin-dashboard.html';
+        if (auth) {
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    const isAdmin = await checkAdminStatus(user.email);
+                    if (isAdmin) {
+                        window.location.href = '/admin-dashboard.html';
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // Check admin status in Firestore
         async function checkAdminStatus(email) {
@@ -473,6 +575,10 @@
         // Handle form submission
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!firebaseReady || !auth) {
+                showError('Firebase is not configured. Please contact the administrator.');
+                return;
+            }
             
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
@@ -523,6 +629,10 @@
 
         // Google Sign In
         async function googleLogin() {
+            if (!firebaseReady || !auth) {
+                showError('Firebase is not configured. Please contact the administrator.');
+                return;
+            }
             const provider = new firebase.auth.GoogleAuthProvider();
             
             try {
@@ -550,3 +660,4 @@
     </script>
 </body>
 </html>
+

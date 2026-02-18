@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Product Details - 69Shop.in</title>
     <meta name="description" content="View product details on 69Shop.in - India's premium marketplace">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,9 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="products-data.js"></script>
     
@@ -38,6 +39,17 @@
         }
         window.firebaseReady = firebaseReady;
     </script>
+
+    <!-- Premium Shop UI -->
+    <link rel="stylesheet" href="assets/css/premium-shop.css">
+    <!-- Mobile Enhancements -->
+    <link rel="stylesheet" href="assets/css/mobile-enhancements.css">
+    <!-- Bundle Deals -->
+    <link rel="stylesheet" href="assets/css/bundle-deals.css">
+    <!-- Negotiate & Buy -->
+    <link rel="stylesheet" href="assets/css/negotiate.css">
+    <!-- Price Drop Alerts -->
+    <link rel="stylesheet" href="assets/css/price-drop-alerts.css">
 
     <style>
         :root {
@@ -252,15 +264,245 @@
         .image-zoom-hint {
             position: absolute;
             bottom: 12px;
-            right: 12px;
-            background: rgba(0,0,0,0.6);
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
             color: white;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
             font-size: 0.75rem;
             display: flex;
             align-items: center;
             gap: 6px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .main-image-container:hover .image-zoom-hint {
+            opacity: 1;
+        }
+
+        /* Image Controls */
+        .image-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .main-image-container:hover .image-controls {
+            opacity: 1;
+        }
+
+        .image-control-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--light-grey);
+            color: var(--text-dark);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+        }
+
+        .image-control-btn:hover {
+            background: var(--blue-primary);
+            color: white;
+        }
+
+        .zoom-level {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            min-width: 45px;
+            text-align: center;
+        }
+
+        /* Zoomable Image State */
+        .main-image.zoomed {
+            cursor: grab;
+        }
+
+        .main-image.zoomed:active {
+            cursor: grabbing;
+        }
+
+        /* Lightbox Modal */
+        .lightbox-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 95vw;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: var(--radius-lg);
+            transition: transform 0.3s ease;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+        }
+
+        .lightbox-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lightbox-nav.prev {
+            left: -80px;
+        }
+
+        .lightbox-nav.next {
+            right: -80px;
+        }
+
+        .lightbox-controls {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .lightbox-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: var(--transition-fast);
+        }
+
+        .lightbox-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lightbox-zoom-level {
+            color: white;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .lightbox-thumbnails {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            max-width: 90vw;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .lightbox-thumb {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .lightbox-thumb:hover,
+        .lightbox-thumb.active {
+            opacity: 1;
+            border-color: var(--blue-primary);
+        }
+
+        .lightbox-counter {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .lightbox-nav.prev {
+                left: 10px;
+            }
+            .lightbox-nav.next {
+                right: 10px;
+            }
+            .lightbox-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
 
         .thumbnail-strip {
@@ -474,6 +716,31 @@
             color: var(--text-light);
         }
 
+        .btn-visit-store {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-visit-store:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-visit-store i {
+            font-size: 0.78rem;
+        }
+
         /* Action Buttons */
         .product-actions {
             display: flex;
@@ -529,6 +796,28 @@
             background: #ffe6e6;
             border-color: #ff6b6b;
             color: #ff6b6b;
+        }
+
+        .btn-compare {
+            width: 56px;
+            height: 56px;
+            border: 2px solid var(--light-grey);
+            background: var(--white);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+            color: var(--text-medium);
+            font-size: 1.3rem;
+        }
+
+        .btn-compare:hover,
+        .btn-compare.active {
+            background: var(--blue-light);
+            border-color: var(--blue-primary);
+            color: var(--blue-primary);
         }
 
         .btn-chat-seller {
@@ -594,6 +883,17 @@
         .error-state p {
             color: var(--text-medium);
             margin-bottom: 24px;
+        }
+
+        .redirect-notice {
+            color: var(--text-medium);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .redirect-notice span {
+            font-weight: 600;
+            color: var(--blue-primary);
         }
 
         .btn-back {
@@ -1234,36 +1534,111 @@
             margin-top: 48px;
             padding-bottom: 48px;
         }
-        .related-header {
+        
+        /* Section Header Styles */
+        .section-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             margin-bottom: 24px;
+            gap: 16px;
         }
-        .related-header h2 {
-            font-size: 1.4rem;
+        .section-header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: fit-content;
+            animation: pulse 2s infinite;
+        }
+        .section-header-left h2 {
+            font-size: 1.5rem;
             color: var(--text-dark);
+            margin: 4px 0;
+        }
+        .section-header-left p {
+            color: var(--text-medium);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        .section-header-right {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        .related-header h2 i { color: var(--blue-primary); }
-        .related-header a {
+        .section-view-all {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             color: var(--blue-primary);
             text-decoration: none;
             font-weight: 600;
             font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(0, 102, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+        .section-view-all:hover {
+            background: var(--blue-primary);
+            color: white;
+        }
+        .section-view-all i {
+            transition: transform 0.3s ease;
+        }
+        .section-view-all:hover i {
+            transform: translateX(4px);
+        }
+        .section-nav-arrows {
+            display: flex;
+            gap: 8px;
+        }
+        .section-nav-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border-subtle, #e5e5e5);
+            background: white;
+            color: var(--text-dark);
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            transition: all 0.2s ease;
         }
-        .related-header a:hover { text-decoration: underline; }
-        .related-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        .section-nav-btn:hover {
+            background: var(--blue-primary);
+            color: white;
+            border-color: var(--blue-primary);
+        }
+        
+        /* Related Carousel */
+        .related-carousel {
+            display: flex;
             gap: 20px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .related-carousel::-webkit-scrollbar {
+            display: none;
         }
         .related-card {
+            flex: 0 0 240px;
             background: var(--white);
             border-radius: var(--radius-lg);
             overflow: hidden;
@@ -1369,7 +1744,686 @@
                 height: 60px;
             }
         }
+        
+        /* Small Mobile - 480px breakpoint */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 16px;
+            }
+            
+            .product-page {
+                padding: 16px 0 40px;
+            }
+            
+            .product-layout {
+                padding: 12px;
+            }
+            
+            .product-title {
+                font-size: 1.2rem;
+            }
+            
+            .current-price {
+                font-size: 1.5rem;
+            }
+            
+            .original-price {
+                font-size: 0.9rem;
+            }
+            
+            .product-actions button {
+                padding: 14px 20px;
+                font-size: 0.95rem;
+                min-height: 48px;
+            }
+            
+            .thumbnails {
+                gap: 8px;
+            }
+            
+            .thumbnail {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .feature-item {
+                padding: 12px;
+            }
+            
+            .related-products-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+
+        /* Compare Widget Styles */
+        .compare-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            z-index: 9990;
+            min-width: 220px;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .compare-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .compare-header i {
+            color: var(--blue-primary);
+            margin-right: 8px;
+        }
+        .close-compare-widget {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .compare-items {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .compare-item {
+            position: relative;
+            width: 48px;
+            height: 48px;
+        }
+        .compare-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+        }
+        .remove-compare-item {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-compare-now {
+            width: 100%;
+            padding: 10px;
+            background: var(--blue-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-compare-now:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        .btn-compare-now:not(:disabled):hover {
+            background: #0052cc;
+        }
+        
+        /* Compare Modal */
+        .compare-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .compare-modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 1200px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .compare-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: var(--light-grey);
+        }
+        .compare-modal-header h2 {
+            font-size: 20px;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        .compare-modal-header i {
+            color: var(--blue-primary);
+            margin-right: 10px;
+        }
+        .close-compare-modal {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+        }
+        .compare-table-wrapper {
+            overflow: auto;
+            flex: 1;
+            padding: 0;
+        }
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .compare-table th, .compare-table td {
+            padding: 14px 16px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            min-width: 200px;
+        }
+        .compare-table th.feature-col,
+        .compare-table td.feature-name {
+            text-align: left;
+            font-weight: 600;
+            background: #fafafa;
+            position: sticky;
+            left: 0;
+            min-width: 160px;
+            color: var(--text-dark);
+        }
+        .compare-table th.product-col {
+            vertical-align: top;
+            padding: 20px;
+            background: white;
+        }
+        .compare-table th.product-col img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #eee;
+        }
+        .compare-product-name {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+        .btn-remove-compare {
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #ef4444;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-remove-compare:hover {
+            background: #ef4444;
+            color: white;
+        }
+        .feature-value.price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--blue-primary);
+        }
+        .feature-value.rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .feature-value.rating .stars {
+            color: #ffc107;
+        }
+        .feature-value.in-stock {
+            color: #00c853;
+        }
+        .feature-value.out-of-stock {
+            color: #ff5252;
+        }
+        .compare-modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            background: var(--light-grey);
+            flex-wrap: wrap;
+        }
+        .compare-modal-footer .btn-add-to-cart {
+            flex: 0 1 auto;
+            padding: 12px 24px;
+            font-size: 14px;
+        }
+        
+        /* Spec Category Headers in Compare */
+        .spec-category-row td {
+            background: linear-gradient(135deg, var(--blue-primary), var(--accent-blue)) !important;
+            color: white !important;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+            padding: 10px 16px !important;
+        }
+        .spec-category-row td.feature-name {
+            background: linear-gradient(135deg, var(--blue-primary), var(--accent-blue)) !important;
+            color: white !important;
+        }
+        
+        @media (max-width: 768px) {
+            .compare-widget {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                min-width: unset;
+            }
+            .compare-modal {
+                padding: 10px;
+            }
+            .compare-modal-content {
+                max-height: 95vh;
+            }
+            .compare-table th, .compare-table td {
+                min-width: 150px;
+                padding: 10px;
+                font-size: 13px;
+            }
+            .compare-table th.product-col img {
+                width: 70px;
+                height: 70px;
+            }
+        }
+        /* ===== PRODUCT Q&A SECTION ===== */
+        .qa-section {
+            margin-top: 48px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+        .qa-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .qa-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .qa-title i {
+            color: var(--blue-primary);
+            font-size: 1.5rem;
+        }
+        .qa-title h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            color: var(--text-dark);
+        }
+        .qa-count {
+            background: var(--blue-light);
+            color: var(--blue-primary);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .btn-ask-question {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--gradient-premium);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .btn-ask-question:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .qa-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .qa-empty {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-light);
+        }
+        .qa-empty i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+        .qa-card {
+            border: 1px solid #f0f0f0;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: var(--transition-fast);
+        }
+        .qa-card:hover {
+            border-color: var(--blue-primary);
+            box-shadow: var(--shadow-sm);
+        }
+        .qa-question {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .qa-q-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--blue-light);
+            color: var(--blue-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .qa-q-content {
+            flex: 1;
+        }
+        .qa-q-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+        .qa-q-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            flex-wrap: wrap;
+        }
+        .qa-dot {
+            font-size: 0.5rem;
+        }
+        .qa-answers {
+            margin-left: 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .qa-answer {
+            padding: 14px 16px;
+            background: var(--light-grey);
+            border-radius: var(--radius-sm);
+            border-left: 3px solid #e0e0e0;
+        }
+        .qa-answer.seller-answer {
+            background: #EBF5FF;
+            border-left-color: var(--blue-primary);
+        }
+        .qa-answer-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+        }
+        .qa-answer-header strong {
+            color: var(--text-dark);
+        }
+        .qa-time {
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+        .qa-seller-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--blue-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .qa-answer p {
+            color: var(--text-medium);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .qa-actions {
+            display: flex;
+            gap: 12px;
+            margin-left: 50px;
+        }
+        .qa-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            background: white;
+            font-size: 0.82rem;
+            color: var(--text-medium);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .qa-action-btn:hover {
+            border-color: var(--blue-primary);
+            color: var(--blue-primary);
+        }
+        .qa-answer-form {
+            display: flex;
+            gap: 8px;
+            margin-left: 50px;
+            margin-top: 12px;
+        }
+        .qa-answer-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            transition: var(--transition-fast);
+        }
+        .qa-answer-input:focus {
+            outline: none;
+            border-color: var(--blue-primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+        .qa-submit-answer {
+            padding: 10px 16px;
+            background: var(--blue-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .qa-submit-answer:hover {
+            background: var(--blue-dark);
+        }
+        /* Q&A Modal */
+        .qa-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 24px;
+        }
+        .qa-modal-overlay.show {
+            display: flex;
+        }
+        .qa-modal {
+            background: white;
+            border-radius: var(--radius-lg);
+            max-width: 500px;
+            width: 100%;
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+        }
+        .qa-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .qa-modal-header h3 {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .qa-modal-header h3 i {
+            color: var(--blue-primary);
+        }
+        .qa-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 4px;
+        }
+        .qa-modal-body {
+            padding: 24px;
+        }
+        .qa-modal-body textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            transition: var(--transition-fast);
+        }
+        .qa-modal-body textarea:focus {
+            outline: none;
+            border-color: var(--blue-primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+        .qa-modal-hint {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        .qa-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            background: var(--light-grey);
+        }
+        .qa-btn-cancel {
+            padding: 10px 20px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: var(--text-medium);
+            transition: var(--transition-fast);
+        }
+        .qa-btn-cancel:hover {
+            border-color: var(--text-medium);
+        }
+        .qa-btn-submit {
+            padding: 10px 20px;
+            background: var(--gradient-premium);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-fast);
+        }
+        .qa-btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        .qa-btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        @media (max-width: 768px) {
+            .qa-section {
+                padding: 20px;
+            }
+            .qa-answers,
+            .qa-actions,
+            .qa-answer-form {
+                margin-left: 0;
+            }
+            .qa-question {
+                gap: 10px;
+            }
+            .qa-q-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 0.85rem;
+            }
+        }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <!-- Header -->
@@ -1390,7 +2444,7 @@
                         <i class="fas fa-store"></i>
                         <span>Shop</span>
                     </a>
-                    <button class="header-btn cart-btn" onclick="window.location.href='/shop.html'">
+                    <button class="header-btn cart-btn" onclick="CartDrawer.toggle()">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-count" id="cartCount">0</span>
                     </button>
@@ -1426,9 +2480,10 @@
                 <div class="error-icon"><i class="fas fa-box-open"></i></div>
                 <h2>Product Not Found</h2>
                 <p>The product you're looking for doesn't exist or has been removed.</p>
+                <p class="redirect-notice">Redirecting to shop in <span id="redirectCountdown">5</span> seconds...</p>
                 <a href="/shop.html" class="btn-back">
                     <i class="fas fa-arrow-left"></i>
-                    Back to Shop
+                    Back to Shop Now
                 </a>
             </div>
 
@@ -1436,11 +2491,26 @@
             <div class="product-layout" id="productLayout" style="display: none;">
                 <!-- Gallery -->
                 <div class="product-gallery">
-                    <div class="main-image-container">
+                    <div class="main-image-container" id="mainImageContainer">
                         <img src="" alt="" class="main-image" id="mainImage">
+                        <div class="image-controls">
+                            <button class="image-control-btn" onclick="zoomImage(-0.25)" title="Zoom Out">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <span class="zoom-level" id="zoomLevel">100%</span>
+                            <button class="image-control-btn" onclick="zoomImage(0.25)" title="Zoom In">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="image-control-btn" onclick="resetZoom()" title="Reset">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button class="image-control-btn" onclick="openLightbox()" title="Full Screen">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
                         <div class="image-zoom-hint">
-                            <i class="fas fa-search-plus"></i>
-                            Hover to zoom
+                            <i class="fas fa-hand-pointer"></i>
+                            Click & drag to pan • Scroll to zoom
                         </div>
                     </div>
                     <div class="thumbnail-strip" id="thumbnailStrip"></div>
@@ -1594,13 +2664,66 @@
                 </div>
             </div>
 
+            <!-- Product Q&A Section -->
+            <div class="qa-section" id="qaSection">
+                <div class="qa-header">
+                    <div class="qa-title">
+                        <i class="fas fa-question-circle"></i>
+                        <h2>Questions & Answers</h2>
+                        <span class="qa-count" id="qaCount">0</span>
+                    </div>
+                    <button class="btn-ask-question" onclick="ProductQA._openAskModal()">
+                        <i class="fas fa-plus"></i> Ask a Question
+                    </button>
+                </div>
+                <div class="qa-list" id="qaList">
+                    <div class="qa-empty">
+                        <i class="fas fa-question-circle"></i>
+                        <p>No questions yet. Be the first to ask!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ask Question Modal -->
+            <div class="qa-modal-overlay" id="qaAskModal">
+                <div class="qa-modal">
+                    <div class="qa-modal-header">
+                        <h3><i class="fas fa-question-circle"></i> Ask a Question</h3>
+                        <button class="qa-modal-close" onclick="ProductQA._closeAskModal()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="qa-modal-body">
+                        <textarea id="qaQuestionInput" rows="3" placeholder="What would you like to know about this product?"></textarea>
+                        <p class="qa-modal-hint">Your question will be visible to the seller and other customers.</p>
+                    </div>
+                    <div class="qa-modal-footer">
+                        <button class="qa-btn-cancel" onclick="ProductQA._closeAskModal()">Cancel</button>
+                        <button class="qa-btn-submit" id="qaSubmitBtn" onclick="submitProductQuestion()">
+                            <i class="fas fa-paper-plane"></i> Submit Question
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bundle Deals - Frequently Bought Together -->
+            <div id="bundleDealsSection" style="display: none; margin-top: 32px;"></div>
+
             <!-- Related Products -->
             <div class="related-section" id="relatedSection" style="display: none;">
-                <div class="related-header">
-                    <h2><i class="fas fa-th-large"></i> You May Also Like</h2>
-                    <a href="shop.html">View All <i class="fas fa-arrow-right"></i></a>
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <span class="section-badge"><i class="fas fa-th-large"></i> RECOMMENDED</span>
+                        <h2>You May Also Like</h2>
+                        <p>Products similar to what you're viewing</p>
+                    </div>
+                    <div class="section-header-right">
+                        <a href="/shop.html" class="section-view-all" id="viewAllRelatedLink">View All <i class="fas fa-arrow-right"></i></a>
+                        <div class="section-nav-arrows">
+                            <button class="section-nav-btn" onclick="scrollRelated(-1)" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+                            <button class="section-nav-btn" onclick="scrollRelated(1)" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
                 </div>
-                <div class="related-grid" id="relatedGrid"></div>
+                <div class="related-carousel" id="relatedGrid"></div>
             </div>
         </div>
     </main>
@@ -1615,6 +2738,234 @@
         let currentProduct = null;
         let cart = [];
         let wishlist = new Set();
+
+        // ===== IMAGE ZOOM & LIGHTBOX FUNCTIONALITY =====
+        let currentZoom = 1;
+        let productImages = [];
+        let currentLightboxIndex = 0;
+        let isDragging = false;
+        let startX, startY, translateX = 0, translateY = 0;
+        let lightboxZoom = 1;
+
+        // Initialize zoom controls on the main image
+        function initializeImageZoom() {
+            const mainImage = document.getElementById('mainImage');
+            const container = document.getElementById('mainImageContainer');
+            
+            if (!mainImage || !container) return;
+
+            // Mouse wheel zoom
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                zoomImage(delta);
+            });
+
+            // Pan/drag functionality when zoomed
+            mainImage.addEventListener('mousedown', (e) => {
+                if (currentZoom <= 1) return;
+                isDragging = true;
+                startX = e.clientX - translateX;
+                startY = e.clientY - translateY;
+                mainImage.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                translateX = e.clientX - startX;
+                translateY = e.clientY - startY;
+                updateImageTransform();
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    const mainImage = document.getElementById('mainImage');
+                    if (mainImage) mainImage.style.cursor = currentZoom > 1 ? 'grab' : 'default';
+                }
+            });
+
+            // Double-click to toggle zoom
+            container.addEventListener('dblclick', () => {
+                if (currentZoom > 1) {
+                    resetZoom();
+                } else {
+                    zoomImage(1);
+                }
+            });
+        }
+
+        function zoomImage(delta) {
+            currentZoom = Math.max(0.5, Math.min(4, currentZoom + delta));
+            updateImageTransform();
+            updateZoomLevel();
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            translateX = 0;
+            translateY = 0;
+            updateImageTransform();
+            updateZoomLevel();
+        }
+
+        function updateImageTransform() {
+            const mainImage = document.getElementById('mainImage');
+            if (mainImage) {
+                mainImage.style.transform = `scale(${currentZoom}) translate(${translateX / currentZoom}px, ${translateY / currentZoom}px)`;
+                mainImage.classList.toggle('zoomed', currentZoom > 1);
+            }
+        }
+
+        function updateZoomLevel() {
+            const zoomLevelEl = document.getElementById('zoomLevel');
+            if (zoomLevelEl) {
+                zoomLevelEl.textContent = `${Math.round(currentZoom * 100)}%`;
+            }
+        }
+
+        // ===== LIGHTBOX MODAL =====
+        function openLightbox(index = null) {
+            if (index !== null) {
+                currentLightboxIndex = index;
+            } else {
+                const currentSrc = document.getElementById('mainImage').src;
+                currentLightboxIndex = productImages.findIndex(img => img === currentSrc) || 0;
+            }
+            
+            lightboxZoom = 1;
+            
+            const modal = document.createElement('div');
+            modal.id = 'lightboxModal';
+            modal.className = 'lightbox-modal';
+            modal.innerHTML = `
+                <div class="lightbox-content">
+                    <button class="lightbox-close" onclick="closeLightbox()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    ${productImages.length > 1 ? `
+                        <button class="lightbox-nav prev" onclick="navigateLightbox(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="lightbox-nav next" onclick="navigateLightbox(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    ` : ''}
+                    <img src="${productImages[currentLightboxIndex]}" alt="Product" class="lightbox-image" id="lightboxImage">
+                    <span class="lightbox-counter">${currentLightboxIndex + 1} / ${productImages.length}</span>
+                    <div class="lightbox-controls">
+                        <button class="lightbox-btn" onclick="lightboxZoomChange(-0.25)">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <span class="lightbox-zoom-level" id="lightboxZoomLevel">100%</span>
+                        <button class="lightbox-btn" onclick="lightboxZoomChange(0.25)">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button class="lightbox-btn" onclick="lightboxZoom = 1; updateLightboxImage()">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                    </div>
+                    ${productImages.length > 1 ? `
+                        <div class="lightbox-thumbnails">
+                            ${productImages.map((img, i) => `
+                                <img src="${img}" class="lightbox-thumb ${i === currentLightboxIndex ? 'active' : ''}" 
+                                     onclick="goToLightboxImage(${i})" alt="Thumbnail ${i + 1}">
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            document.body.style.overflow = 'hidden';
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeLightbox();
+            });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', lightboxKeyHandler);
+        }
+
+        function lightboxKeyHandler(e) {
+            switch(e.key) {
+                case 'Escape':
+                    closeLightbox();
+                    break;
+                case 'ArrowLeft':
+                    navigateLightbox(-1);
+                    break;
+                case 'ArrowRight':
+                    navigateLightbox(1);
+                    break;
+                case '+':
+                case '=':
+                    lightboxZoomChange(0.25);
+                    break;
+                case '-':
+                    lightboxZoomChange(-0.25);
+                    break;
+            }
+        }
+
+        function closeLightbox() {
+            const modal = document.getElementById('lightboxModal');
+            if (modal) {
+                modal.remove();
+                document.body.style.overflow = '';
+                document.removeEventListener('keydown', lightboxKeyHandler);
+            }
+        }
+
+        function navigateLightbox(direction) {
+            currentLightboxIndex = (currentLightboxIndex + direction + productImages.length) % productImages.length;
+            lightboxZoom = 1;
+            updateLightboxImage();
+        }
+
+        function goToLightboxImage(index) {
+            currentLightboxIndex = index;
+            lightboxZoom = 1;
+            updateLightboxImage();
+        }
+
+        function lightboxZoomChange(delta) {
+            lightboxZoom = Math.max(0.5, Math.min(4, lightboxZoom + delta));
+            updateLightboxImage();
+        }
+
+        function updateLightboxImage() {
+            const img = document.getElementById('lightboxImage');
+            const zoomLevel = document.getElementById('lightboxZoomLevel');
+            const counter = document.querySelector('.lightbox-counter');
+            
+            if (img) {
+                img.src = productImages[currentLightboxIndex];
+                img.style.transform = `scale(${lightboxZoom})`;
+            }
+            if (zoomLevel) {
+                zoomLevel.textContent = `${Math.round(lightboxZoom * 100)}%`;
+            }
+            if (counter) {
+                counter.textContent = `${currentLightboxIndex + 1} / ${productImages.length}`;
+            }
+            
+            // Update thumbnail active state
+            document.querySelectorAll('.lightbox-thumb').forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === currentLightboxIndex);
+            });
+        }
+
+        // Scroll related products carousel
+        function scrollRelated(direction) {
+            const carousel = document.getElementById('relatedGrid');
+            if (carousel) {
+                const scrollAmount = 260; // card width + gap
+                carousel.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+            }
+        }
 
         // Load cart from storage
         function loadCart() {
@@ -1678,10 +3029,11 @@
             if (product.images && Array.isArray(product.images) && product.images.length > 0) {
                 return product.images;
             }
-            return product.image ? [product.image] : ['/Logo/placeholder.png'];
+            return product.image ? [product.image] : ['/Logo/placeholder.svg'];
         }
 
         function setMainImage(src) {
+            resetZoom(); // Reset zoom when switching images
             document.getElementById('mainImage').src = src;
             document.querySelectorAll('.thumbnail').forEach(t => {
                 t.classList.toggle('active', t.src === src);
@@ -1708,7 +3060,8 @@
                     price: currentProduct.price,
                     image: getProductImages(currentProduct)[0],
                     quantity: 1,
-                    maxQuantity: stock
+                    maxQuantity: stock,
+                    sellerId: currentProduct.sellerId || currentProduct.uid || '69shop-platform'
                 });
             }
             
@@ -1762,6 +3115,7 @@
         function renderProduct(product) {
             currentProduct = product;
             const images = getProductImages(product);
+            productImages = images; // Store globally for lightbox
             const isNew = product.createdAt && new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
             const isPremium = product.sellerType === 'premium';
             const isVerified = product.isVerified || product.verified;
@@ -1781,7 +3135,7 @@
             const thumbnailStrip = document.getElementById('thumbnailStrip');
             thumbnailStrip.innerHTML = images.map((img, i) => `
                 <img src="${img}" alt="Thumbnail ${i+1}" class="thumbnail ${i === 0 ? 'active' : ''}" 
-                     onclick="setMainImage('${img}')" onerror="this.src='/Logo/placeholder.png'">
+                     onclick="setMainImage('${img}')" onerror="this.src='/Logo/placeholder.svg'">
             `).join('');
 
             // Badges
@@ -1806,6 +3160,7 @@
                 <span class="current-price">₹${product.price?.toLocaleString() || '0'}</span>
                 ${product.originalPrice ? `<span class="original-price">₹${product.originalPrice.toLocaleString()}</span>` : ''}
                 ${discount > 0 ? `<span class="discount-tag">${discount}% OFF</span>` : ''}
+                ${product.negotiable ? `<span class="negotiate-badge-product" onclick="openNegotiatePanel()"><i class="fas fa-handshake"></i> Price Negotiable</span>` : ''}
             `;
 
             // Description
@@ -1829,6 +3184,11 @@
 
             // Seller card
             const sellerName = product.seller || product.sellerName || 'Shop';
+            const sellerCardId = product.sellerId || product.uid || null;
+            const visitStoreLink = sellerCardId ? `
+                <a href="/brand-store.html?seller=${sellerCardId}" class="btn-visit-store">
+                    <i class="fas fa-store"></i> Visit Store
+                </a>` : '';
             document.getElementById('sellerCard').innerHTML = `
                 <div class="seller-avatar">${sellerName.charAt(0).toUpperCase()}</div>
                 <div class="seller-info">
@@ -1838,14 +3198,22 @@
                     </h4>
                     <p>Trusted seller on 69Shop.in</p>
                 </div>
+                ${visitStoreLink}
             `;
 
             // Actions
             const sellerId = product.sellerId || product.uid || null;
+            const isInCompare = isProductInCompare(product.id);
             document.getElementById('productActions').innerHTML = `
                 <button class="btn-add-to-cart ${!inStock ? 'disabled' : ''}" onclick="addToCart()" ${!inStock ? 'disabled' : ''}>
                     <i class="fas fa-shopping-bag"></i>
                     ${inStock ? 'Add to Cart' : 'Notify When Available'}
+                </button>
+                ${product.negotiable && inStock ? `<button class="btn-chat-seller" onclick="openNegotiatePanel()" title="Negotiate Price" style="background:linear-gradient(135deg,#059669,#047857);color:#fff;">
+                    <i class="fas fa-handshake"></i>
+                </button>` : ''}
+                <button class="btn-compare ${isInCompare ? 'active' : ''}" onclick="toggleCompare()" title="Compare">
+                    <i class="fas fa-balance-scale"></i>
                 </button>
                 <button class="btn-chat-seller" onclick="chatWithSeller('${sellerId}', '${product.id}')" title="Chat with Seller">
                     <i class="fas fa-comment-dots"></i>
@@ -1853,17 +3221,47 @@
                 <button class="btn-wishlist ${inWishlist ? 'active' : ''}" onclick="toggleWishlist()">
                     <i class="fa${inWishlist ? 's' : 'r'} fa-heart"></i>
                 </button>
+                <div class="price-alert-popover-wrapper">
+                    <button class="btn-price-alert" id="btnPriceAlert" onclick="togglePriceAlertPopover()" title="Set Price Alert">
+                        <i class="far fa-bell"></i>
+                    </button>
+                    <div class="price-alert-popover" id="priceAlertPopover">
+                        <div class="price-alert-popover-arrow"></div>
+                        <div id="priceAlertContent"></div>
+                    </div>
+                </div>
             `;
 
             // Show product layout
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('productLayout').style.display = 'grid';
 
+            // Initialize image zoom controls
+            resetZoom();
+            initializeImageZoom();
+
             // Render additional sections
             renderOffers(product);
             renderSpecifications(product);
             loadRelatedProducts(product);
             loadReviews();
+
+            // Load Product Q&A
+            if (typeof loadProductQA === 'function') {
+                loadProductQA();
+            }
+
+            // Load Bundle Deals for this product
+            if (typeof BundleDeals !== 'undefined' && db) {
+                BundleDeals.init({ db });
+                BundleDeals.loadBundlesForProduct(product.id, 'bundleDealsSection');
+            }
+
+            // Check for existing Price Alert
+            if (typeof PriceAlerts !== 'undefined' && db) {
+                PriceAlerts.init({ db });
+                checkPriceAlertState();
+            }
         }
 
         // Render product offers
@@ -2023,12 +3421,12 @@
                 if (relatedProducts.length > 0) {
                     relatedGrid.innerHTML = relatedProducts.slice(0, 6).map(p => {
                         const discount = p.originalPrice ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
-                        const image = (p.images && p.images[0]) || p.image || '/Logo/placeholder.png';
+                        const image = (p.images && p.images[0]) || p.image || '/Logo/placeholder.svg';
                         
                         return `
-                            <a href="product.html?id=${p.id}" class="related-card">
+                            <a href="/product.html?id=${p.id}" class="related-card">
                                 <img src="${image}" alt="${p.name}" class="related-card-image" 
-                                     onerror="this.src='/Logo/placeholder.png'">
+                                     onerror="this.src='/Logo/placeholder.svg'">
                                 <div class="related-card-content">
                                     <h3 class="related-card-title">${p.name}</h3>
                                     <div class="related-card-price">
@@ -2041,6 +3439,12 @@
                         `;
                     }).join('');
                     relatedSection.style.display = 'block';
+
+                    // Update "View All" link to point to the correct category
+                    const viewAllLink = document.getElementById('viewAllRelatedLink');
+                    if (viewAllLink && product.category) {
+                        viewAllLink.href = `/shop.html?category=${encodeURIComponent(product.category.toLowerCase())}`;
+                    }
                 }
             } catch (error) {
                 console.error('Error loading related products:', error);
@@ -2050,6 +3454,18 @@
         function showError() {
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('errorState').style.display = 'block';
+            
+            // Auto-redirect countdown
+            let countdown = 5;
+            const countdownEl = document.getElementById('redirectCountdown');
+            const interval = setInterval(() => {
+                countdown--;
+                if (countdownEl) countdownEl.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    window.location.href = '/shop.html';
+                }
+            }, 1000);
         }
 
         async function loadProduct() {
@@ -2059,6 +3475,17 @@
             if (!productId) {
                 showError();
                 return;
+            }
+
+            // Track in recently viewed
+            if (window.recentlyViewed) {
+                window.recentlyViewed.add(productId);
+            } else {
+                // Fallback if premium features not loaded
+                const recent = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+                const filtered = recent.filter(id => id !== productId);
+                filtered.unshift(productId);
+                localStorage.setItem('recentlyViewed', JSON.stringify(filtered.slice(0, 10)));
             }
 
             try {
@@ -2464,10 +3891,906 @@
             renderReviews();
         });
 
+        // ===== PRODUCT COMPARISON FUNCTIONALITY =====
+        const MAX_COMPARE_ITEMS = 4;
+        let compareList = [];
+
+        function loadCompareFromStorage() {
+            try {
+                const ids = JSON.parse(localStorage.getItem('69shop_compare') || '[]');
+                // Build compare list from all available products
+                const allProducts = [...(window.productsData || [])];
+                compareList = ids.map(id => allProducts.find(p => p.id === id)).filter(Boolean);
+            } catch (e) {
+                compareList = [];
+            }
+        }
+
+        function saveCompareToStorage() {
+            localStorage.setItem('69shop_compare', JSON.stringify(compareList.map(p => p.id)));
+        }
+
+        function isProductInCompare(productId) {
+            return compareList.some(p => p.id === productId);
+        }
+
+        function toggleCompare() {
+            if (!currentProduct) return;
+            
+            const existingIndex = compareList.findIndex(p => p.id === currentProduct.id);
+            
+            if (existingIndex >= 0) {
+                compareList.splice(existingIndex, 1);
+                showNotification('Removed from comparison');
+            } else {
+                if (compareList.length >= MAX_COMPARE_ITEMS) {
+                    showNotification(`Maximum ${MAX_COMPARE_ITEMS} products can be compared`);
+                    return;
+                }
+                compareList.push(currentProduct);
+                showNotification('Added to comparison');
+            }
+            
+            saveCompareToStorage();
+            updateCompareWidget();
+            updateCompareButton();
+        }
+
+        function updateCompareButton() {
+            if (!currentProduct) return;
+            const btn = document.querySelector('.btn-compare');
+            if (btn) {
+                const isInCompare = isProductInCompare(currentProduct.id);
+                btn.classList.toggle('active', isInCompare);
+            }
+        }
+
+        function removeFromCompare(productId) {
+            const idx = compareList.findIndex(p => p.id === productId);
+            if (idx >= 0) {
+                compareList.splice(idx, 1);
+                saveCompareToStorage();
+                updateCompareWidget();
+                updateCompareButton();
+            }
+        }
+
+        function clearCompare() {
+            compareList = [];
+            saveCompareToStorage();
+            updateCompareWidget();
+            updateCompareButton();
+        }
+
+        function updateCompareWidget() {
+            let widget = document.getElementById('compareWidget');
+            
+            if (compareList.length === 0) {
+                if (widget) widget.remove();
+                return;
+            }
+            
+            if (!widget) {
+                widget = document.createElement('div');
+                widget.id = 'compareWidget';
+                widget.className = 'compare-widget';
+                document.body.appendChild(widget);
+            }
+            
+            widget.innerHTML = `
+                <div class="compare-header">
+                    <span><i class="fas fa-balance-scale"></i> Compare (${compareList.length}/${MAX_COMPARE_ITEMS})</span>
+                    <button class="close-compare-widget" onclick="clearCompare()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="compare-items">
+                    ${compareList.map(product => `
+                        <div class="compare-item">
+                            <img src="${product.image || '/Logo/placeholder.svg'}" alt="${product.name}">
+                            <button class="remove-compare-item" onclick="removeFromCompare('${product.id}')" title="Remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="btn-compare-now" onclick="showCompareModal()" ${compareList.length < 2 ? 'disabled' : ''}>
+                    Compare Now
+                </button>
+            `;
+        }
+
+        function showCompareModal() {
+            if (compareList.length < 2) {
+                showNotification('Add at least 2 products to compare');
+                return;
+            }
+            
+            document.getElementById('compareModal')?.remove();
+            
+            // Build spec categories based on product category
+            const specCategories = buildSpecCategories(compareList);
+            
+            const modal = document.createElement('div');
+            modal.id = 'compareModal';
+            modal.className = 'compare-modal';
+            modal.innerHTML = `
+                <div class="compare-modal-content">
+                    <div class="compare-modal-header">
+                        <h2><i class="fas fa-balance-scale"></i> Product Comparison</h2>
+                        <button class="close-compare-modal" onclick="document.getElementById('compareModal').remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="compare-table-wrapper">
+                        <table class="compare-table">
+                            <thead>
+                                <tr>
+                                    <th class="feature-col">Feature</th>
+                                    ${compareList.map(p => `
+                                        <th class="product-col">
+                                            <img src="${p.image || '/Logo/placeholder.svg'}" alt="${p.name}">
+                                            <span class="compare-product-name">${p.name}</span>
+                                            <button class="btn-remove-compare" onclick="removeFromCompare('${p.id}'); showCompareModal();">
+                                                <i class="fas fa-trash"></i> Remove
+                                            </button>
+                                        </th>
+                                    `).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${specCategories}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="compare-modal-footer">
+                        ${compareList.map(p => `
+                            <button class="btn-add-to-cart" onclick="addProductToCart('${p.id}')">
+                                <i class="fas fa-shopping-bag"></i> Add ${p.name.split(' ')[0]} to Cart
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+            
+            document.addEventListener('keydown', function escHandler(e) {
+                if (e.key === 'Escape') {
+                    document.getElementById('compareModal')?.remove();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            });
+        }
+
+        function buildSpecCategories(products) {
+            let html = '';
+            
+            // Basic Info
+            html += `<tr class="spec-category-row"><td class="feature-name" colspan="${products.length + 1}">💰 Price & Availability</td></tr>`;
+            html += buildSpecRow('Price', products, p => `₹${(p.price || 0).toLocaleString('en-IN')}`, 'price');
+            html += buildSpecRow('Rating', products, p => {
+                const rating = p.rating || 0;
+                return `<span class="stars">${'★'.repeat(Math.round(rating))}${'☆'.repeat(5 - Math.round(rating))}</span> (${rating.toFixed(1)})`;
+            }, 'rating');
+            html += buildSpecRow('In Stock', products, p => {
+                const stock = p.stock ?? p.quantity ?? 10;
+                return stock > 0 ? '<i class="fas fa-check" style="color:#00c853"></i> Yes' : '<i class="fas fa-times" style="color:#ff5252"></i> No';
+            });
+            html += buildSpecRow('Seller', products, p => p.seller || 'N/A');
+            html += buildSpecRow('Brand', products, p => p.brand || 'N/A');
+
+            // General Specs
+            html += `<tr class="spec-category-row"><td class="feature-name" colspan="${products.length + 1}">📋 General</td></tr>`;
+            html += buildSpecRow('Category', products, p => p.category || 'N/A');
+            html += buildSpecRow('Model', products, p => p.specs?.general?.model || p.model || p.name);
+            html += buildSpecRow('Color', products, p => p.specs?.general?.color || p.color || 'N/A');
+            html += buildSpecRow('Weight', products, p => p.specs?.general?.weight || p.weight || 'N/A');
+            html += buildSpecRow('Dimensions', products, p => p.specs?.general?.dimensions || p.dimensions || 'N/A');
+            html += buildSpecRow('Warranty', products, p => p.specs?.general?.warranty || p.warranty || '1 Year');
+
+            // Technical Specs (for electronics/mobiles)
+            const hasTechSpecs = products.some(p => p.specs?.technical || p.category === 'mobiles' || p.category === 'electronics' || p.category === 'headphones');
+            if (hasTechSpecs) {
+                html += `<tr class="spec-category-row"><td class="feature-name" colspan="${products.length + 1}">⚙️ Technical Specifications</td></tr>`;
+                html += buildSpecRow('Display', products, p => p.specs?.technical?.display || p.specs?.display || 'N/A');
+                html += buildSpecRow('Processor', products, p => p.specs?.technical?.processor || p.specs?.processor || 'N/A');
+                html += buildSpecRow('RAM', products, p => p.specs?.technical?.ram || p.specs?.ram || 'N/A');
+                html += buildSpecRow('Storage', products, p => p.specs?.technical?.storage || p.specs?.storage || 'N/A');
+                html += buildSpecRow('Battery', products, p => p.specs?.technical?.battery || p.specs?.battery || 'N/A');
+                html += buildSpecRow('Connectivity', products, p => p.specs?.technical?.connectivity || 'N/A');
+                html += buildSpecRow('OS', products, p => p.specs?.technical?.os || p.specs?.os || 'N/A');
+            }
+
+            // Camera specs (for mobiles)
+            const hasCameraSpecs = products.some(p => p.specs?.camera || p.category === 'mobiles');
+            if (hasCameraSpecs) {
+                html += `<tr class="spec-category-row"><td class="feature-name" colspan="${products.length + 1}">📷 Camera</td></tr>`;
+                html += buildSpecRow('Rear Camera', products, p => p.specs?.camera?.rear || 'N/A');
+                html += buildSpecRow('Front Camera', products, p => p.specs?.camera?.front || 'N/A');
+                html += buildSpecRow('Video', products, p => p.specs?.camera?.video || 'N/A');
+                html += buildSpecRow('Features', products, p => p.specs?.camera?.features || 'N/A');
+            }
+
+            // Audio specs (for headphones)
+            const hasAudioSpecs = products.some(p => p.specs?.audio || p.category === 'headphones');
+            if (hasAudioSpecs) {
+                html += `<tr class="spec-category-row"><td class="feature-name" colspan="${products.length + 1}">🎵 Audio</td></tr>`;
+                html += buildSpecRow('Driver Size', products, p => p.specs?.audio?.driver || 'N/A');
+                html += buildSpecRow('Frequency Response', products, p => p.specs?.audio?.frequency || 'N/A');
+                html += buildSpecRow('ANC', products, p => p.specs?.audio?.anc || 'N/A');
+                html += buildSpecRow('Codec Support', products, p => p.specs?.audio?.codec || 'N/A');
+                html += buildSpecRow('Battery Life', products, p => p.specs?.audio?.battery || p.specs?.technical?.battery || 'N/A');
+            }
+
+            // Features
+            html += `<tr class="spec-category-row"><td class="feature-name" colspan="${products.length + 1}">✨ Key Features</td></tr>`;
+            html += buildSpecRow('Highlights', products, p => {
+                if (p.specs?.features && Array.isArray(p.specs.features)) {
+                    return p.specs.features.slice(0, 3).join(', ');
+                }
+                return p.description || 'N/A';
+            });
+            html += buildSpecRow('Tags', products, p => {
+                if (p.tags && Array.isArray(p.tags)) {
+                    return p.tags.slice(0, 5).join(', ');
+                }
+                return 'N/A';
+            });
+
+            return html;
+        }
+
+        function buildSpecRow(label, products, getValue, className = '') {
+            return `
+                <tr>
+                    <td class="feature-name">${label}</td>
+                    ${products.map(p => `
+                        <td class="feature-value ${className}">${getValue(p)}</td>
+                    `).join('')}
+                </tr>
+            `;
+        }
+
+        function addProductToCart(productId) {
+            const product = compareList.find(p => p.id === productId) || window.productsData?.find(p => p.id === productId);
+            if (product) {
+                const existingIndex = cart.findIndex(item => item.id === productId);
+                if (existingIndex >= 0) {
+                    cart[existingIndex].quantity = (cart[existingIndex].quantity || 1) + 1;
+                } else {
+                    cart.push({ ...product, quantity: 1 });
+                }
+                saveCart();
+                showNotification(`${product.name} added to cart!`);
+            }
+        }
+
+        // Load compare list on page load
+        loadCompareFromStorage();
+        updateCompareWidget();
+
         // Initialize
         loadCart();
         loadWishlist();
         loadProduct();
+    </script>
+    <!-- Premium Features -->
+    <script src="js/components/cart-drawer.js"></script>
+    <script src="js/bundle-deals.js"></script>
+    <script src="js/premium-features.js"></script>
+    <!-- Product Q&A -->
+    <script src="js/product-qa.js"></script>
+    <script>
+    // Product Q&A Integration
+    (function() {
+        // Initialize ProductQA module
+        if (typeof ProductQA !== 'undefined' && (db || auth)) {
+            ProductQA.init({ db: db, auth: auth });
+        }
+
+        // Load Q&A for the current product
+        window.loadProductQA = async function() {
+            if (!currentProduct || typeof ProductQA === 'undefined') return;
+
+            const productId = currentProduct.id;
+            const sellerId = currentProduct.sellerId || currentProduct.uid || '';
+            const isLoggedIn = !!(auth && auth.currentUser);
+
+            try {
+                let questions = [];
+                if (db) {
+                    questions = await ProductQA.loadQuestions(productId, 20);
+                }
+
+                // Update Q&A count
+                const countEl = document.getElementById('qaCount');
+                if (countEl) countEl.textContent = questions.length;
+
+                // Render Q&A list
+                const qaList = document.getElementById('qaList');
+                if (qaList) {
+                    if (questions.length === 0) {
+                        qaList.innerHTML = '<div class="qa-empty"><i class="fas fa-question-circle"></i><p>No questions yet. Be the first to ask!</p></div>';
+                    } else {
+                        qaList.innerHTML = questions.map(function(q) {
+                            return ProductQA.renderQASection ? renderQuestionCardInline(q, sellerId, isLoggedIn) : '';
+                        }).join('');
+                    }
+                }
+            } catch (error) {
+                console.log('Q&A: Could not load questions', error);
+            }
+        };
+
+        // Render a single question card inline
+        function renderQuestionCardInline(q, sellerId, isLoggedIn) {
+            var timeAgo = formatQATime(q.createdAt);
+            var answersHtml = (q.answers || []).map(function(a) {
+                var badge = a.isSeller
+                    ? '<span class="qa-seller-badge"><i class="fas fa-store"></i> Seller</span>'
+                    : '';
+                return '<div class="qa-answer ' + (a.isSeller ? 'seller-answer' : '') + '">' +
+                    '<div class="qa-answer-header">' +
+                        '<strong>' + escapeHtml(a.answeredByName) + '</strong> ' + badge +
+                        '<span class="qa-time">' + formatQATime(a.createdAt) + '</span>' +
+                    '</div>' +
+                    '<p>' + escapeHtml(a.text) + '</p>' +
+                '</div>';
+            }).join('');
+
+            var answerForm = isLoggedIn ?
+                '<div class="qa-answer-form" id="answerForm_' + q.id + '" style="display:none;">' +
+                    '<input type="text" class="qa-answer-input" id="answerInput_' + q.id + '" placeholder="Write your answer...">' +
+                    '<button class="qa-submit-answer" onclick="ProductQA._submitAnswer(\'' + q.id + '\')"><i class="fas fa-paper-plane"></i></button>' +
+                '</div>' : '';
+
+            return '<div class="qa-card" data-qa-id="' + q.id + '">' +
+                '<div class="qa-question">' +
+                    '<div class="qa-q-icon">Q</div>' +
+                    '<div class="qa-q-content">' +
+                        '<p class="qa-q-text">' + escapeHtml(q.questionText) + '</p>' +
+                        '<div class="qa-q-meta">' +
+                            '<span>' + escapeHtml(q.askedByName) + '</span>' +
+                            '<span class="qa-dot">&middot;</span>' +
+                            '<span>' + timeAgo + '</span>' +
+                            '<span class="qa-dot">&middot;</span>' +
+                            '<span>' + (q.answerCount || 0) + ' answer' + ((q.answerCount || 0) !== 1 ? 's' : '') + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="qa-answers">' + answersHtml + '</div>' +
+                '<div class="qa-actions">' +
+                    '<button class="qa-action-btn" onclick="ProductQA._toggleAnswerForm(\'' + q.id + '\')">' +
+                        '<i class="fas fa-reply"></i> Answer' +
+                    '</button>' +
+                    '<button class="qa-action-btn" onclick="ProductQA._markHelpful(\'' + q.id + '\')">' +
+                        '<i class="fas fa-thumbs-up"></i> Helpful (' + (q.helpful || 0) + ')' +
+                    '</button>' +
+                '</div>' +
+                answerForm +
+            '</div>';
+        }
+
+        function formatQATime(timestamp) {
+            if (!timestamp) return '';
+            var date;
+            if (timestamp.toDate) date = timestamp.toDate();
+            else if (typeof timestamp === 'string') date = new Date(timestamp);
+            else date = new Date(timestamp);
+
+            var now = new Date();
+            var diffMs = now - date;
+            var diffMins = Math.floor(diffMs / 60000);
+            var diffHours = Math.floor(diffMs / 3600000);
+            var diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return diffMins + 'm ago';
+            if (diffHours < 24) return diffHours + 'h ago';
+            if (diffDays < 30) return diffDays + 'd ago';
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        // Reload callback for ProductQA module
+        window._reloadProductQA = function() {
+            if (window.loadProductQA) window.loadProductQA();
+        };
+    })();
+
+    // Submit question from the Ask Question modal
+    function submitProductQuestion() {
+        if (!auth || !auth.currentUser) {
+            showNotification('Please login to ask a question', '');
+            window.location.href = 'shop-login.html?redirect=' + encodeURIComponent(window.location.href);
+            return;
+        }
+        if (!currentProduct) return;
+
+        var input = document.getElementById('qaQuestionInput');
+        var text = input ? input.value.trim() : '';
+        if (!text) {
+            showNotification('Please enter your question', '');
+            return;
+        }
+
+        var btn = document.getElementById('qaSubmitBtn');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...'; }
+
+        ProductQA._submitQuestion(
+            currentProduct.id,
+            currentProduct.name || currentProduct.title || '',
+            currentProduct.sellerId || currentProduct.uid || ''
+        ).then(function() {
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Question'; }
+            showNotification('Question submitted successfully!');
+        }).catch(function(err) {
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Question'; }
+            showNotification(err.message || 'Failed to submit question', '');
+        });
+    }
+    </script>
+    <!-- XSS Input Sanitization -->
+    <script src="js/xss-sanitizer.js"></script>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+        <div class="mobile-nav-items">
+            <a href="/shop.html" class="mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/shop.html" class="mobile-nav-item" aria-label="Shop">
+                <i class="fas fa-store"></i>
+                <span>Shop</span>
+            </a>
+            <button type="button" class="mobile-nav-item cart-nav-item" id="mobileCartBtn" aria-label="Cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Cart</span>
+                <span class="nav-badge" id="mobileCartCount">0</span>
+            </button>
+            <button type="button" class="mobile-nav-item" id="mobileWishlistBtn" aria-label="Wishlist">
+                <i class="fas fa-heart"></i>
+                <span>Wishlist</span>
+            </button>
+            <button type="button" class="mobile-nav-item" id="mobileProfileBtn" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+    // Mobile Bottom Navigation Functionality for Product Page
+    (function() {
+        const mobileCartBtn = document.getElementById('mobileCartBtn');
+        const mobileWishlistBtn = document.getElementById('mobileWishlistBtn');
+        const mobileProfileBtn = document.getElementById('mobileProfileBtn');
+        const mobileCartCount = document.getElementById('mobileCartCount');
+
+        // Sync cart count
+        function syncCartCount() {
+            const cartData = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+            const count = cartData.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            if (mobileCartCount) {
+                mobileCartCount.textContent = count;
+                mobileCartCount.style.display = count > 0 ? 'flex' : 'none';
+            }
+        }
+        syncCartCount();
+
+        // Listen for storage changes
+        window.addEventListener('storage', syncCartCount);
+        // Also listen for custom cart events
+        window.addEventListener('cartUpdated', syncCartCount);
+
+        // Cart button - open cart drawer
+        if (mobileCartBtn) {
+            mobileCartBtn.addEventListener('click', function() {
+                if (typeof CartDrawer !== 'undefined') {
+                    CartDrawer.toggle();
+                }
+            });
+        }
+
+        // Wishlist button - navigate to wishlist
+        if (mobileWishlistBtn) {
+            mobileWishlistBtn.addEventListener('click', function() {
+                window.location.href = '/profile.html?section=wishlist';
+            });
+        }
+
+        // Profile button - navigate to profile
+        if (mobileProfileBtn) {
+            mobileProfileBtn.addEventListener('click', function() {
+                window.location.href = '/profile.html';
+            });
+        }
+    })();
+    </script>
+
+    <!-- Negotiate & Buy Panel -->
+    <div class="negotiate-panel-overlay" id="negotiateOverlay" onclick="closeNegotiatePanel()"></div>
+    <div class="negotiate-panel" id="negotiatePanel">
+        <div class="negotiate-panel-header">
+            <h3><i class="fas fa-handshake"></i> Negotiate Price</h3>
+            <button class="negotiate-panel-close" onclick="closeNegotiatePanel()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="negotiate-panel-body">
+            <div class="negotiate-product-summary" id="negotiateProductSummary"></div>
+            <div class="negotiate-form" id="negotiateForm">
+                <div>
+                    <label>Your Offer Price</label>
+                    <div class="negotiate-price-input-wrap">
+                        <span class="currency-symbol">₹</span>
+                        <input type="number" id="negotiateOfferPrice" min="1" placeholder="Enter your offer" oninput="updateDiscountPreview()">
+                    </div>
+                </div>
+                <div class="negotiate-discount-preview" id="negotiateDiscountPreview"></div>
+                <div>
+                    <label>Message (optional)</label>
+                    <textarea id="negotiateMessage" placeholder="Why should the seller accept your offer?"></textarea>
+                </div>
+                <button class="negotiate-submit-btn" id="negotiateSubmitBtn" onclick="submitNegotiation()">
+                    <i class="fas fa-paper-plane"></i> Send Offer
+                </button>
+            </div>
+            <div class="negotiate-rules">
+                <h5><i class="fas fa-info-circle"></i> How Negotiation Works</h5>
+                <ul>
+                    <li><i class="fas fa-circle"></i> Maximum 3 rounds of offers</li>
+                    <li><i class="fas fa-circle"></i> Each offer expires after 48 hours</li>
+                    <li><i class="fas fa-circle"></i> Accepted deals go directly to your cart</li>
+                    <li><i class="fas fa-circle"></i> Seller can accept, counter, or decline</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="js/negotiate.js"></script>
+    <script>
+    // Negotiate & Buy — Product Page Functions
+    function openNegotiatePanel() {
+        if (!auth || !auth.currentUser) {
+            if (typeof showToast === 'function') showToast('Please login to negotiate', 'error');
+            return;
+        }
+        if (!currentProduct || !currentProduct.negotiable) {
+            if (typeof showToast === 'function') showToast('This product is not open for negotiation', 'error');
+            return;
+        }
+
+        const panel = document.getElementById('negotiatePanel');
+        const overlay = document.getElementById('negotiateOverlay');
+        const summary = document.getElementById('negotiateProductSummary');
+
+        const img = currentProduct.images?.[0] || currentProduct.image || '/Logo/placeholder.svg';
+        const sellerName = currentProduct.seller || currentProduct.sellerName || 'Seller';
+
+        summary.innerHTML = `
+            <img src="${img}" alt="${currentProduct.name || currentProduct.title}" onerror="this.src='/Logo/placeholder.svg'">
+            <div class="negotiate-product-info">
+                <h4>${currentProduct.name || currentProduct.title || 'Product'}</h4>
+                <div class="negotiate-listed-price">₹${currentProduct.price?.toLocaleString('en-IN') || '0'}</div>
+                <div class="negotiate-seller-name">Sold by ${sellerName}</div>
+            </div>`;
+
+        document.getElementById('negotiateOfferPrice').value = '';
+        document.getElementById('negotiateMessage').value = '';
+        document.getElementById('negotiateDiscountPreview').classList.remove('show');
+
+        overlay.classList.add('show');
+        panel.classList.add('open');
+    }
+
+    function closeNegotiatePanel() {
+        document.getElementById('negotiatePanel').classList.remove('open');
+        document.getElementById('negotiateOverlay').classList.remove('show');
+    }
+
+    function updateDiscountPreview() {
+        const priceInput = document.getElementById('negotiateOfferPrice');
+        const preview = document.getElementById('negotiateDiscountPreview');
+        const offer = parseFloat(priceInput.value);
+        const original = currentProduct?.price || 0;
+
+        if (offer > 0 && original > 0 && offer < original) {
+            const discount = Math.round(((original - offer) / original) * 100);
+            const savings = original - offer;
+            preview.textContent = `${discount}% off — You save ₹${savings.toLocaleString('en-IN')}`;
+            preview.classList.add('show');
+        } else {
+            preview.classList.remove('show');
+        }
+    }
+
+    async function submitNegotiation() {
+        const offerAmount = parseFloat(document.getElementById('negotiateOfferPrice').value);
+        const message = document.getElementById('negotiateMessage').value.trim();
+        const btn = document.getElementById('negotiateSubmitBtn');
+
+        if (!offerAmount || offerAmount <= 0) {
+            if (typeof showToast === 'function') showToast('Enter a valid offer price', 'error');
+            return;
+        }
+        if (offerAmount >= currentProduct.price) {
+            if (typeof showToast === 'function') showToast('Offer must be less than the listed price', 'error');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+        try {
+            const mgr = NegotiationManager.getInstance();
+            const sellerId = currentProduct.sellerId || currentProduct.uid;
+            const sellerName = currentProduct.seller || currentProduct.sellerName || 'Seller';
+
+            const result = await mgr.startNegotiation({
+                sellerId,
+                sellerName,
+                productId: currentProduct.id,
+                productName: currentProduct.name || currentProduct.title,
+                productImage: currentProduct.images?.[0] || currentProduct.image,
+                originalPrice: currentProduct.price,
+                offerAmount,
+                message
+            });
+
+            closeNegotiatePanel();
+
+            if (result.existing) {
+                if (typeof showToast === 'function') showToast('You already have an active negotiation for this product. Check your messages.', 'error');
+            } else {
+                if (typeof showToast === 'function') showToast('Offer sent! Check your messages for the seller\'s response.', 'success');
+            }
+        } catch (err) {
+            console.error('Negotiation failed:', err);
+            if (typeof showToast === 'function') showToast(err.message || 'Failed to send offer', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Offer';
+        }
+    }
+    </script>
+
+    <!-- Price Drop Alerts -->
+    <script src="js/price-drop-alerts.js"></script>
+    <script>
+    // Price Drop Alerts — Product Page Functions
+    let _existingPriceAlert = null;
+
+    async function checkPriceAlertState() {
+        if (!auth?.currentUser || !currentProduct || typeof PriceAlerts === 'undefined') return;
+        try {
+            _existingPriceAlert = await PriceAlerts.checkExistingAlert(auth.currentUser.uid, currentProduct.id);
+            const btn = document.getElementById('btnPriceAlert');
+            if (btn && _existingPriceAlert) {
+                btn.classList.add('active');
+                btn.querySelector('i').className = 'fas fa-bell';
+            }
+        } catch (err) {
+            console.warn('Price alert check failed:', err);
+        }
+    }
+
+    function togglePriceAlertPopover() {
+        const popover = document.getElementById('priceAlertPopover');
+        if (!popover) return;
+        if (popover.classList.contains('show')) {
+            closePriceAlertPopover();
+        } else {
+            openPriceAlertPopover();
+        }
+    }
+
+    function openPriceAlertPopover() {
+        if (!auth?.currentUser) {
+            if (typeof showNotification === 'function') showNotification('Please login to set a price alert', '');
+            return;
+        }
+        if (!currentProduct) return;
+
+        const popover = document.getElementById('priceAlertPopover');
+        const content = document.getElementById('priceAlertContent');
+        if (!popover || !content) return;
+
+        const price = currentProduct.price || 0;
+
+        if (_existingPriceAlert && _existingPriceAlert.status !== 'dismissed') {
+            // Show existing alert view
+            content.innerHTML = `
+                <div class="price-alert-header">
+                    <h4><i class="fas fa-bell"></i> Price Alert Active</h4>
+                    <p>You'll be notified when the price drops</p>
+                </div>
+                <div class="price-alert-existing">
+                    <div class="existing-icon"><i class="fas fa-bell"></i></div>
+                    <p>Monitoring for price at or below</p>
+                    <div class="target-value">\u20B9${_existingPriceAlert.targetPrice.toLocaleString('en-IN')}</div>
+                    <div class="existing-actions">
+                        <button class="btn-alert-edit" onclick="editPriceAlert()"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn-alert-remove" onclick="removePriceAlert()"><i class="fas fa-trash"></i> Remove</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Show create alert form
+            const suggestedPrice = Math.floor(price * 0.9);
+            const discountPct = price > 0 ? Math.round((1 - suggestedPrice / price) * 100) : 0;
+            content.innerHTML = `
+                <div class="price-alert-header">
+                    <h4><i class="fas fa-bell"></i> Set Price Alert</h4>
+                    <p>Get notified when the price drops</p>
+                </div>
+                <div class="price-alert-body">
+                    <div class="price-alert-current">
+                        <span>Current price</span>
+                        <strong>\u20B9${price.toLocaleString('en-IN')}</strong>
+                    </div>
+                    <div class="price-alert-input-group">
+                        <label>Notify me when price drops to</label>
+                        <div class="input-row">
+                            <input type="number" id="alertTargetPrice" value="${suggestedPrice}" min="1" max="${price - 1}" placeholder="Target price">
+                        </div>
+                        <div class="price-alert-discount-hint" id="alertDiscountHint">${discountPct}% below current price</div>
+                    </div>
+                </div>
+                <div class="price-alert-footer">
+                    <button class="btn-alert-cancel" onclick="closePriceAlertPopover()">Cancel</button>
+                    <button class="btn-alert-submit" id="alertSubmitBtn" onclick="submitPriceAlert()">
+                        <i class="fas fa-bell"></i> Set Alert
+                    </button>
+                </div>
+            `;
+            // Live discount hint update
+            const input = document.getElementById('alertTargetPrice');
+            if (input) {
+                input.addEventListener('input', function () {
+                    const target = parseFloat(this.value) || 0;
+                    const hint = document.getElementById('alertDiscountHint');
+                    if (hint && price > 0 && target > 0 && target < price) {
+                        const pct = Math.round((1 - target / price) * 100);
+                        hint.textContent = pct + '% below current price';
+                        hint.style.color = '#059669';
+                    } else if (hint) {
+                        hint.textContent = target >= price ? 'Must be below current price' : '';
+                        hint.style.color = '#EF4444';
+                    }
+                });
+            }
+        }
+
+        popover.classList.add('show');
+        // Close on outside click
+        setTimeout(() => {
+            document.addEventListener('click', _closePriceAlertOnOutside);
+        }, 10);
+    }
+
+    function closePriceAlertPopover() {
+        const popover = document.getElementById('priceAlertPopover');
+        if (popover) popover.classList.remove('show');
+        document.removeEventListener('click', _closePriceAlertOnOutside);
+    }
+
+    function _closePriceAlertOnOutside(e) {
+        const wrapper = document.querySelector('.price-alert-popover-wrapper');
+        if (wrapper && !wrapper.contains(e.target)) {
+            closePriceAlertPopover();
+        }
+    }
+
+    async function submitPriceAlert() {
+        if (!auth?.currentUser || !currentProduct) return;
+
+        const input = document.getElementById('alertTargetPrice');
+        const targetPrice = parseFloat(input?.value);
+        const price = currentProduct.price || 0;
+
+        if (!targetPrice || targetPrice <= 0 || targetPrice >= price) {
+            if (typeof showNotification === 'function') showNotification('Please enter a valid target price below the current price', '');
+            return;
+        }
+
+        const btn = document.getElementById('alertSubmitBtn');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; }
+
+        try {
+            const user = auth.currentUser;
+            const alertId = await PriceAlerts.createAlert({
+                userId: user.uid,
+                userEmail: user.email || '',
+                userName: user.displayName || user.email?.split('@')[0] || '',
+                productId: currentProduct.id,
+                productName: currentProduct.name || currentProduct.title || '',
+                productImage: (currentProduct.images || [])[0] || currentProduct.image || '',
+                sellerId: currentProduct.sellerId || currentProduct.uid || '',
+                sellerName: currentProduct.seller || currentProduct.sellerName || '',
+                targetPrice,
+                originalPrice: price
+            });
+
+            _existingPriceAlert = { id: alertId, targetPrice, status: 'active' };
+            const alertBtn = document.getElementById('btnPriceAlert');
+            if (alertBtn) {
+                alertBtn.classList.add('active');
+                alertBtn.querySelector('i').className = 'fas fa-bell';
+            }
+
+            closePriceAlertPopover();
+            if (typeof showNotification === 'function') showNotification('Price alert set! We\'ll notify you when the price drops.');
+        } catch (err) {
+            console.error('Failed to create price alert:', err);
+            if (typeof showNotification === 'function') showNotification(err.message || 'Failed to set alert', '');
+        } finally {
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bell"></i> Set Alert'; }
+        }
+    }
+
+    function editPriceAlert() {
+        // Switch to edit mode by clearing existing state temporarily
+        const oldAlert = _existingPriceAlert;
+        _existingPriceAlert = null;
+        openPriceAlertPopover();
+        // Pre-fill with old target
+        setTimeout(() => {
+            const input = document.getElementById('alertTargetPrice');
+            if (input && oldAlert) input.value = oldAlert.targetPrice;
+            // Override submit to update instead of create
+            const submitBtn = document.getElementById('alertSubmitBtn');
+            if (submitBtn) {
+                submitBtn.onclick = async function () {
+                    const newTarget = parseFloat(input?.value);
+                    if (!newTarget || newTarget <= 0) return;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                    try {
+                        await PriceAlerts.updateTargetPrice(oldAlert.id, newTarget);
+                        _existingPriceAlert = { ...oldAlert, targetPrice: newTarget };
+                        closePriceAlertPopover();
+                        if (typeof showNotification === 'function') showNotification('Price alert updated!');
+                    } catch (err) {
+                        console.error('Update failed:', err);
+                        _existingPriceAlert = oldAlert;
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-bell"></i> Set Alert';
+                    }
+                };
+            }
+        }, 50);
+    }
+
+    async function removePriceAlert() {
+        if (!_existingPriceAlert) return;
+        try {
+            await PriceAlerts.deleteAlert(_existingPriceAlert.id);
+            _existingPriceAlert = null;
+            const alertBtn = document.getElementById('btnPriceAlert');
+            if (alertBtn) {
+                alertBtn.classList.remove('active');
+                alertBtn.querySelector('i').className = 'far fa-bell';
+            }
+            closePriceAlertPopover();
+            if (typeof showNotification === 'function') showNotification('Price alert removed');
+        } catch (err) {
+            console.error('Failed to remove alert:', err);
+        }
+    }
+    </script>
+
+    <!-- Cart Drawer Container -->
+    <div id="cart-drawer"></div>
+    <script>
+        if (typeof CartDrawer !== 'undefined') {
+            CartDrawer.init({ containerId: 'cart-drawer' });
+        }
     </script>
 </body>
 </html>

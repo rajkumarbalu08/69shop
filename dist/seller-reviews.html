@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Reviews - Seller Hub | 69Shop.in</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,19 +13,20 @@
     <link rel="stylesheet" href="/assets/dashboard-notifications.css">
     <link rel="stylesheet" href="/assets/css/seller-header.css">
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="/js/notifications.js"></script>
     <script src="/js/seller-shell.js"></script>
+    <script src="/js/seller-header.js"></script>
 
     <style>
         :root {
-            --seller-primary: #7C3AED;
-            --seller-primary-dark: #6D28D9;
-            --seller-primary-light: #EDE9FE;
-            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --seller-primary: #2563EB;
+            --seller-primary-dark: #1D4ED8;
+            --seller-primary-light: #EFF6FF;
+            --seller-gradient: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
             --slate-900: #0F172A;
             --slate-800: #1E293B;
             --slate-700: #334155;
@@ -103,7 +105,7 @@
             transition: var(--transition);
         }
         
-        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-800); }
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--slate-700); }
         .sidebar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
         .brand-logo {
             width: 42px;
@@ -173,20 +175,6 @@
         }
         .profile-info { flex: 1; min-width: 0; }
         .profile-name { font-weight: 600; color: var(--white); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .profile-email { font-size: 0.75rem; color: var(--slate-400); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .profile-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.7rem;
-            padding: 4px 8px;
-            border-radius: 20px;
-            margin-top: 4px;
-            font-weight: 500;
-        }
-        .profile-status.pending { background: rgba(245,158,11,0.15); color: var(--warning); }
-        .profile-status.verified { background: rgba(16,185,129,0.15); color: var(--success); }
-        .profile-status.approved { background: rgba(16,185,129,0.15); color: var(--success); }
         .btn-logout {
             width: 100%;
             padding: 12px;
@@ -212,8 +200,8 @@
         
         .seller-header {
             height: var(--header-height);
-            background: var(--white);
-            border-bottom: 1px solid var(--slate-200);
+            background: #1A1A1A;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -227,18 +215,18 @@
             width: 40px;
             height: 40px;
             border: none;
-            background: var(--slate-100);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: var(--radius-sm);
             cursor: pointer;
-            color: var(--slate-600);
+            color: rgba(255, 255, 255, 0.7);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: var(--transition);
             position: relative;
         }
-        .header-btn:hover { background: var(--slate-200); }
-        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.25rem; color: var(--slate-900); }
+        .header-btn:hover { background: rgba(255, 255, 255, 0.2); }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.25rem; color: #FFFFFF; }
         .header-right { display: flex; align-items: center; gap: 16px; }
         
         .seller-content { padding: 32px; }
@@ -554,6 +542,9 @@
             .category-scores { grid-template-columns: 1fr; }
         }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay">
@@ -598,6 +589,7 @@
                     <a href="/seller-messages.html" class="nav-link">
                         <i class="fas fa-comments"></i>
                         <span>Messages</span>
+                        <span class="nav-badge" data-messages-badge></span>
                     </a>
                 </div>
                 <div class="nav-section">
@@ -635,12 +627,7 @@
                 <div class="seller-profile">
                     <div class="profile-avatar" id="sellerAvatar" data-seller-avatar>S</div>
                     <div class="profile-info">
-                        <div class="profile-name" id="sellerName" data-seller-name>Loading...</div>
-                        <div class="profile-email" id="sellerEmail">seller@69shop.in</div>
-                        <div class="profile-status pending" data-seller-status>
-                            <i class="fas fa-clock"></i>
-                            <span>Verification Pending</span>
-                        </div>
+                        <div class="profile-name" id="sellerName" data-seller-name>Seller</div>
                     </div>
                 </div>
                 <button class="btn-logout" onclick="handleLogout(event)">
@@ -652,36 +639,7 @@
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
         <main class="seller-main">
-            <header class="seller-header">
-                <div class="header-left">
-                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1 class="page-title">Customer Reviews</h1>
-                </div>
-                <div class="header-right">
-                    <div class="notification-wrapper">
-                        <button class="header-btn" id="notificationTrigger" title="Notifications">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-dot" id="notificationDot" style="display: none;"></span>
-                        </button>
-                    </div>
-                    <div class="dropdown-wrapper">
-                        <div class="seller-user-menu" onclick="toggleUserDropdown()">
-                            <div class="seller-user-avatar" id="userAvatar" data-seller-avatar>S</div>
-                            <div class="seller-user-info">
-                                <strong id="userName" data-seller-name>Loading...</strong>
-                            </div>
-                        </div>
-                        <div class="user-dropdown" id="userDropdown">
-                            <a href="/seller-settings.html"><i class="fas fa-cog"></i> Settings</a>
-                            <a href="/shop.html" target="_blank"><i class="fas fa-external-link-alt"></i> View Shop</a>
-                            <hr>
-                            <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <header class="seller-header" data-page-title="Customer Reviews"></header>
 
             <div class="seller-content">
                 <!-- Rating Overview -->
@@ -1130,19 +1088,6 @@
             overlay.classList.toggle('show');
         }
 
-        function toggleUserDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            dropdown.classList.toggle('show');
-        }
-
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('userDropdown');
-            const userMenu = document.querySelector('.seller-user-menu');
-            if (dropdown && userMenu && !dropdown.contains(e.target) && !userMenu.contains(e.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
-
         function handleLogout(event) {
             event.preventDefault();
             logout();
@@ -1167,3 +1112,4 @@
     </script>
 </body>
 </html>
+

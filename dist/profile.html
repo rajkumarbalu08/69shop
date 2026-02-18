@@ -1,24 +1,413 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>69Shop.in - Profile Hub</title>
     <meta name="description" content="Manage your 69Shop.in account, orders, wishlist, and settings from one unified profile hub.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/profile.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
+    <!-- Price Drop Alerts -->
+    <link rel="stylesheet" href="assets/css/price-drop-alerts.css">
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <style>
+    /* ══════ OPTION B: APPLE ACCOUNT CARD GRID ══════ */
+
+    /* — User Strip (compact top card) — */
+    .profile-user-strip {
+        max-width: 1080px;
+        margin: 32px auto 0;
+        padding: 0 24px;
+    }
+    .user-strip-card {
+        background: #FFFFFF;
+        border-radius: 20px;
+        padding: 24px 32px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .strip-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0066ff 0%, #7C3AED 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.5rem;
+        font-family: 'Poppins', sans-serif;
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(0,102,255,0.2);
+        background-size: cover;
+        background-position: center;
+        cursor: pointer;
+        position: relative;
+    }
+    .strip-avatar.has-photo { color: transparent; }
+    .strip-avatar:hover { transform: scale(1.05); }
+    .strip-avatar .camera-overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+        color: #fff;
+        font-size: 0.85rem;
+    }
+    .strip-avatar:hover .camera-overlay { opacity: 1; }
+    .strip-info { flex: 1; min-width: 0; }
+    .strip-info h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+        line-height: 1.3;
+    }
+    .strip-info p {
+        color: #6B7280;
+        font-size: 0.88rem;
+        margin: 2px 0 0;
+    }
+    .strip-badges {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
+    .strip-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+    }
+    .strip-badge.gold { background: #FFFBEB; color: #92400E; }
+    .strip-badge.blue { background: #EFF6FF; color: #2563EB; }
+    .strip-stats {
+        display: flex;
+        gap: 24px;
+        flex-shrink: 0;
+    }
+    .strip-stat { text-align: center; }
+    .strip-stat-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+    }
+    .strip-stat-label {
+        font-size: 0.68rem;
+        color: #9CA3AF;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    /* — Section Card Grid — */
+    .profile-card-grid-wrapper {
+        max-width: 1080px;
+        margin: 24px auto 0;
+        padding: 0 24px 80px;
+    }
+    .profile-card-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+    .section-card {
+        background: #FFFFFF;
+        border-radius: 16px;
+        padding: 24px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+        position: relative;
+        overflow: hidden;
+    }
+    .section-card:hover {
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
+    }
+    .section-card-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .section-card-icon.blue { background: #EFF6FF; color: #2563EB; }
+    .section-card-icon.purple { background: #F3E8FF; color: #7C3AED; }
+    .section-card-icon.green { background: #ECFDF5; color: #059669; }
+    .section-card-icon.amber { background: #FFFBEB; color: #D97706; }
+    .section-card-icon.pink { background: #FDF2F8; color: #DB2777; }
+    .section-card-icon.slate { background: #F1F5F9; color: #475569; }
+    .section-card-icon.red { background: #FEF2F2; color: #DC2626; }
+    .section-card-icon.cyan { background: #ECFEFF; color: #0891B2; }
+    .section-card h3 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+    }
+    .section-card p {
+        font-size: 0.82rem;
+        color: #6B7280;
+        margin: 0;
+        line-height: 1.45;
+    }
+    .section-card .card-stat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: auto;
+        padding-top: 8px;
+    }
+    .card-stat-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #111827;
+    }
+    .card-stat-label {
+        font-size: 0.78rem;
+        color: #9CA3AF;
+    }
+    .section-card .card-arrow {
+        position: absolute;
+        top: 24px;
+        right: 20px;
+        color: #D1D5DB;
+        font-size: 0.8rem;
+        transition: color 0.2s, transform 0.2s;
+    }
+    .section-card:hover .card-arrow {
+        color: #2563EB;
+        transform: translateX(3px);
+    }
+    .section-card .card-notif-dot {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #2563EB;
+    }
+
+    /* — Detail View (when a card is clicked) — */
+    .profile-detail-wrapper {
+        max-width: 1080px;
+        margin: 24px auto 0;
+        padding: 0 24px 80px;
+    }
+    .detail-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 10px;
+        background: #FFFFFF;
+        border: none;
+        color: #4B5563;
+        font-size: 0.88rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        margin-bottom: 16px;
+    }
+    .detail-back-btn:hover { background: #F3F4F6; color: #111827; }
+    .detail-section-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    .detail-section-header .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    .detail-section-header h1 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+    }
+    .detail-section-header p {
+        color: #6B7280;
+        font-size: 0.88rem;
+        margin: 2px 0 0;
+    }
+
+    /* — Stats row for detail view — */
+    .detail-stats-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .detail-stat-card {
+        flex: 1;
+        background: #FFFFFF;
+        border-radius: 14px;
+        padding: 18px 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .detail-stat-card p { color: #9CA3AF; font-size: 0.78rem; margin: 0 0 4px; }
+    .detail-stat-card h3 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+    }
+    .detail-stat-card span { font-size: 0.75rem; color: #6B7280; }
+
+    /* — Responsive — */
+    @media (max-width: 900px) {
+        .profile-card-grid { grid-template-columns: repeat(2, 1fr); }
+        .user-strip-card { flex-wrap: wrap; }
+        .strip-stats { width: 100%; justify-content: space-around; }
+        .detail-stats-row { flex-wrap: wrap; }
+        .detail-stat-card { min-width: calc(50% - 8px); }
+    }
+    @media (max-width: 600px) {
+        .profile-user-strip { padding: 0 16px; margin-top: 20px; }
+        .profile-card-grid-wrapper { padding: 0 16px 80px; }
+        .profile-detail-wrapper { padding: 0 16px 80px; }
+        .user-strip-card { padding: 20px; gap: 14px; }
+        .strip-avatar { width: 52px; height: 52px; font-size: 1.2rem; }
+        .strip-info h2 { font-size: 1.05rem; }
+        .strip-stats { gap: 16px; }
+        .profile-card-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+        .section-card { padding: 18px; gap: 8px; }
+        .section-card-icon { width: 38px; height: 38px; font-size: 0.95rem; }
+        .section-card h3 { font-size: 0.85rem; }
+        .section-card p { font-size: 0.75rem; }
+        .detail-section-header h1 { font-size: 1.15rem; }
+        .detail-stats-row { gap: 8px; }
+        .detail-stat-card { min-width: calc(50% - 4px); padding: 14px 16px; }
+    }
+
+    /* — Detail wrapper content-body styling — */
+    .profile-detail-wrapper .content-body {
+        display: grid;
+        gap: 20px;
+    }
+    .profile-detail-wrapper .content-card {
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 16px;
+        padding: 28px;
+        transition: all 0.25s ease;
+    }
+    .profile-detail-wrapper .content-card:hover {
+        border-color: rgba(37, 99, 235, 0.12);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    /* — Hide old layout elements — */
+    .profile-hero { display: none !important; }
+    .profile-sidebar { display: none !important; }
+    .profile-sidebar-overlay { display: none !important; }
+    .profile-mobile-menu-toggle { display: none !important; }
+    .profile-sidebar-close { display: none !important; }
+    .profile-shell { display: block !important; grid-template-columns: 1fr !important; max-width: 1080px; margin: 0 auto; padding: 0; }
+    .profile-content { max-width: 100%; }
+    .content-header { display: none; }
+
+    /* ===== REFERRAL PROGRAM SECTION ===== */
+    .referral-code-display { display: flex; flex-direction: column; gap: 16px; }
+    .referral-code-value { text-align: center; padding: 20px; background: linear-gradient(135deg, #EBF5FF, #F0F7FF); border-radius: 12px; }
+    .referral-code-label { display: block; font-size: 0.8rem; color: #6B7280; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+    .referral-code { font-size: 2rem; font-weight: 800; color: #2563EB; font-family: 'Poppins', monospace; letter-spacing: 4px; }
+    .referral-link-field { display: flex; gap: 8px; }
+    .referral-link-input { flex: 1; padding: 10px 14px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 0.85rem; color: #374151; background: #F9FAFB; }
+    .referral-copy-btn { padding: 10px 14px; background: #2563EB; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+    .referral-copy-btn:hover { background: #1D4ED8; }
+    .referral-share-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+    .referral-share-btn { flex: 1; min-width: 100px; padding: 10px 16px; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
+    .referral-share-btn.whatsapp { background: #25D366; color: white; }
+    .referral-share-btn.whatsapp:hover { background: #1EBE57; }
+    .referral-share-btn.share { background: #2563EB; color: white; }
+    .referral-share-btn.share:hover { background: #1D4ED8; }
+    .referral-share-btn.copy { background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB; }
+    .referral-share-btn.copy:hover { background: #E5E7EB; }
+    .referral-code-loading { text-align: center; padding: 24px; color: #9CA3AF; }
+    .referral-steps { display: flex; flex-direction: column; gap: 20px; padding: 8px 0; }
+    .referral-step { display: flex; gap: 16px; align-items: flex-start; }
+    .step-number { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+    .step-content strong { display: block; color: #111827; margin-bottom: 2px; }
+    .step-content p { color: #6B7280; font-size: 0.9rem; margin: 0; }
+    .milestone-list { display: flex; flex-direction: column; gap: 12px; }
+    .milestone-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #F9FAFB; border-radius: 10px; border: 1px solid #F3F4F6; }
+    .milestone-icon { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #FBBF24, #F59E0B); color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .milestone-info { flex: 1; }
+    .milestone-info strong { display: block; color: #111827; font-size: 0.95rem; }
+    .milestone-info span { color: #6B7280; font-size: 0.82rem; }
+    .milestone-status { font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+    .referral-history-list { display: flex; flex-direction: column; gap: 10px; }
+    .referral-history-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #F9FAFB; border-radius: 10px; }
+    .referral-history-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .referral-history-icon.completed { background: #DCFCE7; color: #16A34A; }
+    .referral-history-icon.pending { background: #FEF3C7; color: #D97706; }
+    .referral-history-info { flex: 1; }
+    .referral-history-info strong { display: block; color: #111827; font-size: 0.95rem; }
+    .referral-history-info span { color: #9CA3AF; font-size: 0.8rem; }
+    .referral-history-status { text-align: right; }
+    .referral-status-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+    .referral-status-badge.completed { background: #DCFCE7; color: #16A34A; }
+    .referral-status-badge.pending { background: #FEF3C7; color: #D97706; }
+    .referral-reward { display: block; font-weight: 700; color: #059669; font-size: 0.9rem; margin-top: 4px; }
+    .referral-list-empty { text-align: center; padding: 32px; color: #9CA3AF; }
+    @media (max-width: 480px) {
+        .referral-code { font-size: 1.5rem; letter-spacing: 2px; }
+        .referral-share-buttons { flex-direction: column; }
+        .referral-share-btn { min-width: unset; }
+    }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="./products-data.js"></script>
+    <!-- Design System -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <header class="top-bar">
         <div class="container">
             <a href="/" class="logo" onclick="handleProfileLogoClick(event)">
@@ -31,10 +420,6 @@
                 </div>
             </a>
             <div class="header-actions">
-                <button class="btn btn-ghost" onclick="window.location.href='/'">
-                    <i class="fas fa-home"></i>
-                    Home
-                </button>
                 <button class="btn btn-primary" id="continueShoppingBtn">
                     <i class="fas fa-store"></i>
                     Continue Shopping
@@ -46,54 +431,172 @@
             </div>
         </div>
     </header>
+    <script src="assets/js/shared-header.js"></script>
 
-    <main class="profile-shell">
-        <aside class="profile-sidebar">
-            <div class="user-card">
-                <div class="user-avatar" id="profileAvatar">U</div>
-                <h2 id="profileName">Loading...</h2>
-                <p id="profileEmail">Updating profile...</p>
-                <div class="avatar-actions">
-                    <label class="avatar-upload-trigger" for="avatarUpload">
-                        <i class="fas fa-camera"></i>
-                        Update photo
-                    </label>
-                    <input type="file" id="avatarUpload" accept="image/*" hidden>
-                    <button type="button" class="avatar-reset-btn" id="avatarRemoveBtn">
-                        <i class="fas fa-undo"></i>
-                        Remove photo
-                    </button>
-                    <p class="avatar-upload-status" id="avatarUploadStatus"></p>
+    <!-- ═══════ OPTION B: APPLE ACCOUNT CARD GRID ═══════ -->
+
+    <!-- User Strip -->
+    <div class="profile-user-strip" id="profileUserStrip">
+        <div class="user-strip-card">
+            <div class="strip-avatar" id="stripAvatar" title="Change photo">
+                U
+                <span class="camera-overlay"><i class="fas fa-camera"></i></span>
+            </div>
+            <input type="file" id="avatarUpload" accept="image/*" hidden>
+            <div class="strip-info">
+                <h2 id="profileName">Welcome back</h2>
+                <p id="profileEmail">Loading profile…</p>
+                <div class="strip-badges">
+                    <span class="strip-badge gold"><i class="fas fa-crown"></i> Premium</span>
+                    <span class="strip-badge blue"><i class="fas fa-shield-halved"></i> Verified</span>
                 </div>
             </div>
-
-            <nav class="profile-nav" id="profileNav">
-                <a href="?section=dashboard" data-section="dashboard"><i class="fas fa-chart-line"></i>Dashboard</a>
-                <a href="?section=orders" data-section="orders"><i class="fas fa-shopping-bag"></i>My Orders</a>
-                <a href="?section=wishlist" data-section="wishlist"><i class="fas fa-heart"></i>Wishlist</a>
-                <a href="?section=cart" data-section="cart"><i class="fas fa-shopping-cart"></i>My Cart</a>
-                <a href="?section=messages" data-section="messages"><i class="fas fa-envelope"></i>Messages</a>
-                <a href="?section=notifications" data-section="notifications"><i class="fas fa-bell"></i>Notifications</a>
-                <a href="?section=addresses" data-section="addresses"><i class="fas fa-map-marker-alt"></i>My Addresses</a>
-                <a href="?section=payments" data-section="payments"><i class="fas fa-credit-card"></i>Payment Methods</a>
-                <a href="?section=subscriptions" data-section="subscriptions"><i class="fas fa-star"></i>Subscriptions</a>
-                <a href="?section=reviews" data-section="reviews"><i class="fas fa-comment"></i>My Reviews</a>
-                <a href="?section=settings" data-section="settings"><i class="fas fa-cog"></i>Settings</a>
-                <a href="?section=help" data-section="help"><i class="fas fa-question-circle"></i>Help & Support</a>
-            </nav>
-        </aside>
-
-        <section class="profile-content">
-            <div class="content-header">
-                <span class="section-badge" id="sectionBadge">Profile</span>
-                <h1 id="sectionTitle">Profile Overview</h1>
-                <p id="sectionDescription">Manage every aspect of your marketplace journey from a single, beautifully organized workspace.</p>
+            <div class="strip-stats">
+                <div class="strip-stat">
+                    <div class="strip-stat-value" id="heroOrders">0</div>
+                    <div class="strip-stat-label">Orders</div>
+                </div>
+                <div class="strip-stat">
+                    <div class="strip-stat-value" id="heroWishlist">0</div>
+                    <div class="strip-stat-label">Wishlist</div>
+                </div>
+                <div class="strip-stat">
+                    <div class="strip-stat-value" id="heroPoints">0</div>
+                    <div class="strip-stat-label">Points</div>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <div class="stats-grid" id="statsGrid"></div>
-            <div class="content-body" id="sectionBody"></div>
-        </section>
-    </main>
+    <!-- Card Grid (Home View) -->
+    <div class="profile-card-grid-wrapper" id="profileCardGrid">
+        <div class="profile-card-grid">
+            <div class="section-card" onclick="openSection('dashboard')">
+                <div class="section-card-icon blue"><i class="fas fa-chart-line"></i></div>
+                <h3>Dashboard</h3>
+                <p>Quick overview of your account activity and insights</p>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('orders')">
+                <div class="section-card-icon purple"><i class="fas fa-shopping-bag"></i></div>
+                <h3>My Orders</h3>
+                <p>Track, manage and reorder past purchases</p>
+                <div class="card-stat">
+                    <span class="card-stat-value" id="cardOrderCount">0</span>
+                    <span class="card-stat-label">orders</span>
+                </div>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('wishlist')">
+                <div class="section-card-icon pink"><i class="fas fa-heart"></i></div>
+                <h3>Wishlist</h3>
+                <p>Items you've saved for later</p>
+                <div class="card-stat">
+                    <span class="card-stat-value" id="cardWishlistCount">0</span>
+                    <span class="card-stat-label">saved</span>
+                </div>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('cart')">
+                <div class="section-card-icon green"><i class="fas fa-shopping-cart"></i></div>
+                <h3>My Cart</h3>
+                <p>Review items in your shopping cart</p>
+                <div class="card-stat">
+                    <span class="card-stat-value" id="cardCartCount">0</span>
+                    <span class="card-stat-label">items</span>
+                </div>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('messages')">
+                <div class="section-card-icon cyan"><i class="fas fa-envelope"></i></div>
+                <h3>Messages</h3>
+                <p>Chat with sellers and support</p>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('notifications')">
+                <div class="section-card-icon amber"><i class="fas fa-bell"></i></div>
+                <h3>Notifications</h3>
+                <p>Alerts, updates and activity feed</p>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('addresses')">
+                <div class="section-card-icon green"><i class="fas fa-map-marker-alt"></i></div>
+                <h3>My Addresses</h3>
+                <p>Manage delivery addresses</p>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('payments')">
+                <div class="section-card-icon blue"><i class="fas fa-credit-card"></i></div>
+                <h3>Payment Methods</h3>
+                <p>Cards, UPI and billing info</p>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('subscriptions')">
+                <div class="section-card-icon amber"><i class="fas fa-star"></i></div>
+                <h3>Subscriptions</h3>
+                <p>Plans, rewards and loyalty points</p>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('reviews')">
+                <div class="section-card-icon purple"><i class="fas fa-comment"></i></div>
+                <h3>My Reviews</h3>
+                <p>Products you've reviewed and rated</p>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('settings')">
+                <div class="section-card-icon slate"><i class="fas fa-cog"></i></div>
+                <h3>Settings</h3>
+                <p>Security, notifications and preferences</p>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('priceAlerts')">
+                <div class="section-card-icon amber"><i class="fas fa-bell"></i></div>
+                <h3>Price Alerts</h3>
+                <p>Get notified when prices drop</p>
+                <div class="card-stat">
+                    <span class="card-stat-value" id="cardAlertsCount">0</span>
+                    <span class="card-stat-label">active</span>
+                </div>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('help')">
+                <div class="section-card-icon red"><i class="fas fa-question-circle"></i></div>
+                <h3>Help & Support</h3>
+                <p>FAQs, guides and contact us</p>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="section-card" onclick="openSection('referrals')">
+                <div class="section-card-icon green"><i class="fas fa-gift"></i></div>
+                <h3>Referral Program</h3>
+                <p>Invite friends, earn rewards</p>
+                <div class="card-stat">
+                    <span class="card-stat-value" id="cardReferralsCount">0</span>
+                    <span class="card-stat-label">referrals</span>
+                </div>
+                <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail View (shown when a card is clicked) -->
+    <div class="profile-detail-wrapper" id="profileDetailView" style="display:none;">
+        <button class="detail-back-btn" onclick="backToGrid()">
+            <i class="fas fa-arrow-left"></i> Back to Overview
+        </button>
+        <div class="detail-section-header" id="detailHeader"></div>
+        <div class="detail-stats-row" id="detailStats"></div>
+        <div class="content-body" id="sectionBody"></div>
+    </div>
+
+    <!-- Hidden elements needed by old JS -->
+    <div id="statsGrid" style="display:none;"></div>
+    <span id="sectionBadge" style="display:none;"></span>
+    <h1 id="sectionTitle" style="display:none;"></h1>
+    <p id="sectionDescription" style="display:none;"></p>
+    <div id="heroAvatar" style="display:none;"></div>
+    <div id="heroName" style="display:none;"></div>
+    <div id="heroEmail" style="display:none;"></div>
+    <p class="avatar-upload-status" id="avatarUploadStatus" style="display:none;"></p>
 
     <!-- Avatar Editor Modal -->
     <div class="avatar-editor-overlay" id="avatarEditorOverlay" aria-hidden="true">
@@ -151,16 +654,32 @@
     </div>
 
 <script>
-    const firebaseConfig = window.firebaseConfig;
-    if (!firebaseConfig || !firebaseConfig.apiKey) {
-        throw new Error('Missing Firebase configuration. Create dist/firebase-config.js from the sample before loading profile.html.');
+    let auth = null;
+    let db = null;
+    let storage = null;
+    let firebaseReady = false;
+
+    try {
+        const firebaseConfig = window.firebaseConfig;
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            throw new Error('Missing Firebase configuration. Create dist/firebase-config.js from the sample before loading profile.html.');
+        }
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        auth = firebase.auth();
+        db = firebase.firestore();
+        storage = firebase.storage();
+        firebaseReady = true;
+        console.log('Firebase initialized for Profile page');
+    } catch (error) {
+        console.error('Firebase initialization error:', error);
+        // Redirect to login if Firebase not configured
+        document.addEventListener('DOMContentLoaded', () => {
+            alert('Firebase is not configured. Redirecting to login page.');
+            window.location.href = '/shop-login.html';
+        });
     }
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
 
         // Get real data from localStorage
         const savedCart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
@@ -202,7 +721,7 @@
     const sectionDescription = document.getElementById('sectionDescription');
     const statsGrid = document.getElementById('statsGrid');
     const sectionBody = document.getElementById('sectionBody');
-    const navLinks = document.querySelectorAll('#profileNav a');
+    const navLinks = []; // sidebar nav removed in card grid redesign
     const avatarUploadInput = document.getElementById('avatarUpload');
     const avatarUploadStatus = document.getElementById('avatarUploadStatus');
     const avatarRemoveBtn = document.getElementById('avatarRemoveBtn');
@@ -261,8 +780,8 @@
                     </ul>
                     <div class="quick-actions">
                         <a href="/shop.html">Continue shopping</a>
-                        <a href="?section=orders">View orders</a>
-                        <a href="?section=settings">Account settings</a>
+                        <a href="#" onclick="navigateToSection('orders'); return false;">View orders</a>
+                        <a href="#" onclick="navigateToSection('settings'); return false;">Account settings</a>
                     </div>
                 </div>
                 <div class="content-card">
@@ -375,39 +894,151 @@
             title: 'Messages & Conversations',
             description: 'Stay connected with sellers and service providers through a secure inbox.',
             stats: (insights) => [
-                { label: 'Unread', value: String(insights.messagesUnread), helper: 'Seller replies pending' }
+                { label: 'Unread', value: String(insights.messagesUnread), helper: 'Seller replies pending' },
+                { label: 'Service Chats', value: String(insights.serviceBookings || 0), helper: 'Active conversations' }
             ],
-            body: `
-                <div class="content-card">
-                    <h3>Recent Threads</h3>
-                    <ul class="list">
-                        <li><strong>Priya Sharma</strong> • Bridal Makeup Trial • "Confirmed your appointment for 14 Jan."</li>
-                        <li><strong>ElectroTech</strong> • Warranty extension • "Share invoice to activate 2-year plan."</li>
-                        <li><strong>Urban Style Co.</strong> • Order #45190 • "Replacement dispatched."</li>
-                    </ul>
-                    <div class="quick-actions">
-                        <a href="mailto:support@69shop.in">Compose message</a>
+            body: (insights) => `
+                <div class="content-card messages-hub">
+                    <div class="messages-toolbar">
+                        <h3><i class="fas fa-inbox"></i> Conversations</h3>
+                        <div class="messages-filter-row">
+                            <button class="msg-filter-btn active" onclick="filterMessages('all', this)">All</button>
+                            <button class="msg-filter-btn" onclick="filterMessages('unread', this)">Unread</button>
+                            <button class="msg-filter-btn" onclick="filterMessages('sellers', this)">Sellers</button>
+                            <button class="msg-filter-btn" onclick="filterMessages('services', this)">Services</button>
+                        </div>
+                    </div>
+                    <div id="messagesLoading" class="messages-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading conversations...
+                    </div>
+                    <div id="messagesList" class="messages-thread-list">
+                    </div>
+                    <div id="noMessages" class="no-messages-state" style="display:none;">
+                        <div class="empty-icon"><i class="fas fa-paper-plane"></i></div>
+                        <h4>No conversations yet</h4>
+                        <p>Start messaging sellers or service providers from the shop or services page.</p>
+                        <div class="quick-actions">
+                            <a href="/services.html">Browse Services</a>
+                            <a href="/shop.html">Start Shopping</a>
+                        </div>
                     </div>
                 </div>
-            `
+                <div class="content-card compose-card">
+                    <div class="compose-header">
+                        <div class="compose-icon"><i class="fas fa-edit"></i></div>
+                        <div>
+                            <h3>Quick Contact</h3>
+                            <p>Reach out to our concierge team or any seller directly.</p>
+                        </div>
+                    </div>
+                    <div class="compose-actions-grid">
+                        <a href="mailto:support@69shop.in" class="compose-action-card">
+                            <i class="fas fa-headset"></i>
+                            <span>Contact Support</span>
+                        </a>
+                        <a href="/services.html#contact" class="compose-action-card">
+                            <i class="fas fa-concierge-bell"></i>
+                            <span>Concierge Desk</span>
+                        </a>
+                        <a href="https://wa.me/919876543210" target="_blank" class="compose-action-card">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>WhatsApp</span>
+                        </a>
+                        <a href="tel:+919876543210" class="compose-action-card">
+                            <i class="fas fa-phone"></i>
+                            <span>Call Us</span>
+                        </a>
+                    </div>
+                </div>
+            `,
+            onMount: () => loadUserMessages()
         },
         notifications: {
             badge: 'Alerts',
             title: 'Notifications Center',
             description: 'All delivery updates, promotions, and account alerts in one timeline.',
-            stats: (insights) => insights.notificationsUnread ? [
-                { label: 'Unread alerts', value: String(insights.notificationsUnread), helper: 'Action items' }
-            ] : [],
-            body: `
-                <div class="content-card">
-                    <h3>Today</h3>
-                    <ul class="timeline">
-                        <li>Payment received for Order #45231.</li>
-                        <li>Exclusive offer: Extra 5% off on accessories.</li>
-                        <li>Security reminder: Enable 2-factor authentication.</li>
-                    </ul>
+            stats: (insights) => [
+                { label: 'Unread Alerts', value: String(insights.notificationsUnread || 0), helper: 'Action items' },
+                { label: 'This Week', value: '—', helper: 'Activity summary' }
+            ],
+            body: (insights) => `
+                <div class="content-card notifications-hub">
+                    <div class="notifications-toolbar">
+                        <h3><i class="fas fa-bell"></i> Activity Feed</h3>
+                        <div class="notif-actions-row">
+                            <button class="notif-mark-read" onclick="markAllNotificationsRead()"><i class="fas fa-check-double"></i> Mark all read</button>
+                            <select class="notif-type-filter" onchange="filterNotifications(this.value)">
+                                <option value="all">All Types</option>
+                                <option value="order">Orders</option>
+                                <option value="promo">Promotions</option>
+                                <option value="security">Security</option>
+                                <option value="service">Services</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="notificationsLoading" class="notifications-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading notifications...
+                    </div>
+                    <div id="notificationsFeed" class="notifications-feed"></div>
+                    <div id="noNotifications" class="no-notifications-state" style="display:none;">
+                        <div class="empty-icon"><i class="fas fa-bell-slash"></i></div>
+                        <h4>You're all caught up!</h4>
+                        <p>No new notifications. We'll alert you when something important happens.</p>
+                    </div>
                 </div>
-            `
+                <div class="content-card notification-prefs-card">
+                    <div class="prefs-header">
+                        <i class="fas fa-sliders-h"></i>
+                        <div>
+                            <h3>Notification Preferences</h3>
+                            <p>Control what you get alerted about</p>
+                        </div>
+                    </div>
+                    <div class="notification-pref-items">
+                        <div class="pref-item">
+                            <div class="pref-info">
+                                <span class="pref-icon order"><i class="fas fa-truck"></i></span>
+                                <div>
+                                    <strong>Order & Delivery Updates</strong>
+                                    <span>Shipping status, delivery confirmation</span>
+                                </div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="pref-item">
+                            <div class="pref-info">
+                                <span class="pref-icon promo"><i class="fas fa-tag"></i></span>
+                                <div>
+                                    <strong>Deals & Promotions</strong>
+                                    <span>Flash sales, exclusive offers, coupons</span>
+                                </div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="pref-item">
+                            <div class="pref-info">
+                                <span class="pref-icon price"><i class="fas fa-chart-line"></i></span>
+                                <div>
+                                    <strong>Price Drop Alerts</strong>
+                                    <span>Wishlist items with reduced prices</span>
+                                </div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="pref-item">
+                            <div class="pref-info">
+                                <span class="pref-icon security"><i class="fas fa-shield-alt"></i></span>
+                                <div>
+                                    <strong>Security Alerts</strong>
+                                    <span>Login activity, password changes</span>
+                                </div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                        </div>
+                    </div>
+                </div>
+            `,
+            onMount: () => loadUserNotifications()
         },
         addresses: {
             badge: 'Logistics',
@@ -508,16 +1139,78 @@
             description: 'Securely manage cards, UPI IDs, and saved billing profiles.',
             stats: (insights) => [
                 { label: 'Saved Cards', value: String(insights.savedCards), helper: 'Visa, MasterCard, AmEx' },
-                { label: 'UPI IDs', value: String(insights.upiIds), helper: 'Primary: 69shop@upi' }
+                { label: 'UPI IDs', value: String(insights.upiIds), helper: 'Linked accounts' }
             ],
-            body: `
-                <div class="content-card">
-                    <h3>Preferred Card</h3>
-                    <p>Visa **** 2456 • Exp 07/28<br>Billing Address: Mumbai Residence</p>
-                    <div class="badge success">Auto-Pay Enabled</div>
+            body: (insights) => `
+                <div class="content-card payments-hub">
+                    <div class="payments-header-row">
+                        <h3><i class="fas fa-credit-card"></i> Saved Payment Methods</h3>
+                        <button class="btn-add-payment" onclick="showAddPaymentModal()"><i class="fas fa-plus"></i> Add Method</button>
+                    </div>
+                    <div class="payment-methods-grid" id="paymentMethodsList">
+                        <div class="payment-card-item featured">
+                            <div class="payment-card-visual visa">
+                                <div class="card-chip"></div>
+                                <div class="card-number">•••• •••• •••• 2456</div>
+                                <div class="card-details">
+                                    <div><span class="card-label">Card Holder</span><span class="card-value">${insights.userName || 'Account Holder'}</span></div>
+                                    <div><span class="card-label">Expires</span><span class="card-value">07/28</span></div>
+                                </div>
+                                <div class="card-brand"><i class="fab fa-cc-visa"></i></div>
+                            </div>
+                            <div class="payment-card-meta">
+                                <span class="payment-default-badge"><i class="fas fa-check-circle"></i> Default</span>
+                                <div class="payment-card-actions">
+                                    <button onclick="alert('Edit payment method coming soon!')"><i class="fas fa-pen"></i></button>
+                                    <button onclick="alert('Delete payment method coming soon!')"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-card upi-section">
+                    <h3><i class="fas fa-mobile-alt"></i> UPI & Digital Wallets</h3>
+                    <div class="upi-methods-list">
+                        <div class="upi-item">
+                            <div class="upi-icon google-pay"><i class="fab fa-google-pay"></i></div>
+                            <div class="upi-info">
+                                <strong>Google Pay</strong>
+                                <span>user@okicici</span>
+                            </div>
+                            <span class="upi-status linked"><i class="fas fa-link"></i> Linked</span>
+                        </div>
+                        <div class="upi-item">
+                            <div class="upi-icon phonepe"><i class="fas fa-mobile-alt"></i></div>
+                            <div class="upi-info">
+                                <strong>PhonePe</strong>
+                                <span>user@ybl</span>
+                            </div>
+                            <span class="upi-status linked"><i class="fas fa-link"></i> Linked</span>
+                        </div>
+                        <button class="btn-link-upi" onclick="alert('UPI linking coming soon!')">
+                            <i class="fas fa-plus-circle"></i> Link another UPI ID
+                        </button>
+                    </div>
+                </div>
+                <div class="content-card billing-info-card">
+                    <h3><i class="fas fa-file-invoice"></i> Billing Information</h3>
+                    <div class="billing-grid">
+                        <div class="billing-stat">
+                            <span class="billing-label">Total Spent (This Year)</span>
+                            <span class="billing-value">₹${Number(insights.cartValue || 0).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div class="billing-stat">
+                            <span class="billing-label">Cashback Earned</span>
+                            <span class="billing-value success">₹${Math.floor((insights.rewardsPoints || 0) * 0.5).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div class="billing-stat">
+                            <span class="billing-label">Auto-Pay</span>
+                            <span class="billing-value"><span class="badge success">Active</span></span>
+                        </div>
+                    </div>
                     <div class="quick-actions">
-                        <a href="?section=payments#add-method">Add payment method</a>
-                        <a href="?section=payments#billing">Manage billing</a>
+                        <a href="#" onclick="alert('Transaction history coming soon!'); return false;"><i class="fas fa-history"></i> Transaction History</a>
+                        <a href="#" onclick="alert('Download invoices coming soon!'); return false;"><i class="fas fa-download"></i> Download Invoices</a>
                     </div>
                 </div>
             `
@@ -527,20 +1220,75 @@
             title: 'Subscriptions & Plans',
             description: 'Track premium plans, service retainers, and renewal reminders.',
             stats: (insights) => [
-                { label: 'Active Plans', value: String(insights.activePlans), helper: 'Marketplace Pro + Service Care' }
+                { label: 'Active Plans', value: String(insights.activePlans), helper: 'Active memberships' },
+                { label: 'Rewards Tier', value: insights.rewardsTier || 'Bronze', helper: 'Current level' }
             ],
-            body: `
-                <div class="content-card">
-                    <h3>Marketplace Pro</h3>
-                    <p>Unlimited free delivery, concierge support, exclusive lounge access.</p>
-                    <div class="badge info">Renews Feb 12, 2026</div>
+            body: (insights) => `
+                <div class="content-card subscription-hero">
+                    <div class="subscription-plan-card active-plan">
+                        <div class="plan-header">
+                            <div class="plan-icon pro"><i class="fas fa-crown"></i></div>
+                            <div>
+                                <h3>Marketplace Pro</h3>
+                                <span class="plan-price">₹999<small>/year</small></span>
+                            </div>
+                            <span class="plan-status active"><i class="fas fa-check-circle"></i> Active</span>
+                        </div>
+                        <div class="plan-features">
+                            <div class="plan-feature"><i class="fas fa-truck"></i><span>Unlimited free delivery on all orders</span></div>
+                            <div class="plan-feature"><i class="fas fa-headset"></i><span>Priority concierge support 24/7</span></div>
+                            <div class="plan-feature"><i class="fas fa-percent"></i><span>Extra 5% off on service bookings</span></div>
+                            <div class="plan-feature"><i class="fas fa-gift"></i><span>Early access to new collections</span></div>
+                            <div class="plan-feature"><i class="fas fa-undo"></i><span>Extended 30-day return window</span></div>
+                        </div>
+                        <div class="plan-renewal">
+                            <i class="fas fa-calendar"></i>
+                            <span>Renews on <strong>Feb 12, 2026</strong> • Auto-renewal ON</span>
+                        </div>
+                        <div class="plan-actions">
+                            <button class="btn-manage-plan" onclick="alert('Plan management coming soon!')"><i class="fas fa-cog"></i> Manage Plan</button>
+                            <button class="btn-cancel-plan" onclick="alert('Are you sure? Contact support@69shop.in to cancel.')"><i class="fas fa-times-circle"></i> Cancel</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="content-card">
-                    <h3>Service Care Pack</h3>
-                    <p>Priority bookings for trusted professionals across Mumbai.</p>
-                    <div class="quick-actions">
-                        <a href="mailto:support@69shop.in?subject=Upgrade%20membership">Upgrade plan</a>
-                        <a href="mailto:support@69shop.in?subject=Pause%20subscription">Pause subscription</a>
+                    <div class="subscription-plan-card available-plan">
+                        <div class="plan-header">
+                            <div class="plan-icon care"><i class="fas fa-shield-alt"></i></div>
+                            <div>
+                                <h3>Service Care Pack</h3>
+                                <span class="plan-price">₹499<small>/year</small></span>
+                            </div>
+                            <span class="plan-status available">Available</span>
+                        </div>
+                        <div class="plan-features">
+                            <div class="plan-feature"><i class="fas fa-bolt"></i><span>Priority bookings for all service categories</span></div>
+                            <div class="plan-feature"><i class="fas fa-hands-helping"></i><span>Dedicated relationship manager</span></div>
+                            <div class="plan-feature"><i class="fas fa-tag"></i><span>10% off on first service booking</span></div>
+                        </div>
+                        <div class="plan-actions">
+                            <button class="btn-subscribe" onclick="alert('Subscription activation coming soon!')"><i class="fas fa-rocket"></i> Subscribe Now</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-card rewards-progress-card">
+                    <h3><i class="fas fa-gem"></i> Rewards Progress</h3>
+                    <div class="rewards-tier-visual">
+                        <div class="tier-progress-bar">
+                            <div class="tier-marker bronze active"><i class="fas fa-medal"></i><span>Bronze</span></div>
+                            <div class="tier-line"></div>
+                            <div class="tier-marker silver ${(insights.rewardsPoints || 0) >= 500 ? 'active' : ''}"><i class="fas fa-medal"></i><span>Silver</span></div>
+                            <div class="tier-line"></div>
+                            <div class="tier-marker gold ${(insights.rewardsPoints || 0) >= 2000 ? 'active' : ''}"><i class="fas fa-crown"></i><span>Gold</span></div>
+                            <div class="tier-line"></div>
+                            <div class="tier-marker platinum ${(insights.rewardsPoints || 0) >= 5000 ? 'active' : ''}"><i class="fas fa-gem"></i><span>Platinum</span></div>
+                        </div>
+                        <p class="tier-info">${Number(insights.rewardsPoints || 0).toLocaleString('en-IN')} points • ${
+                            (insights.rewardsPoints || 0) < 500 ? `${500 - (insights.rewardsPoints || 0)} pts to Silver` :
+                            (insights.rewardsPoints || 0) < 2000 ? `${2000 - (insights.rewardsPoints || 0)} pts to Gold` :
+                            (insights.rewardsPoints || 0) < 5000 ? `${5000 - (insights.rewardsPoints || 0)} pts to Platinum` :
+                            'Maximum tier reached! 🎉'
+                        }</p>
                     </div>
                 </div>
             `
@@ -550,19 +1298,99 @@
             title: 'My Reviews & Ratings',
             description: 'Share feedback with sellers and service partners to earn reward points.',
             stats: (insights) => [
-                { label: 'Published Reviews', value: String(insights.publishedReviews), helper: '4 this month' }
+                { label: 'Published', value: String(insights.publishedReviews || 0), helper: 'Total reviews' },
+                { label: 'Avg Rating', value: Number(insights.avgRating || 0).toFixed(1) + '★', helper: 'Your average' }
             ],
-            body: `
-                <div class="content-card">
-                    <h3>Pending Reviews</h3>
-                    <ul class="list">
-                        <li>Rajesh Mehta • Home repair service • <span class="badge warning">Awaiting review</span></li>
-                        <li>Urban Style Co. • Leather Handbag • <span class="badge warning">Pending</span></li>
-                    </ul>
+            body: (insights) => `
+                <div class="content-card reviews-hub">
+                    <div class="reviews-toolbar">
+                        <h3><i class="fas fa-star"></i> Review Activity</h3>
+                        <div class="reviews-tab-row">
+                            <button class="review-tab active" onclick="filterReviews('pending', this)">Pending</button>
+                            <button class="review-tab" onclick="filterReviews('published', this)">Published</button>
+                        </div>
+                    </div>
+                    <div id="pendingReviewsSection">
+                        <div class="review-prompt-card" id="reviewPromptList">
+                            <div class="review-prompt-item">
+                                <div class="review-product-thumb">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </div>
+                                <div class="review-prompt-info">
+                                    <strong>Rate your recent purchase</strong>
+                                    <span>Order delivered on ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+                                </div>
+                                <div class="review-stars-input" data-review-product="recent">
+                                    <i class="fas fa-star" onclick="setRating(this, 1)"></i>
+                                    <i class="fas fa-star" onclick="setRating(this, 2)"></i>
+                                    <i class="fas fa-star" onclick="setRating(this, 3)"></i>
+                                    <i class="fas fa-star" onclick="setRating(this, 4)"></i>
+                                    <i class="fas fa-star" onclick="setRating(this, 5)"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-compose-card" id="reviewCompose" style="display:none;">
+                            <h4 id="reviewComposeTitle">Write your review</h4>
+                            <div class="review-compose-rating" id="reviewComposeRating"></div>
+                            <textarea id="reviewText" placeholder="Share your experience — what did you love? Any suggestions?" rows="4"></textarea>
+                            <div class="review-compose-actions">
+                                <button class="btn-cancel-review" onclick="cancelReview()">Cancel</button>
+                                <button class="btn-submit-review" onclick="submitReview()"><i class="fas fa-paper-plane"></i> Submit Review</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="publishedReviewsSection" style="display:none;">
+                        <div class="published-reviews-list" id="publishedReviewsList">
+                            <div class="published-review-item">
+                                <div class="review-header-row">
+                                    <div class="review-stars filled">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    </div>
+                                    <span class="review-date">2 weeks ago</span>
+                                </div>
+                                <p class="review-text">"Exceptional craftsmanship and on-time delivery. The packaging was premium and the product exceeded expectations. Highly recommended!"</p>
+                                <div class="review-meta">
+                                    <span class="review-product-name"><i class="fas fa-box"></i> Product Purchase</span>
+                                    <span class="review-helpful"><i class="fas fa-thumbs-up"></i> 12 found helpful</span>
+                                </div>
+                            </div>
+                            <div class="published-review-item">
+                                <div class="review-header-row">
+                                    <div class="review-stars filled">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                                    </div>
+                                    <span class="review-date">1 month ago</span>
+                                </div>
+                                <p class="review-text">"Great service booking experience. The saree pre-pleating was done perfectly. Minor delay in pickup but quality was top-notch."</p>
+                                <div class="review-meta">
+                                    <span class="review-product-name"><i class="fas fa-concierge-bell"></i> Service Booking</span>
+                                    <span class="review-helpful"><i class="fas fa-thumbs-up"></i> 8 found helpful</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="content-card">
-                    <h3>Featured Feedback</h3>
-                    <p>"Exceptional craftsmanship and on-time delivery. Highly recommended!"</p>
+                <div class="content-card review-stats-card">
+                    <h3><i class="fas fa-chart-bar"></i> Your Review Impact</h3>
+                    <div class="review-impact-grid">
+                        <div class="impact-stat">
+                            <div class="impact-number">${insights.publishedReviews || 0}</div>
+                            <div class="impact-label">Reviews Written</div>
+                        </div>
+                        <div class="impact-stat">
+                            <div class="impact-number">${Math.floor((insights.publishedReviews || 0) * 15)}</div>
+                            <div class="impact-label">Points Earned</div>
+                        </div>
+                        <div class="impact-stat">
+                            <div class="impact-number">${Math.floor((insights.publishedReviews || 0) * 7)}</div>
+                            <div class="impact-label">Helpful Votes</div>
+                        </div>
+                        <div class="impact-stat">
+                            <div class="impact-number">Top 10%</div>
+                            <div class="impact-label">Reviewer Rank</div>
+                        </div>
+                    </div>
+                    <p class="review-earn-hint"><i class="fas fa-info-circle"></i> Earn 15 reward points for every verified review you publish.</p>
                 </div>
             `
         },
@@ -670,21 +1498,21 @@
                             </div>
                         </div>
                         <div class="settings-items">
-                            <div class="settings-item clickable" onclick="window.location.href='?section=dashboard'">
+                            <div class="settings-item clickable" onclick="navigateToSection('dashboard')">
                                 <div class="settings-item-info">
                                     <span class="settings-item-title">Edit Profile</span>
                                     <span class="settings-item-desc">Name, email, and photo</span>
                                 </div>
                                 <i class="fas fa-chevron-right"></i>
                             </div>
-                            <div class="settings-item clickable" onclick="window.location.href='?section=addresses'">
+                            <div class="settings-item clickable" onclick="navigateToSection('addresses')">
                                 <div class="settings-item-info">
                                     <span class="settings-item-title">Manage Addresses</span>
                                     <span class="settings-item-desc">Shipping and billing</span>
                                 </div>
                                 <i class="fas fa-chevron-right"></i>
                             </div>
-                            <div class="settings-item clickable" onclick="window.location.href='?section=payments'">
+                            <div class="settings-item clickable" onclick="navigateToSection('payments')">
                                 <div class="settings-item-info">
                                     <span class="settings-item-title">Payment Methods</span>
                                     <span class="settings-item-desc">Cards and UPI</span>
@@ -704,16 +1532,6 @@
                             </div>
                         </div>
                         <div class="settings-items">
-                            <div class="settings-item">
-                                <div class="settings-item-info">
-                                    <span class="settings-item-title">Dark Mode</span>
-                                    <span class="settings-item-desc">Reduce eye strain</span>
-                                </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
                             <div class="settings-item">
                                 <div class="settings-item-info">
                                     <span class="settings-item-title">Language</span>
@@ -747,28 +1565,223 @@
             description: 'We’re here 24/7 with concierge-level assistance for every purchase.',
             stats: [],
             body: `
+                <div class="content-card help-hero-card">
+                    <div class="help-search-section">
+                        <h3><i class="fas fa-search"></i> How can we help you?</h3>
+                        <div class="help-search-bar">
+                            <input type="text" placeholder="Search for help articles, topics, or FAQ..." id="helpSearchInput">
+                            <button onclick="alert('Search feature coming soon!')"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="help-quick-topics">
+                        <a href="#" class="help-topic-card" onclick="alert('Topic guide coming soon!'); return false;">
+                            <i class="fas fa-truck"></i>
+                            <strong>Track Order</strong>
+                            <span>Where is my package?</span>
+                        </a>
+                        <a href="#" class="help-topic-card" onclick="alert('Topic guide coming soon!'); return false;">
+                            <i class="fas fa-undo"></i>
+                            <strong>Returns</strong>
+                            <span>Start a return request</span>
+                        </a>
+                        <a href="#" class="help-topic-card" onclick="alert('Topic guide coming soon!'); return false;">
+                            <i class="fas fa-credit-card"></i>
+                            <strong>Payments</strong>
+                            <span>Refund & billing issues</span>
+                        </a>
+                        <a href="#" class="help-topic-card" onclick="alert('Topic guide coming soon!'); return false;">
+                            <i class="fas fa-user-shield"></i>
+                            <strong>Account</strong>
+                            <span>Security & privacy</span>
+                        </a>
+                        <a href="#" class="help-topic-card" onclick="alert('Topic guide coming soon!'); return false;">
+                            <i class="fas fa-concierge-bell"></i>
+                            <strong>Services</strong>
+                            <span>Booking & scheduling</span>
+                        </a>
+                        <a href="#" class="help-topic-card" onclick="alert('Topic guide coming soon!'); return false;">
+                            <i class="fas fa-store"></i>
+                            <strong>Seller Help</strong>
+                            <span>Onboarding & listings</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="content-card contact-channels-card">
+                    <h3><i class="fas fa-headset"></i> Contact Our Team</h3>
+                    <div class="contact-channels-grid">
+                        <a href="tel:+919876543210" class="contact-channel">
+                            <div class="channel-icon phone"><i class="fas fa-phone-alt"></i></div>
+                            <div class="channel-info">
+                                <strong>Phone Support</strong>
+                                <span>+91 98765 43210</span>
+                                <span class="channel-availability">Available 24/7</span>
+                            </div>
+                        </a>
+                        <a href="mailto:support@69shop.in" class="contact-channel">
+                            <div class="channel-icon email"><i class="fas fa-envelope"></i></div>
+                            <div class="channel-info">
+                                <strong>Email Support</strong>
+                                <span>support@69shop.in</span>
+                                <span class="channel-availability">Reply within 2 hrs</span>
+                            </div>
+                        </a>
+                        <a href="https://wa.me/919876543210" target="_blank" class="contact-channel">
+                            <div class="channel-icon whatsapp"><i class="fab fa-whatsapp"></i></div>
+                            <div class="channel-info">
+                                <strong>WhatsApp</strong>
+                                <span>Chat with us</span>
+                                <span class="channel-availability">Instant response</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="content-card faq-card">
+                    <h3><i class="fas fa-question-circle"></i> Frequently Asked Questions</h3>
+                    <div class="faq-accordion">
+                        <div class="faq-item" onclick="toggleFaq(this)">
+                            <div class="faq-question"><span>How do I track my order?</span><i class="fas fa-chevron-down"></i></div>
+                            <div class="faq-answer">Go to My Orders section, click on the order you want to track. You will see real-time status updates including shipping, in-transit, and delivery confirmation.</div>
+                        </div>
+                        <div class="faq-item" onclick="toggleFaq(this)">
+                            <div class="faq-question"><span>What is the return policy?</span><i class="fas fa-chevron-down"></i></div>
+                            <div class="faq-answer">Most items can be returned within 7 days of delivery. Premium members get an extended 30-day return window. Initiate returns from your Orders section.</div>
+                        </div>
+                        <div class="faq-item" onclick="toggleFaq(this)">
+                            <div class="faq-question"><span>How do I book a service?</span><i class="fas fa-chevron-down"></i></div>
+                            <div class="faq-answer">Visit our Services page, choose your category (Jewellery, Pleating, Bakery, etc.), fill the booking form with your requirements, and our concierge team will send proposals within 48 hours.</div>
+                        </div>
+                        <div class="faq-item" onclick="toggleFaq(this)">
+                            <div class="faq-question"><span>How do reward points work?</span><i class="fas fa-chevron-down"></i></div>
+                            <div class="faq-answer">Earn points on every purchase, review, and referral. Redeem them for discounts at checkout. Bronze to Silver (500 pts) to Gold (2000 pts) to Platinum (5000 pts).</div>
+                        </div>
+                    </div>
+                </div>
+            `
+        },
+        priceAlerts: {
+            badge: 'Alerts',
+            title: 'Price Alerts',
+            description: 'Track products and get notified when their prices drop to your target.',
+            stats: (insights) => [
+                { label: 'Active Alerts', value: String(insights.priceAlertsActive || 0), helper: 'Monitoring prices' },
+                { label: 'Triggered', value: String(insights.priceAlertsTriggered || 0), helper: 'Prices dropped!' }
+            ],
+            body: (insights) => `
                 <div class="content-card">
-                    <h3>Speak with us</h3>
-                    <p>Call +91 98765 43210 or email support@69shop.in any time.</p>
-                    <div class="quick-actions">
-                        <a href="tel:+919876543210">Call Support</a>
-                        <a href="mailto:support@69shop.in">Send Email</a>
+                    <h3>Your Price Alerts</h3>
+                    <div id="priceAlertsContainer">
+                        <div class="price-alerts-empty">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading alerts...</p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            onMount: loadProfilePriceAlerts
+        },
+        referrals: {
+            badge: 'Referrals',
+            title: 'Referral Program',
+            description: 'Invite friends and earn ₹100 reward points for each successful referral.',
+            stats: (insights) => [
+                { label: 'Total Referrals', value: String(insights.referralTotal || 0), helper: 'Friends invited' },
+                { label: 'Successful', value: String(insights.referralSuccessful || 0), helper: 'Completed referrals' },
+                { label: 'Earnings', value: '₹' + String(insights.referralEarnings || 0), helper: 'Total rewards earned' }
+            ],
+            body: (insights) => `
+                <div class="content-card referral-invite-card">
+                    <h3><i class="fas fa-link"></i> Your Referral Link</h3>
+                    <p style="color:var(--text-medium);margin-bottom:16px;">Share your unique link with friends. When they sign up and make their first purchase, you both earn rewards!</p>
+                    <div class="referral-code-box" id="referralCodeBox">
+                        <div class="referral-code-loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading your referral code...
+                        </div>
+                    </div>
+                </div>
+                <div class="content-card referral-how-it-works">
+                    <h3><i class="fas fa-info-circle"></i> How It Works</h3>
+                    <div class="referral-steps">
+                        <div class="referral-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <strong>Share Your Link</strong>
+                                <p>Send your unique referral link to friends via WhatsApp, email, or social media</p>
+                            </div>
+                        </div>
+                        <div class="referral-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <strong>Friend Signs Up</strong>
+                                <p>Your friend creates an account using your referral link and gets ₹50 off</p>
+                            </div>
+                        </div>
+                        <div class="referral-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <strong>Earn Rewards</strong>
+                                <p>Once they make their first purchase, you earn ₹100 in reward points</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-card referral-milestones-card">
+                    <h3><i class="fas fa-trophy"></i> Referral Milestones</h3>
+                    <div class="milestone-list" id="referralMilestones">
+                        <div class="milestone-item">
+                            <div class="milestone-icon"><i class="fas fa-medal"></i></div>
+                            <div class="milestone-info">
+                                <strong>5 Referrals</strong>
+                                <span>Bonus ₹200 reward points</span>
+                            </div>
+                            <span class="milestone-status" id="milestone5">Locked</span>
+                        </div>
+                        <div class="milestone-item">
+                            <div class="milestone-icon"><i class="fas fa-medal"></i></div>
+                            <div class="milestone-info">
+                                <strong>10 Referrals</strong>
+                                <span>Bonus ₹500 reward points</span>
+                            </div>
+                            <span class="milestone-status" id="milestone10">Locked</span>
+                        </div>
+                        <div class="milestone-item">
+                            <div class="milestone-icon"><i class="fas fa-medal"></i></div>
+                            <div class="milestone-info">
+                                <strong>25 Referrals</strong>
+                                <span>Bonus ₹1,500 reward points</span>
+                            </div>
+                            <span class="milestone-status" id="milestone25">Locked</span>
+                        </div>
+                        <div class="milestone-item">
+                            <div class="milestone-icon"><i class="fas fa-medal"></i></div>
+                            <div class="milestone-info">
+                                <strong>50 Referrals</strong>
+                                <span>Bonus ₹5,000 reward points</span>
+                            </div>
+                            <span class="milestone-status" id="milestone50">Locked</span>
+                        </div>
                     </div>
                 </div>
                 <div class="content-card">
-                    <h3>Resource Center</h3>
-                    <ul class="list">
-                        <li>Getting started with services</li>
-                        <li>Managing returns & replacements</li>
-                        <li>Seller onboarding checklist</li>
-                    </ul>
+                    <h3><i class="fas fa-users"></i> Your Referrals</h3>
+                    <div id="referralListContainer">
+                        <div class="referral-list-empty">
+                            <i class="fas fa-user-plus" style="font-size:2.5rem;opacity:0.3;margin-bottom:12px;"></i>
+                            <p>No referrals yet. Share your link to get started!</p>
+                        </div>
+                    </div>
                 </div>
-            `
+            `,
+            onMount: loadReferralSection
         }
     };
 
     if (avatarUploadInput) {
         avatarUploadInput.addEventListener('change', handleAvatarUploadSelection);
+        // Strip avatar click → open file picker
+        const stripAvatarEl = document.getElementById('stripAvatar');
+        if (stripAvatarEl) {
+            stripAvatarEl.addEventListener('click', () => avatarUploadInput.click());
+        }
     }
     avatarRemoveBtn?.addEventListener('click', handleAvatarRemoval);
     avatarEditorClose?.addEventListener('click', closeAvatarEditor);
@@ -1093,7 +2106,21 @@
 
     function applyInsights(userData) {
         state.insights = buildInsightsFromUserData(userData);
-        renderSection(state.currentSection);
+        // Update card grid stat counters
+        const co = document.getElementById('cardOrderCount');
+        const cw = document.getElementById('cardWishlistCount');
+        const cc = document.getElementById('cardCartCount');
+        if (co) co.textContent = String(state.insights.ordersOpen || 0);
+        if (cw) {
+            const wl = JSON.parse(localStorage.getItem('69shop_wishlist') || '[]');
+            cw.textContent = String(wl.length);
+        }
+        if (cc) cc.textContent = String(state.insights.cartItems || 0);
+
+        // Only re-render if we're in detail view
+        if (document.getElementById('profileDetailView').style.display !== 'none') {
+            renderSection(state.currentSection);
+        }
     }
 
     function renderSection(sectionKey) {
@@ -1103,7 +2130,35 @@
         sectionTitle.textContent = config.title;
         sectionDescription.textContent = config.description;
 
+        // Card Grid layout: populate detail view
+        const detailHeader = document.getElementById('detailHeader');
+        const detailStats = document.getElementById('detailStats');
+        const iconMeta = sectionCardMeta[sectionKey] || { icon: 'fas fa-circle', color: 'blue' };
+        if (detailHeader) {
+            detailHeader.innerHTML = `
+                <div class="section-icon section-card-icon ${iconMeta.color}"><i class="${iconMeta.icon}"></i></div>
+                <div>
+                    <h1>${config.title}</h1>
+                    <p>${config.description}</p>
+                </div>`;
+        }
+
         const statsConfig = typeof config.stats === 'function' ? config.stats(state.insights) : config.stats;
+        if (statsConfig && statsConfig.length && detailStats) {
+            detailStats.style.display = 'flex';
+            detailStats.innerHTML = statsConfig.map(stat => `
+                <div class="detail-stat-card">
+                    <p>${stat.label}</p>
+                    <h3>${stat.value}</h3>
+                    <span>${stat.helper || ''}</span>
+                </div>
+            `).join('');
+        } else if (detailStats) {
+            detailStats.style.display = 'none';
+            detailStats.innerHTML = '';
+        }
+
+        // Also update old hidden statsGrid (some JS references it)
         if (statsConfig && statsConfig.length) {
             statsGrid.style.display = 'grid';
             statsGrid.innerHTML = statsConfig.map(stat => `
@@ -1128,31 +2183,49 @@
         }
     }
 
+    // Section metadata for card icons
+    const sectionCardMeta = {
+        dashboard:     { icon: 'fas fa-chart-line',      color: 'blue' },
+        orders:        { icon: 'fas fa-shopping-bag',     color: 'purple' },
+        wishlist:      { icon: 'fas fa-heart',            color: 'pink' },
+        cart:          { icon: 'fas fa-shopping-cart',     color: 'green' },
+        messages:      { icon: 'fas fa-envelope',         color: 'cyan' },
+        notifications: { icon: 'fas fa-bell',             color: 'amber' },
+        addresses:     { icon: 'fas fa-map-marker-alt',   color: 'green' },
+        payments:      { icon: 'fas fa-credit-card',      color: 'blue' },
+        subscriptions: { icon: 'fas fa-star',             color: 'amber' },
+        reviews:       { icon: 'fas fa-comment',          color: 'purple' },
+        settings:      { icon: 'fas fa-cog',              color: 'slate' },
+        priceAlerts:   { icon: 'fas fa-bell',             color: 'amber' },
+        help:          { icon: 'fas fa-question-circle',  color: 'red' },
+        referrals:     { icon: 'fas fa-gift',              color: 'green' }
+    };
+
+    // Open a section from card grid → show detail view
+    window.openSection = function(sectionKey) {
+        document.getElementById('profileCardGrid').style.display = 'none';
+        document.getElementById('profileDetailView').style.display = 'block';
+        window.history.replaceState({}, '', `?section=${sectionKey}`);
+        renderSection(sectionKey);
+        window.scrollTo({ top: document.getElementById('profileDetailView').offsetTop - 90, behavior: 'smooth' });
+    };
+
+    // Back to card grid from detail view
+    window.backToGrid = function() {
+        document.getElementById('profileDetailView').style.display = 'none';
+        document.getElementById('profileCardGrid').style.display = 'block';
+        state.currentSection = 'dashboard';
+        window.history.replaceState({}, '', window.location.pathname);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     function updateActiveLink(activeSection) {
-        navLinks.forEach(link => {
-            if (link.dataset.section === activeSection) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
-        });
+        // Card grid layout: no sidebar nav to update
+        // Keep function for backwards compatibility
     }
 
-    navLinks.forEach(link => {
-        link.addEventListener('click', (event) => {
-            event.preventDefault();
-            const target = link.dataset.section;
-            if (!target) return;
-            if (target === state.currentSection) return;
-            window.history.replaceState({}, '', `?section=${target}`);
-            renderSection(target);
-            // Scroll to content area so user can see the section
-            const contentArea = document.querySelector('.profile-content');
-            if (contentArea) {
-                contentArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    });
+    // navLinks click listeners (sidebar nav removed — these are now no-ops)
+    // Navigation is handled via openSection() and backToGrid()
     
     // ===== ORDERS FUNCTIONALITY =====
     let userOrders = [];
@@ -1293,7 +2366,7 @@
                 <div class="order-items">
                     ${order.items.map(item => `
                         <div class="order-item">
-                            <img src="${item.image || '/Logo/placeholder.png'}" alt="${item.name}" class="order-item-image" onerror="this.src='/Logo/placeholder.png'">
+                            <img src="${item.image || '/Logo/placeholder.svg'}" alt="${item.name}" class="order-item-image" onerror="this.src='/Logo/placeholder.svg'">
                             <div class="order-item-details">
                                 <div class="order-item-name">${item.name}</div>
                                 <div class="order-item-qty">Qty: ${item.quantity || 1}</div>
@@ -1305,10 +2378,12 @@
                 <div class="order-card-footer">
                     <div class="order-total">Total: ₹${(order.total || order.items.reduce((s, i) => s + i.price * (i.quantity || 1), 0)).toLocaleString('en-IN')}</div>
                     <div class="order-actions">
+                        ${order.status === 'processing' ? '<button onclick="trackOrder(\'' + order.id + '\')"><i class="fas fa-cog fa-spin"></i> Track</button>' : ''}
                         ${order.status === 'shipped' ? '<button onclick="trackOrder(\'' + order.id + '\')"><i class="fas fa-truck"></i> Track</button>' : ''}
                         ${order.status === 'out_for_delivery' ? '<button onclick="trackOrder(\'' + order.id + '\')"><i class="fas fa-motorcycle"></i> Track</button>' : ''}
+                        ${order.status === 'confirmed' ? '<button onclick="trackOrder(\'' + order.id + '\')"><i class="fas fa-check-circle"></i> Track</button>' : ''}
                         ${order.status === 'delivered' ? '<button onclick="viewInvoice(\'' + order.id + '\')"><i class="fas fa-file-invoice"></i> Invoice</button>' : ''}
-                        ${order.status === 'delivered' ? '<button onclick="reorderItems(\'' + order.id + '\')"><i class="fas fa-redo"></i> Reorder</button>' : ''}
+                        ${['delivered', 'cancelled', 'returned', 'refunded'].includes(order.status) ? '<button class="btn-reorder" onclick="reorderItems(\'' + order.id + '\')"><i class="fas fa-redo"></i> Reorder</button>' : ''}
                         ${['pending', 'confirmed'].includes(order.status) ? '<button class="btn-danger" onclick="cancelOrder(\'' + order.id + '\')"><i class="fas fa-times"></i> Cancel</button>' : ''}
                         ${order.status === 'delivered' ? '<button class="btn-outline" onclick="requestReturn(\'' + order.id + '\')"><i class="fas fa-undo"></i> Return</button>' : ''}
                     </div>
@@ -1330,7 +2405,9 @@
         const map = {
             'pending': 'Pending',
             'confirmed': 'Confirmed',
+            'processing': 'Processing',
             'shipped': 'Shipped',
+            'out_for_delivery': 'Out for Delivery',
             'delivered': 'Delivered',
             'cancelled': 'Cancelled',
             'return_requested': 'Return Requested',
@@ -1344,7 +2421,9 @@
         const icons = {
             'pending': 'fa-clock',
             'confirmed': 'fa-check',
+            'processing': 'fa-cog',
             'shipped': 'fa-truck',
+            'out_for_delivery': 'fa-motorcycle',
             'delivered': 'fa-box',
             'cancelled': 'fa-times-circle',
             'return_requested': 'fa-undo',
@@ -1355,7 +2434,7 @@
     }
     
     function updateOrderStats() {
-        const activeOrders = userOrders.filter(o => ['pending', 'confirmed', 'shipped'].includes(o.status)).length;
+        const activeOrders = userOrders.filter(o => ['pending', 'confirmed', 'processing', 'shipped', 'out_for_delivery'].includes(o.status)).length;
         const returnsWindow = userOrders.filter(o => o.status === 'delivered').length;
         
         state.insights.ordersOpen = activeOrders;
@@ -1369,7 +2448,120 @@
     };
     
     window.trackOrder = function(orderId) {
-        alert('Order tracking for ' + orderId + ' - Coming soon!');
+        const order = userOrders.find(o => o.id === orderId);
+        if (!order) {
+            alert('Order not found');
+            return;
+        }
+
+        const status = (order.status || 'confirmed').toLowerCase();
+        const ts = order.statusTimestamps || {};
+        const steps = [
+            { key: 'confirmed', label: 'Order Confirmed', icon: 'fa-check-circle' },
+            { key: 'processing', label: 'Processing', icon: 'fa-cog' },
+            { key: 'shipped', label: 'Shipped', icon: 'fa-truck' },
+            { key: 'out_for_delivery', label: 'Out for Delivery', icon: 'fa-motorcycle' },
+            { key: 'delivered', label: 'Delivered', icon: 'fa-box-open' }
+        ];
+        const statusOrder = steps.map(s => s.key);
+        const normalizedStatus = status === 'pending' ? 'confirmed' : status;
+        const currentIndex = statusOrder.indexOf(normalizedStatus);
+        const isCancelled = normalizedStatus === 'cancelled';
+
+        const fmtDate = (val) => {
+            if (!val) return '';
+            const d = val.toDate ? val.toDate() : new Date(val);
+            return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) +
+                   ' ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        };
+
+        const stepsHtml = steps.map((step, idx) => {
+            let cls = '';
+            if (isCancelled) {
+                cls = idx === 0 ? 'cancelled' : '';
+            } else if (idx < currentIndex) {
+                cls = 'completed';
+            } else if (idx === currentIndex) {
+                cls = 'active';
+            }
+            const date = ts[step.key] ? fmtDate(ts[step.key]) : '';
+            return `
+                <div class="track-step ${cls}">
+                    <div class="track-step-icon"><i class="fas ${step.icon}"></i></div>
+                    <div class="track-step-info">
+                        <strong>${step.label}</strong>
+                        ${date ? `<span class="track-step-date">${date}</span>` : '<span class="track-step-date">Pending</span>'}
+                    </div>
+                </div>`;
+        }).join('');
+
+        const cancelledHtml = isCancelled ? `
+            <div class="track-step cancelled">
+                <div class="track-step-icon"><i class="fas fa-times-circle"></i></div>
+                <div class="track-step-info">
+                    <strong>Order Cancelled</strong>
+                    ${ts.cancelled ? `<span class="track-step-date">${fmtDate(ts.cancelled)}</span>` : ''}
+                </div>
+            </div>` : '';
+
+        const trackingNumber = order.trackingNumber || order.trackingInfo?.number || null;
+        const trackingHtml = trackingNumber ? `<div class="track-tracking-number"><i class="fas fa-barcode"></i> Tracking: <strong>${trackingNumber}</strong></div>` : '';
+
+        const modal = document.createElement('div');
+        modal.className = 'track-modal-overlay';
+        modal.innerHTML = `
+            <div class="track-modal">
+                <div class="track-modal-header">
+                    <h3><i class="fas fa-route"></i> Order Tracking</h3>
+                    <button class="track-modal-close" onclick="this.closest('.track-modal-overlay').remove()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="track-order-id">#${orderId}</div>
+                ${trackingHtml}
+                <div class="track-timeline">
+                    ${isCancelled ? cancelledHtml : stepsHtml}
+                </div>
+                <div class="track-modal-footer">
+                    <button onclick="this.closest('.track-modal-overlay').remove()" class="track-close-btn">Close</button>
+                </div>
+            </div>
+        `;
+
+        // Inject styles if not already present
+        if (!document.getElementById('trackModalStyles')) {
+            const style = document.createElement('style');
+            style.id = 'trackModalStyles';
+            style.textContent = `
+                .track-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:10000; display:flex; align-items:center; justify-content:center; padding:16px; }
+                .track-modal { background:#fff; border-radius:16px; max-width:460px; width:100%; max-height:85vh; overflow-y:auto; box-shadow:0 24px 48px rgba(0,0,0,.2); }
+                .track-modal-header { display:flex; justify-content:space-between; align-items:center; padding:20px 24px 12px; border-bottom:1px solid #f0f0f0; }
+                .track-modal-header h3 { margin:0; font-size:1.15rem; color:#1a1a1a; }
+                .track-modal-close { background:none; border:none; font-size:1.2rem; cursor:pointer; color:#999; padding:4px; }
+                .track-order-id { padding:8px 24px 0; font-size:.85rem; color:#666; font-family:monospace; }
+                .track-tracking-number { padding:6px 24px 0; font-size:.85rem; color:#0066ff; }
+                .track-timeline { padding:20px 24px 24px; display:flex; flex-direction:column; gap:0; position:relative; }
+                .track-step { display:flex; align-items:flex-start; gap:14px; padding:12px 0; position:relative; }
+                .track-step:not(:last-child)::after { content:''; position:absolute; left:17px; top:42px; bottom:-12px; width:2px; background:#e0e0e0; }
+                .track-step.completed:not(:last-child)::after { background:#22c55e; }
+                .track-step.active:not(:last-child)::after { background:linear-gradient(to bottom, #0066ff 50%, #e0e0e0 50%); }
+                .track-step-icon { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.9rem; background:#f5f5f5; color:#bbb; flex-shrink:0; border:2px solid #e0e0e0; position:relative; z-index:1; }
+                .track-step.completed .track-step-icon { background:#22c55e; color:#fff; border-color:#22c55e; }
+                .track-step.active .track-step-icon { background:#0066ff; color:#fff; border-color:#0066ff; animation:pulseStep 2s infinite; }
+                .track-step.cancelled .track-step-icon { background:#ef4444; color:#fff; border-color:#ef4444; }
+                .track-step-info strong { display:block; font-size:.9rem; color:#1a1a1a; }
+                .track-step.completed .track-step-info strong { color:#22c55e; }
+                .track-step.active .track-step-info strong { color:#0066ff; }
+                .track-step.cancelled .track-step-info strong { color:#ef4444; }
+                .track-step-date { font-size:.75rem; color:#999; }
+                .track-modal-footer { padding:12px 24px 20px; text-align:right; }
+                .track-close-btn { padding:8px 24px; background:#1a1a1a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:.85rem; }
+                .track-close-btn:hover { background:#333; }
+                @keyframes pulseStep { 0%,100%{ box-shadow:0 0 0 0 rgba(0,102,255,.3); } 50%{ box-shadow:0 0 0 8px rgba(0,102,255,0); } }
+            `;
+            document.head.appendChild(style);
+        }
+
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
     };
     
     window.reorderItems = function(orderId) {
@@ -1377,19 +2569,117 @@
         if (order) {
             // Add items to cart
             const cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+            let itemsAdded = 0;
+            
             order.items.forEach(item => {
-                const existing = cart.find(c => c.name === item.name);
+                const existing = cart.find(c => c.name === item.name || c.productId === item.productId);
                 if (existing) {
                     existing.quantity += item.quantity || 1;
                 } else {
-                    cart.push({ ...item });
+                    cart.push({
+                        ...item,
+                        productId: item.productId || item.id,
+                        quantity: item.quantity || 1,
+                        addedAt: new Date().toISOString()
+                    });
                 }
+                itemsAdded++;
             });
+            
             localStorage.setItem('69shop_cart', JSON.stringify(cart));
-            alert('Items added to cart!');
-            window.location.href = '/shop.html';
+            
+            // Show nice toast notification
+            showReorderToast(itemsAdded, order.id);
         }
     };
+    
+    function showReorderToast(itemCount, orderId) {
+        // Remove existing toast if any
+        const existingToast = document.querySelector('.reorder-toast');
+        if (existingToast) existingToast.remove();
+        
+        const toast = document.createElement('div');
+        toast.className = 'reorder-toast';
+        toast.innerHTML = `
+            <div class="reorder-toast-content">
+                <i class="fas fa-check-circle"></i>
+                <div class="reorder-toast-text">
+                    <strong>${itemCount} item${itemCount > 1 ? 's' : ''} added to cart</strong>
+                    <span>From order #${orderId}</span>
+                </div>
+                <a href="/shop.html" class="btn-goto-cart">Go to Cart</a>
+            </div>
+        `;
+        
+        // Add toast styles
+        if (!document.getElementById('reorderToastStyles')) {
+            const style = document.createElement('style');
+            style.id = 'reorderToastStyles';
+            style.textContent = `
+                .reorder-toast {
+                    position: fixed;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%);
+                    color: white;
+                    padding: 16px 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                    z-index: 10000;
+                    animation: slideUpToast 0.3s ease-out;
+                }
+                @keyframes slideUpToast {
+                    from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+                .reorder-toast-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .reorder-toast-content > i {
+                    font-size: 24px;
+                    color: #10b981;
+                }
+                .reorder-toast-text {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }
+                .reorder-toast-text strong {
+                    font-size: 14px;
+                }
+                .reorder-toast-text span {
+                    font-size: 12px;
+                    opacity: 0.7;
+                }
+                .btn-goto-cart {
+                    background: var(--blue-primary, #0066ff);
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    text-decoration: none;
+                    font-size: 13px;
+                    font-weight: 500;
+                    margin-left: 8px;
+                    white-space: nowrap;
+                }
+                .btn-goto-cart:hover {
+                    background: #0052cc;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(toast);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            toast.style.animation = 'slideUpToast 0.3s ease-out reverse';
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
     
     window.cancelOrder = async function(orderId) {
         if (!confirm('Are you sure you want to cancel this order?')) return;
@@ -1398,7 +2688,13 @@
             if (db) {
                 await db.collection('orders').doc(orderId).update({
                     status: 'cancelled',
-                    cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+                    cancelledAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    'statusTimestamps.cancelled': new Date().toISOString(),
+                    statusHistory: firebase.firestore.FieldValue.arrayUnion({
+                        status: 'cancelled',
+                        timestamp: new Date().toISOString(),
+                        updatedBy: 'customer'
+                    })
                 });
             }
             
@@ -1453,7 +2749,7 @@
                 const ratingStars = product.rating ? '⭐'.repeat(Math.round(product.rating)) : '';
                 return `
                     <div class="wishlist-item">
-                        <img src="${product.image || '/Logo/placeholder.png'}" alt="${product.name}" onerror="this.src='/Logo/placeholder.png'">
+                        <img src="${product.image || '/Logo/placeholder.svg'}" alt="${product.name}" onerror="this.src='/Logo/placeholder.svg'">
                         <div class="wishlist-item-info">
                             <span class="item-brand">${product.brand || product.seller || ''}</span>
                             <span class="item-name">${product.name}</span>
@@ -1500,7 +2796,7 @@
         
         // Update stats
         state.insights.wishlistItems = wishlist.length;
-        renderSection(state.activeSection);
+        renderSection(state.currentSection);
     };
     
     window.addWishlistToCart = function(productId) {
@@ -1541,29 +2837,115 @@
             return;
         }
         
-        const cartItems = cart.slice(0, 5).map(item => `
-            <div class="cart-item">
-                <img src="${item.image || '/Logo/placeholder.png'}" alt="${item.name}" onerror="this.src='/Logo/placeholder.png'">
+        // Track how many items to show
+        let itemsToShow = window.cartItemsVisible || 5;
+        const visibleCart = cart.slice(0, itemsToShow);
+        
+        const cartItems = visibleCart.map((item, index) => `
+            <div class="cart-item" data-index="${index}">
+                <img src="${item.image || '/Logo/placeholder.svg'}" alt="${item.name}" onerror="this.src='/Logo/placeholder.svg'">
                 <div class="cart-item-info">
                     <span class="item-name">${item.name}</span>
                     <span class="item-qty">Qty: ${item.quantity || 1}</span>
                 </div>
                 <span class="item-price">₹${((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}</span>
+                <button class="cart-item-remove" onclick="removeCartItem(${index})" title="Remove item">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         `).join('');
         
         const total = cart.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
         
-        container.innerHTML = cartItems + `
+        // Check for applied offers/coupons
+        const appliedOffer = localStorage.getItem('69shop_applied_offer');
+        let offerHtml = '';
+        let discountAmount = 0;
+        
+        if (appliedOffer) {
+            try {
+                const offer = JSON.parse(appliedOffer);
+                if (offer.type === 'percentage') {
+                    discountAmount = Math.round(total * (offer.value / 100));
+                } else if (offer.type === 'fixed') {
+                    discountAmount = offer.value;
+                }
+                offerHtml = `
+                    <div class="cart-offer-applied">
+                        <div class="offer-info">
+                            <i class="fas fa-tag"></i>
+                            <span><strong>${offer.code}</strong> - ${offer.description || 'Discount applied'}</span>
+                        </div>
+                        <span class="offer-discount">-₹${discountAmount.toLocaleString('en-IN')}</span>
+                        <button class="remove-offer-btn" onclick="removeAppliedOffer()"><i class="fas fa-times"></i></button>
+                    </div>
+                `;
+            } catch (e) {
+                console.log('Error parsing offer:', e);
+            }
+        }
+        
+        const finalTotal = Math.max(0, total - discountAmount);
+        
+        container.innerHTML = cartItems + offerHtml + `
             <div class="cart-total">
-                <strong>Total: ₹${total.toLocaleString('en-IN')}</strong>
+                ${discountAmount > 0 ? `<span class="original-total">Subtotal: ₹${total.toLocaleString('en-IN')}</span>` : ''}
+                <strong>Total: ₹${finalTotal.toLocaleString('en-IN')}</strong>
             </div>
         `;
         
-        if (cart.length > 5) {
-            container.innerHTML += `<p class="more-items">+${cart.length - 5} more items</p>`;
+        // Show "Load More" button if there are more items
+        if (cart.length > itemsToShow) {
+            container.innerHTML += `
+                <button class="cart-load-more-btn" onclick="loadMoreCartItems()">
+                    <i class="fas fa-chevron-down"></i> Show ${Math.min(5, cart.length - itemsToShow)} more items (${cart.length - itemsToShow} remaining)
+                </button>
+            `;
+        } else if (cart.length > 5 && itemsToShow >= cart.length) {
+            // Show "Show Less" option if expanded
+            container.innerHTML += `
+                <button class="cart-show-less-btn" onclick="showLessCartItems()">
+                    <i class="fas fa-chevron-up"></i> Show less
+                </button>
+            `;
         }
     }
+    
+    // Load more cart items
+    window.loadMoreCartItems = function() {
+        window.cartItemsVisible = (window.cartItemsVisible || 5) + 5;
+        loadCartPreview();
+    };
+    
+    // Show less cart items
+    window.showLessCartItems = function() {
+        window.cartItemsVisible = 5;
+        loadCartPreview();
+        // Scroll back to cart section
+        const cartPreview = document.getElementById('cartPreview');
+        if (cartPreview) {
+            cartPreview.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+    
+    // Remove single cart item
+    window.removeCartItem = function(index) {
+        const cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+        if (index >= 0 && index < cart.length) {
+            cart.splice(index, 1);
+            localStorage.setItem('69shop_cart', JSON.stringify(cart));
+            loadCartPreview();
+            // Update insights
+            state.insights.cartItems = cart.length;
+            state.insights.cartValue = cart.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+        }
+    };
+    
+    // Remove applied offer
+    window.removeAppliedOffer = function() {
+        localStorage.removeItem('69shop_applied_offer');
+        loadCartPreview();
+    };
     
     // ===== ADDRESSES FUNCTIONALITY =====
     let userAddresses = [];
@@ -1853,7 +3235,25 @@
         }
     });
 
+    let authResolved = false;
+
+    // Timeout: if auth doesn't resolve in 6s, show fallback
+    setTimeout(() => {
+        if (!authResolved) {
+            console.warn('Auth state not resolved in 6s — check authDomain or connectivity.');
+            const nameEl = document.getElementById('profileName');
+            const emailEl = document.getElementById('profileEmail');
+            if (nameEl && nameEl.textContent === 'Welcome back') {
+                nameEl.textContent = 'Session Expired';
+            }
+            if (emailEl && emailEl.textContent === 'Loading profile\u2026') {
+                emailEl.textContent = 'Please log in again';
+            }
+        }
+    }, 6000);
+
     auth.onAuthStateChanged(async (user) => {
+        authResolved = true;
         if (!user) {
             window.location.href = '/shop-login.html';
             return;
@@ -1885,7 +3285,7 @@
     function updateUserCard(data) {
         const nameEl = document.getElementById('profileName');
         const emailEl = document.getElementById('profileEmail');
-        const avatarEl = document.getElementById('profileAvatar');
+        const stripAvatar = document.getElementById('stripAvatar');
         const safeName = data?.name || 'Valued Customer';
         const safeEmail = data?.email || 'support@69shop.in';
         const photoURL = data?.photoURL || '';
@@ -1900,34 +3300,73 @@
         if (nameEl) nameEl.textContent = safeName;
         if (emailEl) emailEl.textContent = safeEmail;
 
-        if (avatarEl) {
+        // Update strip avatar
+        if (stripAvatar) {
             if (photoURL) {
-                avatarEl.classList.add('has-photo');
-                avatarEl.style.backgroundImage = `url('${photoURL}')`;
-                avatarEl.textContent = '';
+                stripAvatar.classList.add('has-photo');
+                stripAvatar.style.backgroundImage = `url('${photoURL}')`;
+                stripAvatar.textContent = '';
             } else {
-                avatarEl.classList.remove('has-photo');
-                avatarEl.style.backgroundImage = '';
-                avatarEl.textContent = safeName.charAt(0).toUpperCase();
+                stripAvatar.classList.remove('has-photo');
+                stripAvatar.style.backgroundImage = '';
+                stripAvatar.textContent = safeName.charAt(0).toUpperCase();
+            }
+        }
+
+        // Update hero/stats (hidden IDs still exist for backward compat)
+        const heroName = document.getElementById('heroName');
+        const heroEmail = document.getElementById('heroEmail');
+        const heroAvatar = document.getElementById('heroAvatar');
+        const heroWishlist = document.getElementById('heroWishlist');
+        const heroOrders = document.getElementById('heroOrders');
+        const heroPoints = document.getElementById('heroPoints');
+
+        if (heroName) heroName.textContent = safeName;
+        if (heroEmail) heroEmail.textContent = safeEmail;
+        if (heroWishlist) {
+            const wl = JSON.parse(localStorage.getItem('69shop_wishlist') || '[]');
+            heroWishlist.textContent = String(wl.length);
+        }
+        if (heroOrders) heroOrders.textContent = String(state.insights.ordersOpen || 0);
+        if (heroPoints) heroPoints.textContent = String(state.insights.rewardsPoints || 0);
+
+        if (heroAvatar) {
+            if (photoURL) {
+                heroAvatar.classList.add('has-photo');
+                heroAvatar.style.backgroundImage = `url('${photoURL}')`;
+                heroAvatar.textContent = '';
+            } else {
+                heroAvatar.classList.remove('has-photo');
+                heroAvatar.style.backgroundImage = '';
+                heroAvatar.textContent = safeName.charAt(0).toUpperCase();
             }
         }
     }
 
-    document.getElementById('profileLogoutBtn').addEventListener('click', async () => {
-        try {
-            await auth.signOut();
-            window.location.href = '/';
-        } catch (error) {
-            alert('Unable to logout right now. Please try again.');
-        }
-    });
-
-    document.getElementById('continueShoppingBtn').addEventListener('click', () => {
-        window.location.href = '/shop.html';
-    });
+    // Guard: shared-header.js may replace these buttons
+    const _logoutBtn = document.getElementById('profileLogoutBtn');
+    const _shopBtn = document.getElementById('continueShoppingBtn');
+    if (_logoutBtn) {
+        _logoutBtn.addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                window.location.href = '/';
+            } catch (error) {
+                alert('Unable to logout right now. Please try again.');
+            }
+        });
+    }
+    if (_shopBtn) {
+        _shopBtn.addEventListener('click', () => {
+            window.location.href = '/shop.html';
+        });
+    }
 
     const initialParams = new URLSearchParams(window.location.search);
-    renderSection(initialParams.get('section') || 'dashboard');
+    const initialSection = initialParams.get('section');
+    if (initialSection && initialSection !== 'dashboard') {
+        openSection(initialSection);
+    }
 
     window.handleProfileLogoClick = function(event) {
         if (!event) return;
@@ -2188,7 +3627,8 @@
                     .invoice-footer-section { margin-top: 40px; text-align: center; color: #666; }
                     .invoice-note { font-size: 0.9em; }
                 </style>
-            </head>
+                <link rel="stylesheet" href="assets/css/design-system.css">
+</head>
             <body>${printContent}</body>
             </html>
         `);
@@ -2265,10 +3705,459 @@
             }
         });
     });
+
+    // ===== MOBILE SIDEBAR TOGGLE =====
+    const profileMobileMenuToggle = document.getElementById('profileMobileMenuToggle');
+    const profileSidebar = document.getElementById('profileSidebar');
+    const profileSidebarOverlay = document.getElementById('profileSidebarOverlay');
+    const profileSidebarClose = document.getElementById('profileSidebarClose');
+
+    function openProfileSidebarMobile() {
+        profileSidebar?.classList.add('active');
+        profileSidebarOverlay?.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeProfileSidebarMobile() {
+        profileSidebar?.classList.remove('active');
+        profileSidebarOverlay?.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    profileMobileMenuToggle?.addEventListener('click', openProfileSidebarMobile);
+    profileSidebarClose?.addEventListener('click', closeProfileSidebarMobile);
+    profileSidebarOverlay?.addEventListener('click', closeProfileSidebarMobile);
+
+    // Close sidebar when clicking a nav link on mobile
+    document.querySelectorAll('.profile-nav a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                closeProfileSidebarMobile();
+            }
+        });
+    });
+    
+    // ===== GLOBAL NAVIGATION HELPER =====
+    // Use this to navigate between profile sections from anywhere in the page
+    window.navigateToSection = function(sectionName) {
+        openSection(sectionName);
+    };
+
+    // ===== MOBILE BOTTOM NAV ACTIVE STATE =====
+    function updateMobileBottomNav() {
+        const navItems = document.querySelectorAll('.profile-bottom-nav .mobile-nav-item');
+        const section = new URLSearchParams(window.location.search).get('section') || 'dashboard';
+        navItems.forEach(item => {
+            const target = item.getAttribute('data-nav');
+            item.classList.toggle('active', target === section);
+        });
+    }
+    
+    document.querySelectorAll('.profile-bottom-nav .mobile-nav-item[data-nav]').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const section = this.getAttribute('data-nav');
+            if (section) {
+                if (section === 'dashboard') {
+                    backToGrid();
+                } else {
+                    openSection(section);
+                }
+                updateMobileBottomNav();
+            }
+        });
+    });
+    
+    // Initialize bottom nav state
+    updateMobileBottomNav();
+
+    // ===== MESSAGES SECTION ─ LOAD FROM FIRESTORE =====
+    function loadUserMessages() {
+        const loading = document.getElementById('messagesLoading');
+        const list = document.getElementById('messagesList');
+        const empty = document.getElementById('noMessages');
+        if (!loading || !list) return;
+
+        if (!db || !auth || !auth.currentUser) {
+            if (loading) loading.style.display = 'none';
+            if (empty) empty.style.display = 'flex';
+            return;
+        }
+
+        db.collection('service_messages')
+            .where('userId', '==', auth.currentUser.uid)
+            .orderBy('lastMessageAt', 'desc')
+            .limit(20)
+            .get()
+            .then(snap => {
+                if (loading) loading.style.display = 'none';
+                if (snap.empty) {
+                    if (empty) empty.style.display = 'flex';
+                    return;
+                }
+                list.style.display = 'block';
+                list.innerHTML = '';
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const time = d.lastMessageAt ? new Date(d.lastMessageAt.toDate()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+                    const initial = (d.provider || 'S').charAt(0).toUpperCase();
+                    list.innerHTML += `
+                        <div class="message-thread-item" data-type="${d.service ? 'services' : 'sellers'}">
+                            <div class="thread-avatar">${initial}</div>
+                            <div class="thread-info">
+                                <div class="thread-header-row">
+                                    <strong>${escapeHtml(d.provider || d.service || 'Provider')}</strong>
+                                    <span class="thread-time">${time}</span>
+                                </div>
+                                <span class="thread-service">${escapeHtml(d.service || 'General')}</span>
+                                <p class="thread-preview">${escapeHtml(d.lastMessage || 'No messages yet')}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            })
+            .catch(err => {
+                console.warn('Messages load error:', err);
+                if (loading) loading.style.display = 'none';
+                if (empty) empty.style.display = 'flex';
+            });
+    }
+
+    function filterMessages(type, btn) {
+        document.querySelectorAll('.msg-filter-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        const items = document.querySelectorAll('.message-thread-item');
+        items.forEach(item => {
+            if (type === 'all') { item.style.display = ''; return; }
+            if (type === 'unread') { item.style.display = ''; return; }
+            item.style.display = item.dataset.type === type ? '' : 'none';
+        });
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text || '';
+        return div.innerHTML;
+    }
+
+    // ===== NOTIFICATIONS SECTION =====
+    function loadUserNotifications() {
+        const loading = document.getElementById('notificationsLoading');
+        const feed = document.getElementById('notificationsFeed');
+        const empty = document.getElementById('noNotifications');
+        if (!loading || !feed) return;
+
+        // Generate sample notifications based on user activity
+        setTimeout(() => {
+            if (loading) loading.style.display = 'none';
+            const notifs = [
+                { type: 'order', icon: 'fa-truck', color: '#3B82F6', title: 'Order Update', text: 'Your recent order has been confirmed and is being prepared for shipment.', time: 'Just now', unread: true },
+                { type: 'promo', icon: 'fa-tag', color: '#D97706', title: 'Exclusive Offer', text: 'Flash sale! Extra 15% off on jewellery collection — ends tonight.', time: '2 hours ago', unread: true },
+                { type: 'security', icon: 'fa-shield-alt', color: '#10B981', title: 'Security Alert', text: 'New login detected from your device. If this was you, no action needed.', time: 'Yesterday', unread: false },
+                { type: 'service', icon: 'fa-concierge-bell', color: '#8B5CF6', title: 'Service Update', text: 'Your saree pre-pleating booking has been confirmed by Priya Ravi.', time: '2 days ago', unread: false },
+                { type: 'order', icon: 'fa-box', color: '#3B82F6', title: 'Delivery Complete', text: 'Your package has been delivered successfully. Rate your experience!', time: '3 days ago', unread: false },
+                { type: 'promo', icon: 'fa-gift', color: '#EC4899', title: 'Reward Points', text: 'You earned 150 reward points from your last purchase. Check your balance!', time: '1 week ago', unread: false }
+            ];
+            feed.innerHTML = notifs.map(n => `
+                <div class="notification-item ${n.unread ? 'unread' : ''}" data-notif-type="${n.type}">
+                    <div class="notif-icon" style="background: ${n.color}15; color: ${n.color};"><i class="fas ${n.icon}"></i></div>
+                    <div class="notif-content">
+                        <div class="notif-header-row">
+                            <strong>${n.title}</strong>
+                            <span class="notif-time">${n.time}</span>
+                        </div>
+                        <p>${n.text}</p>
+                    </div>
+                    ${n.unread ? '<span class="notif-dot"></span>' : ''}
+                </div>
+            `).join('');
+        }, 300);
+    }
+
+    function filterNotifications(type) {
+        const items = document.querySelectorAll('.notification-item');
+        items.forEach(item => {
+            item.style.display = (type === 'all' || item.dataset.notifType === type) ? '' : 'none';
+        });
+    }
+
+    function markAllNotificationsRead() {
+        document.querySelectorAll('.notification-item.unread').forEach(item => {
+            item.classList.remove('unread');
+            const dot = item.querySelector('.notif-dot');
+            if (dot) dot.remove();
+        });
+    }
+
+    // ===== REVIEWS SECTION =====
+    function setRating(star, rating) {
+        const container = star.closest('.review-stars-input');
+        const stars = container.querySelectorAll('i');
+        stars.forEach((s, i) => {
+            s.classList.toggle('active', i < rating);
+        });
+        // Show compose area
+        const compose = document.getElementById('reviewCompose');
+        const composeRating = document.getElementById('reviewComposeRating');
+        if (compose) {
+            compose.style.display = 'block';
+            composeRating.innerHTML = Array.from({length: 5}, (_, i) => 
+                `<i class="fas fa-star ${i < rating ? 'active' : ''}"></i>`
+            ).join('');
+        }
+    }
+
+    function cancelReview() {
+        const compose = document.getElementById('reviewCompose');
+        if (compose) compose.style.display = 'none';
+        document.querySelectorAll('.review-stars-input i').forEach(s => s.classList.remove('active'));
+    }
+
+    function submitReview() {
+        const text = document.getElementById('reviewText');
+        if (!text || !text.value.trim()) {
+            alert('Please write your review before submitting.');
+            return;
+        }
+        alert('Thank you! Your review has been submitted and will be published after verification.');
+        cancelReview();
+        if (text) text.value = '';
+    }
+
+    function filterReviews(tab, btn) {
+        document.querySelectorAll('.review-tab').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        const pending = document.getElementById('pendingReviewsSection');
+        const published = document.getElementById('publishedReviewsSection');
+        if (tab === 'pending') {
+            if (pending) pending.style.display = 'block';
+            if (published) published.style.display = 'none';
+        } else {
+            if (pending) pending.style.display = 'none';
+            if (published) published.style.display = 'block';
+        }
+    }
+
+    // ===== HELP SECTION =====
+    function toggleFaq(item) {
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(fi => fi.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+    }
+
+    function showAddPaymentModal() {
+        alert('Payment method management coming soon! Contact support@69shop.in for assistance.');
+    }
+
 </script>
+<script src="js/xss-sanitizer.js"></script>
+
+<!-- Mobile Bottom Nav -->
+<nav class="profile-bottom-nav" aria-label="Mobile navigation">
+    <a href="/" class="mobile-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/shop.html" class="mobile-nav-item"><i class="fas fa-store"></i><span>Shop</span></a>
+    <a href="#" class="mobile-nav-item" data-nav="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
+    <a href="#" class="mobile-nav-item" data-nav="orders"><i class="fas fa-shopping-bag"></i><span>Orders</span></a>
+    <a href="#" class="mobile-nav-item active" data-nav="settings"><i class="fas fa-cog"></i><span>Settings</span></a>
+</nav>
 
 <!-- Profile Enhancements -->
 <script src="js/profile-enhancements.js"></script>
+<!-- Loyalty Rewards System -->
+<script src="js/loyalty-rewards.js"></script>
+<!-- Price Drop Alerts -->
+<script src="js/price-drop-alerts.js"></script>
+<script>
+async function loadProfilePriceAlerts() {
+    const container = document.getElementById('priceAlertsContainer');
+    if (!container) return;
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        container.innerHTML = '<div class="price-alerts-empty"><i class="fas fa-sign-in-alt"></i><h4>Please log in</h4><p>Sign in to view your price alerts</p></div>';
+        return;
+    }
+
+    try {
+        if (typeof PriceAlerts !== 'undefined') {
+            PriceAlerts.init({ db: firebase.firestore() });
+        }
+
+        const alerts = await PriceAlerts.loadUserAlerts(user.uid);
+
+        // Update card stat counter
+        const countEl = document.getElementById('cardAlertsCount');
+        const activeCount = alerts.filter(a => a.status === 'active').length;
+        const triggeredCount = alerts.filter(a => a.status === 'triggered').length;
+        if (countEl) countEl.textContent = String(activeCount);
+
+        // Update section stats
+        if (state && state.insights) {
+            state.insights.priceAlertsActive = activeCount;
+            state.insights.priceAlertsTriggered = triggeredCount;
+        }
+
+        if (alerts.length === 0) {
+            container.innerHTML = `
+                <div class="price-alerts-empty">
+                    <i class="fas fa-bell-slash"></i>
+                    <h4>No price alerts yet</h4>
+                    <p>Set price alerts on product pages to track price drops</p>
+                    <a href="/shop.html" style="display:inline-block; margin-top:12px; padding:10px 20px; background:linear-gradient(135deg,#2563EB,#1D4ED8); color:#fff; border-radius:8px; text-decoration:none; font-weight:600; font-size:0.88rem;">Browse Products</a>
+                </div>
+            `;
+            return;
+        }
+
+        // Sort: triggered first, then active, then dismissed
+        alerts.sort((a, b) => {
+            const order = { triggered: 0, active: 1, dismissed: 2 };
+            return (order[a.status] || 3) - (order[b.status] || 3);
+        });
+
+        container.innerHTML = '<div class="price-alerts-list">' +
+            alerts.map(alert => PriceAlerts.renderAlertCard(alert)).join('') +
+            '</div>';
+    } catch (err) {
+        console.error('Failed to load price alerts:', err);
+        container.innerHTML = '<div class="price-alerts-empty"><i class="fas fa-exclamation-triangle"></i><h4>Failed to load alerts</h4><p>Please try again later</p></div>';
+    }
+}
+</script>
+<script src="js/referral-program.js"></script>
+<script>
+// Referral Program — Profile Section Integration
+async function loadReferralSection() {
+    if (typeof ReferralProgram === 'undefined') return;
+    if (!window.firebaseReady || !db || !auth?.currentUser) return;
+
+    ReferralProgram.init({ db: db, auth: auth });
+
+    try {
+        // Get or create referral code
+        var code = await ReferralProgram.getReferralCode();
+        var stats = await ReferralProgram.getStats();
+        var referralList = await ReferralProgram.getReferralList(20);
+
+        // Update card count
+        var cardCount = document.getElementById('cardReferralsCount');
+        if (cardCount) cardCount.textContent = stats.successfulReferrals || 0;
+
+        // Render referral code box
+        var codeBox = document.getElementById('referralCodeBox');
+        if (codeBox && code) {
+            var inviteLink = ReferralProgram.getInviteLink(code);
+            codeBox.innerHTML =
+                '<div class="referral-code-display">' +
+                    '<div class="referral-code-value">' +
+                        '<span class="referral-code-label">Your Code</span>' +
+                        '<span class="referral-code">' + code + '</span>' +
+                    '</div>' +
+                    '<div class="referral-link-field">' +
+                        '<input type="text" readonly value="' + inviteLink + '" id="referralLinkInput" class="referral-link-input">' +
+                        '<button class="referral-copy-btn" onclick="copyReferralLink()" title="Copy link"><i class="fas fa-copy"></i></button>' +
+                    '</div>' +
+                    '<div class="referral-share-buttons">' +
+                        '<button class="referral-share-btn whatsapp" onclick="shareReferralWhatsApp()">' +
+                            '<i class="fab fa-whatsapp"></i> WhatsApp' +
+                        '</button>' +
+                        '<button class="referral-share-btn share" onclick="shareReferralNative()">' +
+                            '<i class="fas fa-share-alt"></i> Share' +
+                        '</button>' +
+                        '<button class="referral-share-btn copy" onclick="copyReferralLink()">' +
+                            '<i class="fas fa-link"></i> Copy Link' +
+                        '</button>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        // Update milestone statuses
+        var successful = stats.successfulReferrals || 0;
+        var milestones = [5, 10, 25, 50];
+        milestones.forEach(function(m) {
+            var el = document.getElementById('milestone' + m);
+            if (el) {
+                if (successful >= m) {
+                    el.textContent = 'Achieved!';
+                    el.style.color = '#059669';
+                    el.style.fontWeight = '700';
+                } else {
+                    el.textContent = (m - successful) + ' more needed';
+                    el.style.color = '#9CA3AF';
+                }
+            }
+        });
+
+        // Render referral list
+        var listContainer = document.getElementById('referralListContainer');
+        if (listContainer && referralList.length > 0) {
+            listContainer.innerHTML = '<div class="referral-history-list">' +
+                referralList.map(function(ref) {
+                    var statusClass = ref.status === 'completed' ? 'completed' : 'pending';
+                    var statusText = ref.status === 'completed' ? 'Completed' : 'Pending';
+                    var statusIcon = ref.status === 'completed' ? 'fa-check-circle' : 'fa-clock';
+                    var dateStr = '';
+                    if (ref.createdAt) {
+                        var d = ref.createdAt.toDate ? ref.createdAt.toDate() : new Date(ref.createdAt);
+                        dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                    }
+                    return '<div class="referral-history-item">' +
+                        '<div class="referral-history-icon ' + statusClass + '"><i class="fas ' + statusIcon + '"></i></div>' +
+                        '<div class="referral-history-info">' +
+                            '<strong>Referral Invite</strong>' +
+                            '<span>' + dateStr + '</span>' +
+                        '</div>' +
+                        '<div class="referral-history-status">' +
+                            '<span class="referral-status-badge ' + statusClass + '">' + statusText + '</span>' +
+                            (ref.status === 'completed' ? '<span class="referral-reward">+₹' + ref.reward + '</span>' : '') +
+                        '</div>' +
+                    '</div>';
+                }).join('') +
+            '</div>';
+        }
+
+        // Update insights for stats display
+        if (window.insights) {
+            window.insights.referralTotal = stats.totalReferrals;
+            window.insights.referralSuccessful = stats.successfulReferrals;
+            window.insights.referralEarnings = stats.totalEarnings;
+        }
+    } catch (err) {
+        console.error('Failed to load referral data:', err);
+    }
+}
+
+function copyReferralLink() {
+    var input = document.getElementById('referralLinkInput');
+    if (input) {
+        input.select();
+        navigator.clipboard.writeText(input.value).then(function() {
+            showNotification('Referral link copied!', 'success');
+        }).catch(function() {
+            document.execCommand('copy');
+            showNotification('Referral link copied!', 'success');
+        });
+    }
+}
+
+function shareReferralWhatsApp() {
+    var input = document.getElementById('referralLinkInput');
+    if (!input) return;
+    var text = 'Join 69Shop.in with my referral link and get ₹50 off your first purchase! ' + input.value;
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+async function shareReferralNative() {
+    if (typeof ReferralProgram !== 'undefined') {
+        var stats = await ReferralProgram.getStats();
+        if (stats && stats.code) {
+            var shared = await ReferralProgram.shareInvite(stats.code);
+            if (shared) showNotification('Shared successfully!', 'success');
+        }
+    }
+}
+</script>
 </body>
 </html>
+
 

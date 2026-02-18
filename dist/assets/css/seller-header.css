@@ -12,13 +12,13 @@
     gap: 10px;
     padding: 6px 12px 6px 6px;
     border-radius: 999px;
-    background: var(--seller-primary-light, #EDE9FE);
+    background: rgba(255, 255, 255, 0.1);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .seller-user-menu:hover {
-    background: var(--seller-primary, #7C3AED);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .seller-user-menu:hover .seller-user-info strong {
@@ -29,8 +29,8 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--white, #fff);
-    color: var(--seller-primary, #7C3AED);
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
     font-weight: 600;
     font-size: 0.85rem;
     display: flex;
@@ -48,7 +48,7 @@
 
 .seller-user-info strong { 
     font-size: 0.85rem; 
-    color: var(--slate-900, #0F172A); 
+    color: #FFFFFF; 
     display: block;
     transition: color 0.2s ease;
     max-width: 120px;
@@ -59,7 +59,7 @@
 
 .seller-user-info span { 
     font-size: 0.75rem; 
-    color: var(--slate-500, #64748B); 
+    color: rgba(255, 255, 255, 0.6); 
 }
 
 .user-dropdown {
@@ -135,6 +135,13 @@
 .user-dropdown .logout:hover {
     background: #FEE2E2;
     color: var(--danger, #EF4444);
+}
+
+/* Disabled nav link (e.g. verified seller verification link) */
+.nav-link.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 /* Mobile adjustments */

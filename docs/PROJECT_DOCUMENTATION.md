@@ -719,6 +719,96 @@ Run in browser console on any page:
 
 ---
 
+### January 2025 - Phase 4: Scale Features
+
+#### Multi-Vendor Shipping System (`dist/js/shipping-manager.js`)
+- **Zone-based pricing**: Local, Regional, National, Remote zones
+- **Multiple providers**: Shiprocket, Delhivery, Manual shipping
+- **AWB Generation**: Automatic tracking number creation (69SXXXX format)
+- **Label printing**: HTML-based shipping labels with barcode support
+- **Shipment tracking**: Real-time status updates
+- **Multi-seller splitting**: Split orders by seller for separate shipments
+
+Key Features:
+```javascript
+// Calculate shipping rates
+const rates = await ShippingManager.getShippingRates(buyerPincode, items);
+
+// Create shipment with AWB
+const shipment = await ShippingManager.createShipment(orderId, sellerId, items, address);
+
+// Print shipping label
+await ShippingManager.printLabel(awbNumber);
+```
+
+#### Payment Splits Cloud Functions (`functions/payment-splits.js`)
+- **Automatic commission**: Category-based commission rates (5-15%)
+- **Seller wallets**: Track available and pending balances
+- **Withdrawal requests**: Min ₹500, ₹5 processing fee
+- **Refund handling**: Admin-managed refunds with seller deductions
+- **Daily reports**: Automated settlement summaries
+
+Functions Deployed:
+- `processOrderPayment` - Trigger on order delivery
+- `requestWithdrawal` - Seller callable function
+- `processWithdrawal` - Admin approve/reject
+- `getSellerWallet` - Get wallet details and history
+- `processRefund` - Admin refund processing
+- `dailySettlementReport` - Scheduled at 6 AM IST
+
+Commission Rates:
+| Category | Rate |
+|----------|------|
+| Electronics | 8% |
+| Fashion | 12% |
+| Groceries | 5% |
+| Services | 15% |
+| Beauty | 12% |
+| Books | 6% |
+| Default | 10% |
+
+#### Advanced Search & Recommendations (`dist/js/search-recommendations.js`)
+- **Full-text search**: Multi-field matching with relevance scoring
+- **Filters**: Price, rating, brand, category, discount
+- **Autocomplete**: Popular searches and product suggestions
+- **Personalized recommendations**: Based on browsing/purchase history
+- **Similar products**: Category and attribute matching
+- **Trending products**: Most viewed in last 7 days
+
+SearchEngine API:
+```javascript
+const search = new SearchEngine();
+
+// Search with filters
+const results = await search.search('phone', {
+    category: 'electronics',
+    priceMax: 20000,
+    minRating: 4
+});
+
+// Get recommendations
+const recommendations = await search.getRecommendations(userId);
+
+// Get similar products
+const similar = await search.getSimilarProducts(productId);
+
+// Get trending
+const trending = await search.getTrendingProducts(12);
+```
+
+#### New Firestore Collections
+- `sellerWallet/{sellerId}` - Seller balance tracking
+- `transactions/{transactionId}` - All financial transactions
+- `withdrawalRequests/{withdrawalId}` - Payout requests
+- `refunds/{refundId}` - Refund records
+- `platformEarnings/{earningId}` - Commission tracking
+- `dailyReports/{reportId}` - Settlement reports
+- `productViews/{viewId}` - View analytics
+- `shipments/{shipmentId}` - Shipping records
+- `awbTracking/{awbNumber}` - Tracking updates
+
+---
+
 ## Support & Contact
 
 - **Project**: 69Shop.in

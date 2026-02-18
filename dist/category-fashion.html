@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
+    <title>Fashion & Style - 69Shop.in</title>
+    <meta name="description" content="Shop trendy fashion products on 69Shop.in - Clothing, shoes, watches, accessories and more">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+    <script src="products-data.js"></script>
+    
+    <script>
+        let auth = null, db = null, firebaseReady = false;
+        try {
+            const cfg = window.firebaseConfig;
+            if (cfg && cfg.apiKey) { if (!firebase.apps.length) firebase.initializeApp(cfg); auth = firebase.auth(); db = firebase.firestore(); firebaseReady = true; }
+        } catch (e) { console.warn('Firebase init error:', e); }
+        window.firebaseReady = firebaseReady;
+    </script>
+
+    <link rel="stylesheet" href="assets/css/shop.css">
+    <link rel="stylesheet" href="assets/css/elite-shop.css">
+    <link rel="stylesheet" href="assets/css/elegant-shop.css">
+    <link rel="stylesheet" href="assets/css/shop-animations.css">
+    <link rel="stylesheet" href="assets/css/category-page.css">
+    <link rel="stylesheet" href="assets/css/premium-shop.css">
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon"><img src="/Logo/69shopc.png" alt="69Shop.in Logo" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    <div class="logo-text"><div class="site-name">69SHOP.IN</div><div class="tagline">Premium Marketplace</div></div>
+                </a>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+                <div class="search-container" id="searchContainer">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search fashion products..." autocomplete="off">
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="search-mobile-toggle" id="searchMobileToggle"><i class="fas fa-search"></i></button>
+                    <button class="wishlist-header-btn" id="wishlistBtn" onclick="window.location.href='/profile.html?section=wishlist'"><i class="fas fa-heart"></i><span class="wishlist-count" id="wishlistCount">0</span></button>
+                    <button class="cart-btn" id="cartBtn"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cartCount">0</span></button>
+                    <button type="button" class="user-profile-btn" id="userProfileBtn" onclick="openProfileSidebar(event)">
+                        <div class="user-avatar" id="userAvatar">G</div><span class="user-name" id="userName">Guest</span><i class="fas fa-chevron-down user-chevron"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Category Navigation -->
+    <nav class="category-nav">
+        <div class="container">
+            <button class="mobile-category-toggle" id="mobileCategoryToggle">
+                <i class="fas fa-tshirt"></i>
+                <span>Fashion</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="category-nav-inner" id="categoryNavInner">
+                <a href="/shop.html" class="category-nav-item"><i class="fas fa-store"></i> All</a>
+                <a href="/category-electronics.html" class="category-nav-item"><i class="fas fa-laptop"></i> Electronics</a>
+                <a href="/category-fashion.html" class="category-nav-item active"><i class="fas fa-tshirt"></i> Fashion</a>
+                <a href="/category-home.html" class="category-nav-item"><i class="fas fa-couch"></i> Home</a>
+                <a href="/category-beauty.html" class="category-nav-item"><i class="fas fa-spa"></i> Beauty</a>
+                <a href="/category-sports.html" class="category-nav-item"><i class="fas fa-running"></i> Sports</a>
+                <a href="/category-groceries.html" class="category-nav-item"><i class="fas fa-shopping-basket"></i> Groceries</a>
+                <a href="/category-books.html" class="category-nav-item"><i class="fas fa-book"></i> Books</a>
+                <a href="/category-toys.html" class="category-nav-item"><i class="fas fa-gamepad"></i> Toys</a>
+                <a href="/category-automotive.html" class="category-nav-item"><i class="fas fa-car"></i> Automotive</a>
+                <a href="/category-jewelry.html" class="category-nav-item"><i class="fas fa-gem"></i> Jewelry</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Category Hero -->
+    <section class="category-hero fashion-hero">
+        <div class="category-hero-overlay"></div>
+        <div class="container">
+            <div class="category-hero-content">
+                <span class="category-badge"><i class="fas fa-fire"></i> Trending Now</span>
+                <h1>Fashion & Style</h1>
+                <p>Discover the latest trends in clothing, footwear, and accessories. From casual wear to formal attire, find your perfect look.</p>
+                <div class="category-hero-stats">
+                    <div class="stat-item"><span class="stat-value" id="productCount">0</span><span class="stat-label">Products</span></div>
+                    <div class="stat-item"><span class="stat-value">50+</span><span class="stat-label">Brands</span></div>
+                    <div class="stat-item"><span class="stat-value">40%</span><span class="stat-label">Off Select Items</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Wrapper -->
+    <div class="category-page-wrapper">
+        <!-- Trending Section -->
+        <section class="category-section trending-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-title-wrap">
+                            <span class="section-icon"><i class="fas fa-fire"></i></span>
+                            <h2>Trending in Fashion</h2>
+                            <span class="hot-badge">HOT</span>
+                        </div>
+                        <p class="section-subtitle">Most popular picks this week</p>
+                    </div>
+                    <div class="section-header-right">
+                        <a href="/shop.html?category=fashion" class="section-view-all">View All <i class="fas fa-arrow-right"></i></a>
+                        <div class="section-nav-arrows">
+                            <button class="section-nav-btn" onclick="scrollTrending(-1)" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+                            <button class="section-nav-btn" onclick="scrollTrending(1)" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="trending-carousel" id="trendingCarousel"></div>
+            </div>
+        </section>
+
+        <!-- Filter Bar -->
+        <div class="category-filter-bar">
+            <div class="container">
+                <button class="mobile-filter-toggle" id="mobileFilterToggle">
+                    <span><i class="fas fa-filter"></i> Filters & Sorting</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="filter-bar-inner" id="filterBarInner">
+                    <div class="filter-group">
+                        <label>Sort by:</label>
+                        <select id="sortSelect" onchange="CategoryPage.sortProducts(this.value)">
+                            <option value="popular">Most Popular</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="newest">Newest First</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Price Range:</label>
+                        <select id="priceFilter" onchange="CategoryPage.filterByPrice(this.value)">
+                            <option value="all">All Prices</option>
+                            <option value="0-2000">Under ₹2,000</option>
+                            <option value="2000-5000">₹2,000 - ₹5,000</option>
+                            <option value="5000-10000">₹5,000 - ₹10,000</option>
+                            <option value="10000+">Above ₹10,000</option>
+                        </select>
+                    </div>
+                    <div class="filter-tags" id="subCategoryTags">
+                        <button class="filter-tag active" data-subcategory="all">All</button>
+                        <button class="filter-tag" data-subcategory="clothing">Clothing</button>
+                        <button class="filter-tag" data-subcategory="footwear">Footwear</button>
+                        <button class="filter-tag" data-subcategory="watches">Watches</button>
+                        <button class="filter-tag" data-subcategory="accessories">Accessories</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Products Section -->
+        <section class="category-section products-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-title-wrap">
+                        <span class="section-icon"><i class="fas fa-tshirt"></i></span>
+                        <h2>All Fashion Products</h2>
+                    </div>
+                    <span class="product-count-badge"><span id="filteredCount">0</span> items</span>
+                </div>
+                
+                <div class="products-grid" id="productsGrid"></div>
+                
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <div class="empty-state-icon"><i class="fas fa-tshirt"></i></div>
+                    <h3>No fashion products found</h3>
+                    <p>Try adjusting your filters or check back later for new arrivals.</p>
+                    <button class="btn-primary" onclick="CategoryPage.resetFilters()"><i class="fas fa-redo"></i> Reset Filters</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Brands Section -->
+        <section class="category-section brands-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-title-wrap">
+                        <span class="section-icon"><i class="fas fa-star"></i></span>
+                        <h2>Featured Brands</h2>
+                    </div>
+                </div>
+                <div class="brands-grid">
+                    <div class="brand-card"><div class="brand-logo">LEVI'S</div><span>Premium Denim</span></div>
+                    <div class="brand-card"><div class="brand-logo">NIKE</div><span>Athletic Wear</span></div>
+                    <div class="brand-card"><div class="brand-logo">H&M</div><span>Fast Fashion</span></div>
+                    <div class="brand-card"><div class="brand-logo">RAYMOND</div><span>Formal Wear</span></div>
+                    <div class="brand-card"><div class="brand-logo">FOSSIL</div><span>Watches</span></div>
+                    <div class="brand-card"><div class="brand-logo">RAY-BAN</div><span>Eyewear</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Promo Banner -->
+        <section class="category-section promo-banner-section">
+            <div class="container">
+                <div class="promo-banner">
+                    <div class="promo-content">
+                        <span class="promo-label"><i class="fas fa-gift"></i> Limited Offer</span>
+                        <h3>New Arrivals - Spring Collection 2026</h3>
+                        <p>Get up to 50% off on the latest spring collection. Use code SPRING50 at checkout.</p>
+                        <button class="promo-btn" onclick="document.getElementById('productsGrid').scrollIntoView({behavior: 'smooth'})">
+                            Shop Now <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="promo-image">
+                        <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=600&q=80" alt="Spring Collection">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header"><h3>Shopping Cart</h3><button class="close-cart" id="closeCart"><i class="fas fa-times"></i></button></div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer"><div class="cart-total"><span>Total:</span><span id="cartTotal">₹0</span></div><button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button></div>
+    </div>
+
+    <!-- Profile Sidebar -->
+    <div class="profile-overlay" id="profileOverlay"></div>
+    <div class="profile-sidebar" id="profileSidebar">
+        <div class="profile-header"><h3 class="profile-title">My Profile</h3><button class="close-profile" id="closeProfile"><i class="fas fa-times"></i></button></div>
+        <div class="profile-content">
+            <div class="profile-info"><div class="profile-avatar-large" id="profileAvatarLarge">G</div><h2 class="profile-name-large" id="profileNameLarge">Guest</h2><p class="profile-email" id="profileEmail">Not signed in</p></div>
+            <ul class="profile-menu">
+                <li><a href="/profile.html?section=dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
+                <li><a href="/profile.html?section=orders"><i class="fas fa-shopping-bag"></i><span>My Orders</span></a></li>
+                <li><a href="/profile.html?section=wishlist"><i class="fas fa-heart"></i><span>Wishlist</span></a></li>
+            </ul>
+            <div class="profile-actions"><button class="btn-login" id="loginBtn" onclick="window.location.href='/shop-login.html'"><i class="fas fa-sign-in-alt"></i> Sign In</button></div>
+        </div>
+    </div>
+
+    <!-- Quick View Modal -->
+    <div class="quick-view-overlay" id="quickViewOverlay"></div>
+    <div class="quick-view-modal" id="quickViewModal">
+        <button class="quick-view-close" id="quickViewClose"><i class="fas fa-times"></i></button>
+        <div class="quick-view-content" id="quickViewContent"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Categories</h4>
+                    <ul>
+                        <li><a href="/category-electronics.html">Electronics</a></li>
+                        <li><a href="/category-fashion.html">Fashion</a></li>
+                        <li><a href="/category-home.html">Home & Living</a></li>
+                        <li><a href="/category-beauty.html">Beauty</a></li>
+                        <li><a href="/category-sports.html">Sports & Fitness</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Track Order</a></li>
+                        <li><a href="#">Returns & Refunds</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>About 69Shop</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect With Us</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 69Shop.in. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="category-mobile-nav" id="categoryMobileNav" aria-label="Mobile navigation">
+        <div class="category-mobile-nav-items">
+            <a href="/shop.html" class="category-mobile-nav-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/shop.html#search" class="category-mobile-nav-item" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="javascript:void(0)" onclick="if(typeof CartDrawer!=='undefined')CartDrawer.toggle()" class="category-mobile-nav-item" aria-label="Cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Cart</span>
+                <span class="nav-badge" id="mobileCartCount">0</span>
+            </a>
+            <a href="/profile.html" class="category-mobile-nav-item" aria-label="Profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
+
+    <script src="js/category-page.js"></script>
+    <script src="js/premium-features.js"></script>
+    <script>
+        // Initialize category page
+        document.addEventListener('DOMContentLoaded', function() {
+            CategoryPage.init('fashion', ['clothing', 'footwear', 'watches', 'accessories', 'sunglasses']);
+            
+            // Update mobile cart count
+            const updateMobileCartCount = () => {
+                try {
+                    const cart = JSON.parse(localStorage.getItem('69shop_cart') || '[]');
+                    const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+                    const badge = document.getElementById('mobileCartCount');
+                    if (badge) {
+                        badge.textContent = count;
+                        badge.style.display = count > 0 ? 'flex' : 'none';
+                    }
+                } catch (e) {}
+            };
+            updateMobileCartCount();
+            window.addEventListener('storage', updateMobileCartCount);
+            
+            // Add scroll effect to nav
+            window.addEventListener('scroll', function() {
+                const nav = document.querySelector('.category-nav');
+                const filterBar = document.querySelector('.category-filter-bar');
+                if (window.scrollY > 100) {
+                    nav?.classList.add('scrolled');
+                    filterBar?.classList.add('scrolled');
+                } else {
+                    nav?.classList.remove('scrolled');
+                    filterBar?.classList.remove('scrolled');
+                }
+            });
+
+            // Mobile category toggle
+            const categoryToggle = document.getElementById('mobileCategoryToggle');
+            const categoryNavInner = document.getElementById('categoryNavInner');
+            if (categoryToggle && categoryNavInner) {
+                categoryToggle.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    categoryNavInner.classList.toggle('expanded');
+                });
+            }
+            
+            // Mobile filter toggle
+            const filterToggle = document.getElementById('mobileFilterToggle');
+            const filterBarInner = document.getElementById('filterBarInner');
+            if (filterToggle && filterBarInner) {
+                filterToggle.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    filterBarInner.classList.toggle('expanded');
+                });
+            }
+        });
+    </script>
+
+    <!-- Cart Drawer -->
+    <div id="cart-drawer"></div>
+    <script src="js/components/cart-drawer.js"></script>
+    <script>
+        if (typeof CartDrawer !== 'undefined') {
+            CartDrawer.init({ containerId: 'cart-drawer' });
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

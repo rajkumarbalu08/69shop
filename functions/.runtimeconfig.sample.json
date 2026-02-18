@@ -1,0 +1,30 @@
+{
+  "_comment": "SAMPLE RUNTIME CONFIG - Copy to .runtimeconfig.json and fill in real values",
+  "_note": ".runtimeconfig.json is used by Firebase emulators for local development",
+  
+  "mail": {
+    "host": "smtp.gmail.com",
+    "port": "465",
+    "secure": "true",
+    "user": "your-email@gmail.com",
+    "pass": "xxxx-xxxx-xxxx-xxxx",
+    "from": "69Shop.in <your-email@gmail.com>",
+    "to": "support@69shop.in"
+  },
+  
+  "razorpay": {
+    "key_id": "rzp_test_xxxxxxxxxxxx",
+    "key_secret": "xxxxxxxxxxxxxxxxxxxx",
+    "webhook_secret": "xxxxxxxxxxxxxxxxxxxx"
+  },
+  
+  "secrets": {
+    "mail_key": "your-32-character-encryption-key"
+  },
+  
+  "app": {
+    "name": "69Shop.in",
+    "url": "https://shop69-1.web.app",
+    "support_email": "support@69shop.in"
+  }
+}

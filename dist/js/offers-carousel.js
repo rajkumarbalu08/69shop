@@ -85,7 +85,7 @@
 
                 @keyframes pulse {
                     0%, 100% { transform: scale(1); }
-                    50% { transform: scale(1.02); }
+                    50% { transform: scale(1.01); }
                 }
 
                 .offers-badge i {
@@ -378,37 +378,6 @@
                     background: rgba(255, 255, 255, 0.5);
                 }
 
-                /* Floating Elements */
-                .offers-float {
-                    position: absolute;
-                    pointer-events: none;
-                    opacity: 0.1;
-                }
-
-                .offers-float-1 {
-                    top: 10%;
-                    left: 5%;
-                    font-size: 80px;
-                    animation: float1 6s ease-in-out infinite;
-                }
-
-                .offers-float-2 {
-                    bottom: 15%;
-                    right: 8%;
-                    font-size: 60px;
-                    animation: float2 8s ease-in-out infinite;
-                }
-
-                @keyframes float1 {
-                    0%, 100% { transform: translateY(0) rotate(0deg); }
-                    50% { transform: translateY(-20px) rotate(10deg); }
-                }
-
-                @keyframes float2 {
-                    0%, 100% { transform: translateY(0) rotate(0deg); }
-                    50% { transform: translateY(20px) rotate(-10deg); }
-                }
-
                 /* Mobile Responsive */
                 @media (max-width: 768px) {
                     .offers-section {
@@ -500,9 +469,6 @@
             section.className = 'offers-section';
             section.id = 'offersSection';
             section.innerHTML = `
-                <div class="offers-float offers-float-1">🎁</div>
-                <div class="offers-float offers-float-2">⚡</div>
-                
                 <div class="offers-container">
                     <div class="offers-header">
                         <span class="offers-badge">
@@ -547,7 +513,7 @@
             return `
                 <div class="offer-card" data-index="${index}" data-product-id="${offer.id}">
                     <div class="offer-image">
-                        <img src="${offer.image}" alt="${offer.name}" loading="lazy" onerror="this.src='/Logo/placeholder.png'">
+                        <img src="${offer.image}" alt="${offer.name}" loading="lazy" onerror="this.src='/Logo/placeholder.svg'">
                         <div class="offer-discount">-${offer.discount}%</div>
                         <div class="offer-timer">
                             <i class="fas fa-clock"></i>

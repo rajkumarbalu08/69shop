@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>69Shop.in — India's Premium Marketplace</title>
+    <meta name="description" content="69Shop.in — India's premium marketplace connecting buyers and sellers. Shop quality products or start selling your services today.">
+    <meta name="theme-color" content="#FFFFFF">
+    <link rel="icon" href="favicon.ico">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="./firebase-config.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+
+    <style>
+    /* ===== PAGE-SPECIFIC STYLES ===== */
+
+    /* ── HEADER / NAV ── */
+    .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        padding: var(--space-4) 0;
+        transition: all var(--t-normal);
+    }
+
+    .nav.scrolled {
+        background: rgba(10, 10, 15, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--glass-border);
+        padding: var(--space-3) 0;
+    }
+
+    .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        text-decoration: none;
+    }
+
+    .nav-logo-icon {
+        width: 40px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-logo-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .nav-logo-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .nav-logo-name {
+        font-family: var(--font-heading);
+        font-size: 1.2rem;
+        font-weight: 700;
+        background: var(--gradient-brand);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 0.02em;
+    }
+
+    .nav-logo-tagline {
+        font-size: 0.65rem;
+        color: var(--text-tertiary);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: var(--space-1);
+        list-style: none;
+    }
+
+    .nav-links a {
+        padding: var(--space-2) var(--space-4);
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: var(--radius-full);
+        transition: all var(--t-fast);
+        text-decoration: none;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    .nav-user {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    .nav-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--gradient-brand);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: white;
+    }
+
+    .nav-user-name {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .nav-user-name strong {
+        color: var(--text-primary);
+    }
+
+    .mobile-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 1.4rem;
+        cursor: pointer;
+        padding: var(--space-2);
+    }
+
+    /* ── HERO ── */
+    .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        padding-top: var(--header-height);
+    }
+
+    .hero-bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+    }
+
+    .hero-bg::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--gradient-hero);
+    }
+
+    .hero-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        animation: float 8s ease-in-out infinite;
+    }
+
+    .hero-orb-1 {
+        width: 600px;
+        height: 600px;
+        background: rgba(99, 102, 241, 0.15);
+        top: -200px;
+        right: -100px;
+        animation-delay: 0s;
+    }
+
+    .hero-orb-2 {
+        width: 400px;
+        height: 400px;
+        background: rgba(139, 92, 246, 0.12);
+        bottom: -100px;
+        left: -100px;
+        animation-delay: -3s;
+    }
+
+    .hero-orb-3 {
+        width: 300px;
+        height: 300px;
+        background: rgba(244, 63, 94, 0.08);
+        top: 40%;
+        left: 50%;
+        animation-delay: -5s;
+    }
+
+    .hero-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+        background-size: 60px 60px;
+        mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+        -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-16);
+        align-items: center;
+    }
+
+    .hero-text {
+        animation: fadeInUp 0.8s var(--ease-out) both;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-1) var(--space-4);
+        background: var(--accent-glow);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent-hover);
+        margin-bottom: var(--space-6);
+    }
+
+    .hero-label i { font-size: 0.65rem; }
+
+    .hero-title {
+        font-size: clamp(2.5rem, 5.5vw, 4.2rem);
+        font-weight: 800;
+        line-height: 1.08;
+        margin-bottom: var(--space-6);
+        letter-spacing: -0.03em;
+    }
+
+    .hero-desc {
+        font-size: 1.15rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        max-width: 500px;
+        margin-bottom: var(--space-8);
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: var(--space-4);
+        flex-wrap: wrap;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: var(--space-10);
+        margin-top: var(--space-10);
+        padding-top: var(--space-8);
+        border-top: 1px solid var(--glass-border);
+    }
+
+    .hero-stat-value {
+        font-family: var(--font-heading);
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: var(--gradient-brand);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-stat-label {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+        margin-top: var(--space-1);
+    }
+
+    .hero-visual {
+        position: relative;
+        animation: fadeInUp 0.8s var(--ease-out) 0.2s both;
+    }
+
+    .hero-image-wrapper {
+        position: relative;
+        border-radius: var(--radius-2xl);
+        overflow: hidden;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .hero-image-wrapper img {
+        width: 100%;
+        height: 480px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .hero-image-wrapper::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 50%, rgba(10, 10, 15, 0.6) 100%);
+    }
+
+    .hero-float-card {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.07);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        animation: float 6s ease-in-out infinite;
+        z-index: 2;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .hero-float-card-1 {
+        bottom: 30px;
+        left: -40px;
+        animation-delay: -2s;
+    }
+
+    .hero-float-card-2 {
+        top: 40px;
+        right: -30px;
+        animation-delay: -4s;
+    }
+
+    .float-card-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-sm);
+        background: var(--gradient-brand);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        color: white;
+        margin-bottom: var(--space-2);
+    }
+
+    .float-card-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .float-card-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--accent-hover);
+    }
+
+    /* ── MARQUEE ── */
+    .marquee-section {
+        padding: var(--space-4) 0;
+        background: var(--surface-raised);
+        border-top: 1px solid var(--glass-border);
+        border-bottom: 1px solid var(--glass-border);
+        overflow: hidden;
+    }
+
+    .marquee-track {
+        display: flex;
+        gap: var(--space-10);
+        animation: scrollMarquee 40s linear infinite;
+        width: max-content;
+    }
+
+    .marquee-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .marquee-badge {
+        padding: var(--space-1) var(--space-3);
+        border-radius: var(--radius-full);
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .marquee-badge-hot { background: rgba(244,63,94,0.15); color: var(--accent-rose); border: 1px solid rgba(244,63,94,0.3); }
+    .marquee-badge-new { background: rgba(16,185,129,0.15); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.3); }
+    .marquee-badge-top { background: rgba(245,158,11,0.15); color: var(--accent-amber); border: 1px solid rgba(245,158,11,0.3); }
+    .marquee-badge-trend { background: rgba(6,182,212,0.15); color: var(--accent-cyan); border: 1px solid rgba(6,182,212,0.3); }
+
+    .marquee-text { font-size: 0.85rem; color: var(--text-secondary); }
+
+    @keyframes scrollMarquee {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+    }
+
+    .marquee-section:hover .marquee-track { animation-play-state: paused; }
+
+    /* ── FEATURES ── */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+    }
+
+    .feature-card { padding: var(--space-8); position: relative; overflow: hidden; }
+
+    .feature-icon {
+        width: 56px; height: 56px;
+        border-radius: var(--radius-lg);
+        background: var(--accent-glow);
+        border: 1px solid rgba(99,102,241,0.25);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; color: var(--accent-hover);
+        margin-bottom: var(--space-6);
+        transition: all var(--t-normal);
+    }
+
+    .feature-card:hover .feature-icon {
+        background: var(--gradient-brand); color: white;
+        box-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    .feature-card h3 { margin-bottom: var(--space-3); font-size: 1.15rem; }
+    .feature-card p { color: var(--text-secondary); font-size: 0.92rem; line-height: 1.7; }
+
+    /* ── CATEGORIES ── */
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-4);
+    }
+
+    .category-card {
+        position: relative; border-radius: var(--radius-xl); overflow: hidden;
+        text-decoration: none; border: 1px solid var(--glass-border);
+        transition: all var(--t-normal); aspect-ratio: 4/3;
+    }
+
+    .category-card img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform var(--t-slow);
+    }
+
+    .category-card:hover img { transform: scale(1.08); }
+
+    .category-card::after {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(180deg, transparent 30%, rgba(10,10,15,0.85) 100%);
+        transition: all var(--t-normal);
+    }
+
+    .category-card:hover::after {
+        background: linear-gradient(180deg, transparent 20%, rgba(99,102,241,0.6) 100%);
+    }
+
+    .category-info {
+        position: absolute; bottom: 0; left: 0; right: 0;
+        padding: var(--space-6); z-index: 1;
+    }
+
+    .category-info i { font-size: 1.5rem; color: var(--accent-hover); margin-bottom: var(--space-2); }
+    .category-info h3 { color: white; font-size: 1.15rem; margin-bottom: var(--space-1); }
+    .category-info span { font-size: 0.8rem; color: rgba(255,255,255,0.7); }
+
+    .category-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent-primary);
+        box-shadow: var(--shadow-lg), 0 0 40px var(--accent-glow);
+    }
+
+    /* ── TRENDING ── */
+    .trending-header {
+        display: flex; align-items: flex-end; justify-content: space-between;
+        margin-bottom: var(--space-8);
+    }
+
+    .trending-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5);
+    }
+
+    .product-card-v2 { border-radius: var(--radius-xl); overflow: hidden; position: relative; }
+
+    .product-card-v2 .product-image { position: relative; aspect-ratio: 1; overflow: hidden; }
+
+    .product-card-v2 .product-image img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform var(--t-slow);
+    }
+
+    .product-card-v2:hover .product-image img { transform: scale(1.06); }
+
+    .product-card-v2 .product-badge { position: absolute; top: var(--space-3); left: var(--space-3); z-index: 2; }
+
+    .product-card-v2 .product-body { padding: var(--space-4) var(--space-5); }
+
+    .product-card-v2 .product-title {
+        font-size: 0.95rem; font-weight: 600; color: var(--text-primary);
+        margin-bottom: var(--space-2);
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    .product-price-row { display: flex; align-items: baseline; gap: var(--space-2); margin-bottom: var(--space-2); }
+    .price-current { font-size: 1.1rem; font-weight: 700; color: var(--accent-hover); }
+    .price-original { font-size: 0.8rem; color: var(--text-tertiary); text-decoration: line-through; }
+
+    .product-meta { display: flex; align-items: center; gap: var(--space-4); font-size: 0.78rem; color: var(--text-tertiary); }
+    .product-meta i { margin-right: var(--space-1); }
+    .product-meta .fire { color: var(--accent-rose); }
+    .product-meta .star { color: var(--accent-amber); }
+
+    /* ── STEPS ── */
+    .steps-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-8); position: relative;
+    }
+
+    .steps-grid::before {
+        content: ''; position: absolute; top: 50px; left: 15%; right: 15%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--accent-primary), var(--accent-violet), transparent);
+        opacity: 0.3;
+    }
+
+    .step-card { text-align: center; position: relative; z-index: 1; }
+
+    .step-number {
+        width: 64px; height: 64px; border-radius: 50%;
+        background: var(--gradient-brand);
+        display: flex; align-items: center; justify-content: center;
+        font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; color: white;
+        margin: 0 auto var(--space-6);
+        box-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    .step-card h3 { margin-bottom: var(--space-3); }
+    .step-card p { color: var(--text-secondary); font-size: 0.92rem; line-height: 1.7; max-width: 280px; margin: 0 auto; }
+
+    /* ── GALLERY ── */
+    .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+
+    .gallery-column-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6); }
+
+    .gallery-column-header .icon-circle {
+        width: 40px; height: 40px; border-radius: 50%;
+        background: var(--gradient-brand);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.85rem; color: white;
+    }
+
+    .gallery-column-header h3 { margin-bottom: 0; }
+    .gallery-column-header p { color: var(--text-tertiary); font-size: 0.8rem; }
+
+    .mini-products { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+
+    .mini-product { border-radius: var(--radius-lg); overflow: hidden; transition: all var(--t-normal); }
+    .mini-product:hover { transform: translateY(-3px); }
+    .mini-product img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+    .mini-product-body { padding: var(--space-3) var(--space-4); }
+    .mini-product-body h4 { font-size: 0.85rem; margin-bottom: var(--space-1); }
+    .mini-product-body .price { color: var(--accent-hover); font-weight: 600; font-size: 0.9rem; }
+    .mini-product-body .seller { font-size: 0.72rem; color: var(--text-tertiary); margin-top: var(--space-1); }
+
+    .providers-list { display: flex; flex-direction: column; gap: var(--space-4); }
+
+    .provider-row {
+        display: flex; align-items: center; gap: var(--space-4);
+        padding: var(--space-4); border-radius: var(--radius-lg);
+        transition: all var(--t-normal);
+    }
+
+    .provider-row:hover { background: rgba(99,102,241,0.06); }
+
+    .provider-avatar {
+        width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
+        border: 2px solid var(--glass-border); flex-shrink: 0;
+    }
+
+    .provider-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .provider-info { flex: 1; }
+    .provider-info h4 { font-size: 0.95rem; margin-bottom: var(--space-1); }
+    .provider-info .category { font-size: 0.78rem; color: var(--accent-hover); }
+    .provider-rating { display: flex; align-items: center; gap: var(--space-1); font-size: 0.75rem; color: var(--accent-amber); }
+    .provider-location { font-size: 0.72rem; color: var(--text-tertiary); }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+    .testimonial-card { padding: var(--space-8); }
+    .testimonial-stars { display: flex; gap: var(--space-1); margin-bottom: var(--space-4); color: var(--accent-amber); font-size: 0.85rem; }
+    .testimonial-text { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-6); font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: var(--space-3); }
+    .testimonial-author img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--glass-border); }
+    .testimonial-author h4 { font-size: 0.9rem; margin-bottom: 0; }
+    .testimonial-author p { font-size: 0.75rem; color: var(--text-tertiary); }
+
+    /* ── CTA ── */
+    .cta-section { position: relative; overflow: hidden; }
+
+    .cta-inner {
+        text-align: center; padding: var(--space-16) var(--space-8);
+        border-radius: var(--radius-2xl);
+        background: var(--glass-bg-strong); backdrop-filter: blur(30px);
+        border: 1px solid var(--glass-border-strong);
+        position: relative; overflow: hidden;
+    }
+
+    .cta-inner::before {
+        content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+        background: conic-gradient(from 180deg, transparent, var(--accent-primary), transparent 30%);
+        animation: rotateBorder 8s linear infinite; opacity: 0.08;
+    }
+
+    @keyframes rotateBorder { to { transform: rotate(360deg); } }
+
+    .cta-inner h2 { margin-bottom: var(--space-4); position: relative; }
+    .cta-inner p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto var(--space-8); position: relative; }
+    .cta-buttons { display: flex; justify-content: center; gap: var(--space-4); position: relative; }
+
+    /* ── BRANDS ── */
+    .brands-track-wrapper {
+        overflow: hidden;
+        mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+        -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+    }
+
+    .brands-track { display: flex; gap: var(--space-12); animation: scrollMarquee 30s linear infinite; width: max-content; }
+
+    .brand-item {
+        width: 100px; height: 48px; display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; opacity: 0.4; filter: grayscale(1) brightness(2);
+        transition: all var(--t-normal);
+    }
+
+    .brand-item:hover { opacity: 1; filter: grayscale(0) brightness(1); }
+    .brand-item img { max-height: 36px; max-width: 80px; object-fit: contain; }
+    .brand-item span { font-family: var(--font-heading); font-weight: 600; font-size: 1rem; color: var(--text-secondary); }
+
+    /* ── NEWSLETTER ── */
+    .newsletter-inner {
+        display: flex; align-items: center; gap: var(--space-10);
+        padding: var(--space-10); border-radius: var(--radius-2xl);
+        background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+    }
+
+    .newsletter-text { flex: 1; }
+    .newsletter-text h3 { margin-bottom: var(--space-2); font-size: 1.3rem; }
+    .newsletter-text p { color: var(--text-secondary); font-size: 0.95rem; }
+    .newsletter-form { flex: 1; }
+    .newsletter-input-row { display: flex; gap: var(--space-3); }
+
+    .newsletter-input-row input {
+        flex: 1; padding: var(--space-4) var(--space-5);
+        background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+        border-radius: var(--radius-full); color: var(--text-primary);
+        font-size: 0.95rem; outline: none; transition: all var(--t-fast);
+        font-family: var(--font-body);
+    }
+
+    .newsletter-input-row input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .newsletter-input-row input::placeholder { color: var(--text-tertiary); }
+    .newsletter-disclaimer { font-size: 0.72rem; color: var(--text-tertiary); margin-top: var(--space-2); padding-left: var(--space-5); }
+
+    /* ── APP ── */
+    .app-section-inner { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-12); align-items: center; }
+    .app-features-list { display: flex; flex-direction: column; gap: var(--space-3); margin: var(--space-6) 0; }
+    .app-feature { display: flex; align-items: center; gap: var(--space-3); font-size: 0.92rem; color: var(--text-secondary); }
+    .app-feature i { color: var(--accent-emerald); }
+
+    .app-buttons { display: flex; gap: var(--space-4); }
+
+    .app-btn {
+        display: flex; align-items: center; gap: var(--space-3);
+        padding: var(--space-3) var(--space-5);
+        background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md); color: var(--text-primary);
+        text-decoration: none; transition: all var(--t-normal); opacity: 0.5;
+    }
+
+    .app-btn i { font-size: 1.5rem; }
+    .app-btn span { font-size: 0.65rem; color: var(--text-tertiary); }
+    .app-btn strong { font-size: 0.9rem; }
+
+    .app-mockup { display: flex; justify-content: center; }
+    .app-mockup-img { border-radius: var(--radius-2xl); overflow: hidden; border: 1px solid var(--glass-border); max-width: 360px; box-shadow: var(--shadow-xl); }
+    .app-mockup-img img { width: 100%; height: auto; }
+
+    /* ── CONTACT ── */
+    .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+    .contact-card { text-align: center; padding: var(--space-8); }
+
+    .contact-card .icon-circle {
+        width: 56px; height: 56px; border-radius: 50%;
+        background: var(--accent-glow); border: 1px solid rgba(99,102,241,0.25);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; color: var(--accent-hover);
+        margin: 0 auto var(--space-5);
+    }
+
+    .contact-card h3 { margin-bottom: var(--space-2); font-size: 1.05rem; }
+    .contact-card p { color: var(--text-secondary); font-size: 0.9rem; }
+    .contact-card .highlight { color: var(--accent-hover); font-weight: 500; }
+
+    /* ── FOOTER ── */
+    .site-footer {
+        background: var(--surface-void); border-top: 1px solid var(--glass-border);
+        padding: var(--space-16) 0 var(--space-8);
+    }
+
+    .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: var(--space-10); margin-bottom: var(--space-12); }
+
+    .footer-brand .footer-logo {
+        font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700;
+        background: var(--gradient-brand); -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent; background-clip: text;
+        margin-bottom: var(--space-4);
+    }
+
+    .footer-brand p { color: var(--text-tertiary); font-size: 0.88rem; line-height: 1.7; margin-bottom: var(--space-6); }
+
+    .social-links { display: flex; gap: var(--space-3); }
+
+    .social-links a {
+        width: 40px; height: 40px; border-radius: 50%;
+        background: var(--glass-bg); border: 1px solid var(--glass-border);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-tertiary); font-size: 0.9rem;
+        transition: all var(--t-fast);
+    }
+
+    .social-links a:hover {
+        background: var(--gradient-brand); color: white;
+        border-color: transparent; transform: translateY(-2px);
+    }
+
+    .footer-column h4 {
+        font-size: 0.9rem; font-weight: 600; color: var(--text-primary);
+        margin-bottom: var(--space-5); text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    .footer-column ul { list-style: none; display: flex; flex-direction: column; gap: var(--space-3); }
+
+    .footer-column a {
+        color: var(--text-tertiary); font-size: 0.88rem;
+        transition: color var(--t-fast); display: flex; align-items: center; gap: var(--space-2);
+    }
+
+    .footer-column a:hover { color: var(--accent-hover); }
+    .footer-column a i { width: 16px; font-size: 0.75rem; }
+
+    .footer-bottom {
+        text-align: center; padding-top: var(--space-8);
+        border-top: 1px solid var(--glass-border);
+        color: var(--text-tertiary); font-size: 0.8rem;
+    }
+
+    /* ── MOBILE NAV ── */
+    .mobile-nav {
+        display: none; position: fixed; bottom: 0; left: 0; width: 100%;
+        background: rgba(10,10,15,0.9); backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--glass-border);
+        z-index: 1000; padding: var(--space-2) 0 calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+    }
+
+    .mobile-nav-items { display: flex; justify-content: space-around; }
+
+    .mobile-nav-item {
+        display: flex; flex-direction: column; align-items: center; gap: 2px;
+        color: var(--text-tertiary); font-size: 0.65rem; text-decoration: none;
+        padding: var(--space-2) var(--space-3); border-radius: var(--radius-md);
+        transition: all var(--t-fast);
+    }
+
+    .mobile-nav-item i { font-size: 1.1rem; }
+    .mobile-nav-item.active { color: var(--accent-hover); }
+
+    /* ── NEW ARRIVALS ── */
+    .arrivals-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+    .arrival-card { position: relative; overflow: hidden; border-radius: var(--radius-xl); }
+    .arrival-card .new-tag { position: absolute; top: var(--space-3); left: var(--space-3); z-index: 2; }
+    .arrival-card img { width: 100%; aspect-ratio: 1; object-fit: cover; transition: transform var(--t-slow); }
+    .arrival-card:hover img { transform: scale(1.06); }
+    .arrival-body { padding: var(--space-4) var(--space-5); }
+    .arrival-body h4 { font-size: 0.92rem; margin-bottom: var(--space-1); }
+    .arrival-body .price { color: var(--accent-hover); font-weight: 700; font-size: 1rem; }
+    .arrival-body .date { font-size: 0.72rem; color: var(--text-tertiary); margin-top: var(--space-1); }
+
+    /* ── NOTIFICATION ── */
+    .notification {
+        position: fixed; top: 100px; right: 20px;
+        padding: var(--space-4) var(--space-6);
+        border-radius: var(--radius-lg);
+        background: var(--glass-bg-strong); backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border-strong);
+        color: var(--text-primary); box-shadow: var(--shadow-xl);
+        z-index: 9999; display: flex; align-items: center; gap: var(--space-3);
+        animation: fadeInUp 0.3s var(--ease-out) both; max-width: 400px;
+    }
+
+    .notification-success { border-left: 3px solid var(--accent-emerald); }
+    .notification-error { border-left: 3px solid var(--accent-rose); }
+    .notification-info { border-left: 3px solid var(--accent-primary); }
+    .notification button { background: none; border: none; color: var(--text-tertiary); font-size: 1.2rem; cursor: pointer; margin-left: var(--space-3); }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 1024px) {
+        .hero-content { grid-template-columns: 1fr; gap: var(--space-10); text-align: center; }
+        .hero-desc { margin: 0 auto var(--space-8); }
+        .hero-actions { justify-content: center; }
+        .hero-stats { justify-content: center; }
+        .hero-visual { max-width: 500px; margin: 0 auto; }
+        .hero-float-card-1 { left: 0; }
+        .hero-float-card-2 { right: 0; }
+        .categories-grid { grid-template-columns: repeat(2, 1fr); }
+        .trending-grid, .arrivals-grid { grid-template-columns: repeat(2, 1fr); }
+        .gallery-grid { grid-template-columns: 1fr; }
+        .footer-grid { grid-template-columns: 1fr 1fr; }
+        .app-section-inner { grid-template-columns: 1fr; text-align: center; }
+        .app-buttons { justify-content: center; }
+    }
+
+    @media (max-width: 768px) {
+        .nav-links, .nav-actions .btn { display: none; }
+        .mobile-toggle { display: block; }
+        .mobile-nav { display: block; }
+        body { padding-bottom: 70px; }
+        .features-grid, .steps-grid, .testimonials-grid, .contact-grid { grid-template-columns: 1fr; }
+        .steps-grid::before { display: none; }
+        .newsletter-inner { flex-direction: column; text-align: center; }
+        .newsletter-input-row { flex-direction: column; }
+        .newsletter-disclaimer { padding-left: 0; text-align: center; }
+        .footer-grid { grid-template-columns: 1fr; }
+        .hero-stats { flex-wrap: wrap; gap: var(--space-6); }
+        .mini-products { grid-template-columns: 1fr 1fr; }
+        .trending-header { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+        .cta-inner { padding: var(--space-10) var(--space-5); }
+        .cta-buttons { flex-direction: column; align-items: center; }
+    }
+
+    @media (max-width: 480px) {
+        .categories-grid, .trending-grid, .arrivals-grid { grid-template-columns: 1fr; }
+        .mini-products { grid-template-columns: 1fr; }
+        .hero-float-card { display: none; }
+        .hero-stats { flex-direction: column; align-items: center; }
+    }
+    </style>
+</head>
+<body class="grain">
+
+    <!-- ═══ NAVIGATION ═══ -->
+    <nav class="nav" id="mainNav">
+        <div class="container">
+            <div class="nav-inner">
+                <a href="/" class="nav-logo" onclick="handleLogoClick(event)">
+                    <div class="nav-logo-icon">
+                        <img src="/Logo/69shopc.png" alt="69Shop.in">
+                    </div>
+                    <div class="nav-logo-text">
+                        <div class="nav-logo-name">69SHOP.IN</div>
+                        <div class="nav-logo-tagline">Premium Marketplace</div>
+                    </div>
+                </a>
+
+                <ul class="nav-links">
+                    <li><a href="/" class="active" onclick="handleHomeClick(event)">Home</a></li>
+                    <li><a href="/shop.html" onclick="handleShopClick(event)">Shop</a></li>
+                    <li><a href="/services.html">Services</a></li>
+                    <li><a href="#sell">Sell</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+
+                <div class="nav-actions" id="authButtons"></div>
+
+                <button class="mobile-toggle" id="mobileMenuToggle" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ HERO ═══ -->
+    <section class="hero">
+        <div class="hero-bg">
+            <div class="hero-orb hero-orb-1"></div>
+            <div class="hero-orb hero-orb-2"></div>
+            <div class="hero-orb hero-orb-3"></div>
+            <div class="hero-grid"></div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="hero-label"><i class="fas fa-bolt"></i> India's Fastest Growing Marketplace</div>
+                    <h1 class="hero-title">Shop. Sell.<br><span class="text-gradient">Succeed.</span></h1>
+                    <p class="hero-desc">Discover premium products from verified sellers or launch your business on India's most trusted marketplace platform.</p>
+                    <div class="hero-actions" id="heroAuthButtons">
+                        <a href="/shop.html" class="btn btn-primary btn-lg" onclick="handleShopClick(event)">
+                            <i class="fas fa-shopping-bag"></i> Shop Now
+                        </a>
+                        <a href="/seller-login.html" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-rocket"></i> Start Selling
+                        </a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" data-target="5000">0</div>
+                            <div class="hero-stat-label">Happy Customers</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" data-target="1200">0</div>
+                            <div class="hero-stat-label">Products Listed</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" data-target="350">0</div>
+                            <div class="hero-stat-label">Verified Sellers</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" data-target="4.8" data-decimal="true">0</div>
+                            <div class="hero-stat-label">Avg Rating</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="hero-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Premium Marketplace">
+                    </div>
+                    <div class="hero-float-card hero-float-card-1">
+                        <div class="float-card-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div class="float-card-title">Secure Payments</div>
+                        <div class="float-card-value">100% Safe</div>
+                    </div>
+                    <div class="hero-float-card hero-float-card-2">
+                        <div class="float-card-icon"><i class="fas fa-star"></i></div>
+                        <div class="float-card-title">Customer Rating</div>
+                        <div class="float-card-value">4.8 ★</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ MARQUEE ═══ -->
+    <div class="marquee-section">
+        <div class="marquee-track">
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-top">TOP SELLER</span><span class="marquee-text">Priya Sharma — Top service provider. Book now!</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-hot">BESTSELLER</span><span class="marquee-text">Rajesh Mehta — 500+ Home services with 4.8★</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-new">NEW</span><span class="marquee-text">Anjali Verma — Fashion consulting services available!</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-trend">TRENDING</span><span class="marquee-text">Suresh Kumar — Electronics repair, 24hr guarantee</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-top">TOP SELLER</span><span class="marquee-text">Priya Sharma — Top service provider. Book now!</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-hot">BESTSELLER</span><span class="marquee-text">Rajesh Mehta — 500+ Home services with 4.8★</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-new">NEW</span><span class="marquee-text">Anjali Verma — Fashion consulting services available!</span></div>
+            <div class="marquee-item"><span class="marquee-badge marquee-badge-trend">TRENDING</span><span class="marquee-text">Suresh Kumar — Electronics repair, 24hr guarantee</span></div>
+        </div>
+    </div>
+
+    <!-- ═══ FEATURES ═══ -->
+    <section class="section" id="shop">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-gem"></i> Why 69Shop</div>
+                <h2>Built for <span class="text-gradient">Modern Commerce</span></h2>
+                <p>The perfect platform for both buyers and sellers with our premium marketplace ecosystem</p>
+            </div>
+            <div class="features-grid stagger">
+                <div class="glass-card feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h3>Trust & Safety</h3>
+                    <p>Verified sellers, secure transactions, and buyer protection for complete peace of mind.</p>
+                </div>
+                <div class="glass-card feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-truck-fast"></i></div>
+                    <h3>Fast Delivery</h3>
+                    <p>Nationwide shipping with reliable partners and real-time tracking for all your orders.</p>
+                </div>
+                <div class="glass-card feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                    <h3>24/7 Support</h3>
+                    <p>Round-the-clock customer support to assist you with any queries or concerns.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ CATEGORIES ═══ -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-th-large"></i> Browse</div>
+                <h2>Shop by <span class="text-gradient">Category</span></h2>
+                <p>Explore our wide range of categories and find exactly what you're looking for</p>
+            </div>
+            <div class="categories-grid stagger">
+                <a href="/shop.html?category=Electronics" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=600&q=80" alt="Electronics">
+                    <div class="category-info"><i class="fas fa-laptop"></i><h3>Electronics</h3><span>500+ Products</span></div>
+                </a>
+                <a href="/shop.html?category=Fashion" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=600&q=80" alt="Fashion">
+                    <div class="category-info"><i class="fas fa-tshirt"></i><h3>Fashion</h3><span>300+ Products</span></div>
+                </a>
+                <a href="/shop.html?category=Mobiles" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80" alt="Mobiles">
+                    <div class="category-info"><i class="fas fa-mobile-alt"></i><h3>Mobiles</h3><span>150+ Products</span></div>
+                </a>
+                <a href="/shop.html?category=Home" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1484101403633-562f891dc89a?auto=format&fit=crop&w=600&q=80" alt="Home & Living">
+                    <div class="category-info"><i class="fas fa-home"></i><h3>Home & Living</h3><span>200+ Products</span></div>
+                </a>
+                <a href="/shop.html?category=Beauty" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80" alt="Beauty">
+                    <div class="category-info"><i class="fas fa-spa"></i><h3>Beauty</h3><span>180+ Products</span></div>
+                </a>
+                <a href="/shop.html?category=Sports" class="category-card reveal">
+                    <img src="https://images.unsplash.com/photo-1461896836934-d7a3e4508d5d?auto=format&fit=crop&w=600&q=80" alt="Sports">
+                    <div class="category-info"><i class="fas fa-running"></i><h3>Sports</h3><span>120+ Products</span></div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ TRENDING ═══ -->
+    <section class="section">
+        <div class="container">
+            <div class="trending-header reveal">
+                <div>
+                    <div class="section-label"><i class="fas fa-fire"></i> Hot Picks</div>
+                    <h2>Trending <span class="text-gradient">Now</span></h2>
+                    <p class="text-secondary" style="margin-top:4px;">Most popular products this week</p>
+                </div>
+                <a href="/shop.html" class="btn btn-ghost">View All <i class="fas fa-arrow-right" style="margin-left:6px;"></i></a>
+            </div>
+            <div class="trending-grid stagger">
+                <div class="glass-card product-card-v2 reveal">
+                    <div class="product-image">
+                        <div class="product-badge"><span class="badge badge-hot">HOT</span></div>
+                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80" alt="Headphones">
+                    </div>
+                    <div class="product-body">
+                        <div class="product-title">Premium Wireless Headphones</div>
+                        <div class="product-price-row"><span class="price-current">₹3,999</span><span class="price-original">₹5,999</span></div>
+                        <div class="product-meta"><span><i class="fas fa-fire fire"></i> 234 sold</span><span><i class="fas fa-star star"></i> 4.8</span></div>
+                    </div>
+                </div>
+                <div class="glass-card product-card-v2 reveal">
+                    <div class="product-image">
+                        <div class="product-badge"><span class="badge badge-sale">SALE</span></div>
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80" alt="Smart Watch">
+                    </div>
+                    <div class="product-body">
+                        <div class="product-title">Smart Watch Pro Max</div>
+                        <div class="product-price-row"><span class="price-current">₹8,999</span><span class="price-original">₹12,999</span></div>
+                        <div class="product-meta"><span><i class="fas fa-fire fire"></i> 189 sold</span><span><i class="fas fa-star star"></i> 4.9</span></div>
+                    </div>
+                </div>
+                <div class="glass-card product-card-v2 reveal">
+                    <div class="product-image">
+                        <div class="product-badge"><span class="badge badge-new">NEW</span></div>
+                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80" alt="Sneakers">
+                    </div>
+                    <div class="product-body">
+                        <div class="product-title">Running Sneakers 2026</div>
+                        <div class="product-price-row"><span class="price-current">₹4,499</span><span class="price-original">₹6,999</span></div>
+                        <div class="product-meta"><span><i class="fas fa-fire fire"></i> 156 sold</span><span><i class="fas fa-star star"></i> 4.7</span></div>
+                    </div>
+                </div>
+                <div class="glass-card product-card-v2 reveal">
+                    <div class="product-image">
+                        <div class="product-badge"><span class="badge badge-primary">BEST</span></div>
+                        <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=400&q=80" alt="Camera">
+                    </div>
+                    <div class="product-body">
+                        <div class="product-title">Professional Camera Kit</div>
+                        <div class="product-price-row"><span class="price-current">₹24,999</span><span class="price-original">₹32,999</span></div>
+                        <div class="product-meta"><span><i class="fas fa-fire fire"></i> 98 sold</span><span><i class="fas fa-star star"></i> 4.9</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ HOW IT WORKS ═══ -->
+    <section class="section" id="sell">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-store"></i> For Sellers</div>
+                <h2>Start Selling in <span class="text-gradient">3 Easy Steps</span></h2>
+                <p>Join thousands of successful sellers on India's fastest growing marketplace</p>
+            </div>
+            <div class="steps-grid stagger">
+                <div class="step-card reveal"><div class="step-number">1</div><h3>Create Your Store</h3><p>Sign up and set up your personalized storefront in minutes. No technical skills required.</p></div>
+                <div class="step-card reveal"><div class="step-number">2</div><h3>List Your Products</h3><p>Add products with detailed descriptions, high-quality images, and competitive pricing.</p></div>
+                <div class="step-card reveal"><div class="step-number">3</div><h3>Start Earning</h3><p>Get discovered by millions of buyers, manage orders, and grow your business with our tools.</p></div>
+            </div>
+            <div class="text-center mt-8">
+                <a href="/seller-login.html" class="btn btn-primary btn-lg"><i class="fas fa-rocket"></i> Start Your Selling Journey</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ GALLERY ═══ -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-eye"></i> Discover</div>
+                <h2>Explore Our <span class="text-gradient">Marketplace</span></h2>
+                <p>Quality products and trusted service providers from our community</p>
+            </div>
+            <div class="gallery-grid">
+                <div class="glass-card reveal" style="padding: var(--space-6);">
+                    <div class="gallery-column-header">
+                        <div class="icon-circle"><i class="fas fa-shopping-bag"></i></div>
+                        <div><h3 style="margin-bottom:0">Featured Products</h3><p>Quality products from verified sellers</p></div>
+                    </div>
+                    <div class="mini-products stagger">
+                        <div class="glass mini-product">
+                            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Headphones">
+                            <div class="mini-product-body"><h4>Premium Wireless Headphones</h4><div class="price">₹4,299</div><div class="seller"><i class="fas fa-store"></i> Urban Style Co.</div></div>
+                        </div>
+                        <div class="glass mini-product">
+                            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Handbag">
+                            <div class="mini-product-body"><h4>Designer Leather Handbag</h4><div class="price">₹8,499</div><div class="seller"><i class="fas fa-store"></i> Luxury Fashion Hub</div></div>
+                        </div>
+                        <div class="glass mini-product">
+                            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Smart Watch">
+                            <div class="mini-product-body"><h4>Smart Watch Pro</h4><div class="price">₹12,999</div><div class="seller"><i class="fas fa-store"></i> Tech Gadgets Pro</div></div>
+                        </div>
+                        <div class="glass mini-product">
+                            <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Camera">
+                            <div class="mini-product-body"><h4>Professional Camera</h4><div class="price">₹24,999</div><div class="seller"><i class="fas fa-store"></i> Photo Masters</div></div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-6">
+                        <a href="/shop.html" class="btn btn-secondary" onclick="handleShopClick(event)"><i class="fas fa-arrow-right"></i> View All Products</a>
+                    </div>
+                </div>
+                <div class="glass-card reveal" style="padding: var(--space-6);">
+                    <div class="gallery-column-header">
+                        <div class="icon-circle"><i class="fas fa-user-tie"></i></div>
+                        <div><h3 style="margin-bottom:0">Top Providers</h3><p>Trusted professionals for your needs</p></div>
+                    </div>
+                    <div class="providers-list stagger">
+                        <div class="glass provider-row">
+                            <div class="provider-avatar"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Rajesh Mehta"></div>
+                            <div class="provider-info"><h4>Rajesh Mehta</h4><div class="category">Home Services</div><div class="provider-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i> <span>4.8</span></div><div class="provider-location"><i class="fas fa-map-marker-alt"></i> Mumbai</div></div>
+                        </div>
+                        <div class="glass provider-row">
+                            <div class="provider-avatar"><img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Priya Sharma"></div>
+                            <div class="provider-info"><h4>Priya Sharma</h4><div class="category">Beauty & Wellness</div><div class="provider-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> <span>5.0</span></div><div class="provider-location"><i class="fas fa-map-marker-alt"></i> Delhi</div></div>
+                        </div>
+                        <div class="glass provider-row">
+                            <div class="provider-avatar"><img src="https://images.unsplash.com/photo-1551836026-d5c2c49b63c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Anjali Verma"></div>
+                            <div class="provider-info"><h4>Anjali Verma</h4><div class="category">Education & Tutoring</div><div class="provider-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> <span>5.0</span></div><div class="provider-location"><i class="fas fa-map-marker-alt"></i> Bangalore</div></div>
+                        </div>
+                        <div class="glass provider-row">
+                            <div class="provider-avatar"><img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Suresh Kumar"></div>
+                            <div class="provider-info"><h4>Suresh Kumar</h4><div class="category">Electronics Repair</div><div class="provider-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i> <span>4.2</span></div><div class="provider-location"><i class="fas fa-map-marker-alt"></i> Chennai</div></div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-6">
+                        <a href="/services.html" class="btn btn-secondary"><i class="fas fa-briefcase"></i> Browse Services</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ TESTIMONIALS ═══ -->
+    <section class="section" id="about">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-quote-left"></i> Reviews</div>
+                <h2>Success <span class="text-gradient">Stories</span></h2>
+                <p>Hear from our community of satisfied buyers and successful sellers</p>
+            </div>
+            <div class="testimonials-grid stagger">
+                <div class="glass-card testimonial-card reveal">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"69Shop.in transformed my small home business. Within 6 months, I went from 10 orders a week to over 100! The platform is amazing."</p>
+                    <div class="testimonial-author"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Rajesh Mehta"><div><h4>Rajesh Mehta</h4><p>Handicraft Seller, Mumbai</p></div></div>
+                </div>
+                <div class="glass-card testimonial-card reveal">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+                    <p class="testimonial-text">"As a buyer, I love the quality and transparency. The return policy is fair and customer service actually solves problems!"</p>
+                    <div class="testimonial-author"><img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Priya Sharma"><div><h4>Priya Sharma</h4><p>Regular Buyer, Delhi</p></div></div>
+                </div>
+                <div class="glass-card testimonial-card reveal">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"The analytics dashboard helped me understand customers. I increased profits by 45% in just 3 months!"</p>
+                    <div class="testimonial-author"><img src="https://images.unsplash.com/photo-1551836026-d5c2c49b63c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Anjali Verma"><div><h4>Anjali Verma</h4><p>Fashion Boutique, Bangalore</p></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ CTA ═══ -->
+    <section class="section cta-section">
+        <div class="container">
+            <div class="cta-inner reveal">
+                <h2>Ready to Join India's<br><span class="text-gradient">Premium Marketplace?</span></h2>
+                <p>Whether you want to shop quality products or start your selling journey, 69Shop.in is the perfect platform.</p>
+                <div class="cta-buttons" id="ctaAuthButtons">
+                    <a href="/shop.html" class="btn btn-primary btn-lg" onclick="handleShopClick(event)"><i class="fas fa-shopping-bag"></i> Explore Products</a>
+                    <a href="/seller-login.html" class="btn btn-secondary btn-lg"><i class="fas fa-briefcase"></i> Become a Seller</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ BRANDS ═══ -->
+    <section class="section-sm">
+        <div class="container">
+            <div class="section-header reveal" style="margin-bottom: var(--space-6);">
+                <h2 style="font-size: 1.2rem; color: var(--text-tertiary); font-weight: 500;">Trusted by leading brands</h2>
+            </div>
+            <div class="brands-track-wrapper">
+                <div class="brands-track">
+                    <div class="brand-item"><img src="https://logo.clearbit.com/apple.com" alt="Apple" onerror="this.parentElement.innerHTML='<span>Apple</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/samsung.com" alt="Samsung" onerror="this.parentElement.innerHTML='<span>Samsung</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/sony.com" alt="Sony" onerror="this.parentElement.innerHTML='<span>Sony</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/nike.com" alt="Nike" onerror="this.parentElement.innerHTML='<span>Nike</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/adidas.com" alt="Adidas" onerror="this.parentElement.innerHTML='<span>Adidas</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/boat-lifestyle.com" alt="boAt" onerror="this.parentElement.innerHTML='<span>boAt</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/oneplus.com" alt="OnePlus" onerror="this.parentElement.innerHTML='<span>OnePlus</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/xiaomi.com" alt="Xiaomi" onerror="this.parentElement.innerHTML='<span>Xiaomi</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/apple.com" alt="Apple" onerror="this.parentElement.innerHTML='<span>Apple</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/samsung.com" alt="Samsung" onerror="this.parentElement.innerHTML='<span>Samsung</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/sony.com" alt="Sony" onerror="this.parentElement.innerHTML='<span>Sony</span>'"></div>
+                    <div class="brand-item"><img src="https://logo.clearbit.com/nike.com" alt="Nike" onerror="this.parentElement.innerHTML='<span>Nike</span>'"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ NEW ARRIVALS ═══ -->
+    <section class="section">
+        <div class="container">
+            <div class="trending-header reveal">
+                <div>
+                    <div class="section-label"><i class="fas fa-gem"></i> Fresh Drops</div>
+                    <h2>Just <span class="text-gradient">Arrived</span></h2>
+                    <p class="text-secondary" style="margin-top:4px;">Fresh products added this week</p>
+                </div>
+                <a href="/shop.html?sort=newest" class="btn btn-ghost">View All <i class="fas fa-arrow-right" style="margin-left:6px;"></i></a>
+            </div>
+            <div class="arrivals-grid stagger">
+                <div class="glass-card arrival-card reveal">
+                    <div class="new-tag"><span class="badge badge-new">NEW</span></div>
+                    <img src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?auto=format&fit=crop&w=400&q=80" alt="Running Shoes">
+                    <div class="arrival-body"><h4>Premium Running Shoes</h4><div class="price">₹6,499</div><div class="date">Added 2 days ago</div></div>
+                </div>
+                <div class="glass-card arrival-card reveal">
+                    <div class="new-tag"><span class="badge badge-new">NEW</span></div>
+                    <img src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=400&q=80" alt="Skincare">
+                    <div class="arrival-body"><h4>Luxury Skincare Set</h4><div class="price">₹2,999</div><div class="date">Added 3 days ago</div></div>
+                </div>
+                <div class="glass-card arrival-card reveal">
+                    <div class="new-tag"><span class="badge badge-new">NEW</span></div>
+                    <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80" alt="MacBook">
+                    <div class="arrival-body"><h4>MacBook Air M3</h4><div class="price">₹1,14,999</div><div class="date">Added 1 day ago</div></div>
+                </div>
+                <div class="glass-card arrival-card reveal">
+                    <div class="new-tag"><span class="badge badge-new">NEW</span></div>
+                    <img src="https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?auto=format&fit=crop&w=400&q=80" alt="Sunglasses">
+                    <div class="arrival-body"><h4>Designer Sunglasses</h4><div class="price">₹3,499</div><div class="date">Added today</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ NEWSLETTER ═══ -->
+    <section class="section">
+        <div class="container">
+            <div class="newsletter-inner reveal">
+                <div class="newsletter-text">
+                    <h3><i class="fas fa-envelope-open-text" style="margin-right:8px; color: var(--accent-hover);"></i> Get Exclusive Deals</h3>
+                    <p>Subscribe and get <strong style="color: var(--accent-hover);">₹200 off</strong> on your first order!</p>
+                </div>
+                <form class="newsletter-form" onsubmit="handleNewsletterSubmit(event)">
+                    <div class="newsletter-input-row">
+                        <input type="email" placeholder="Enter your email address" required id="newsletterEmail">
+                        <button type="submit" class="btn btn-primary"><span>Subscribe</span> <i class="fas fa-paper-plane"></i></button>
+                    </div>
+                    <p class="newsletter-disclaimer">We respect your privacy. Unsubscribe anytime.</p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ APP DOWNLOAD ═══ -->
+    <section class="section">
+        <div class="container">
+            <div class="app-section-inner">
+                <div class="reveal">
+                    <span class="badge badge-new" style="margin-bottom:16px; display:inline-flex;">COMING SOON</span>
+                    <h2>Shop on the <span class="text-gradient">Go!</span></h2>
+                    <p class="text-secondary" style="margin-top:8px;">Download our mobile app for exclusive app-only deals.</p>
+                    <div class="app-features-list">
+                        <div class="app-feature"><i class="fas fa-check-circle"></i> Faster checkout</div>
+                        <div class="app-feature"><i class="fas fa-check-circle"></i> Push notifications for deals</div>
+                        <div class="app-feature"><i class="fas fa-check-circle"></i> Track orders in real-time</div>
+                    </div>
+                    <div class="app-buttons">
+                        <a href="#" class="app-btn" title="Coming Soon"><i class="fab fa-apple"></i><div><span>Download on the</span><br><strong>App Store</strong></div></a>
+                        <a href="#" class="app-btn" title="Coming Soon"><i class="fab fa-google-play"></i><div><span>Get it on</span><br><strong>Google Play</strong></div></a>
+                    </div>
+                </div>
+                <div class="app-mockup reveal">
+                    <div class="app-mockup-img"><img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=400&q=80" alt="Mobile App"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ CONTACT ═══ -->
+    <section class="section" id="contact">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label"><i class="fas fa-envelope"></i> Reach Out</div>
+                <h2>Get in <span class="text-gradient">Touch</span></h2>
+                <p>Have questions or need assistance? Our team is here to help.</p>
+            </div>
+            <div class="contact-grid stagger">
+                <div class="glass-card contact-card reveal">
+                    <div class="icon-circle"><i class="fas fa-envelope"></i></div>
+                    <h3>Email Support</h3><p>support@69shop.in</p><p class="highlight">Response: 24 hours</p>
+                </div>
+                <div class="glass-card contact-card reveal">
+                    <div class="icon-circle"><i class="fas fa-phone"></i></div>
+                    <h3>Phone Support</h3><p>+91 98765 43210</p><p class="highlight">Mon-Sat: 9AM - 7PM</p>
+                </div>
+                <div class="glass-card contact-card reveal">
+                    <div class="icon-circle"><i class="fas fa-map-marker-alt"></i></div>
+                    <h3>Visit Us</h3><p>69Shop.in Headquarters</p><p class="highlight">Mumbai, India</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">69Shop.in</div>
+                    <p>India's premium marketplace connecting buyers with quality products and helping sellers grow. Join our community today!</p>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/69shop.in" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" onclick="alert('Facebook page coming soon!'); return false;" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" onclick="alert('Twitter/X page coming soon!'); return false;" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+                        <a href="#" onclick="alert('LinkedIn page coming soon!'); return false;" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" onclick="alert('YouTube channel coming soon!'); return false;" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/" onclick="handleHomeClick(event)"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="/shop.html"><i class="fas fa-store"></i> Shop</a></li>
+                        <li><a href="/seller-login.html"><i class="fas fa-briefcase"></i> Sell on 69Shop</a></li>
+                        <li><a href="#about"><i class="fas fa-info-circle"></i> About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>For Sellers</h4>
+                    <ul>
+                        <li><a href="/seller-login.html"><i class="fas fa-rocket"></i> Start Selling</a></li>
+                        <li><a href="/seller-dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                        <li><a href="/profile.html?section=help"><i class="fas fa-graduation-cap"></i> Education</a></li>
+                        <li><a href="/services.html#distributors"><i class="fas fa-handshake"></i> Partners</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#contact"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                        <li><a href="/docs/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                        <li><a href="/docs/terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
+                        <li><a href="/docs/shipping.html"><i class="fas fa-truck"></i> Shipping Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">&copy; 2026 69Shop.in — India's Premium Marketplace. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <!-- ═══ MOBILE BOTTOM NAV ═══ -->
+    <nav class="mobile-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+        <div class="mobile-nav-items">
+            <a href="/" class="mobile-nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
+            <a href="/shop.html" class="mobile-nav-item"><i class="fas fa-store"></i><span>Shop</span></a>
+            <a href="/services.html" class="mobile-nav-item"><i class="fas fa-concierge-bell"></i><span>Services</span></a>
+            <a href="/shop.html" class="mobile-nav-item"><i class="fas fa-shopping-cart"></i><span>Cart</span></a>
+            <a href="/shop-login.html" class="mobile-nav-item"><i class="fas fa-user"></i><span>Account</span></a>
+        </div>
+    </nav>
+
+    <!-- ═══ JAVASCRIPT ═══ -->
+    <script>
+    (function() {
+        'use strict';
+
+        let auth = null, firebaseReady = false, currentUser = null;
+
+        try {
+            const cfg = window.firebaseConfig;
+            if (cfg && cfg.apiKey) {
+                if (!firebase.apps.length) firebase.initializeApp(cfg);
+                auth = firebase.auth();
+                firebaseReady = true;
+            }
+        } catch (e) { console.warn('Firebase init failed:', e); }
+
+        function checkAuthState() {
+            if (!firebaseReady || !auth) { currentUser = null; updateUI(null); return; }
+            auth.onAuthStateChanged(user => { currentUser = user; updateUI(user); });
+        }
+
+        function updateUI(user) {
+            const authBtns = document.getElementById('authButtons');
+            const heroBtns = document.getElementById('heroAuthButtons');
+            const ctaBtns = document.getElementById('ctaAuthButtons');
+
+            if (user) {
+                const name = user.displayName || user.email.split('@')[0];
+                const initial = name.charAt(0).toUpperCase();
+
+                if (authBtns) authBtns.innerHTML = `
+                    <div class="nav-user"><div class="nav-avatar">${initial}</div><span class="nav-user-name">Hi, <strong>${name}</strong></span></div>
+                    <button class="btn btn-ghost" onclick="logoutUser()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+                    <a href="/shop.html" class="btn btn-primary"><i class="fas fa-store"></i> Continue Shopping</a>`;
+
+                if (heroBtns) heroBtns.innerHTML = `
+                    <a href="/shop.html" class="btn btn-primary btn-lg"><i class="fas fa-store"></i> Continue Shopping</a>
+                    <a href="/seller-login.html" class="btn btn-secondary btn-lg"><i class="fas fa-rocket"></i> Start Selling</a>`;
+
+                if (ctaBtns) ctaBtns.innerHTML = `
+                    <a href="/shop.html" class="btn btn-primary btn-lg"><i class="fas fa-store"></i> Continue Shopping</a>
+                    <a href="/seller-login.html" class="btn btn-secondary btn-lg"><i class="fas fa-briefcase"></i> Become a Seller</a>`;
+            } else {
+                if (authBtns) authBtns.innerHTML = `
+                    <a href="/shop-login.html" class="btn btn-ghost">Login</a>
+                    <a href="/shop-login.html" class="btn btn-primary"><i class="fas fa-shopping-bag"></i> Start Shopping</a>`;
+
+                if (heroBtns) heroBtns.innerHTML = `
+                    <a href="/shop-login.html" class="btn btn-primary btn-lg"><i class="fas fa-shopping-bag"></i> Shop Now</a>
+                    <a href="/seller-login.html" class="btn btn-secondary btn-lg"><i class="fas fa-rocket"></i> Start Selling</a>`;
+
+                if (ctaBtns) ctaBtns.innerHTML = `
+                    <a href="/shop-login.html" class="btn btn-primary btn-lg"><i class="fas fa-shopping-bag"></i> Explore Products</a>
+                    <a href="/seller-login.html" class="btn btn-secondary btn-lg"><i class="fas fa-briefcase"></i> Become a Seller</a>`;
+            }
+        }
+
+        window.handleLogoClick = function(e) { if (currentUser && e) { e.preventDefault(); window.location.href = '/shop.html'; } };
+        window.handleHomeClick = function(e) { if (currentUser && e) { e.preventDefault(); window.location.href = '/shop.html'; } };
+        window.handleShopClick = function(e) { if (e) e.preventDefault(); window.location.href = currentUser ? '/shop.html' : '/shop-login.html'; };
+
+        window.logoutUser = function() {
+            if (!firebaseReady || !auth) return;
+            if (confirm('Are you sure you want to logout?')) {
+                auth.signOut().then(() => { currentUser = null; updateUI(null); })
+                    .catch(() => showNotification('Error logging out. Please try again.', 'error'));
+            }
+        };
+
+        // Header scroll
+        const nav = document.getElementById('mainNav');
+        window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 50); });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href === '#') return;
+                const target = document.querySelector(href);
+                if (target) { e.preventDefault(); window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' }); }
+            });
+        });
+
+        // Intersection Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('active'); observer.unobserve(entry.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+        document.querySelectorAll('.reveal, .stagger').forEach(el => observer.observe(el));
+
+        // Counters
+        function animateCounters() {
+            document.querySelectorAll('.hero-stat-value').forEach(counter => {
+                const target = parseFloat(counter.dataset.target);
+                const isDecimal = counter.dataset.decimal === 'true';
+                const duration = 2000, increment = target / (duration / 16);
+                let current = 0;
+                const tick = () => {
+                    current += increment;
+                    if (current < target) { counter.textContent = isDecimal ? current.toFixed(1) : Math.floor(current).toLocaleString(); requestAnimationFrame(tick); }
+                    else { counter.textContent = isDecimal ? target.toFixed(1) : target.toLocaleString() + '+'; }
+                };
+                tick();
+            });
+        }
+
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) { animateCounters(); statsObserver.unobserve(entry.target); } });
+        }, { threshold: 0.5 });
+        const heroStats = document.querySelector('.hero-stats');
+        if (heroStats) statsObserver.observe(heroStats);
+
+        // Newsletter
+        window.handleNewsletterSubmit = function(e) {
+            e.preventDefault();
+            const email = document.getElementById('newsletterEmail').value;
+            if (!email) return;
+            showNotification('🎉 Thanks for subscribing! Check your email for ₹200 off coupon.', 'success');
+            document.getElementById('newsletterEmail').value = '';
+        };
+
+        // Notifications
+        window.showNotification = function(message, type = 'info') {
+            const n = document.createElement('div');
+            n.className = `notification notification-${type}`;
+            n.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle'}"></i><span>${message}</span><button onclick="this.parentElement.remove()">&times;</button>`;
+            document.body.appendChild(n);
+            setTimeout(() => { if (n.parentElement) n.remove(); }, 5000);
+        };
+
+        // Mobile toggle
+        const toggle = document.getElementById('mobileMenuToggle');
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                const icon = toggle.querySelector('i');
+                icon.classList.contains('fa-bars') ? icon.classList.replace('fa-bars', 'fa-times') : icon.classList.replace('fa-times', 'fa-bars');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', checkAuthState);
+    })();
+    </script>
+    <script src="./js/home-lead-gen.js"></script>
+</body>
+</html>

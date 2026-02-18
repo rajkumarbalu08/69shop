@@ -1,0 +1,509 @@
+/* ===================================================
+   69SHOP.IN — E-MALL DIRECTORY
+   Premium branded outlet storefronts & experience tabs
+   =================================================== */
+
+/* ── Experience Toggle Tabs ── */
+.mall-experience-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    max-width: 480px;
+    margin: 24px auto 0;
+    background: #F1F5F9;
+    padding: 4px;
+    border-radius: 14px;
+}
+.mall-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 11px;
+    background: transparent;
+    color: #64748B;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+.mall-tab i { font-size: 0.9rem; }
+.mall-tab:hover { color: #334155; }
+.mall-tab.active {
+    background: #fff;
+    color: #111827;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+}
+
+/* ── Mall Section Wrapper ── */
+.mall-section {
+    padding: 36px 0 12px;
+}
+.mall-section .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ── Mall Header ── */
+.mall-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    gap: 16px;
+}
+.mall-header-text h2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0 0 4px;
+}
+.mall-header-text p {
+    font-size: 0.9rem;
+    color: #6B7280;
+    margin: 0;
+}
+.mall-view-all {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #2563EB;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.2s;
+}
+.mall-view-all:hover { color: #1D4ED8; }
+
+/* ── Outlet Scroll Track ── */
+.mall-outlet-track {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 4px 0 20px;
+    margin: 0 -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+.mall-outlet-track::-webkit-scrollbar { display: none; }
+
+/* ── Outlet Card ── */
+.mall-outlet-card {
+    flex: 0 0 280px;
+    scroll-snap-align: start;
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+}
+.mall-outlet-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(37,99,235,0.1);
+}
+
+/* Card Banner */
+.outlet-banner {
+    position: relative;
+    height: 120px;
+    overflow: hidden;
+}
+.outlet-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+.mall-outlet-card:hover .outlet-banner img { transform: scale(1.05); }
+.outlet-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.35) 100%);
+}
+.outlet-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.outlet-badge.premium {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: #fff;
+}
+.outlet-badge.verified {
+    background: rgba(255,255,255,0.92);
+    color: #059669;
+    backdrop-filter: blur(8px);
+}
+.outlet-badge.new {
+    background: linear-gradient(135deg, #2563EB, #3B82F6);
+    color: #fff;
+}
+
+/* Card Logo Disc */
+.outlet-logo-wrap {
+    position: relative;
+    margin: -28px 0 0 18px;
+    z-index: 2;
+}
+.outlet-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: #fff;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: #6B7280;
+    overflow: hidden;
+}
+.outlet-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 6px;
+}
+.outlet-logo .logo-initial {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #fff;
+    border-radius: 11px;
+}
+
+/* Card Info Body */
+.outlet-info {
+    padding: 10px 18px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.outlet-name {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 2px;
+    line-height: 1.3;
+}
+.outlet-category-tag {
+    font-size: 0.73rem;
+    color: #6B7280;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+.outlet-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+.outlet-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.76rem;
+    color: #6B7280;
+}
+.outlet-meta-item i { font-size: 0.7rem; }
+.outlet-meta-item .stars { color: #F59E0B; }
+.outlet-meta-item .count { font-weight: 600; color: #374151; }
+.outlet-visit-cta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    margin-top: 12px;
+    border-radius: 10px;
+    background: #F1F5F9;
+    color: #2563EB;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    justify-content: center;
+}
+.outlet-visit-cta:hover {
+    background: #2563EB;
+    color: #fff;
+}
+
+/* ── Featured Store — Wide Card ── */
+.mall-featured-store {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    border-radius: 22px;
+    padding: 36px 40px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    min-height: 200px;
+}
+.mall-featured-store::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -40px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.featured-store-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+.featured-store-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 10px;
+}
+.featured-store-logo .logo-initial {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: #2563EB;
+}
+.featured-store-info {
+    flex: 1;
+    min-width: 0;
+    z-index: 1;
+}
+.featured-store-info .featured-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(245,158,11,0.15);
+    color: #FCD34D;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+.featured-store-info h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 6px;
+    line-height: 1.2;
+}
+.featured-store-info p {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.6);
+    margin: 0 0 16px;
+    line-height: 1.5;
+}
+.featured-store-stats {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+.featured-store-stat {
+    display: flex;
+    flex-direction: column;
+}
+.featured-store-stat strong {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+}
+.featured-store-stat span {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.featured-store-cta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #2563EB;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    z-index: 1;
+}
+.featured-store-cta:hover {
+    background: #1D4ED8;
+    transform: translateY(-1px);
+}
+
+/* ── View Toggle: Mall / Store ── */
+.mall-view-hidden { display: none !important; }
+
+/* ── Store Filter Banner ── */
+.store-filter-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #EFF6FF, #F0F9FF);
+    border: 1px solid #BFDBFE;
+    border-radius: 12px;
+}
+.store-filter-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #1E40AF;
+}
+.store-filter-info i { font-size: 1rem; }
+.store-filter-info strong { color: #111827; }
+.store-filter-clear {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #fff;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    color: #374151;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.store-filter-clear:hover {
+    background: #F3F4F6;
+    border-color: #9CA3AF;
+}
+
+/* ── Carousel Wrapper & Navigation Arrows ── */
+.mall-carousel-wrapper {
+    position: relative;
+}
+.mall-carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: rgba(255,255,255,0.95);
+    color: #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    backdrop-filter: blur(8px);
+}
+.mall-carousel-arrow:hover {
+    background: #2563EB;
+    color: #fff;
+    border-color: #2563EB;
+    box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+    transform: translateY(-50%) scale(1.08);
+}
+.mall-carousel-arrow:active {
+    transform: translateY(-50%) scale(0.95);
+}
+.mall-carousel-arrow.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.mall-arrow-left {
+    left: -4px;
+}
+.mall-arrow-right {
+    right: -4px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+    .mall-outlet-card { flex: 0 0 260px; }
+}
+@media (max-width: 768px) {
+    .mall-section { padding: 24px 0 8px; }
+    .mall-section .container { padding: 0 16px; }
+    .mall-header { flex-direction: column; align-items: flex-start; margin-bottom: 20px; }
+    .mall-header-text h2 { font-size: 1.3rem; }
+    .mall-outlet-track { gap: 14px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+    .mall-outlet-card { flex: 0 0 230px; }
+    .outlet-banner { height: 100px; }
+    .outlet-logo { width: 46px; height: 46px; }
+    .outlet-logo-wrap { margin: -22px 0 0 14px; }
+    .outlet-info { padding: 8px 14px 14px; }
+    .outlet-name { font-size: 0.9rem; }
+    .mall-featured-store { flex-direction: column; padding: 24px 20px; gap: 20px; text-align: center; }
+    .featured-store-stats { justify-content: center; }
+    .featured-store-cta { width: 100%; justify-content: center; }
+    .mall-experience-tabs { margin: 16px 16px 0; max-width: none; }
+    .mall-tab { padding: 10px 14px; font-size: 0.82rem; }
+    .mall-carousel-arrow { width: 36px; height: 36px; font-size: 0.78rem; }
+    .mall-arrow-left { left: 2px; }
+    .mall-arrow-right { right: 2px; }
+}
+@media (max-width: 480px) {
+    .mall-outlet-card { flex: 0 0 200px; }
+    .outlet-banner { height: 85px; }
+    .outlet-info { padding: 6px 12px 12px; }
+    .outlet-name { font-size: 0.85rem; }
+    .outlet-meta-item { font-size: 0.7rem; }
+    .mall-experience-tabs { gap: 2px; padding: 3px; }
+    .mall-tab { padding: 9px 10px; font-size: 0.78rem; gap: 5px; }
+}

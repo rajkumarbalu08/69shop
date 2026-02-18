@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Messages - Seller Hub | 69Shop.in</title>
     <meta name="description" content="Chat with customers about their orders and inquiries">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,20 +12,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/dashboard-notifications.css">
     <link rel="stylesheet" href="/assets/css/seller-header.css">
+    <link rel="stylesheet" href="assets/css/negotiate.css">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="./firebase-config.js"></script>
     <script src="/js/notifications.js"></script>
     <script src="/js/seller-shell.js"></script>
-    
+    <script src="/js/seller-header.js"></script>
+
     <style>
         :root {
-            --seller-primary: #7C3AED;
-            --seller-primary-dark: #6D28D9;
-            --seller-primary-light: #EDE9FE;
-            --seller-gradient: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            --seller-primary: #2563EB;
+            --seller-primary-dark: #1D4ED8;
+            --seller-primary-light: #EFF6FF;
+            --seller-gradient: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
             --slate-900: #0F172A;
             --slate-800: #1E293B;
             --slate-700: #334155;
@@ -144,18 +147,14 @@
         .profile-avatar { width: 44px; height: 44px; background: var(--seller-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 600; font-size: 1.1rem; }
         .profile-info { flex: 1; }
         .profile-name { font-size: 0.9rem; font-weight: 600; color: var(--white); }
-        .profile-email { font-size: 0.75rem; color: var(--slate-400); }
-        .profile-status { display: inline-flex; align-items: center; gap: 4px; font-size: 0.7rem; margin-top: 4px; padding: 2px 8px; border-radius: 999px; }
-        .profile-status.verified { background: var(--success-light); color: var(--success); }
-        .profile-status.pending { background: var(--warning-light); color: #B45309; }
         .btn-logout { width: 100%; padding: 10px; border: 1px solid var(--slate-700); background: transparent; color: var(--slate-400); border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition); }
         .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
         
         .seller-main { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; height: 100vh; }
         .seller-header {
             height: var(--header-height);
-            background: var(--white);
-            border-bottom: 1px solid var(--slate-200);
+            background: #1A1A1A;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -164,29 +163,29 @@
         }
         .header-left { display: flex; align-items: center; gap: 20px; }
         .header-right { display: flex; align-items: center; gap: 16px; }
-        .page-title { font-size: 1.3rem; font-weight: 700; font-family: 'Poppins', sans-serif; color: var(--slate-900); }
+        .page-title { font-size: 1.3rem; font-weight: 700; font-family: 'Poppins', sans-serif; color: #FFFFFF; }
         
         .header-btn {
             width: 42px;
             height: 42px;
             border: none;
-            background: var(--slate-100);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
             cursor: pointer;
-            color: var(--slate-600);
+            color: rgba(255, 255, 255, 0.7);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             transition: var(--transition);
         }
-        .header-btn:hover { background: var(--slate-200); }
+        .header-btn:hover { background: rgba(255, 255, 255, 0.2); }
         .notification-dot { position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; background: var(--danger); border: 2px solid var(--white); border-radius: 50%; display: none; }
         
         .dropdown-wrapper { position: relative; }
-        .seller-user-menu { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--seller-primary-light); cursor: pointer; }
+        .seller-user-menu { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); cursor: pointer; }
         .seller-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--white); color: var(--seller-primary); font-weight: 600; display: flex; align-items: center; justify-content: center; }
-        .seller-user-info strong { font-size: 0.85rem; color: var(--slate-900); }
+        .seller-user-info strong { font-size: 0.85rem; color: #FFFFFF; }
         .user-dropdown { position: absolute; top: calc(100% + 8px); right: 0; background: var(--white); border-radius: var(--radius-md); border: 1px solid var(--slate-200); box-shadow: var(--shadow-lg); min-width: 200px; padding: 8px 0; display: none; z-index: 20; }
         .user-dropdown.show { display: block; }
         .user-dropdown a { display: flex; align-items: center; gap: 8px; padding: 10px 16px; text-decoration: none; color: var(--slate-700); font-size: 0.9rem; }
@@ -315,6 +314,14 @@
             display: flex;
             flex-direction: column;
             background: var(--slate-50);
+            min-height: 0;
+        }
+
+        #activeChat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
         
         .chat-header {
@@ -520,6 +527,9 @@
             .chat-panel { width: 100%; }
         }
     </style>
+    <!-- A+C Dark Theme -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/dark-theme-global.css">
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay">
@@ -564,7 +574,7 @@
                     <a href="/seller-messages.html" class="nav-link active">
                         <i class="fas fa-comments"></i>
                         <span>Messages</span>
-                        <span class="nav-badge" id="unreadBadge" style="display: none;">0</span>
+                        <span class="nav-badge" id="unreadBadge" data-messages-badge style="display: none;">0</span>
                     </a>
                 </div>
                 <div class="nav-section">
@@ -584,7 +594,7 @@
                 </div>
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
-                    <a href="/seller-verification.html" class="nav-link">
+                    <a href="/seller-verification.html" class="nav-link" data-verification-link>
                         <i class="fas fa-shield-alt"></i>
                         <span>Verification</span>
                     </a>
@@ -600,14 +610,9 @@
             </nav>
             <div class="sidebar-footer">
                 <div class="seller-profile">
-                    <div class="profile-avatar" data-seller-avatar>S</div>
+                    <div class="profile-avatar" id="sellerAvatar" data-seller-avatar>S</div>
                     <div class="profile-info">
-                        <div class="profile-name" data-seller-name>Loading...</div>
-                        <div class="profile-email" id="sidebarEmail">seller@69shop.in</div>
-                        <div class="profile-status pending" data-seller-status>
-                            <i class="fas fa-clock"></i>
-                            <span>Verification Pending</span>
-                        </div>
+                        <div class="profile-name" id="sellerName" data-seller-name>Seller</div>
                     </div>
                 </div>
                 <button class="btn-logout" onclick="handleLogout(event)">
@@ -619,52 +624,7 @@
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
         <main class="seller-main">
-            <header class="seller-header">
-                <div class="header-left">
-                    <button class="header-btn" id="menuToggle" onclick="toggleSidebar()" style="display: none;">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div>
-                        <h1 class="page-title">Messages</h1>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <div class="notification-wrapper">
-                        <button class="header-btn" id="notificationTrigger">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-dot" id="notificationDot"></span>
-                        </button>
-                        <div class="notification-panel" id="notificationPanel">
-                            <div class="notification-panel-header">
-                                <div>
-                                    <h3>Notifications</h3>
-                                    <p id="notificationSubtitle">Latest updates</p>
-                                </div>
-                            </div>
-                            <div class="notification-list" id="notificationList">
-                                <div class="notification-empty">
-                                    <i class="fas fa-bell-slash"></i>
-                                    <p>No notifications yet</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dropdown-wrapper">
-                        <div class="seller-user-menu" onclick="toggleUserDropdown()">
-                            <div class="seller-user-avatar" id="userAvatar" data-seller-avatar>S</div>
-                            <div class="seller-user-info">
-                                <strong id="userName" data-seller-name>Loading...</strong>
-                            </div>
-                        </div>
-                        <div class="user-dropdown" id="userDropdown">
-                            <a href="/seller-settings.html"><i class="fas fa-cog"></i> Settings</a>
-                            <a href="/shop.html" target="_blank"><i class="fas fa-external-link-alt"></i> View Shop</a>
-                            <hr>
-                            <a href="#" class="logout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <header class="seller-header" data-page-title="Messages"></header>
 
             <div class="chat-container">
                 <!-- Conversations List -->
@@ -674,6 +634,12 @@
                         <div class="conversations-search">
                             <i class="fas fa-search"></i>
                             <input type="text" id="searchConversations" placeholder="Search messages...">
+                        </div>
+                        <div class="negotiate-tab-filter" id="conversationTabs">
+                            <button class="negotiate-tab active" data-filter="all" onclick="filterConversations('all', this)">All</button>
+                            <button class="negotiate-tab" data-filter="negotiations" onclick="filterConversations('negotiations', this)">
+                                Negotiations <span class="tab-count" id="negotiationCount">0</span>
+                            </button>
                         </div>
                     </div>
                     <div class="conversations-list" id="conversationsList">
@@ -692,7 +658,7 @@
                         <p>Choose a customer from the list to start chatting</p>
                     </div>
                     
-                    <div id="activeChat" style="display: none; flex: 1; display: flex; flex-direction: column;">
+                    <div id="activeChat" style="display: none;">
                         <div class="chat-header" id="chatHeader">
                             <div class="chat-header-avatar" id="chatAvatar">C</div>
                             <div class="chat-header-info">
@@ -707,7 +673,24 @@
                         </div>
                         
                         <div class="chat-messages" id="chatMessages"></div>
-                        
+
+                        <!-- Counter-offer bar for negotiations -->
+                        <div class="negotiate-counter-bar" id="counterOfferBar" style="display: none;">
+                            <div class="negotiate-counter-bar-header">
+                                <span><i class="fas fa-handshake"></i> Counter Offer</span>
+                                <button onclick="hideCounterOffer()" style="background:none;border:none;cursor:pointer;color:#666;"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="negotiate-counter-bar-body">
+                                <div class="negotiate-price-input-wrap">
+                                    <span class="currency-symbol">₹</span>
+                                    <input type="number" id="counterOfferPrice" min="1" placeholder="Your counter price">
+                                </div>
+                                <button class="negotiate-counter-submit" id="counterSubmitBtn" onclick="submitSellerCounterOffer()">
+                                    <i class="fas fa-paper-plane"></i> Send
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="chat-input-area">
                             <div class="chat-input-wrapper">
                                 <textarea class="chat-input" id="messageInput" placeholder="Type your message..." rows="1"></textarea>
@@ -736,6 +719,8 @@
         let messagesUnsubscribe = null;
         let conversationsUnsubscribe = null;
         let notificationFeed = null;
+        let cachedNegotiationData = {};
+        let negotiationUnsubscribe = null;
 
         try {
             const firebaseConfig = window.firebaseConfig;
@@ -750,19 +735,6 @@
         } catch (error) {
             console.error('Firebase initialization failed:', error);
         }
-
-        function toggleUserDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            if (dropdown) dropdown.classList.toggle('show');
-        }
-
-        document.addEventListener('click', (event) => {
-            const dropdown = document.getElementById('userDropdown');
-            if (!dropdown) return;
-            if (!event.target.closest('.dropdown-wrapper')) {
-                dropdown.classList.remove('show');
-            }
-        });
 
         async function handleLogout(event) {
             if (event) event.preventDefault();
@@ -805,20 +777,23 @@
         async function loadSellerProfile(user) {
             const fallbackName = user.displayName || user.email?.split('@')[0] || 'Seller';
             let sellerData = null;
+            let verificationData = {};
             try {
                 const sellerDoc = await db.collection('sellers').doc(user.uid).get();
                 if (sellerDoc.exists) sellerData = sellerDoc.data();
+                const verificationDoc = await db.collection('sellerVerification').doc(user.uid).get();
+                if (verificationDoc.exists) verificationData = verificationDoc.data();
             } catch (e) { console.warn('Seller profile load failed:', e); }
-            
+
             const name = sellerData?.businessName || sellerData?.storeName || fallbackName;
             const initial = name.charAt(0).toUpperCase();
-            
+
             document.querySelectorAll('[data-seller-name]').forEach(el => el.textContent = name);
             document.querySelectorAll('[data-seller-avatar]').forEach(el => el.textContent = initial);
             document.getElementById('sidebarEmail').textContent = user.email || 'seller@69shop.in';
-            
+
             if (window.SellerShell) {
-                await SellerShell.sync({ db, auth, user, sellerDoc: sellerData || {} });
+                await SellerShell.sync({ db, auth, user, sellerDoc: sellerData || {}, verificationDoc: verificationData });
             }
         }
 
@@ -863,35 +838,55 @@
             }
         }
 
+        let sellerActiveTabFilter = 'all';
+
+        function filterConversations(filter, btn) {
+            sellerActiveTabFilter = filter;
+            document.querySelectorAll('.negotiate-tab').forEach(t => t.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderConversations();
+        }
+
         function renderConversations() {
             const list = document.getElementById('conversationsList');
             const searchTerm = document.getElementById('searchConversations')?.value.toLowerCase() || '';
-            
+
             let filtered = conversations;
             if (searchTerm) {
-                filtered = conversations.filter(c => 
+                filtered = conversations.filter(c =>
                     (c.customerName || '').toLowerCase().includes(searchTerm) ||
                     (c.orderId || '').toLowerCase().includes(searchTerm)
                 );
             }
-            
+
+            // Update negotiation count badge
+            const negCount = conversations.filter(c => c.type === 'negotiation').length;
+            const countEl = document.getElementById('negotiationCount');
+            if (countEl) countEl.textContent = negCount;
+
+            // Apply tab filter
+            if (sellerActiveTabFilter === 'negotiations') {
+                filtered = filtered.filter(c => c.type === 'negotiation');
+            }
+
             if (filtered.length === 0) {
                 list.innerHTML = `
                     <div class="conversations-empty">
                         <i class="fas fa-comments"></i>
-                        <p>${searchTerm ? 'No matching conversations' : 'No conversations yet'}</p>
+                        <p>${searchTerm ? 'No matching conversations' : (sellerActiveTabFilter === 'negotiations' ? 'No negotiations yet' : 'No conversations yet')}</p>
                     </div>
                 `;
                 return;
             }
-            
+
             list.innerHTML = filtered.map(conv => {
                 const initial = (conv.customerName || 'C').charAt(0).toUpperCase();
                 const time = conv.lastMessageAt?.toDate?.() || new Date();
                 const timeStr = formatRelativeTime(time);
                 const isActive = conv.id === activeConversationId;
                 const unread = conv.unreadSeller || 0;
-                
+                const isNegotiation = conv.type === 'negotiation';
+
                 return `
                     <div class="conversation-item ${isActive ? 'active' : ''}" onclick="openConversation('${conv.id}')">
                         <div class="conversation-avatar">${initial}</div>
@@ -902,6 +897,7 @@
                             </div>
                             <div class="conversation-preview">${conv.lastMessage || 'No messages yet'}</div>
                             <div class="conversation-meta">
+                                ${isNegotiation ? '<span class="negotiable-badge" style="font-size:0.65rem;padding:2px 6px;"><i class="fas fa-handshake"></i> Negotiation</span>' : ''}
                                 ${conv.orderId ? `<span class="conversation-order">Order #${conv.orderId.slice(-6)}</span>` : '<span></span>'}
                                 ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}
                             </div>
@@ -943,9 +939,23 @@
                 });
             }
             
+            // Set up real-time listener for negotiation data
+            if (negotiationUnsubscribe) {
+                negotiationUnsubscribe();
+                negotiationUnsubscribe = null;
+            }
+            if (conv.negotiationId) {
+                negotiationUnsubscribe = db.collection('negotiations').doc(conv.negotiationId)
+                    .onSnapshot((negDoc) => {
+                        if (negDoc.exists) {
+                            cachedNegotiationData[conv.negotiationId] = { id: negDoc.id, ...negDoc.data() };
+                        }
+                    }, (err) => { console.warn('Negotiation listener error:', err); });
+            }
+
             // Re-render conversations to update active state
             renderConversations();
-            
+
             // Start messages listener
             startMessagesListener(conversationId);
         }
@@ -969,7 +979,7 @@
 
         function renderMessages(messages) {
             const container = document.getElementById('chatMessages');
-            
+
             if (messages.length === 0) {
                 container.innerHTML = `
                     <div class="chat-empty" style="background: transparent;">
@@ -980,34 +990,81 @@
                 `;
                 return;
             }
-            
+
             let lastDate = null;
             let html = '';
-            
-            messages.forEach(msg => {
+
+            // Find the index of the last customer proposal to only show actions on it
+            let lastCustomerProposalIndex = -1;
+            messages.forEach((msg, i) => {
+                if (msg.messageType === 'price_proposal' && msg.negotiationData?.proposedBy === 'customer' && msg.negotiationData?.status === 'pending') {
+                    lastCustomerProposalIndex = i;
+                }
+            });
+
+            messages.forEach((msg, msgIndex) => {
                 const msgDate = msg.createdAt?.toDate?.() || new Date();
                 const dateStr = msgDate.toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' });
-                
+
                 if (dateStr !== lastDate) {
                     html += `<div class="message-date-divider"><span>${dateStr}</span></div>`;
                     lastDate = dateStr;
                 }
-                
+
                 const isSent = msg.senderId === currentUser.uid;
                 const timeStr = msgDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
                 const initial = isSent ? 'You'.charAt(0) : (msg.senderName || 'C').charAt(0).toUpperCase();
-                
-                html += `
-                    <div class="message ${isSent ? 'sent' : 'received'}">
-                        <div class="message-avatar">${initial}</div>
-                        <div class="message-content">
-                            <div class="message-text">${escapeHtml(msg.text)}</div>
-                            <div class="message-time">${timeStr}</div>
+
+                // Handle structured negotiation messages
+                if (msg.messageType && msg.messageType !== 'text' && msg.negotiationData) {
+                    const nd = msg.negotiationData;
+                    let cardHtml = '';
+
+                    if (msg.messageType === 'price_proposal' && typeof NegotiationManager !== 'undefined') {
+                        cardHtml = NegotiationManager.renderProposalCard(nd, currentUser.uid);
+                        // Show Accept/Counter/Reject buttons only on the LATEST proposal from customer
+                        const isLatestProposal = (msgIndex === lastCustomerProposalIndex);
+                        if (nd.proposedBy === 'customer' && nd.status === 'pending' && isLatestProposal) {
+                            const conv = conversations.find(c => c.id === activeConversationId);
+                            if (conv && conv.negotiationId && cachedNegotiationData[conv.negotiationId]) {
+                                const negData = cachedNegotiationData[conv.negotiationId];
+                                if (negData.status === 'active') {
+                                    cardHtml += NegotiationManager.renderProposalActions(conv.negotiationId, negData, currentUser.uid);
+                                }
+                            }
+                        }
+                    } else if (msg.messageType === 'deal_accepted' && typeof NegotiationManager !== 'undefined') {
+                        cardHtml = NegotiationManager.renderDealAcceptedCard(nd, currentUser.uid);
+                    } else if (msg.messageType === 'deal_rejected' && typeof NegotiationManager !== 'undefined') {
+                        cardHtml = NegotiationManager.renderDealRejectedCard(nd);
+                    } else if (msg.messageType === 'deal_expired' && typeof NegotiationManager !== 'undefined') {
+                        cardHtml = NegotiationManager.renderDealExpiredCard(nd);
+                    } else {
+                        cardHtml = `<div class="message-text">${escapeHtml(msg.text || 'Price proposal')}</div>`;
+                    }
+
+                    html += `
+                        <div class="message ${isSent ? 'sent' : 'received'}" style="max-width: 90%;">
+                            <div class="message-avatar">${initial}</div>
+                            <div class="message-content">
+                                ${cardHtml}
+                                <div class="message-time">${timeStr}</div>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    html += `
+                        <div class="message ${isSent ? 'sent' : 'received'}">
+                            <div class="message-avatar">${initial}</div>
+                            <div class="message-content">
+                                <div class="message-text">${escapeHtml(msg.text)}</div>
+                                <div class="message-time">${timeStr}</div>
+                            </div>
+                        </div>
+                    `;
+                }
             });
-            
+
             container.innerHTML = html;
             container.scrollTop = container.scrollHeight;
         }
@@ -1114,7 +1171,66 @@
         window.addEventListener('beforeunload', () => {
             if (messagesUnsubscribe) messagesUnsubscribe();
             if (conversationsUnsubscribe) conversationsUnsubscribe();
+            if (negotiationUnsubscribe) negotiationUnsubscribe();
+        });
+
+        // ===== Seller Counter-Offer Functions =====
+        let activeNegotiationId = null;
+
+        function showSellerCounterInput(negotiationId) {
+            activeNegotiationId = negotiationId;
+            const bar = document.getElementById('counterOfferBar');
+            if (bar) {
+                bar.style.display = 'block';
+                document.getElementById('counterOfferPrice').value = '';
+                document.getElementById('counterOfferPrice').focus();
+            }
+        }
+
+        function hideCounterOffer() {
+            const bar = document.getElementById('counterOfferBar');
+            if (bar) bar.style.display = 'none';
+            activeNegotiationId = null;
+        }
+
+        async function submitSellerCounterOffer() {
+            const priceInput = document.getElementById('counterOfferPrice');
+            const amount = parseFloat(priceInput.value);
+            const btn = document.getElementById('counterSubmitBtn');
+
+            if (!amount || amount <= 0 || !activeNegotiationId) {
+                showToast('Enter a valid counter price', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const mgr = NegotiationManager.getInstance();
+                await mgr.counterOffer(activeNegotiationId, amount);
+                hideCounterOffer();
+                showToast('Counter offer sent!', 'success');
+            } catch (err) {
+                console.error('Counter offer failed:', err);
+                showToast(err.message || 'Failed to send counter offer', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send';
+            }
+        }
+
+        // Override NegotiationManager static handlers for seller context
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof NegotiationManager !== 'undefined') {
+                // Override showCounterInput to use seller-specific UI
+                NegotiationManager.showCounterInput = function(negotiationId) {
+                    showSellerCounterInput(negotiationId);
+                };
+            }
         });
     </script>
+    <script src="js/negotiate.js"></script>
 </body>
 </html>
+

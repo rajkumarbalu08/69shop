@@ -11,7 +11,9 @@ async function gotoAndAssert(page, path) {
 test.describe('Public navigation smoke tests', () => {
     test('Landing page renders hero content', async ({ page }) => {
         await gotoAndAssert(page, '/');
-        await expect(page.locator('header')).toBeVisible();
+        // Homepage uses <nav> instead of <header>
+        const nav = page.locator('nav#mainNav, header, nav').first();
+        await expect(nav).toBeVisible();
         await expect(page.locator('main')).toBeVisible();
         await expect(page.locator('a', { hasText: /Shop/i }).first()).toBeVisible();
     });
@@ -36,6 +38,6 @@ test.describe('Public navigation smoke tests', () => {
         await gotoAndAssert(page, '/');
         const footer = page.locator('footer');
         await expect(footer).toBeVisible();
-        await expect(footer.locator('a', { hasText: /Seller Dashboard/i }).first()).toBeVisible();
+        await expect(footer.locator('a', { hasText: /Sell on|Become a Seller|Seller/i }).first()).toBeVisible();
     });
 });
