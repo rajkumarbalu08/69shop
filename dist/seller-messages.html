@@ -790,7 +790,8 @@
 
             document.querySelectorAll('[data-seller-name]').forEach(el => el.textContent = name);
             document.querySelectorAll('[data-seller-avatar]').forEach(el => el.textContent = initial);
-            document.getElementById('sidebarEmail').textContent = user.email || 'seller@69shop.in';
+            const sidebarEmail = document.getElementById('sidebarEmail');
+            if (sidebarEmail) sidebarEmail.textContent = user.email || 'seller@69shop.in';
 
             if (window.SellerShell) {
                 await SellerShell.sync({ db, auth, user, sellerDoc: sellerData || {}, verificationDoc: verificationData });

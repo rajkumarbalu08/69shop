@@ -643,7 +643,7 @@
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
         <main class="seller-main">
-            <header class="seller-header" data-page-title="Promotions" data-page-subtitle="Create and manage promotional campaigns" data-page-action-label="Create Promotion" data-page-action-onclick="openCreateCoupon()"></header>
+            <header class="seller-header" data-page-title="Promotions" data-page-subtitle="Create and manage promotional campaigns" data-page-action-label="Create Promotion" data-page-action-onclick="openPromoModal()"></header>
 
             <div class="seller-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
@@ -858,7 +858,8 @@
 
             document.querySelectorAll('[data-seller-name]').forEach(el => el.textContent = name);
             document.querySelectorAll('[data-seller-avatar]').forEach(el => el.textContent = initial);
-            document.getElementById('sidebarEmail').textContent = user.email || 'seller@69shop.in';
+            const sidebarEmail = document.getElementById('sidebarEmail');
+            if (sidebarEmail) sidebarEmail.textContent = user.email || 'seller@69shop.in';
 
             if (window.SellerShell) {
                 await SellerShell.sync({ db, auth, user, sellerDoc: sellerData || {}, verificationDoc: verificationData });
