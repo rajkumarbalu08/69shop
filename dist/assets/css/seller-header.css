@@ -29,7 +29,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
     color: #FFFFFF;
     font-weight: 600;
     font-size: 0.85rem;
@@ -38,6 +38,7 @@
     justify-content: center;
     text-transform: uppercase;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .seller-user-avatar img {
@@ -135,6 +136,60 @@
 .user-dropdown .logout:hover {
     background: #FEE2E2;
     color: var(--danger, #EF4444);
+}
+
+/* ===== NOTIFICATION BELL - Override dashboard-notifications.css for dark header ===== */
+.seller-header .notification-wrapper .header-btn {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    width: 40px;
+    height: 40px;
+}
+
+.seller-header .notification-wrapper .header-btn:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+}
+
+/* ===== ACTION BUTTON (Add Product / Create Promotion / etc.) ===== */
+.seller-header .btn-add-product {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.seller-header .btn-add-product:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.seller-header .btn-add-product i {
+    font-size: 0.8rem;
+}
+
+.seller-header .btn-add-product span {
+    color: #FFFFFF;
+}
+
+/* ===== HEADER RIGHT LAYOUT ===== */
+.seller-header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 /* Disabled nav link (e.g. verified seller verification link) */
